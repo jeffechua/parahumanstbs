@@ -1,0 +1,24 @@
+﻿<Properties StartupConfiguration="{13673191-DA09-43E3-919A-46293A2FDDBB}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="BrocktonBay/Core.GUI/Inspector/ObjectFields.cs">
+    <Files>
+      <File FileName="BrocktonBay/Core/Battle/Battle.cs" Line="1" Column="1" />
+      <File FileName="BrocktonBay/Core/Battle/DeploymentCore.cs" Line="36" Column="59" />
+      <File FileName="BrocktonBay/Core/Parahuman.cs" Line="143" Column="34" />
+      <File FileName="BrocktonBay/Core/Faction.cs" Line="35" Column="37" />
+      <File FileName="BrocktonBay/Core/Team.cs" Line="64" Column="3" />
+      <File FileName="BrocktonBay/Core.GUI/UIFactory.cs" Line="171" Column="3" />
+      <File FileName="BrocktonBay/Core.GUI/Inspector/FieldGizmos.cs" Line="164" Column="53" />
+      <File FileName="BrocktonBay/Core.GUI/Inspector/PrimitiveFields.cs" Line="53" Column="36" />
+      <File FileName="BrocktonBay/Core.GUI/Inspector/ObjectFields.cs" Line="144" Column="3" />
+      <File FileName="BrocktonBay/Core.GUI/Inspector/RatingsFields.cs" Line="168" Column="1" />
+      <File FileName="BrocktonBay/Core.GUI/MiscWidgets.cs" Line="86" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.ItemProperties.BrocktonBay PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
+</Properties>

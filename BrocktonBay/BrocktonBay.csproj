@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{13673191-DA09-43E3-919A-46293A2FDDBB}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <RootNamespace>BrocktonBay</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="Mono.Posix" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="gtk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="gdk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="glib-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="glade-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="pango-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="atk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="gtk-gui\gui.stetic">
+      <LogicalName>gui.stetic</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="gtk-gui\generated.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Core\Parahuman.cs" />
+    <Compile Include="Core\Team.cs" />
+    <Compile Include="Core\City.cs" />
+    <Compile Include="Core.GUI\Inspector.cs" />
+    <Compile Include="Core.GUI\MiscWidgets.cs" />
+    <Compile Include="Core.GUI\Inspector\ObjectFields.cs" />
+    <Compile Include="Core.GUI\Inspector\PrimitiveFields.cs" />
+    <Compile Include="Core.GUI\Inspector\RatingsFields.cs" />
+    <Compile Include="Core.GUI\BattleInterface.cs" />
+    <Compile Include="Core\Faction.cs" />
+    <Compile Include="Core.GUI\Inspector\FieldGizmos.cs" />
+    <Compile Include="Core.GUI\Search.cs" />
+    <Compile Include="Core.GUI\Windows.cs" />
+    <Compile Include="gtk-gui\MainWindow.cs" />
+    <Compile Include="Core\AbstractBaseClasses.cs" />
+    <Compile Include="Core\DependencyManagement.cs" />
+    <Compile Include="Core.GUI\GraphicsResources.cs" />
+    <Compile Include="Core.GUI\UIFactory.cs" />
+    <Compile Include="Core\Battle\DeploymentCore.cs" />
+    <Compile Include="Core\Battle\DeploymentMaths.cs" />
+    <Compile Include="Core\Battle\Battle.cs" />
+    <Compile Include="Core.GUI\GUICaching.cs" />
+    <Compile Include="PlatformDetection.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Core\" />
+    <Folder Include="Core.GUI\" />
+    <Folder Include="Core.GUI\Inspector\" />
+    <Folder Include="Core\Battle\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>

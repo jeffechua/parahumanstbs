@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{F473690E-EE1F-45F5-A026-EF4D0AB486AF}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>Brockton_Bay</RootNamespace>
+    <AssemblyName>Brockton_Bay</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ExternalConsole>true</ExternalConsole>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ExternalConsole>true</ExternalConsole>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ParahumanConsole.cs" />
+    <Compile Include="MasterConsole.cs" />
+    <Compile Include="..\BrocktonBay\Core\Parahuman.cs">
+      <Link>Parahuman.cs</Link>
+    </Compile>
+    <Compile Include="..\BrocktonBay\Core\Team.cs">
+      <Link>Team.cs</Link>
+    </Compile>
+    <Compile Include="..\BrocktonBay\Core\City.cs">
+      <Link>City.cs</Link>
+    </Compile>
+    <Compile Include="..\BrocktonBay\Core\Deployment.cs">
+      <Link>Deployment.cs</Link>
+    </Compile>
+    <Compile Include="..\BrocktonBay\Core.TUI\ConsoleTools.cs">
+      <Link>ConsoleTools.cs</Link>
+    </Compile>
+    <Compile Include="..\BrocktonBay\Core.TUI\LanguageTools.cs">
+      <Link>LanguageTools.cs</Link>
+    </Compile>
+    <Compile Include="..\BrocktonBay\Core\Faction.cs">
+      <Link>Faction.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>
