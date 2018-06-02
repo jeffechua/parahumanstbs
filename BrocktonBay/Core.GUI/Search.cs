@@ -204,11 +204,11 @@ namespace Parahumans.Core.GUI {
 		}
 
 		Widget SetupCell(GameObject obj) {
-			Frame baseCell = new Cell(obj);
-			baseCell.BorderWidth = 5;
-			ClickableEventBox eventbox = new ClickableEventBox { Child = baseCell };
-			eventbox.Clicked += (o, a) => OnClicked(obj);
-			return eventbox;
+			Cell cell = new Cell(obj);
+			cell.BorderWidth = 5;
+			cell.prelight = true;
+			cell.Clicked += (o, a) => OnClicked(obj);
+			return cell;
 		}
 
 		Widget SetupHeader(GameObject obj) {

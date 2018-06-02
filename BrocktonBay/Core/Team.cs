@@ -52,7 +52,7 @@ namespace Parahumans.Core {
 		[Displayable(5, typeof(IntField))]
 		public int unused_XP { get; set; }
 
-		[BimorphicDisplayable(6,typeof(TabularStringFloatPairsField), typeof(LinearStringFloatPairsField)), EmphasizedIfVertical]
+		[BimorphicDisplayable(6, typeof(TabularStringFloatPairsField), typeof(LinearStringFloatPairsField)), EmphasizedIfVertical]
 		public StringFloatPair[] spent_XP { get; set; }
 
 		[Displayable(7, typeof(CellObjectListField<Parahuman>), 3), Emphasized, Padded(0, 5)]
@@ -115,16 +115,33 @@ namespace Parahumans.Core {
 				align.WidthRequest = 200;
 				headerBox.PackStart(align, false, false, 0);
 				if (parent != null)
-					headerBox.PackStart(new Gtk.Alignment(0.5f,0.5f,0,0){Child = parent.GetHeader(true)});
+					headerBox.PackStart(new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = parent.GetHeader(true) });
 				return headerBox;
 			}
 		}
 
 		public override Widget GetCell () {
-			VBox rosterBox = new VBox(false, 0) { BorderWidth = 10 };
-			for (int i = 0; i < roster.Count; i++)
-				rosterBox.PackStart(roster[i].GetHeader(true), false, false, 0);
-			return rosterBox;
+			VBox rosterBox = new VBox(false, 0) { BorderWidth = 3 };
+			for (int i = 0; i < roster.Count; i++) {
+				Parahuman parahuman = roster[i]; //roster[i] not directly used below since i changes
+				InspectableBox header = (InspectableBox)parahuman.GetHeader(true);
+				header.DragEnd += delegate {
+					Remove(parahuman);
+					DependencyManager.TriggerAllFlags();
+				};
+				rosterBox.PackStart(header, false, false, 0);
+			}
+			EventBox eventBox = new EventBox { Child = rosterBox, VisibleWindow = false };
+			Drag.DestSet(eventBox, DestDefaults.All,
+						 new TargetEntry[] { new TargetEntry(typeof(Parahuman).ToString(), TargetFlags.App, 0) },
+						 Gdk.DragAction.Move);
+			eventBox.DragDataReceived += delegate {
+				if (Accepts(DragTmpVars.currentDragged)) {
+					Add(DragTmpVars.currentDragged);
+					DependencyManager.TriggerAllFlags();
+				}
+			};
+			return new Gtk.Alignment(0, 0, 1, 1) { Child = eventBox, BorderWidth = 7 };
 		}
 
 		public override bool Contains (object obj) => obj is Parahuman && roster.Contains((Parahuman)obj);

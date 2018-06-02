@@ -30,25 +30,41 @@ namespace Parahumans.Core.GUI {
 
 	}
 
-	public class Cell : Frame, IDependable {
+	public class Cell : ClickableEventBox, IDependable {
 
 		public int order { get { return displayed == null ? 0 : displayed.order + 1; } }
 
+		public Frame frame;
 		public GUIComplete displayed;
 		public List<WeakReference<IDependable>> dependencies { get; set; } = new List<WeakReference<IDependable>>();
 		public List<WeakReference<IDependable>> dependents { get; set; } = new List<WeakReference<IDependable>>();
 
 		public Cell(GUIComplete obj) {
+
+			//Basic setup
 			displayed = obj;
+			frame = new Frame();
+			Child = frame;
 			DependencyManager.Connect(obj, this);
+
+			//Graphical tweak
+			prelight = false;
+
+			//Set up drag and drop
+			Drag.SourceSet(this, Gdk.ModifierType.Button1Mask,
+			               new TargetEntry[] { new TargetEntry(displayed.GetType().ToString(), TargetFlags.App, 0) },
+						   Gdk.DragAction.Move);
+			DragDataGet += (o, a) => DragTmpVars.currentDragged = obj;
+
 			Reload();
+
 		}
 
 		public void Reload() {
-			if (Child != null) Child.Destroy();
-			if (LabelWidget != null) LabelWidget.Destroy();
-			LabelWidget = displayed.GetHeader(true);
-			Add(new Gtk.Alignment(0, 0, 1, 0) { Child = displayed.GetCell() });
+			if (frame.Child != null) frame.Child.Destroy();
+			if (frame.LabelWidget != null) frame.LabelWidget.Destroy();
+			frame.LabelWidget = displayed.GetHeader(true);
+			frame.Add(new Gtk.Alignment(0, 0, 1, 0) { Child = displayed.GetCell() });
 			ShowAll();
 		}
 

@@ -33,8 +33,8 @@ namespace Parahumans.Core.GUI {
 
 	}
 
-	public abstract class ObjectListField<T> : ClickableEventBox where T : GUIComplete {
-
+	public abstract class ObjectListField<T> : EventBox where T : GUIComplete {
+		
 		protected IContainer parent;
 
 		public ObjectListField(PropertyInfo property, object obj, bool vertical, object arg) { //obj must be an IContainer.
@@ -82,13 +82,7 @@ namespace Parahumans.Core.GUI {
 					(tested) => ((IContainer)obj).Accepts(tested) && tested is T);
 			}
 
-			// Connect rightclick menu to signal
-			RightClicked += delegate {
-				rightclickMenu.Popup();
-				rightclickMenu.ShowAll();
-			};
-
-			// Load tooltip
+			// Load tooltip (if exists)
 			TooltipTextAttribute tooltipText = (TooltipTextAttribute)property.GetCustomAttribute(typeof(TooltipTextAttribute));
 			if (tooltipText != null) {
 				HasTooltip = true;
@@ -105,6 +99,13 @@ namespace Parahumans.Core.GUI {
 					RowSpacing = 10
 				};
 
+				expander.ButtonPressEvent += delegate (object widget, ButtonPressEventArgs args) {
+					if (args.Event.Button == 3) {
+						rightclickMenu.Popup();
+						rightclickMenu.ShowAll();
+					}
+				};
+
 				for (int i = 0; i < list.Count; i++) {
 					uint xpos = (uint)i % (uint)Math.Abs((int)arg); // The x position is given by cell index % row length
 					uint ypos = (uint)i / (uint)Math.Abs((int)arg); // The y position is given by floor(index / row length)
@@ -119,7 +120,12 @@ namespace Parahumans.Core.GUI {
 			} else {
 				HBox box = new HBox(false, 5);
 				Label label = new Label(TextTools.ToReadable(property.Name)) { Angle = 90 };
-				box.PackStart(label, false, false, 2);
+				ClickableEventBox labelEventBox = new ClickableEventBox { Child = label };
+				labelEventBox.RightClicked += delegate {
+					rightclickMenu.Popup();
+					rightclickMenu.ShowAll();
+				};
+				box.PackStart(labelEventBox, false, false, 2);
 				for (int i = 0; i < list.Count; i++)
 					box.PackStart(GetListElementWidget(list[i]), false, false, 0);
 				alignment.Add(box);
@@ -139,7 +145,7 @@ namespace Parahumans.Core.GUI {
 			}
 		}
 
-		protected abstract Widget GetListElementWidget(T widget);
+		protected abstract Widget GetListElementWidget(T obj);
 
 	}
 
@@ -148,54 +154,52 @@ namespace Parahumans.Core.GUI {
 		public CellObjectListField(PropertyInfo property, object obj, bool vertical, object arg)
 			: base(property, obj, vertical, arg) { }
 
-		protected override Widget GetListElementWidget(T cellObject) {
+		protected override Widget GetListElementWidget(T obj) {
 
-			Cell cellWidget = new Cell(cellObject);
-			InspectableBox cellLabel = (InspectableBox)cellWidget.LabelWidget;
+			Cell cell = new Cell(obj);
+			InspectableBox cellLabel = (InspectableBox)cell.frame.LabelWidget;
+
+			//Set up menu
 
 			MenuItem moveButton = new MenuItem("Move");
 			moveButton.Activated += (o, a)
-				=> new SelectorDialog("Select new parent for " + cellObject.name,
+				=> new SelectorDialog("Select new parent for " + obj.name,
 									  delegate (GameObject returned) {
-										  returned.Add(cellObject);
+										  returned.Add(obj);
 										  DependencyManager.TriggerAllFlags();
 									  },
-									  (tested) => tested.Accepts(cellObject));
+									  (tested) => tested.Accepts(obj));
 
 			MenuItem removeButton = new MenuItem("Remove");
 			removeButton.Activated += delegate {
-				parent.RemoveRange(new List<object> { cellObject });
+				parent.RemoveRange(new List<object> { obj });
 				DependencyManager.TriggerAllFlags();
 			};
 
 			cellLabel.rightclickMenu.Append(new SeparatorMenuItem());
 			cellLabel.rightclickMenu.Append(moveButton);
 			cellLabel.rightclickMenu.Append(removeButton);
+
+			//Set up drag/drop
+
 			cellLabel.DragEnd += delegate {
-				parent.RemoveRange(new List<T> { cellObject });
+				parent.RemoveRange(new List<T> { obj });
 				DependencyManager.TriggerAllFlags();
 			};
 
-			ClickableEventBox clickableEventBox = new ClickableEventBox {
-				Child = cellWidget,
-				prelight = false
-			};
-
-			Drag.SourceSet(clickableEventBox, Gdk.ModifierType.Button1Mask,
-						   new TargetEntry[] { new TargetEntry(typeof(T).ToString(), TargetFlags.App, 0) },
-						   Gdk.DragAction.Move);
-			clickableEventBox.DragDataGet += (o, a) => DragTmpVars.currentDragged = cellObject;
-			clickableEventBox.DragEnd += delegate {
-				parent.RemoveRange(new List<T> { cellObject });
+			cell.DragEnd += delegate {
+				parent.RemoveRange(new List<T> { obj });
 				DependencyManager.TriggerAllFlags();
 			};
+
 			// Rationale for removing only if drag had no target
 			// - If cellObject is dragged from an aggregative list to another aggregative list,
 			//   the Add() function on the second automatically removes it from the first, so calling Remove() is unnecessary.
 			// - If cellObject is dragged from an associative list to an aggregative list or vice versa,
 			//   We reasonably assume that user doesn't want it removed from the first list since the concept of "moving" doesn't apply in this context.
 			// - Only if the user has dragged cellObject from any list to *nothing* can it be assumed that they need it manually removed by us.
-			return clickableEventBox;
+
+			return cell;
 		}
 
 	}
