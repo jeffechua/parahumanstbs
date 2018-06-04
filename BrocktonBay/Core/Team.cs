@@ -121,6 +121,8 @@ namespace Parahumans.Core {
 		}
 
 		public override Widget GetCell () {
+
+			//Creates the cell contents
 			VBox rosterBox = new VBox(false, 0) { BorderWidth = 3 };
 			for (int i = 0; i < roster.Count; i++) {
 				Parahuman parahuman = roster[i]; //roster[i] not directly used below since i changes
@@ -131,6 +133,8 @@ namespace Parahumans.Core {
 				};
 				rosterBox.PackStart(header, false, false, 0);
 			}
+
+			//Set up drag/drop
 			EventBox eventBox = new EventBox { Child = rosterBox, VisibleWindow = false };
 			Drag.DestSet(eventBox, DestDefaults.All,
 						 new TargetEntry[] { new TargetEntry(typeof(Parahuman).ToString(), TargetFlags.App, 0) },
@@ -141,7 +145,10 @@ namespace Parahumans.Core {
 					DependencyManager.TriggerAllFlags();
 				}
 			};
+
 			return new Gtk.Alignment(0, 0, 1, 1) { Child = eventBox, BorderWidth = 7 };
+			//For some reason drag/drop highlights include BorderWidth.
+			//The Alignment makes the highlight actually appear at the 3:7 point in the margin.
 		}
 
 		public override bool Contains (object obj) => obj is Parahuman && roster.Contains((Parahuman)obj);

@@ -1,0 +1,67 @@
+Planning phase:
+	Players determine active duty roster
+	Players determine number of deployments
+	Players activate "Preparations Phase" assets
+
+
+Action Phase:
+
+	Players assign deployments of parahumans to initiate conflicts
+	    Any deployments in excess of those planned in the Planning Phase cost thrice the resources
+	    Any assigned parahumans not set to active duty in the Planning Phase demand thrice the wages
+
+	Players activate "Action Phase" and/or "Deployment" assets
+
+
+Reaction Phase:
+
+	Players assign deployments of parahumans to respond to conflicts or reinforce prior deployments in the Action Phase
+
+	    Any deployments in excess of the planned capacity *left over from the Action Phase* cost thrice
+	        e.g. Plan 4 deployments,
+	             use 3 in Action Phase (no excess, 1 left),
+	             use 3 in Reaction Phase (2 excess)
+	             => 4 normal price, 2 triple price
+
+	    Any assigned parahumans not set to active duty in the Planning Phase demand thrice the wages
+	        Parahumans may not be deployed twice in the same round
+
+	Players activate "Reaction Phase" and/or "Deployment" assets
+
+
+Aftermath Phase:
+
+	Conflicts are evaluated
+	    Territory is lost or gained
+	    Reputation is lost or gained
+	    Resources are lost or gained
+	    Parahumans are maimed or killed
+	    Experience is gained by teams (if applicable)
+
+	Parahumans, teams and factions reevaluate themselves
+
+	    Any parahuman, team or faction with reputation < -10 leave the city, dissociate or collapse respectively.
+	        Leaving parahumans are are removed from the game
+	            If a faction leader is removed, the highest-rank parahuman becomes leader.
+		    Dissociating teams create independent parahumans
+		        Released parahumans leave the faction if applicable
+		    Collapsing factions create independent teams
+
+	    Reevaluations occur in that order: all parahumans, then all teams, then all factions
+
+	Deployments demand their price and parahumans demand wages
+	    Deployments take their toll first
+	        If resources are insufficient, the deficit is transferred to the reputation of the faction leader
+	    Parahumans then demand their wages
+	        Players select which parahumans to pay
+	        Unpaid parahumans leave the faction, taking their team (if applicable) with them
+
+	Players can organize their command hierarchy, including
+	    Firing and recruiting parahumans
+	        Parahumans can only be parented directly to teams/factions with an alignment within one of their own.
+	    Reassigning parahumans to and from teams
+	        Each change (new parahuman or removed parahuman) deducts 1 point from each stat bonus, to a minimum of 0
+	        Parahumans can only be parented directly to teams/factions with an alignment within one of their own.
+	    Dissociating and forming teams
+	        New teams have 0 to each stat bonus
+	        Stat bonuses are automatically lost when a team dissociates 

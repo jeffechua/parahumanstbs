@@ -56,6 +56,16 @@ namespace Parahumans.Core.GUI {
 						   Gdk.DragAction.Move);
 			DragDataGet += (o, a) => DragTmpVars.currentDragged = obj;
 
+			// "Removing by dragging away to nothing" functionality should be implemented manually when the Cell is created.
+			// It should be implemented via DragEnd +=
+			// The object should generally be removed from the parent list ONLY in this case.
+			// Rationale for removing only if drag had no target:
+			// - If cellObject is dragged from an aggregative list to another aggregative list,
+			//   the Add() function on the second automatically removes it from the first, so calling Remove() is unnecessary.
+			// - If cellObject is dragged from an associative list to an aggregative list or vice versa,
+			//   We reasonably assume that user doesn't want it removed from the first list since the concept of "moving" doesn't apply in this context.
+			// - Only if the user has dragged cellObject from any list to *nothing* can it be assumed that they need it manually removed by us.
+
 			Reload();
 
 		}

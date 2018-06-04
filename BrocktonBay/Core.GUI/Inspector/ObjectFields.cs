@@ -117,7 +117,14 @@ namespace Parahumans.Core.GUI {
 				expander.Add(table);
 				alignment.Add(expander);
 
+				//Set up drag support
+				Drag.DestSet(expander, DestDefaults.All,
+							 new TargetEntry[] { new TargetEntry(typeof(T).ToString(), TargetFlags.App, 0) },
+							 Gdk.DragAction.Move);
+				expander.DragDataReceived += AttemptDrag;
+
 			} else {
+				
 				HBox box = new HBox(false, 5);
 				Label label = new Label(TextTools.ToReadable(property.Name)) { Angle = 90 };
 				ClickableEventBox labelEventBox = new ClickableEventBox { Child = label };
@@ -129,13 +136,15 @@ namespace Parahumans.Core.GUI {
 				for (int i = 0; i < list.Count; i++)
 					box.PackStart(GetListElementWidget(list[i]), false, false, 0);
 				alignment.Add(box);
+
+				//Set up drag support
+				Drag.DestSet(this, DestDefaults.All,
+							 new TargetEntry[] { new TargetEntry(typeof(T).ToString(), TargetFlags.App, 0) },
+							 Gdk.DragAction.Move);
+				DragDataReceived += AttemptDrag;
+
 			}
 
-			//Set up drag support
-			Drag.DestSet(this, DestDefaults.All,
-						 new TargetEntry[] { new TargetEntry(typeof(T).ToString(), TargetFlags.App, 0) },
-						 Gdk.DragAction.Move);
-			DragDataReceived += AttemptDrag;
 		}
 
 		void AttemptDrag(object obj, DragDataReceivedArgs args) {
