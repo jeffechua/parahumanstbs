@@ -65,6 +65,7 @@
     <Compile Include="Core\Battle\Battle.cs" />
     <Compile Include="Core.GUI\GUICaching.cs" />
     <Compile Include="PlatformDetection.cs" />
+    <Compile Include="Map.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />

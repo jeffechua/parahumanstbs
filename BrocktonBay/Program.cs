@@ -137,12 +137,8 @@ namespace BrocktonBay {
 
 
 			//Map tab
-			VBox map = new VBox(false, 0);
-			Image mapImg = new Image();
-			Label mapLabel = new Label("The map of Brockton Bay.");
+			Map map = new Map(savefolder + "/Map");
 			Label mapTabLabel = new Label("Map");
-			map.PackStart(mapImg, true, true, 0);
-			map.PackEnd(mapLabel, false, false, 0);
 			main.AppendPage(map, mapTabLabel);
 
 			//Search tab
