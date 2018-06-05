@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Parahumans.Core.GUI;
+using Parahumans.Core;
 using Gtk;
 
 namespace Parahumans.Core {
@@ -23,10 +23,10 @@ namespace Parahumans.Core {
 	}
 
 	public sealed class TeamData {
+		
 		public String name = "New Team";
 		public int ID = 0;
 		public Alignment alignment = Alignment.Rogue;
-		public int reputation = 0;
 		public int unused_XP = 0;
 		public StringFloatPair[] spent_XP = new StringFloatPair[3] {
 			new StringFloatPair("Strength", 0),
@@ -34,6 +34,18 @@ namespace Parahumans.Core {
 			new StringFloatPair("Insight", 0)
 		};
 		public List<int> roster = new List<int>();
+
+		public TeamData () { }
+
+		public TeamData (Team team) {
+			name = team.name;
+			ID = team.ID;
+			alignment = team.alignment;
+			unused_XP = team.unused_XP;
+			spent_XP = team.spent_XP;
+			roster = team.roster.ConvertAll((parahuman) => parahuman.ID);
+		}
+
 	}
 
 	public sealed class Team : GameObject {
@@ -46,8 +58,16 @@ namespace Parahumans.Core {
 		[Displayable(3, typeof(BasicReadonlyField))]
 		public Threat threat { get; set; }
 
-		[Displayable(4, typeof(IntField))]
-		public int reputation { get; set; }
+		[Displayable(4, typeof(BasicReadonlyField))]
+		public int reputation {
+			get {
+				int rep = 0;
+				foreach (Parahuman parahuman in roster) {
+					rep += parahuman.reputation;
+				}
+				return rep;
+			}
+		}
 
 		[Displayable(5, typeof(IntField))]
 		public int unused_XP { get; set; }
@@ -69,7 +89,7 @@ namespace Parahumans.Core {
 			alignment = data.alignment;
 			unused_XP = data.unused_XP;
 			spent_XP = data.spent_XP;
-			roster = data.roster.ConvertAll((input) => City.city.Get<Parahuman>(input));
+			roster = data.roster.ConvertAll((input) => MainClass.currentCity.Get<Parahuman>(input));
 			for (int i = 0; i < roster.Count; i++) {
 				DependencyManager.Connect(roster[i], this);
 				roster[i].parent = this;

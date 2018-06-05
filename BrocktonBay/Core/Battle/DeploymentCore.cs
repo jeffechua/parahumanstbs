@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Parahumans.Core.GUI;
 using System;
 
 namespace Parahumans.Core {

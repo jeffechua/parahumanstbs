@@ -66,6 +66,8 @@
     <Compile Include="Core.GUI\GUICaching.cs" />
     <Compile Include="PlatformDetection.cs" />
     <Compile Include="Map.cs" />
+    <Compile Include="IO.cs" />
+    <Compile Include="Core.GUI\CityInterface.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />
@@ -75,7 +77,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="BrocktonBayMap.png" />
     <None Include="Rules.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

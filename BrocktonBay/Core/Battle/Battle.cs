@@ -1,5 +1,4 @@
 ﻿using Gtk;
-using Parahumans.Core.GUI;
 
 namespace Parahumans.Core {
 

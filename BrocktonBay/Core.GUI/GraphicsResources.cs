@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Parahumans.Core.GUI {
+namespace Parahumans.Core {
 
 	public static class EnumTools {
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Gtk;
 
-namespace Parahumans.Core.GUI {
+namespace Parahumans.Core {
 
 	public static class DragTmpVars {
 		public static object currentDragged;

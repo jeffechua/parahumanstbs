@@ -2,7 +2,7 @@
 using Gtk;
 using System.Collections.Generic;
 
-namespace Parahumans.Core.GUI {
+namespace Parahumans.Core {
 
 	public class DeploymentPlanner : HBox, IDependable {
 

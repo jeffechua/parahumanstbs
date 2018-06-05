@@ -1,11 +1,9 @@
 ﻿using System;
 using System.IO;
-using Parahumans.Core;
-using Parahumans.Core.GUI;
 using Gtk;
 
 
-namespace Parahumans.Core.GUI {
+namespace Parahumans.Core {
 
 	public class Map : EventBox {
 
@@ -25,6 +23,8 @@ namespace Parahumans.Core.GUI {
 		const double maxZoom = 5;
 		const double zoomFactor = 1.25; //Factor of magnification per step
 		double maxMagnif = Math.Pow(zoomFactor, maxZoom);
+
+		public Map () {}
 
 		public Map (string mapPath) {
 

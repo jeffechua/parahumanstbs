@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Gtk;
 
-namespace Parahumans.Core.GUI {
+namespace Parahumans.Core {
 
 	public class ClickableEventBox : EventBox {
 

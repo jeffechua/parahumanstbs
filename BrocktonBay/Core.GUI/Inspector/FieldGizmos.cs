@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Gtk;
 
-namespace Parahumans.Core.GUI {
+namespace Parahumans.Core {
 
 	// A pair consisting of a string and a float. Two functions:
 	//      - It is used to hold numbers associated with words, e.g. {"Strength", 0} to indicate a strength of 0.

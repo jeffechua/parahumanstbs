@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Gtk;
 
-namespace Parahumans.Core.GUI {
+namespace Parahumans.Core {
 
 	public class SelectorDialog : DefocusableWindow {
 		public SelectorDialog(string title, Action<GameObject> ClickedAction, Func<GameObject, bool> FilterFunction = null) {
@@ -56,7 +56,7 @@ namespace Parahumans.Core.GUI {
 
 		public Search(Func<GameObject, bool> FilterFunction = null, Action<GameObject> ClickedAction = null) {
 
-			DependencyManager.Connect(City.city, this);
+			DependencyManager.Connect(MainClass.currentCity, this);
 			Filter = FilterFunction == null ? delegate { return true; } : FilterFunction;
 			OnClicked = ClickedAction == null ? delegate { } : ClickedAction;
 
@@ -68,9 +68,9 @@ namespace Parahumans.Core.GUI {
 			resultsWindow = new ScrolledWindow();
 			PackStart(resultsWindow, true, true, 0);
 
-			lister = new CachingLister<GameObject>(City.city.gameObjects, SetupListing);
-			tesselator = new CachingTesselator<GameObject>(City.city.gameObjects, SetupCell, resultsWindow);
-			headerer = new CachingLister<GameObject>(City.city.gameObjects, SetupHeader);
+			lister = new CachingLister<GameObject>(MainClass.currentCity.gameObjects, SetupListing);
+			tesselator = new CachingTesselator<GameObject>(MainClass.currentCity.gameObjects, SetupCell, resultsWindow);
+			headerer = new CachingLister<GameObject>(MainClass.currentCity.gameObjects, SetupHeader);
 
 			//Search
 			searchText = new Entry();
@@ -222,7 +222,7 @@ namespace Parahumans.Core.GUI {
 
 		public void Reload() {
 
-			List<GameObject> resultsList = City.city.gameObjects.FindAll(SatisfiesFilters);
+			List<GameObject> resultsList = MainClass.currentCity.gameObjects.FindAll(SatisfiesFilters);
 
 			switch (presentation.Active) {
 				case 0:

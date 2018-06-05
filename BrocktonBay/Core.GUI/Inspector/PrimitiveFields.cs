@@ -2,7 +2,7 @@
 using System;
 using Gtk;
 
-namespace Parahumans.Core.GUI {
+namespace Parahumans.Core {
 
 	public abstract class ReadonlyField : Label {
 		protected PropertyInfo property;

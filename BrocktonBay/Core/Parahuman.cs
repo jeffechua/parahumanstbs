@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using Parahumans.Core.GUI;
 using Gtk;
 
 namespace Parahumans.Core {
@@ -57,6 +55,20 @@ namespace Parahumans.Core {
 		public Health health = Health.Healthy;
 		public int reputation = 0;
 		public List<Rating> ratings = new List<Rating>();
+
+		public ParahumanData () {}
+
+		public ParahumanData (Parahuman parahuman) {
+			name = parahuman.name;
+			ID = parahuman.ID;
+			civilianName = parahuman.civilian_name;
+			alignment = parahuman.alignment;
+			threat = parahuman.threat;
+			health = parahuman.health;
+			reputation = parahuman.reputation;
+			ratings = parahuman.ratings;
+		}
+
 	}
 
 	public sealed class Parahuman : GameObject {
@@ -82,6 +94,7 @@ namespace Parahumans.Core {
 		public List<Rating> ratings { get; set; }
 
 		public Parahuman () : this(new ParahumanData()) { }
+
 		public Parahuman (ParahumanData data) {
 			name = data.name;
 			ID = data.ID;

@@ -4,7 +4,7 @@ using System.Reflection;
 using System;
 using Gtk;
 
-namespace Parahumans.Core.GUI {
+namespace Parahumans.Core {
 
 	public class ObjectField : Gtk.Alignment {
 
@@ -64,7 +64,7 @@ namespace Parahumans.Core.GUI {
 			addNewButton.Activated += delegate {
 				object newObj = typeof(T).GetConstructor(new Type[] { }).Invoke(new object[] { });
 				((IContainer)obj).AddRange(new List<object> { newObj });
-				if (newObj is GameObject) City.city.Add((GameObject)newObj);
+				if (newObj is GameObject) MainClass.currentCity.Add((GameObject)newObj);
 				DependencyManager.TriggerAllFlags();
 			};
 			rightclickMenu.Append(addNewButton);
