@@ -38,6 +38,8 @@ namespace Parahumans.Core {
 			main.AppendPage(reactorsPlanner, RPLabel);
 			Battle battle = new Battle(actors, reactors);
 
+			Inspector.main.Inspect(new Deployment());
+
 		}
 	}
 }

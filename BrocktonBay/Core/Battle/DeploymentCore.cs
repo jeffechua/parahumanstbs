@@ -26,13 +26,13 @@ namespace Parahumans.Core {
 		[Displayable(4, typeof(BasicReadonlyField))]
 		public Threat authorized_force { get; set; }
 
-		[Displayable(5, typeof(CellObjectListField<Team>), -2), Emphasized]
+		[Displayable(5, typeof(CellObjectListField<Team>), 2), Emphasized]
 		public List<Team> teams { get; set; }
 
-		[Displayable(6, typeof(CellObjectListField<Parahuman>), -2), Emphasized]
+		[Displayable(6, typeof(CellObjectListField<Parahuman>), 3), Emphasized]
 		public List<Parahuman> independents { get; set; }
 
-		[Displayable(7, typeof(CellObjectListField<Parahuman>), -3), Emphasized]
+		[Displayable(7, typeof(CellObjectListField<Parahuman>), 3), Emphasized]
 		public List<Parahuman> combined_roster { get; set; }
 
 		[Displayable(8, typeof(RatingsComparisonField), false), Emphasized]
@@ -95,36 +95,55 @@ namespace Parahumans.Core {
 		public static float GetMultiplier (float x, float from, float to, float rate)
 			=> (float)((from - to) * Math.Exp(rate * x / (from - to)) + to);
 
+		public void Add (object obj) => AddRange(new List<object> { obj });
+		public void Remove (object obj) => RemoveRange(new List<object> { obj });
+
 		public void AddRange<T> (List<T> objs) {
-			foreach (object element in objs) {
-				GameObject obj = (GameObject)element;
+			foreach (object obj in objs) {
 				if (obj is Team && !teams.Contains((Team)obj)) {
-					RemoveRange(((Team)obj).roster);
-					teams.Add((Team)obj);
-					obj.Engage();
-					DependencyManager.Connect(obj, this);
+					Team team = (Team)obj;
+					RemoveRange(team.roster);
+					teams.Add(team);
+					team.Engage();
+					DependencyManager.Connect(team, this);
 				}
-				if (obj is Parahuman) {
-					independents.Add((Parahuman)obj);
-					obj.Engage();
-					DependencyManager.Connect(obj, this);
+				if (obj is Parahuman && !combined_roster.Contains((Parahuman)obj)) {
+					Parahuman parahuman = (Parahuman)obj;
+					independents.Add(parahuman);
+					parahuman.Engage();
+					DependencyManager.Connect(parahuman, this);
+					if (parahuman.parent is Team &&
+						((Team)parahuman.parent).roster.TrueForAll((member) => independents.Contains(member)))
+						Add(parahuman.parent);
 				}
 			}
 			DependencyManager.Flag(this);
 		}
 
 		public void RemoveRange<T> (List<T> objs) {
-			foreach (object element in objs) {
-				GameObject obj = (GameObject)element;
+			foreach (object obj in objs) {
 				if (obj is Team) {
-					teams.Remove((Team)obj);
-					obj.Disengage();
-					DependencyManager.Disconnect(obj, this);
+					Team team = (Team)obj;
+					teams.Remove(team);
+					team.Disengage();
+					foreach (Parahuman parahuman in team.roster)
+						parahuman.Disengage();
+					DependencyManager.Disconnect(team, this);
 				}
 				if (obj is Parahuman) {
-					independents.Remove((Parahuman)obj);
-					obj.Disengage();
-					DependencyManager.Disconnect(obj, this);
+					Parahuman parahuman = (Parahuman)obj;
+					if (independents.Contains(parahuman)) {
+						independents.Remove(parahuman);
+						parahuman.Disengage();
+						DependencyManager.Disconnect(parahuman, this);
+					} else if (combined_roster.Contains(parahuman)) {
+						Team team = (Team)parahuman.parent;
+						Remove(team);
+						CombineRoster(); //Add(parahuman) rejects if combined_roster contains parahuman.
+						foreach (Parahuman member in team.roster)
+							if (member != parahuman)
+								Add(member);
+					}
 				}
 			}
 			DependencyManager.Flag(this);
@@ -136,8 +155,6 @@ namespace Parahumans.Core {
 
 		public void Sort () {
 
-			combined_roster = new List<Parahuman>();
-
 			//Sort stuff.
 			teams.Sort((x, y) => y.ID.CompareTo(x.ID));
 			teams.Sort((x, y) => x.alignment.CompareTo(y.alignment));
@@ -147,9 +164,7 @@ namespace Parahumans.Core {
 			independents.Sort((x, y) => y.threat.CompareTo(x.threat));
 
 			//Load all teams into roster and remove all invalids
-			combined_roster.AddRange(independents);
-			for (int i = 0; i < teams.Count; i++)
-				combined_roster.AddRange(teams[i].roster);
+			CombineRoster();
 			combined_roster.RemoveAll((input) => input.health != Health.Healthy);
 
 			//Sort more stuff
@@ -157,6 +172,13 @@ namespace Parahumans.Core {
 			combined_roster.Sort((x, y) => x.alignment.CompareTo(y.alignment));
 			combined_roster.Sort((x, y) => y.threat.CompareTo(x.threat));
 
+		}
+
+		public void CombineRoster () {
+			combined_roster = new List<Parahuman>();
+			combined_roster.AddRange(independents);
+			for (int i = 0; i < teams.Count; i++)
+				combined_roster.AddRange(teams[i].roster);
 		}
 
 		public static Deployment operator + (Deployment a, Deployment b) {

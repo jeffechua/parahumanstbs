@@ -33,6 +33,8 @@ namespace Parahumans.Core {
 
 	}
 
+	// the absolute value of (int)arg = number of columns in table if used
+	// arg>0 => expander starts expanded, <0 => starts collapsed
 	public abstract class ObjectListField<T> : EventBox where T : GUIComplete {
 		
 		protected IContainer parent;
