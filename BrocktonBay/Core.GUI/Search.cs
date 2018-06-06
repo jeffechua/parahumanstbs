@@ -27,8 +27,8 @@ namespace Parahumans.Core {
 
 		public int order { get { return 5; } }
 
-		public List<WeakReference<IDependable>> dependencies { get; set; } = new List<WeakReference<IDependable>>();
-		public List<WeakReference<IDependable>> dependents { get; set; } = new List<WeakReference<IDependable>>();
+		public List<IDependable> dependencies { get; set; } = new List<IDependable>();
+		public List<IDependable> dependents { get; set; } = new List<IDependable>();
 
 		Toolbar searchBar;
 		Entry searchText;

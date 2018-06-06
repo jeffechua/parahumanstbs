@@ -10,8 +10,8 @@ namespace Parahumans.Core {
 		public int order { get { return listed == null ? 0 : listed.order + 1; } }
 
 		public GUIComplete listed;
-		public List<WeakReference<IDependable>> dependencies { get; set; } = new List<WeakReference<IDependable>>();
-		public List<WeakReference<IDependable>> dependents { get; set; } = new List<WeakReference<IDependable>>();
+		public List<IDependable> dependencies { get; set; } = new List<IDependable>();
+		public List<IDependable> dependents { get; set; } = new List<IDependable>();
 
 		public Listing(GUIComplete obj) {
 			listed = obj;
@@ -36,8 +36,8 @@ namespace Parahumans.Core {
 
 		public Frame frame;
 		public GUIComplete displayed;
-		public List<WeakReference<IDependable>> dependencies { get; set; } = new List<WeakReference<IDependable>>();
-		public List<WeakReference<IDependable>> dependents { get; set; } = new List<WeakReference<IDependable>>();
+		public List<IDependable> dependencies { get; set; } = new List<IDependable>();
+		public List<IDependable> dependents { get; set; } = new List<IDependable>();
 
 		public Cell(GUIComplete obj) {
 
@@ -88,8 +88,8 @@ namespace Parahumans.Core {
 		public GUIComplete inspected;
 		public ScrolledWindow scrollbin;
 
-		public List<WeakReference<IDependable>> dependencies { get; set; } = new List<WeakReference<IDependable>>();
-		public List<WeakReference<IDependable>> dependents { get; set; } = new List<WeakReference<IDependable>>();
+		public List<IDependable> dependencies { get; set; } = new List<IDependable>();
+		public List<IDependable> dependents { get; set; } = new List<IDependable>();
 
 		public Inspector() => HscrollbarPolicy = PolicyType.Never;
 		public Inspector(GUIComplete obj) : this() => Inspect(obj);

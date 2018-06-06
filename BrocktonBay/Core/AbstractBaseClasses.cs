@@ -47,8 +47,8 @@ namespace Parahumans.Core {
 
 		//IDependable requirements
 		public abstract int order { get; }
-		public List<WeakReference<IDependable>> dependents { get; set; } = new List<WeakReference<IDependable>>();
-		public List<WeakReference<IDependable>> dependencies { get; set; } = new List<WeakReference<IDependable>>();
+		public List<IDependable> dependents { get; set; } = new List<IDependable>();
+		public List<IDependable> dependencies { get; set; } = new List<IDependable>();
 		public virtual void Reload () { }
 
 		// Gets a "header" to denote the GUIComplete object:
