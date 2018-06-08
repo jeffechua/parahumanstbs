@@ -21,8 +21,8 @@ Global
 		$1.NoTabsAfterNonTabs = True
 		$1.scope = text/plain
 		$0.TextStylePolicy = $2
-		$2.inheritsSet = null
 		$2.scope = text/x-csharp
+		$2.NoTabsAfterNonTabs = True
 		$0.CSharpFormattingPolicy = $3
 		$3.scope = text/x-csharp
 		$3.NewLinesForBracesInTypes = False

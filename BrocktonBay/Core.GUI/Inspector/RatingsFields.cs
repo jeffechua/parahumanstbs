@@ -53,7 +53,7 @@ namespace Parahumans.Core {
 		int timeoutCountdown;
 
 		public RatingsEditorDialog (Parahuman p) {
-			
+
 			parahuman = p;
 
 			//Setup window
@@ -173,7 +173,7 @@ namespace Parahumans.Core {
 
 		public RatingsSumField (PropertyInfo property, object obj, bool vert, object arg) : base(TextTools.ToReadable(property.Name)) {
 
-			ratings = (float[,])property.GetValue(obj);
+			ratings = ((RatingsProfile)property.GetValue(obj)).ratings;
 			vertical = vert;
 
 			Expanded = (bool)arg;

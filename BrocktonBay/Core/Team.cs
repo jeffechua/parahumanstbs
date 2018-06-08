@@ -23,7 +23,7 @@ namespace Parahumans.Core {
 	}
 
 	public sealed class TeamData {
-		
+
 		public String name = "New Team";
 		public int ID = 0;
 		public Alignment alignment = Alignment.Rogue;
@@ -79,7 +79,10 @@ namespace Parahumans.Core {
 		public List<Parahuman> roster { get; set; }
 
 		[Displayable(8, typeof(RatingsSumField), true), Emphasized, VerticalOnly]
-		public float[,] ratings_sum { get; set; }
+		public RatingsProfile ratings_profile_2 { get { return ratings_profile; } }
+
+		[Displayable(8, typeof(RatingsProfileField), true), Emphasized, VerticalOnly]
+		public RatingsProfile ratings_profile { get; set; }
 
 		public Team () : this(new TeamData()) { }
 
@@ -94,25 +97,27 @@ namespace Parahumans.Core {
 				DependencyManager.Connect(roster[i], this);
 				roster[i].parent = this;
 			}
+			ratings_profile = new RatingsProfile();
 			Reload();
 		}
 
 		public override void Reload () {
-			ratings_sum = new float[5, 8];
+			ratings_profile.ratings = new float[5, 8];
 			for (int i = 0; i < roster.Count; i++) {
 				for (int j = 0; j < roster[i].ratings.Count; j++) {
 					if ((int)roster[i].ratings[j].clssf <= 7) {
-						ratings_sum[4, (int)roster[i].ratings[j].clssf] += roster[i].ratings[j].num;
-						ratings_sum[0, (int)roster[i].ratings[j].clssf] += roster[i].ratings[j].num;
+						ratings_profile.ratings[4, (int)roster[i].ratings[j].clssf] += roster[i].ratings[j].num;
+						ratings_profile.ratings[0, (int)roster[i].ratings[j].clssf] += roster[i].ratings[j].num;
 					} else {
 						for (int k = 0; k < roster[i].ratings[j].subratings.Count; k++) {
 							Rating subrating = roster[i].ratings[j].subratings[k];
-							ratings_sum[4, (int)subrating.clssf] += subrating.num;
-							ratings_sum[(int)roster[i].ratings[j].clssf - 7, (int)subrating.clssf] += subrating.num;
+							ratings_profile.ratings[4, (int)subrating.clssf] += subrating.num;
+							ratings_profile.ratings[(int)roster[i].ratings[j].clssf - 7, (int)subrating.clssf] += subrating.num;
 						}
 					}
 				}
 			}
+			ratings_profile.Evaluate();
 			threat = Threat.C;
 			for (int i = 0; i < roster.Count; i++)
 				if (roster[i].threat > threat)

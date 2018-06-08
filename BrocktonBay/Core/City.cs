@@ -50,8 +50,9 @@ namespace Parahumans.Core {
 									  DialogFlags.DestroyWithParent,
 									  MessageType.Error,
 									  ButtonsType.Close,
-									  "Error loading save from \"" + path + "\".");
+					                  "Error loading save from \"" + path + "\".");
 				Console.WriteLine(e.Message);
+				Console.WriteLine(e.StackTrace);
 				errorMessage.Run();
 				errorMessage.Destroy();
 				loadFailure = true;

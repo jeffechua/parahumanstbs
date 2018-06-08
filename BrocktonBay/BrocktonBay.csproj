@@ -68,6 +68,7 @@
     <Compile Include="Map.cs" />
     <Compile Include="IO.cs" />
     <Compile Include="Core.GUI\CityInterface.cs" />
+    <Compile Include="Core.GUI\RatingsProfileField.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />
