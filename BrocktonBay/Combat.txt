@@ -1,0 +1,144 @@
+Combat is principally defined by the ratings of the two sides. First, a recap on ratings:
+
+---
+
+A SUMMARY OF RATINGS
+
+There are 8 "true" ratings and 3 "wrapper" ratings:
+
+True:
+	Brute
+	Blaster
+	Shaker
+	Striker
+	Mover
+	Stranger
+	Thinker
+	Trump
+Wrapper:
+	Tinker
+	Master
+	Breaker
+
+Wrapper ratings "contain" other ratings and do nothing themselves. For example, a parahuman might have the following rating profile:
+
+Brute 2
+Blaster 5
+Master 6
+	Blaster 2
+	Shaker 2
+	Stranger 3
+
+The "6" on the Master is meaningless and has no functional purpose. It exists only to give an indicator of the strength of the contents of the wrapper when the profile is displayed in a collapsed form:
+
+Brute 2
+Blaster 5
+Master* 6
+
+Usually you can mouseover the "Master* 6" text and view the contents in a tooltip.
+
+----
+
+COMBINING RATINGS
+
+Ratings are not discrete: two Blaster 2s is equivalent to a Blaster 4. When compiling ratings from multiple sources in an organisation or object, we simply sum each type of rating irrespective of where it comes from (special assets and properties aside).
+
+One distinction that IS made is between, say, a Blaster rating inside a Tinker wrapper, and a Blaster rating just attached to a parahuman. Wrappers run in different streams. However, if we have two Blaster ratings both in Tinker wrappers, they ARE combined. Ratings in different wrappers types combine into parallel streams. In other words, the "rating sum" or "combined rating profile" of one side of a conflict can be expressed as a table like this:
+
+        Brute Blaster Shaker Striker Mover Stranger Thinker Trump
+Base        2       5      0       0     0        0       0     0
+Tinker      0       0      0       0     0        0       0     0
+Master      0       2      2       0     0        3       0     0
+Breaker     0       0      0       0     0        0       0     0
+
+Indeed, any rating-containing object can express its "combined rating profile" in such a manner. You may notice that this is the same profile as that of the parahuman in the prior section. Occasionally, you may see another row "sum" at the bottom: useful when you don't particularly want to interest yourself in the details for the moment.
+
+A rating profile can also be expressed as a radar chart.
+                  Mover
+          Striker  _|   Brute
+               \ _/ |\   /
+               |\   | \ /
+               | \  |  \
+               |  \ | /|
+Thinker _______|___\|/_|_________ Trump
+                `-_/|\/
+                  /\|/\
+                 /  |  \
+                /   |   \
+               /    |    \
+          Blaster   |   Shaker
+                 Stranger
+
+
+This is an example Mover/Striker build with a sprinkle of Brute, Stranger and Thinker, and almost no Trump, Blaster or Shaker. As you will learn later, this build is strong against Brutes and Movers and weak against Blasters.
+
+This is a simplified radar chart. Generally there will be four polygons for each stream, "stacking" on each other cumulatively in the order Base -> Tinker -> Master -> Breaker, such that the polygon for Breaker represents the sum total of the ratings and contains all the other polygons.
+
+----
+
+STRENGTH, STEALTH AND INSIGHT
+
+The three main statistics that govern the outcome of combat is Strength, Stealth and Insight. They are arithmetically calculated from ratings, with bonuses if applicable.
+
+Strength = Brute   + Blaster  + 0.5*Shaker + 0.5*Striker + bonuses
+Stealth  = Mover   + Stranger + bonuses
+Insight  = Thinker + Trump    + bonuses
+
+Let's look at them one after another.
+
+----
+
+STRENGTH determines victory or defeat. Greater strength wins, simple as that. However, as this is a limited-information game, there is of course an element of risk when playing. But Strength also influences injury. Each parahuman on a side has the same probability of maiming and death. Thematically, this is because hardier capes (Brutes, generally) suffer more heavy and violent assault, and are placed in more dangerous situations where their toughness is of use, and thus the heightened danger offsets their increased survivability. In reality, it's because it's simpler to both implement and play.
+
+The chance of being maimed or worse = strength of opponent / strength of my side / 4. So in an evenly matched fight, a quarter of each side is maimed or worse.
+Why "or worse"? Because there is the same chance of the "maimed or worse" capes becoming "killed". Confused? Example:
+
+Opponent strength = 30
+My side strength = 20
+
+Chance of being maimed or worse = 30/20/4 = 3/8.
+Chance of being killed given that he/she is maimed or worse = 3/8.
+
+Therefore,
+Chance of being killed = 3/8 * 3/8 = 9/64
+                       = 0.14
+Chance of being maimed = Chance of being maimed or worse - Chance of being killed
+                       = 3/8 - 9/64
+                       = 15/64
+                       = 0.23
+
+Note that being maimed is only active when facing an opponent of B-Class force, and being killed is only active when facing an opponent of A-Class force. When facing an opponent of S-Class force, all maimed capes die. Example:
+
+
+C-Class
+ _________________________________
+|_____________HEALTHY_____________|
+
+B-Class
+ _________________________________
+|_____MAIMED_____|_____HEALTHY____|
+
+A-Class
+ _________________________________
+|_DEATH_|_MAIMED_|_____HEALTHY____|
+
+S-Class
+ _________________________________
+|_____DEATH______|_____HEALTHY____|
+
+
+Also note that due to the multiplicative nature of this calculation, a small chance-of-maim-or-worse results in an *extremely* small chance of death, while a chance-of-maim-or-worse close to 1 results in a chance of death also close to 1 —— 0.1*0.1 = 0.01; 0.9*0.9 = 0.81
+
+---
+
+STEALTH AND INSIGHT
+
+While the Strengths of each side work against each other, it is stealth that measures up against insight for one side against another. My insight suppresses the enemy's stealth; the enemy's insight suppresses my stealth.
+
+What does stealth do? Stealth determines the chance of escape in the case of a defeat. The average number of my members that can escape is equal to my mobility minus the enemy's insight. The actual number that escapes is defined by a Poisson distribution with that mean. Higher-rank parahumans have priority in escape —— Reminder: rank is sorted by threat class foremost and reputation second.
+
+---
+
+INSIGHT
+
+Insight is also secondarily used to level your knowledge on enemy parahumans. See the "Knowledge" file.

@@ -79,6 +79,7 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Rules.txt" />
+    <None Include="Combat.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
