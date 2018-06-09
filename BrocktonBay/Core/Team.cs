@@ -81,7 +81,7 @@ namespace Parahumans.Core {
 		[Displayable(8, typeof(RatingsSumField), true), Emphasized, VerticalOnly]
 		public RatingsProfile ratings_profile_2 { get { return ratings_profile; } }
 
-		[Displayable(8, typeof(RatingsProfileField), true), Emphasized, VerticalOnly]
+		[Displayable(8, typeof(RatingsRadarChart), true), Emphasized, VerticalOnly]
 		public RatingsProfile ratings_profile { get; set; }
 
 		public Team () : this(new TeamData()) { }
