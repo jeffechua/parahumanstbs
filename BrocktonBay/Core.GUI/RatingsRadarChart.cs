@@ -78,21 +78,31 @@ namespace Parahumans.Core {
 
 		PropertyInfo property;
 		RatingsProfile profile;
+		bool vertical;
+		int currentSize;
 
-		public RatingsRadarChart (PropertyInfo p, object o, bool vert, object arg) {
-			property = p;
-			profile = (RatingsProfile)property.GetValue(o);
+		public RatingsRadarChart (PropertyInfo property, object obj, bool vertical, object arg) {
+			this.property = property;
+			this.vertical = vertical;
+			profile = (RatingsProfile)property.GetValue(obj);
+			if(vertical){
+				SetSizeRequest(10, -1);
+			}else {
+				SetSizeRequest(-1, 10);
+			}
 			SizeAllocated += Initialize;
-			SetSizeRequest(500, 500);
 		}
 
 		public void Initialize (object obj, SizeAllocatedArgs args) {
 
-			SizeAllocated -= Initialize;
-
 			int width = args.Allocation.Width;
 			int height = args.Allocation.Height;
-			int size = System.Math.Min(width, height);
+			int size = vertical ? width : height;
+
+			//If this is true, then we don't need to change. Removing this line also traps us in a loop since Initialize() triggers SizeAllocated();
+			if (size == currentSize) return;
+			currentSize = size;
+
 			int chartRadius = size;
 			int labelRadius = 0;
 

@@ -79,10 +79,10 @@ namespace Parahumans.Core {
 		public List<Parahuman> roster { get; set; }
 
 		[Displayable(8, typeof(RatingsSumField), true), Emphasized, VerticalOnly]
-		public RatingsProfile ratings_profile_2 { get { return ratings_profile; } }
+		public RatingsProfile ratings_profile { get; set; }
 
 		[Displayable(8, typeof(RatingsRadarChart), true), Emphasized, VerticalOnly]
-		public RatingsProfile ratings_profile { get; set; }
+		public RatingsProfile ratings_profile_radar { get { return ratings_profile; } }
 
 		public Team () : this(new TeamData()) { }
 

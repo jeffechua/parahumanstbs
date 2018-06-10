@@ -26,10 +26,11 @@ namespace Parahumans.Core {
 				((DisplayableAttribute)y.GetCustomAttribute(typeof(DisplayableAttribute))).order));
 
 			VBox emphasisBox = null;
+
 			for (int i = 0; i < properties.Count; i++) {
 
 				DisplayableAttribute attr = (DisplayableAttribute)properties[i].GetCustomAttribute(typeof(DisplayableAttribute));
-				EmphasizedAttribute emph = (EmphasizedAttribute)properties[i].GetCustomAttribute(typeof(EmphasizedAttribute));
+				EmphasizedAttribute emphAttribute = (EmphasizedAttribute)properties[i].GetCustomAttribute(typeof(EmphasizedAttribute));
 				PaddedAttribute padded = (PaddedAttribute)properties[i].GetCustomAttribute(typeof(PaddedAttribute));
 				ConstructorInfo constructor = attr.widget.GetConstructor(new Type[] { typeof(PropertyInfo), typeof(object), typeof(bool), typeof(object) });
 				Widget newWidget = (Widget)constructor.Invoke(new object[] { properties[i], obj, true, attr.argument });
@@ -44,11 +45,11 @@ namespace Parahumans.Core {
 					};
 				}
 
-				if (emph is EmphasizedIfHorizontalAttribute) emph = null;
+				if (emphAttribute is EmphasizedIfHorizontalAttribute) emphAttribute = null;
 
-				if (emph != null && emphasisBox == null) emphasisBox = new VBox(false, 5);
-
-				if (emph != null) {
+				if (emphAttribute != null) {
+					if (emphasisBox == null)
+						emphasisBox = new VBox(false, 5);
 					emphasisBox.PackStart(new HSeparator(), false, false, 0);
 					emphasisBox.PackStart(newWidget, false, false, 0);
 				} else {
@@ -176,5 +177,4 @@ namespace Parahumans.Core {
 	public class EmphasizedIfVerticalAttribute : EmphasizedAttribute { }
 	public class EmphasizedIfHorizontalAttribute : EmphasizedAttribute { }
 	public class VerticalOnlyAttribute : Attribute { } //Show only if rendered in vertical mode.
-
 }
