@@ -4,46 +4,11 @@ using Gtk;
 
 namespace Parahumans.Core {
 
-	public enum Classification {
-		Brute = 0,
-		Blaster = 1,
-		Shaker = 2,
-		Striker = 3,
-		Mover = 4,
-		Stranger = 5,
-		Thinker = 6,
-		Trump = 7,
-		Tinker = 8,
-		Master = 9,
-		Breaker = 10
-	}
-
 	public enum Health {
 		Deceased = 0,
 		Down = 1,
 		Injured = 2,
 		Healthy = 3
-	}
-
-	public sealed class Rating {
-		public Classification clssf;
-		public int num;
-		public List<Rating> subratings;
-
-		public Rating (Classification classification, int number) {
-			clssf = classification;
-			num = number;
-			subratings = new List<Rating>();
-		}
-
-		public override String ToString () {
-			return clssf.ToString() + " " + num.ToString();
-		}
-
-		public String ToString (bool star) {
-			return clssf.ToString() + ((subratings.Count > 0 && star) ? "* " : " ") + num.ToString();
-		}
-
 	}
 
 	public sealed class ParahumanData {
@@ -54,9 +19,9 @@ namespace Parahumans.Core {
 		public Threat threat = Threat.C;
 		public Health health = Health.Healthy;
 		public int reputation = 0;
-		public List<Rating> ratings = new List<Rating>();
+		public float[,] ratings = new float[5,9];
 
-		public ParahumanData () {}
+		public ParahumanData () { }
 
 		public ParahumanData (Parahuman parahuman) {
 			name = parahuman.name;
@@ -66,12 +31,12 @@ namespace Parahumans.Core {
 			threat = parahuman.threat;
 			health = parahuman.health;
 			reputation = parahuman.reputation;
-			ratings = parahuman.ratings;
+			ratings = parahuman.ratings.values;
 		}
 
 	}
 
-	public sealed class Parahuman : GameObject {
+	public sealed class Parahuman : GameObject, Rated {
 
 		public override int order { get { return 1; } }
 
@@ -91,7 +56,7 @@ namespace Parahumans.Core {
 		public int reputation { get; set; }
 
 		[Displayable(7, typeof(RatingListField)), Padded(5, 5), EmphasizedIfHorizontal]
-		public List<Rating> ratings { get; set; }
+		public RatingsProfile ratings { get; set; }
 
 		public Parahuman () : this(new ParahumanData()) { }
 
@@ -102,14 +67,10 @@ namespace Parahumans.Core {
 			alignment = data.alignment;
 			threat = data.threat;
 			health = data.health;
-			ratings = data.ratings;
+			ratings = new RatingsProfile(data.ratings);
 		}
 
 		public override void Sort () {
-			ratings.Sort((x, y) => ((x.num == y.num) ? ((x.clssf < y.clssf) ? 1 : -1) : ((x.num < y.num) ? 1 : -1)));
-			for (int i = 0; i < ratings.Count; i++)
-				if (ratings[i].subratings.Count > 0)
-					ratings[i].subratings.Sort((x, y) => ((x.num == y.num) ? ((x.clssf < y.clssf) ? 1 : -1) : ((x.num < y.num) ? 1 : -1)));
 		}
 
 		public override Widget GetHeader (bool compact) {
@@ -143,20 +104,46 @@ namespace Parahumans.Core {
 					row2.PackStart(new Label(), true, true, 0);
 					headerBox.PackStart(row2);
 				}
-				
+
 				return headerBox;
 
 			}
 		}
 
 		public override Widget GetCell () {
+			
 			VBox ratingsBox = new VBox(false, 0) { BorderWidth = 5 };
-			for (int i = 0; i < ratings.Count; i++)
-				ratingsBox.PackStart(new RatingListFieldElement(ratings, i, false), false, false, 0);
+
+			for (int i = 1; i <= 8; i++) {
+				if (ratings.values[0, i] > 0) {
+					Label ratingLabel = new Label(TextTools.PrintRating(i, ratings.values[0, i]));
+					ratingLabel.SetAlignment(0, 0);
+					ratingsBox.PackStart(ratingLabel, false, false, 0);
+				}
+			}
+
+			for (int k = 1; k <= 3; k++) {
+				if (ratings.values[k,0] > 0) {
+
+					Label ratingLabel = new Label(TextTools.PrintRating(k+8, ratings.values[k,0], true));
+					ratingLabel.SetAlignment(0, 0);
+
+					List<String> subratings = new List<String>();
+					for (int i = 1; i <= 8; i++)
+						if(ratings.values[k,i]>0)
+							subratings.Add(TextTools.PrintRating(i, ratings.values[k,i]));
+					ratingLabel.TooltipText = String.Join("\n", subratings);
+
+					ratingsBox.PackStart(ratingLabel, false, false, 0);
+
+				}
+			}
+
 			ClickableEventBox clickableEventBox = new ClickableEventBox { BorderWidth = 5 };
 			clickableEventBox.Add(ratingsBox);
 			clickableEventBox.DoubleClicked += (o, a) => new RatingsEditorDialog(this);
 			return clickableEventBox;
+
 		}
 	}
 

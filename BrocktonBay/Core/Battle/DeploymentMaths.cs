@@ -9,9 +9,9 @@ namespace Parahumans.Core {
 		public float[] multipliers;
 		public float[] metamultipliers;
 
-		public RatingsComparison () {
-			values = new float[3][,] { new float[5, 8], new float[5, 8], new float[5, 8] };
-			multipliers = new float[8];
+		public RatingsComparison() {
+			values = new float[3][,] { new float[5, 9], new float[5, 9], new float[5, 9] };
+			multipliers = new float[9];
 			metamultipliers = new float[4];
 		}
 
@@ -20,7 +20,7 @@ namespace Parahumans.Core {
 
 	public sealed partial class Deployment : GUIComplete {
 
-		public static void Compare (Deployment l1, Deployment l2) {
+		public static void Compare(Deployment l1, Deployment l2) {
 			l1.enemy = l2;
 			l2.enemy = l1;
 			l1.EvalStage1(); //Deducts thinker rating of enemy from self mover and stranger ratings
@@ -33,7 +33,7 @@ namespace Parahumans.Core {
 			l2.EvalStage4();
 		}
 
-		public void EvalStage1 () {
+		public void EvalStage1() {
 
 			if (alignment == Alignment.Hero) {
 				authorized_force = enemy.threat;
@@ -45,9 +45,9 @@ namespace Parahumans.Core {
 
 			ratings.values[1] = (float[,])ratings.values[0].Clone();
 
-			float remainingThinker = enemy.ratings.values[0][4, 6];
+			float remainingThinker = enemy.ratings.values[0][5, 6];
 			while (remainingThinker > 0) {
-				int deductTarget = (ratings.values[0][4, 4] > ratings.values[0][4, 5]) ? 4 : 5;
+				int deductTarget = (ratings.values[0][4, 5] > ratings.values[0][4, 6]) ? 5 : 6;
 				if (ratings.values[1][0, deductTarget] > 0) {
 					ratings.values[1][0, deductTarget]--;
 				} else if (ratings.values[1][1, deductTarget] > 0) {
@@ -63,52 +63,50 @@ namespace Parahumans.Core {
 
 		}
 
-		public void EvalStage2 () {
+		public void EvalStage2() {
 
 			//  0   1   2   3   4   5   6   7   8   9   10
 			// BRT BLS SHK SRK MOV SRN THK TRM TNK MSR BRK");
 
-			ratings.multipliers[0] = (float)(GetMultiplier(ratings.values[1][4, 4], 1, 2, 0.05f) *
-											 GetMultiplier(enemy.ratings.values[1][4, 4], 1, 0.5f, -0.05f) *
-											 GetMultiplier(enemy.ratings.values[1][4, 3], 1, 0.5f, -0.05f)); //Brute:   Mover ±10%, Striker -10%
-			ratings.multipliers[1] = (float)(GetMultiplier(ratings.values[1][4, 5], 1, 2, 0.05f) *
-											 GetMultiplier(enemy.ratings.values[1][4, 5], 1, 0.5f, -0.05f) *
-											 GetMultiplier(enemy.ratings.values[1][4, 2], 1, 0.5f, -0.05f)); //Blaster: Stranger ±10%, Shaker -10%
-			ratings.multipliers[2] = (float)GetMultiplier(enemy.ratings.values[1][4, 0], 1, 0.5f, -0.05f); //Shaker:   Brute -10%
-			ratings.multipliers[3] = (float)GetMultiplier(enemy.ratings.values[1][4, 1], 1, 0.5f, -0.05f); //Striker:  Blaster -10%
-			ratings.multipliers[4] = 1;                                     //Mover:    NONE
-			ratings.multipliers[5] = 1;                                     //Thinker:  NONE
-			ratings.multipliers[6] = 1;                                     //Stranger: NONE
-			ratings.multipliers[7] = 1;                                     //Trump:    NONE
+			ratings.multipliers[1] = (GetMultiplier(enemy.ratings.values[1][4, 5], 1, 0.5f, -0.05f) *
+			                          GetMultiplier(enemy.ratings.values[1][4, 4], 1, 0.5f, -0.05f)); //Brute:   Mover -10%, Striker -10%
+			ratings.multipliers[2] = (GetMultiplier(enemy.ratings.values[1][4, 6], 1, 0.5f, -0.05f) *
+			                          GetMultiplier(enemy.ratings.values[1][4, 3], 1, 0.5f, -0.05f)); //Blaster: Stranger -10%, Shaker -10%
+			ratings.multipliers[3] = GetMultiplier(enemy.ratings.values[1][4, 1], 1, 0.5f, -0.05f); //Shaker:   Brute -10%
+			ratings.multipliers[4] = GetMultiplier(enemy.ratings.values[1][4, 2], 1, 0.5f, -0.05f); //Striker:  Blaster -10%
+			ratings.multipliers[5] = 1;                                     //Mover:    NONE
+			ratings.multipliers[6] = 1;                                     //Thinker:  NONE
+			ratings.multipliers[7] = 1;                                     //Stranger: NONE
+			ratings.multipliers[8] = 1;                                     //Trump:    NONE
 
-			ratings.metamultipliers[0] = (float)GetMultiplier(enemy.ratings.values[1][4, 7], 1, 0.5f, -0.05f); //Base:     Trump -10%
-			ratings.metamultipliers[1] = (float)GetMultiplier(enemy.ratings.values[1][4, 3], 1, 0.5f, -0.05f); //Tinker:   Striker -10%
-			ratings.metamultipliers[2] = (float)GetMultiplier(enemy.ratings.values[1][4, 2], 1, 0.5f, -0.05f); //Master:   Shaker -10%
-			ratings.metamultipliers[3] = 1;                                   //Breaker:  NONE
+			ratings.metamultipliers[0] = GetMultiplier(enemy.ratings.values[1][4, 8], 1, 0.5f, -0.05f); //Base:     Trump -10%
+			ratings.metamultipliers[1] = GetMultiplier(enemy.ratings.values[1][4, 4], 1, 0.5f, -0.05f); //Tinker:   Striker -10%
+			ratings.metamultipliers[2] = GetMultiplier(enemy.ratings.values[1][4, 3], 1, 0.5f, -0.05f); //Master:   Shaker -10%
+			ratings.metamultipliers[3] = GetMultiplier(enemy.ratings.values[1][4, 7], 1, 0.5f, -0.05f); //Breaker:  Thinker -10%
 
-			ratings.values[2] = new float[5, 8];
-			for (int i = 0; i < 3; i++) {
-				for (int j = 0; j < 8; j++) {
+			ratings.values[2] = new float[5, 9];
+			for (int i = 0; i < 4; i++) {
+				for (int j = 1; j <= 8; j++) {
 					ratings.values[2][i, j] = ratings.values[1][i, j] * ratings.multipliers[j] * ratings.metamultipliers[i];
-					ratings.values[2][4, j] += ratings.values[1][i, j] * ratings.multipliers[j] * ratings.metamultipliers[i];
+					ratings.values[2][4, j] += ratings.values[2][i, j];
 				}
 			}
-			for (int j = 0; j < 8; j++) {
+			for (int j = 1; j <= 8; j++) {
 				ratings.values[2][3, j] = ratings.values[1][3, j] * ratings.multipliers[j] * ratings.metamultipliers[3];
-				ratings.values[2][4, j] += ratings.values[1][3, j] * ratings.multipliers[j] * ratings.metamultipliers[3];
+				ratings.values[2][4, j] += ratings.values[2][3, j];
 			}
 
 		}
 
-		public void EvalStage3 () {
+		public void EvalStage3() {
 
 			strength = new Expression("@0 + @1 + @2 + @3 = @4\n" +
 									  "@4 + @5 + @6 = @7"
 									  , "0", "0", "0", "0", "0.0", "0", "0", "0.0");
-			strength.terms[0].val = ratings.values[2][4, 0]; //Brute
-			strength.terms[1].val = ratings.values[2][4, 1]; //Blaster
-			strength.terms[2].val = ratings.values[2][4, 2]; //Shaker
-			strength.terms[3].val = ratings.values[2][4, 3]; //Striker
+			strength.terms[0].val = ratings.values[2][4, 1]; //Brute
+			strength.terms[1].val = ratings.values[2][4, 2]; //Blaster
+			strength.terms[2].val = ratings.values[2][4, 3]; //Shaker
+			strength.terms[3].val = ratings.values[2][4, 4]; //Striker
 			strength.terms[4].val = strength.terms[0].val + strength.terms[1].val + strength.terms[2].val + strength.terms[3].val;
 			strength.terms[5].val = combined_roster.Count;
 			for (int i = 0; i < teams.Count; i++) strength.terms[6].val += teams[i].spent_XP[0].val;
@@ -122,8 +120,8 @@ namespace Parahumans.Core {
 
 			mobility = new Expression("@0 + @1 = @2\n" +
 									  "@2 @3 + @4 = @5", "0", "0", "0.0", "+#;−#;+0", "0", "0.0");
-			mobility.terms[0].val = ratings.values[2][4, 4]; //Mover
-			mobility.terms[1].val = ratings.values[2][4, 5]; //Stranger
+			mobility.terms[0].val = ratings.values[2][4, 5]; //Mover
+			mobility.terms[1].val = ratings.values[2][4, 6]; //Stranger
 			mobility.terms[2].val = mobility.terms[0].val + mobility.terms[1].val;
 			mobility.terms[3].val = 3 - combined_roster.Count;
 			for (int i = 0; i < teams.Count; i++) mobility.terms[4].val += teams[i].spent_XP[1].val;
@@ -131,8 +129,8 @@ namespace Parahumans.Core {
 
 			insight = new Expression("@0 + @1 = @2\n" +
 									 "@2 + @3 + @4 = @5", "0", "0", "0.0", "0", "0", "0.0");
-			insight.terms[0].val = ratings.values[2][4, 6]; //Thinker
-			insight.terms[1].val = ratings.values[2][4, 7]; //Trump
+			insight.terms[0].val = ratings.values[2][4, 7]; //Thinker
+			insight.terms[1].val = ratings.values[2][4, 8]; //Trump
 			insight.terms[2].val = insight.terms[0].val + insight.terms[1].val;
 			insight.terms[3].val = 1;
 			for (int i = 0; i < teams.Count; i++) insight.terms[4].val += teams[i].spent_XP[2].val;
@@ -140,7 +138,7 @@ namespace Parahumans.Core {
 
 		}
 
-		public void EvalStage4 () {
+		public void EvalStage4() {
 
 			injury = new Fraction[4];
 			float base_chance = enemy.strength.result / strength.result / 4;

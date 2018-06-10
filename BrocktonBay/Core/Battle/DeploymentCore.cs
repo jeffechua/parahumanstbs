@@ -35,6 +35,8 @@ namespace Parahumans.Core {
 		[Displayable(7, typeof(CellObjectListField<Parahuman>), 3), Emphasized]
 		public List<Parahuman> combined_roster { get; set; }
 
+		public RatingsProfile ratings_profile { get { return new RatingsProfile(teams, independents); } }
+
 		[Displayable(8, typeof(RatingsComparisonField), false), Emphasized]
 		public RatingsComparison ratings { get; set; }
 
@@ -75,20 +77,7 @@ namespace Parahumans.Core {
 			alignment = combined_roster[0].alignment;
 
 			//Load all ratings
-			for (int i = 0; i < combined_roster.Count; i++) {
-				for (int j = 0; j < combined_roster[i].ratings.Count; j++) {
-					if ((int)combined_roster[i].ratings[j].clssf <= 7) {
-						ratings.values[0][4, (int)combined_roster[i].ratings[j].clssf] += combined_roster[i].ratings[j].num;
-						ratings.values[0][0, (int)combined_roster[i].ratings[j].clssf] += combined_roster[i].ratings[j].num;
-					} else {
-						for (int k = 0; k < combined_roster[i].ratings[j].subratings.Count; k++) {
-							Rating subrating = combined_roster[i].ratings[j].subratings[k];
-							ratings.values[0][4, (int)subrating.clssf] += subrating.num;
-							ratings.values[0][(int)combined_roster[i].ratings[j].clssf - 7, (int)subrating.clssf] += subrating.num;
-						}
-					}
-				}
-			}
+			ratings.values[0] = ratings_profile.values;
 
 		}
 

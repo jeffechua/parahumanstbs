@@ -8,13 +8,13 @@ namespace Parahumans.Core {
 
 	public sealed class RatingListField : ClickableEventBox {
 
-		List<Rating> ratings;
+		RatingsProfile profile;
 		public bool vertical;
 
-		public RatingListField (PropertyInfo property, object obj, bool vert, object arg) {
+		public RatingListField (PropertyInfo property, object obj, bool vertical, object arg) {
 
-			ratings = (List<Rating>)property.GetValue(obj);
-			vertical = vert;
+			profile = (RatingsProfile)property.GetValue(obj);
+			this.vertical = vertical;
 
 			Gtk.Alignment alignment = new Gtk.Alignment(0, 0, 1, 0);
 			Add(alignment);
@@ -25,23 +25,100 @@ namespace Parahumans.Core {
 				frame.Add(box);
 				alignment.Add(frame);
 
-				for (int i = 0; i < ratings.Count; i++) {
-					box.PackStart(new RatingListFieldElement(ratings, i, true));
+				for (int i = 1; i <= 8; i++) {
+					if (profile.values[0, i] > 0) {
+						Label ratingLabel = new Label(TextTools.PrintRating(i, profile.values[0, i]));
+						ratingLabel.SetAlignment(0, 0);
+						box.PackStart(ratingLabel);
+					}
 				}
+
+				for (int k = 1; k <= 3; k++) {
+					if (profile.values[k,0] > 0) {
+
+						Label wrapperLabel = new Label(TextTools.PrintRating(k+8, profile.values[k,0]));
+						wrapperLabel.SetAlignment(0, 0);
+
+						VBox ratingBox = new VBox(false, 5) { BorderWidth = 5 };
+						Frame ratingFrame = new Frame { LabelWidget = wrapperLabel, Child = ratingBox };
+
+						for (int i = 1; i <= 8; i++) {
+							if (profile.values[k, i] > 0) {
+								Label ratingLabel = new Label(TextTools.PrintRating(i, profile.values[k, i]));
+								ratingLabel.SetAlignment(0, 0);
+								ratingBox.PackStart(ratingLabel, false, false, 0);
+							}
+						}
+
+						box.PackStart(ratingFrame);
+
+					}
+				}
+
 			} else {
 				HBox box = new HBox(false, 0) { BorderWidth = 5 };
 				alignment.Add(box);
-				for (int i = 0; i < ratings.Count; i++) {
-					if (i != 0)
-						box.PackStart(new Label(", "), false, false, 0);
-					box.PackStart(new RatingListFieldElement(ratings, i, false), false, false, 0);
+				for (int i = 1; i <= 8; i++) {
+					if (profile.values[0, i] > 0) {
+						Label ratingLabel = new Label(TextTools.PrintRating(i, profile.values[0, i]));
+						ratingLabel.SetAlignment(0, 0);
+						box.PackStart(ratingLabel, false, false, 0);
+					}
+				}
+
+				for (int k = 1; k <= 3; k++) {
+					if (profile.values[k,0] > 0) {
+
+						Label ratingLabel = new Label(TextTools.PrintRating(k + 8, profile.values[k,0], true));
+						ratingLabel.SetAlignment(0, 0);
+
+						List<String> subratings = new List<String>();
+						for (int i = 1; i <= 8; i++)
+							if (profile.values[k, i] > 0)
+								subratings.Add(TextTools.PrintRating(i, profile.values[k, i]));
+						ratingLabel.TooltipText = String.Join("\n", subratings);
+
+						box.PackStart(ratingLabel, false, false, 0);
+
+					}
 				}
 			}
 
 			DoubleClicked += (o, a) => new RatingsEditorDialog((Parahuman)obj);
 		}
 	}
+	/*
+	public sealed class RatingListFieldElement : Gtk.Alignment {
 
+		public List<Rating> parentList;
+		public int index;
+		public bool expanded;
+
+		public RatingListFieldElement (List<Rating> ratings, int ind, bool e = true) : base(0, 0, 1, 0) {
+
+			parentList = ratings;
+			index = ind;
+			expanded = e;
+
+			Rating rating = ratings[ind];
+
+
+			if (rating.subratings.Count > 0) {
+				if (expanded) {
+				} else {
+					String[] subratings = new string[rating.subratings.Count];
+					for (int j = 0; j < subratings.Length; j++) {
+						subratings[j] = rating.subratings[j].ToString();
+					}
+					ratingLabel.TooltipText = String.Join("\n", subratings);
+					Add(ratingLabel);
+				}
+			} else {
+			}
+		}
+
+	}
+	*/
 	public sealed class RatingsEditorDialog : DefocusableWindow {
 
 		Parahuman parahuman;
@@ -87,8 +164,8 @@ namespace Parahumans.Core {
 		}
 
 		void AttemptConfirm (object obj, EventArgs args) {
-			if (TextTools.TryParseRatings(editBox.Buffer.Text, out List<Rating> newRatings)) {
-				parahuman.ratings = newRatings;
+			if (TextTools.TryParseRatings(editBox.Buffer.Text, out RatingsProfile? newRatings)) {
+				parahuman.ratings = (RatingsProfile)newRatings;
 				DependencyManager.Flag(parahuman);
 				DependencyManager.TriggerAllFlags();
 				this.Destroy();
@@ -125,46 +202,6 @@ namespace Parahumans.Core {
 
 	}
 
-	public sealed class RatingListFieldElement : Gtk.Alignment {
-
-		public List<Rating> parentList;
-		public int index;
-		public bool expanded;
-
-		public RatingListFieldElement (List<Rating> ratings, int ind, bool e = true) : base(0, 0, 1, 0) {
-
-			parentList = ratings;
-			index = ind;
-			expanded = e;
-
-			Rating rating = ratings[ind];
-
-			Label ratingLabel = new Label(rating.ToString(!expanded));
-			ratingLabel.SetAlignment(0, 0);
-
-			if (rating.subratings.Count > 0) {
-				if (expanded) {
-					VBox ratingBox = new VBox(false, 5) { BorderWidth = 5 };
-					Frame ratingFrame = new Frame { LabelWidget = ratingLabel, Child = ratingBox };
-					for (int i = 0; i < rating.subratings.Count; i++) {
-						RatingListFieldElement subrating = new RatingListFieldElement(rating.subratings, i, false);
-						ratingBox.PackStart(subrating, false, false, 0);
-					}
-					Add(ratingFrame);
-				} else {
-					String[] subratings = new string[rating.subratings.Count];
-					for (int j = 0; j < subratings.Length; j++) {
-						subratings[j] = rating.subratings[j].ToString();
-					}
-					ratingLabel.TooltipText = String.Join("\n", subratings);
-					Add(ratingLabel);
-				}
-			} else {
-				Add(ratingLabel);
-			}
-		}
-
-	}
 
 	public sealed class RatingsSumField : Expander {
 
@@ -173,7 +210,7 @@ namespace Parahumans.Core {
 
 		public RatingsSumField (PropertyInfo property, object obj, bool vert, object arg) : base(TextTools.ToReadable(property.Name)) {
 
-			ratings = ((RatingsProfile)property.GetValue(obj)).ratings;
+			ratings = ((RatingsProfile)property.GetValue(obj)).values;
 			vertical = vert;
 
 			Expanded = (bool)arg;
@@ -187,12 +224,12 @@ namespace Parahumans.Core {
 			table.Attach(new HSeparator(), 0, 10, 1, 2);
 			table.Attach(new VSeparator(), 1, 2, 0, 7);
 			//Column labels and multipliers
-			for (uint i = 0; i < 8; i++) {
+			for (uint i = 1; i <= 8; i++) {
 				Label classLabel = new Label(" " + EnumTools.classSymbols[i] + " ") {
 					HasTooltip = true,
 					TooltipText = Enum.GetName(typeof(Classification), i)
 				};
-				table.Attach(classLabel, i + 2, i + 3, 0, 1);
+				table.Attach(classLabel, i + 1, i + 2, 0, 1);
 			}
 			//Fill in rows, including labels, numbers and multipliers
 			for (uint i = 0; i < 5; i++) {
@@ -201,10 +238,10 @@ namespace Parahumans.Core {
 				rowLabel.SetAlignment(1, 0);
 				table.Attach(rowLabel, 0, 1, i + 2, i + 3);
 				//Numbers
-				for (uint j = 0; j < 8; j++) {
+				for (uint j = 1; j <= 8; j++) {
 					Label numberLabel = new Label(ratings[i, j].ToString());
 					numberLabel.SetAlignment(1, 1);
-					table.Attach(numberLabel, j + 2, j + 3, i + 2, i + 3);
+					table.Attach(numberLabel, j + 1, j + 2, i + 2, i + 3);
 				}
 			}
 
@@ -253,12 +290,12 @@ namespace Parahumans.Core {
 			table0.Attach(new HSeparator(), 0, 10, 1, 2);
 			table0.Attach(new VSeparator(), 1, 2, 0, 7);
 			//Column labels and multipliers
-			for (uint i = 0; i < 8; i++) {
+			for (uint i = 1; i <= 8; i++) {
 				Label classLabel = new Label(" " + EnumTools.classSymbols[i] + " ") {
 					HasTooltip = true,
 					TooltipText = Enum.GetName(typeof(Classification), i)
 				};
-				table0.Attach(classLabel, i + 2, i + 3, 0, 1);
+				table0.Attach(classLabel, i + 1, i + 2, 0, 1);
 			}
 			//Fill in rows, including labels, numbers and multipliers
 			for (uint i = 0; i < 5; i++) {
@@ -267,10 +304,10 @@ namespace Parahumans.Core {
 				rowLabel.SetAlignment(1, 0);
 				table0.Attach(rowLabel, 0, 1, i + 2, i + 3);
 				//Numbers
-				for (uint j = 0; j < 8; j++) {
+				for (uint j = 1; j <= 8; j++) {
 					Label numberLabel = new Label(comparison.values[0][i, j].ToString());
 					numberLabel.SetAlignment(1, 1);
-					table0.Attach(numberLabel, j + 2, j + 3, i + 2, i + 3);
+					table0.Attach(numberLabel, j + 1, j + 2, i + 2, i + 3);
 				}
 			}
 
@@ -278,13 +315,13 @@ namespace Parahumans.Core {
 			table1.Attach(new HSeparator(), 0, 10, 1, 2);
 			table1.Attach(new VSeparator(), 1, 2, 0, 7);
 			//Column labels and multipliers
-			for (uint i = 0; i < 8; i++) {
+			for (uint i = 1; i <= 8; i++) {
 				Label classLabel = new Label(" " + EnumTools.classSymbols[i] + " ") {
 					HasTooltip = true,
 					TooltipText = Enum.GetName(typeof(Classification), i)
 				};
-				table1.Attach(classLabel, i + 2, i + 3, 0, 1);
-				if (i == 4 || i == 5) {
+				table1.Attach(classLabel, i + 1, i + 2, 0, 1);
+				if (i == 5 || i == 6) {
 					Label deduction = new Label {
 						UseMarkup = true,
 						Markup = "<small> − " + (comparison.values[1][4, i] - comparison.values[0][4, i]).ToString("0.0") + "</small>",
@@ -293,7 +330,7 @@ namespace Parahumans.Core {
 						Angle = -90
 					};
 					deduction.SetAlignment(1, 0);
-					table1.Attach(deduction, i + 2, i + 3, 7, 8);
+					table1.Attach(deduction, i + 1, i + 2, 7, 8);
 				}
 			}
 			//Fill in rows, including labels, numbers and multipliers
@@ -303,10 +340,10 @@ namespace Parahumans.Core {
 				rowLabel.SetAlignment(1, 0);
 				table1.Attach(rowLabel, 0, 1, i + 2, i + 3);
 				//Numbers
-				for (uint j = 0; j < 8; j++) {
+				for (uint j = 1; j <= 8; j++) {
 					Label numberLabel = new Label(comparison.values[1][i, j].ToString());
 					numberLabel.SetAlignment(1, 1);
-					table1.Attach(numberLabel, j + 2, j + 3, i + 2, i + 3);
+					table1.Attach(numberLabel, j + 1, j + 2, i + 2, i + 3);
 				}
 			}
 
@@ -314,13 +351,13 @@ namespace Parahumans.Core {
 			table2.Attach(new HSeparator(), 0, 10, 1, 2);
 			table2.Attach(new VSeparator(), 1, 2, 0, 7);
 			//Column labels and multipliers
-			for (uint i = 0; i < 8; i++) {
+			for (uint i = 1; i <= 8; i++) {
 				Label classLabel = new Label(" " + EnumTools.classSymbols[i] + " ") {
 					HasTooltip = true,
 					TooltipText = Enum.GetName(typeof(Classification), i)
 				};
-				table2.Attach(classLabel, i + 2, i + 3, 0, 1);
-				if (i < 4) {
+				table2.Attach(classLabel, i + 1, i + 2, 0, 1);
+				if (i < 5) {
 					Label multiplier = new Label {
 						UseMarkup = true,
 						Markup = "<small> ×" + comparison.multipliers[i].ToString("0.00") + "</small>",
@@ -329,7 +366,7 @@ namespace Parahumans.Core {
 						Angle = -90
 					};
 					multiplier.SetAlignment(1, 0);
-					table2.Attach(multiplier, i + 2, i + 3, 7, 8);
+					table2.Attach(multiplier, i + 1, i + 2, 7, 8);
 				}
 			}
 			//Fill in rows, including labels, numbers and multipliers
@@ -339,10 +376,10 @@ namespace Parahumans.Core {
 				rowLabel.SetAlignment(1, 0);
 				table2.Attach(rowLabel, 0, 1, i + 2, i + 3);
 				//Numbers
-				for (uint j = 0; j < 8; j++) {
+				for (uint j = 1; j <= 8; j++) {
 					Label numberLabel = new Label(comparison.values[2][i, j].ToString("F0"));
 					numberLabel.SetAlignment(1, 1);
-					table2.Attach(numberLabel, j + 2, j + 3, i + 2, i + 3);
+					table2.Attach(numberLabel, j + 1, j + 2, i + 2, i + 3);
 				}
 				if (i < 4) {
 					//Row multiplier

@@ -1,15 +1,15 @@
 ﻿<Properties StartupConfiguration="{13673191-DA09-43E3-919A-46293A2FDDBB}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Core.GUI/Inspector/ObjectFields.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Core/AbstractBaseClasses.cs">
     <Files>
-      <File FileName="Core.GUI/Search.cs" Line="97" Column="50" />
       <File FileName="Core.GUI/BattleInterface.cs" Line="30" Column="27" />
-      <File FileName="Core.GUI/Inspector.cs" Line="77" Column="62" />
-      <File FileName="Core/Faction.cs" Line="130" Column="69" />
-      <File FileName="Core/Team.cs" Line="118" Column="46" />
-      <File FileName="Core/Parahuman.cs" Line="127" Column="56" />
-      <File FileName="Program.cs" Line="95" Column="69" />
-      <File FileName="Core/City.cs" Line="16" Column="3" />
-      <File FileName="Core.GUI/Inspector/ObjectFields.cs" Line="198" Column="19" />
+      <File FileName="Core/Parahuman.cs" Line="46" Column="44" />
+      <File FileName="Core/Ratings.cs" Line="49" Column="34" />
+      <File FileName="Core.GUI/RatingsRadarChart.cs" Line="160" Column="18" />
+      <File FileName="Core.GUI/TextTools.cs" Line="68" Column="33" />
+      <File FileName="Core.GUI/GraphicsResources.cs" Line="9" Column="56" />
+      <File FileName="Core.GUI/Inspector/RatingsFields.cs" Line="216" Column="25" />
+      <File FileName="Core/AbstractBaseClasses.cs" Line="1" Column="1" />
+      <File FileName="IO.cs" Line="20" Column="27" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />

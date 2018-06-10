@@ -30,7 +30,7 @@ namespace Parahumans.Core {
 
 	}
 
-	public sealed class Faction : GameObject {
+	public sealed class Faction : GameObject, Rated {
 
 		public override int order { get { return 3; } }
 
@@ -64,6 +64,12 @@ namespace Parahumans.Core {
 
 		[Displayable(6, typeof(CellObjectListField<Team>), 2), Emphasized]
 		public List<Team> teams { get; set; }
+
+		[Displayable(8, typeof(RatingsSumField), true), Emphasized, VerticalOnly]
+		public RatingsProfile ratings { get { return new RatingsProfile(roster, teams); } }
+
+		[Displayable(8, typeof(RatingsRadarChart), true), Emphasized, VerticalOnly]
+		public RatingsProfile ratings_profile_radar { get { return ratings; } }
 
 		public Faction () : this(new FactionData()) { }
 

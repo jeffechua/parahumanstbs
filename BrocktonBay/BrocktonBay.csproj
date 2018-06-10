@@ -69,6 +69,8 @@
     <Compile Include="IO.cs" />
     <Compile Include="Core.GUI\CityInterface.cs" />
     <Compile Include="Core.GUI\RatingsRadarChart.cs" />
+    <Compile Include="Core.GUI\TextTools.cs" />
+    <Compile Include="Core\Ratings.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />

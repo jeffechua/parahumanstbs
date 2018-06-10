@@ -1,24 +1,10 @@
 ﻿using System.Reflection;
+using System.Collections.Generic;
 using System;
 using Gtk;
 using Gdk;
 
 namespace Parahumans.Core {
-
-	public class RatingsProfile {
-		public float[,] ratings;
-		public float strength;
-		public float stealth;
-		public float insight;
-		public RatingsProfile () {
-			ratings = new float[5, 8];
-		}
-		public void Evaluate () {
-			strength = ratings[4, 0] + ratings[4, 1] + ratings[4, 2] / 2 + ratings[4, 3] / 2;
-			stealth = ratings[4, 4] + ratings[4, 5];
-			insight = ratings[4, 6] + ratings[4, 7];
-		}
-	}
 
 	public struct Vector2 {
 		public double x;
@@ -119,6 +105,7 @@ namespace Parahumans.Core {
 				new Gdk.GC(pixmap) { RgbFgColor = new Color(100, 100, 100) }       //Darker grey, for the axis labels
 			};
 			pixmap.DrawRectangle(contexts[4], true, new Rectangle(0, 0, size, size));
+			mask.DrawRectangle(contexts[3], true, new Rectangle(0, 0, size, size));
 
 			//The eight directions in which vertices lie
 			Vector2[] directions = {
@@ -136,16 +123,16 @@ namespace Parahumans.Core {
 
 			//Compute magnitudes
 
-			int[] indexMap = { 1, 5, 3, 7, 0, 4, 6, 2 }; //old[0] -> new[1], old[1] -> new[5] etc.
-			int[] reverseIndexMap = { 4, 0, 7, 2, 5, 1, 6, 3 }; //old[0] -> new[1], old[1] -> new[5] etc.
+			int[] indexMap = { 0, 1, 5, 3, 7, 0, 4, 6, 2 }; //old[0] -> new[1], old[1] -> new[5] etc.
+			int[] reverseIndexMap = { 5, 1, 8, 3, 6, 2, 7, 4 }; //old[0] -> new[1], old[1] -> new[5] etc.
 			float[,] magnitudes = new float[4, 8]; //Magnitudes of the positions of the vertices
 
-			for (int i = 0; i < 8; i++) {
+			for (int i = 1; i <= 8; i++) {
 				int j = indexMap[i];
-				magnitudes[0, j] = profile.ratings[0, i];
-				magnitudes[1, j] = profile.ratings[1, i] + magnitudes[0, j];
-				magnitudes[2, j] = profile.ratings[2, i] + magnitudes[1, j];
-				magnitudes[3, j] = profile.ratings[4, i]; // = profile.ratings[3, i] + magnitudes[2, j]
+				magnitudes[0, j] = profile.values[0, i];
+				magnitudes[1, j] = profile.values[1, i] + magnitudes[0, j];
+				magnitudes[2, j] = profile.values[2, i] + magnitudes[1, j];
+				magnitudes[3, j] = profile.values[4, i]; // = profile.ratings[3, i] + magnitudes[2, j]
 			}
 
 			float greatestMagnitude = 0;
@@ -242,6 +229,8 @@ namespace Parahumans.Core {
 
 			SetFromPixmap(pixmap, mask);
 			ShowAll();
+
+			KeyPressEvent += (o, a) => ShowAll();
 
 		}
 
