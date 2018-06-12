@@ -7,9 +7,9 @@ namespace Parahumans.Core {
 
 		City city;
 
-		public CityInterface (City origin) {
+		public CityInterface (City city) {
 
-			city = origin;
+			this.city = city;
 
 			//Sets up main layout and inspector
 			Notebook main = new Notebook();

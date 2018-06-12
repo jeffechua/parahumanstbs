@@ -6,14 +6,14 @@ using Gtk;
 namespace Parahumans.Core {
 
 	public class SelectorDialog : DefocusableWindow {
-		public SelectorDialog(string title, Action<GameObject> ClickedAction, Func<GameObject, bool> FilterFunction = null) {
+		public SelectorDialog(string title, Func<GameObject, bool> Filter = null, Action<GameObject> OnClicked = null) {
 			//Setup window
 			Title = title;
 			SetPosition(WindowPosition.Center);
 			TransientFor = (Window)Inspector.main.Toplevel;
 			TypeHint = Gdk.WindowTypeHint.Dialog;
 			//Setup search
-			Search search = new Search(FilterFunction, delegate (GameObject obj) { ClickedAction(obj); this.Destroy(); });
+			Search search = new Search(Filter, delegate (GameObject obj) { OnClicked(obj); this.Destroy(); });
 			Add(search);
 			//Define default dimensions and Show
 			search.resultsWindow.Realize();
@@ -54,11 +54,11 @@ namespace Parahumans.Core {
 		Action<GameObject> OnClicked;
 
 
-		public Search(Func<GameObject, bool> FilterFunction = null, Action<GameObject> ClickedAction = null) {
+		public Search(Func<GameObject, bool> Filter = null, Action<GameObject> OnClicked = null) {
 
 			DependencyManager.Connect(MainClass.currentCity, this);
-			Filter = FilterFunction == null ? delegate { return true; } : FilterFunction;
-			OnClicked = ClickedAction == null ? delegate { } : ClickedAction;
+			this.Filter = Filter ?? delegate { return true; };
+			this.OnClicked = OnClicked ?? delegate { };
 
 			//Search bar
 			searchBar = new Toolbar();

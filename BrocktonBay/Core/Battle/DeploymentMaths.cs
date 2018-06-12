@@ -45,7 +45,7 @@ namespace Parahumans.Core {
 
 			ratings.values[1] = (float[,])ratings.values[0].Clone();
 
-			float remainingThinker = enemy.ratings.values[0][5, 6];
+			float remainingThinker = enemy.ratings.values[0][4, 6];
 			while (remainingThinker > 0) {
 				int deductTarget = (ratings.values[0][4, 5] > ratings.values[0][4, 6]) ? 5 : 6;
 				if (ratings.values[1][0, deductTarget] > 0) {

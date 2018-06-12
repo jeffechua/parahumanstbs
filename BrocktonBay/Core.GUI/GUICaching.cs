@@ -20,10 +20,10 @@ namespace Parahumans.Core {
 		public List<ObjectWidgetPair<T>> cache;
 		public Func<T, Widget> Generator;
 
-		public CachingLister (List<T> p, Func<T, Widget> g) {
+		public CachingLister (List<T> population, Func<T, Widget> Generator) {
 			PackStart(new Gtk.Alignment(0, 0, 1, 1) { HeightRequest = 5 }, false, false, 0);
-			population = p;
-			Generator = g;
+			this.population = population;
+			this.Generator = Generator;
 			cache = new List<ObjectWidgetPair<T>>();
 		}
 
@@ -66,11 +66,11 @@ namespace Parahumans.Core {
 		Fixed contents;
 		int width;
 
-		public CachingTesselator (List<T> p, Func<T, Widget> g, Container bounds) {
-			population = p;
-			Generator = g;
+		public CachingTesselator (List<T> population, Func<T, Widget> Generator, Container shell) {
+			this.population = population;
+			this.Generator = Generator;
 			cache = new List<ObjectWidgetPair<T>>();
-			shell = bounds;
+			this.shell = shell;
 			contents = new Fixed();
 			Add(contents);
 			EnterNotifyEvent += (o, a) => Render(false);

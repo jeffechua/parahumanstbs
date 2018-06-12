@@ -12,10 +12,10 @@ namespace Parahumans.Core {
 		public GUIComplete displayed;
 		public bool vertical;
 
-		public ObjectField(PropertyInfo p, object o, bool vert, object arg) : base(0, 0, 1, 1) {
-			property = p;
-			displayed = (GUIComplete)property.GetValue(o);
-			vertical = vert;
+		public ObjectField (PropertyInfo property, object obj, bool vertical, object arg) : base(0, 0, 1, 1) {
+			this.property = property;
+			this.displayed = (GUIComplete)property.GetValue(obj);
+			this.vertical = vertical;
 
 			if (vertical) {
 				Expander expander = new Expander(TextTools.ToReadable(property.Name) + ": " + displayed.name) { Expanded = true };
@@ -36,10 +36,10 @@ namespace Parahumans.Core {
 	// the absolute value of (int)arg = number of columns in table if used
 	// arg>0 => expander starts expanded, <0 => starts collapsed
 	public abstract class ObjectListField<T> : EventBox where T : GUIComplete {
-		
+
 		protected IContainer parent;
 
-		public ObjectListField(PropertyInfo property, object obj, bool vertical, object arg) { //obj must be an IContainer.
+		public ObjectListField (PropertyInfo property, object obj, bool vertical, object arg) { //obj must be an IContainer.
 
 			parent = (IContainer)obj;
 
@@ -77,11 +77,11 @@ namespace Parahumans.Core {
 				rightclickMenu.Append(addExistingButton);
 				addExistingButton.Activated += (o, a) => new SelectorDialog(
 					"Select new addition to " + TextTools.ToReadable(property.Name),
+					(tested) => ((IContainer)obj).Accepts(tested) && tested is T,
 					delegate (GameObject returned) {
 						((IContainer)obj).Add(returned);
 						DependencyManager.TriggerAllFlags();
-					},
-					(tested) => ((IContainer)obj).Accepts(tested) && tested is T);
+					});
 			}
 
 			// Load tooltip (if exists)
@@ -126,7 +126,7 @@ namespace Parahumans.Core {
 				expander.DragDataReceived += AttemptDrag;
 
 			} else {
-				
+
 				HBox box = new HBox(false, 5);
 				Label label = new Label(TextTools.ToReadable(property.Name)) { Angle = 90 };
 				ClickableEventBox labelEventBox = new ClickableEventBox { Child = label };
@@ -149,23 +149,23 @@ namespace Parahumans.Core {
 
 		}
 
-		void AttemptDrag(object obj, DragDataReceivedArgs args) {
+		void AttemptDrag (object obj, DragDataReceivedArgs args) {
 			if (parent.Accepts(DragTmpVars.currentDragged)) {
 				parent.Add(DragTmpVars.currentDragged);
 				DependencyManager.TriggerAllFlags();
 			}
 		}
 
-		protected abstract Widget GetListElementWidget(T obj);
+		protected abstract Widget GetListElementWidget (T obj);
 
 	}
 
 	public class CellObjectListField<T> : ObjectListField<T> where T : GUIComplete {
 
-		public CellObjectListField(PropertyInfo property, object obj, bool vertical, object arg)
+		public CellObjectListField (PropertyInfo property, object obj, bool vertical, object arg)
 			: base(property, obj, vertical, arg) { }
 
-		protected override Widget GetListElementWidget(T obj) {
+		protected override Widget GetListElementWidget (T obj) {
 
 			Cell cell = new Cell(obj);
 			InspectableBox cellLabel = (InspectableBox)cell.frame.LabelWidget;
@@ -175,11 +175,11 @@ namespace Parahumans.Core {
 			MenuItem moveButton = new MenuItem("Move");
 			moveButton.Activated += (o, a)
 				=> new SelectorDialog("Select new parent for " + obj.name,
+				                      (tested) => tested.Accepts(obj),
 									  delegate (GameObject returned) {
 										  returned.Add(obj);
 										  DependencyManager.TriggerAllFlags();
-									  },
-									  (tested) => tested.Accepts(obj));
+									  });
 
 			MenuItem removeButton = new MenuItem("Remove");
 			removeButton.Activated += delegate {

@@ -11,9 +11,9 @@ namespace Parahumans.Core {
 	public sealed class StringFloatPair {
 		public string str;
 		public float val;
-		public StringFloatPair (string s, float f) {
-			str = s;
-			val = f;
+		public StringFloatPair (string str, float val) {
+			this.str = str;
+			this.val = val;
 		}
 		public override String ToString () {
 			return val.ToString(str);
@@ -33,11 +33,11 @@ namespace Parahumans.Core {
 		//t is the textual part of the expression with the values represented by @x, e.g. "@0 + @1 / @2 = @3".
 		//f is the string formats of each value, e.g. {"0.0", "P1", "P0", "0.000"}.
 		//The values of the expressions are manually assigned. To assign the number for @2, write to terms[2].val
-		public Expression (string t, params string[] f) {
-			text = t;
+		public Expression (string text, params string[] formatting) {
+			this.text = text;
 			terms = new List<StringFloatPair>();
-			for (int i = 0; i < f.Length; i++) {
-				terms.Add(new StringFloatPair(f[i], 0));
+			for (int i = 0; i < formatting.Length; i++) {
+				terms.Add(new StringFloatPair(formatting[i], 0));
 			}
 		}
 
@@ -60,12 +60,12 @@ namespace Parahumans.Core {
 		Expression exp;
 		bool vertical;
 
-		public ExpressionField (PropertyInfo p, object o, bool vert, object arg) : base(0, 0, 1, 1) {
+		public ExpressionField (PropertyInfo property, object obj, bool vertical, object arg) : base(0, 0, 1, 1) {
 
-			property = p;
-			obj = o;
-			exp = (Expression)p.GetValue(o);
-			vertical = vert;
+			this.property = property;
+			this.obj = obj;
+			exp = (Expression)property.GetValue(obj);
+			this.vertical = vertical;
 
 			Label label = new Label();
 			label.UseMarkup = true;
@@ -74,17 +74,17 @@ namespace Parahumans.Core {
 
 			//Multi-line expressions are put in an expander with the label text being the formattedResult of the expression.
 			if (exp.text.Contains("\n")) {
-				Expander expander = new Expander(TextTools.ToReadable(p.Name) + ": " + exp.formattedResult);
+				Expander expander = new Expander(TextTools.ToReadable(property.Name) + ": " + exp.formattedResult);
 				expander.Activated += OnToggled;
 				label.Markup = exp.ToString();
 				expander.Add(new Gtk.Alignment(0, 0, 1, 1) { Child = label, LeftPadding = 10, BottomPadding = 5 });
 				Add(expander);
 			} else {
-				label.Markup = TextTools.ToReadable(p.Name) + ": " + exp.ToString();
+				label.Markup = TextTools.ToReadable(property.Name) + ": " + exp.ToString();
 				Add(label);
 			}
 
-			TooltipTextAttribute tooltipText = (TooltipTextAttribute)p.GetCustomAttribute(typeof(TooltipTextAttribute));
+			TooltipTextAttribute tooltipText = (TooltipTextAttribute)property.GetCustomAttribute(typeof(TooltipTextAttribute));
 			if (tooltipText != null) {
 				HasTooltip = true;
 				TooltipMarkup = tooltipText.text;
@@ -113,17 +113,17 @@ namespace Parahumans.Core {
 		StringFloatPair[] pairs;
 		bool vertical;
 
-		public TabularStringFloatPairsField (PropertyInfo p, object o, bool vert, object arg) : base(1, 1, false) {
+		public TabularStringFloatPairsField (PropertyInfo property, object obj, bool vertical, object arg) : base(1, 1, false) {
 
-			pairs = (StringFloatPair[])p.GetValue(o);
-			vertical = vert;
+			pairs = (StringFloatPair[])property.GetValue(obj);
+			this.vertical = vertical;
 
 			ColumnSpacing = 5;
 			RowSpacing = 2;
 
-			Label label = new Label(TextTools.ToReadable(p.Name) + ": ");
+			Label label = new Label(TextTools.ToReadable(property.Name) + ": ");
 
-			TooltipTextAttribute tooltipText = (TooltipTextAttribute)p.GetCustomAttribute(typeof(TooltipTextAttribute));
+			TooltipTextAttribute tooltipText = (TooltipTextAttribute)property.GetCustomAttribute(typeof(TooltipTextAttribute));
 			if (tooltipText != null) {
 				HasTooltip = true;
 				TooltipMarkup = tooltipText.text;
@@ -133,7 +133,7 @@ namespace Parahumans.Core {
 			Attach(new VSeparator(), 1, 2, 0, (uint)(2 * pairs.Length - 1), AttachOptions.Shrink, AttachOptions.Fill, 0, 0);
 
 			for (uint i = 0; i < pairs.Length; i++) {
-				Attach(new StringFloatPairArrayElementField(p, o, !vert, null, (int)i, "G6"), 2, 3, 2 * i, 2 * i + 1);
+				Attach(new StringFloatPairArrayElementField(property, obj, !vertical, null, (int)i, "G6"), 2, 3, 2 * i, 2 * i + 1);
 				if (i != pairs.Length - 1) Attach(new HSeparator(), 2, 3, 2 * i + 1, 2 * i + 2);
 			}
 
@@ -149,7 +149,7 @@ namespace Parahumans.Core {
 
 		StringFloatPair[] array;
 
-		public LinearStringFloatPairsField (PropertyInfo p, object o, bool comp, object arg) : base(p, o, comp, arg) { }
+		public LinearStringFloatPairsField (PropertyInfo property, object obj, bool vertical, object arg) : base(property, obj, vertical, arg) { }
 
 		protected override string GetValueAsString () {
 			if (array == null) array = (StringFloatPair[])property.GetValue(obj);
@@ -180,9 +180,9 @@ namespace Parahumans.Core {
 		StringFloatPair target;
 
 		//The "true" suppresses Reload() at the end of the base constructor, allowing us to define "target" before Reload()ing manually. Otherwise, GetValueAsString() will fail.
-		public StringFloatPairArrayElementField (PropertyInfo p, object o, bool comp, object arg, int ind, string f) : base(p, o, comp, arg, true) {
-			index = ind;
-			format = f;
+		public StringFloatPairArrayElementField (PropertyInfo property, object obj, bool vertical, object arg, int index, string format) : base(property, obj, vertical, arg, true) {
+			this.index = index;
+			this.format = format;
 			target = ((StringFloatPair[])property.GetValue(obj))[index];
 			OverrideLabel(target.str + ": ");
 			Reload();
@@ -203,32 +203,33 @@ namespace Parahumans.Core {
 		public string name;
 		public float val;
 		public Gdk.Color color;
-		public Fraction (string n, float v, Gdk.Color c) {
-			name = n;
-			val = v;
+		public Fraction (string name, float val, Gdk.Color color) {
+			this.name = name;
+			this.val = val;
 			if (val > 1) val = 1;
 			if (val < 0) val = 0;
-			color = c;
+			this.color = color;
 		}
 	}
 
-	//Try not to touch this unless you have a really good grasp of Gtk's alignment and size systems.
-	//All of this was achieved through painful trial and error.
-	//The table is used to allow 'Gtk.Alignment's to be superimposed on each other. The arguments for Alignment initialization are used to position each fraction.
+	// Try not to touch this unless you have a really good grasp of Gtk's alignment and size systems.
+	// Making this was painful.
+	// The table is used to allow 'Gtk.Alignment's to be superimposed on each other. The arguments for Alignment initialization are used to position each fraction.
 	public sealed class FractionsBar : Table {
 
 		public Fraction[] fractions;
 		public bool vertical;
 
-		public FractionsBar (PropertyInfo p, object o, bool vert, object arg) : base(1, 3, false) {
+		public FractionsBar (PropertyInfo property, object obj, bool vertical, object arg) : base(1, 3, false) {
 
-			fractions = (Fraction[])p.GetValue(o);
+			fractions = (Fraction[])property.GetValue(obj);
+			this.vertical = vertical;
 
 			RowSpacing = 2;
-			Label title = new Label("[ " + TextTools.ToReadable(p.Name) + " ]");
+			Label title = new Label("[ " + TextTools.ToReadable(property.Name) + " ]");
 			Attach(title, 0, 1, 0, 1, AttachOptions.Fill, AttachOptions.Fill, 0, 2);
 
-			TooltipTextAttribute tooltipText = (TooltipTextAttribute)p.GetCustomAttribute(typeof(TooltipTextAttribute));
+			TooltipTextAttribute tooltipText = (TooltipTextAttribute)property.GetCustomAttribute(typeof(TooltipTextAttribute));
 			if (tooltipText != null) {
 				HasTooltip = true;
 				TooltipMarkup = tooltipText.text;

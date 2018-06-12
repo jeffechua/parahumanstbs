@@ -42,9 +42,9 @@ namespace Parahumans.Core {
 		public float stealth;
 		public float insight;
 
-		public RatingsProfile(float[,] ratings) {
-			this.values = ratings;
-			strength = stealth = insight = 0; //So C# allows us to call a this. function
+		public RatingsProfile(float[,] values) {
+			this.values = values;
+			strength = stealth = insight = 0; // So C# allows us to call a this. function
 			EvaluateStats();
 		}
 
@@ -60,7 +60,7 @@ namespace Parahumans.Core {
 					}
 				}
 			}
-			strength = stealth = insight = 0; //So C# allows us to call a this. function
+			strength = stealth = insight = 0; // So C# allows us to call a this. function
 			EvaluateStats();
 		}
 
@@ -74,7 +74,7 @@ namespace Parahumans.Core {
 					}
 				}
 			}
-			strength = stealth = insight = 0; //So C# allows us to call a this. function
+			strength = stealth = insight = 0; // So C# allows us to call a this. function
 			EvaluateStats();
 		}
 

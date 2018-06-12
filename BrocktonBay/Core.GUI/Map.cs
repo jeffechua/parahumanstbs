@@ -11,7 +11,7 @@ namespace Parahumans.Core {
 		Fixed positioner;
 		Image imageWidget;
 		VScale zoomScale;
-		Gdk.Pixbuf rawImage;
+		Gdk.Pixbuf baseImage;
 
 		double currentDragX;
 		double currentDragY;
@@ -33,10 +33,10 @@ namespace Parahumans.Core {
 			positioner.Put(stage, 0, 0);
 			Add(positioner);
 
-			rawImage = new Gdk.Pixbuf(city.mapPngSource);
-			rawImage = rawImage.ScaleSimple(
+			baseImage = new Gdk.Pixbuf(city.mapPngSource);
+			baseImage = baseImage.ScaleSimple(
 				(int)(city.mapDefaultWidth * maxMagnif),
-				(int)(city.mapDefaultWidth * rawImage.Height * maxMagnif / rawImage.Width),
+				(int)(city.mapDefaultWidth * baseImage.Height * maxMagnif / baseImage.Width),
 				Gdk.InterpType.Hyper);
 			imageWidget = new Image();
 			stage.Put(imageWidget, 0, 0);
@@ -82,7 +82,7 @@ namespace Parahumans.Core {
 
 		public void Zoom () {
 			double newMagnif = Math.Pow(zoomFactor, zoomScale.Value);
-			imageWidget.Pixbuf = rawImage.ScaleSimple((int)(rawImage.Width / maxMagnif * newMagnif), (int)(rawImage.Height / maxMagnif * newMagnif), Gdk.InterpType.Nearest);
+			imageWidget.Pixbuf = baseImage.ScaleSimple((int)(baseImage.Width / maxMagnif * newMagnif), (int)(baseImage.Height / maxMagnif * newMagnif), Gdk.InterpType.Nearest);
 			currentPanX -= (Allocation.Width / 2 - currentPanX) * (newMagnif - currentMagnif) / currentMagnif;  //Math!
 			currentPanY -= (Allocation.Height / 2 - currentPanY) * (newMagnif - currentMagnif) / currentMagnif; //Math!
 			positioner.Move(stage, (int)Math.Round(currentPanX), (int)Math.Round(currentPanY));

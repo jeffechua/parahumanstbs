@@ -58,10 +58,10 @@ namespace Parahumans.Core {
 		public GUIComplete inspected;
 		public Menu rightclickMenu;
 
-		public InspectableBox(Widget child, GUIComplete inspectedObject) {
-
+		public InspectableBox(Widget child, GUIComplete inspected) {
+			
 			Child = child;
-			inspected = inspectedObject;
+			this.inspected = inspected;
 
 			Clicked += delegate (object obj, ButtonReleaseEventArgs args) {
 				if (args.Event.Button == 2 || (args.Event.Type == Gdk.EventType.TwoButtonPress && args.Event.Button == 1)) {
@@ -111,21 +111,21 @@ namespace Parahumans.Core {
 
 	public class ToggleMenu : Window {
 
-		public ToggleButton attachedToggle;
+		public ToggleButton toggle;
 
 		public ToggleMenu(ToggleButton toggle) : base(WindowType.Popup) {
 			Gravity = Gdk.Gravity.NorthWest;
-			attachedToggle = toggle;
-			attachedToggle.Toggled += Toggled;
+			this.toggle = toggle;
+			toggle.Toggled += Toggled;
 			FocusOutEvent += (object x, FocusOutEventArgs y)
-				=> attachedToggle.Active = false;
+				=> toggle.Active = false;
 		}
 
 		public void Toggled(object obj, EventArgs args) {
-			if (TransientFor == null) TransientFor = (Window)attachedToggle.Toplevel;
-			if (attachedToggle.Active) {
-				((Window)attachedToggle.Toplevel).GdkWindow.GetOrigin(out int x, out int y);
-				Move(attachedToggle.Allocation.Left + x, attachedToggle.Allocation.Bottom + y);
+			if (TransientFor == null) TransientFor = (Window)toggle.Toplevel;
+			if (toggle.Active) {
+				((Window)toggle.Toplevel).GdkWindow.GetOrigin(out int x, out int y);
+				Move(toggle.Allocation.Left + x, toggle.Allocation.Bottom + y);
 				ShowAll();
 				GrabFocus();
 			} else {
