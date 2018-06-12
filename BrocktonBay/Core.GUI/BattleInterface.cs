@@ -30,12 +30,12 @@ namespace Parahumans.Core {
 		public void Reload () {}
 
 		public void Push (GameObject obj) {
-			deployment.AddRange(new List<GameObject> {obj});
+			deployment.Add(obj);
 			DependencyManager.TriggerAllFlags();
 		}
 
 		public void Pull (GameObject obj) {
-			deployment.RemoveRange(new List<GameObject> { obj });
+			deployment.Remove(obj);
 			DependencyManager.TriggerAllFlags();
 		}
 

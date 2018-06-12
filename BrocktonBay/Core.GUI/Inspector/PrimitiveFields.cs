@@ -145,4 +145,13 @@ namespace Parahumans.Core {
 		protected override void SetValueFromString (string text) => property.SetValue(obj, text);
 	}
 
+	public class Vector2Field : TextEditableField {
+		public Vector2Field (PropertyInfo p, object o, bool comp, object arg) : base(p, o, comp, arg) { }
+		protected override string GetValueAsString () => property.GetValue(obj).ToString();
+		protected override void SetValueFromString (string text) {
+			if (float.TryParse(text, out float newVal))
+				property.SetValue(obj, newVal);
+		}
+	}
+
 }

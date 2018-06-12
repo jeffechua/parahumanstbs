@@ -13,7 +13,7 @@ namespace Parahumans.Core {
 		public static MainWindow mainWindow;
 		public static VBox mainBox;
 
-		static MenuBar menus;
+		static MenuBar menuBar;
 		static Menu fileMenu;
 		static Menu editMenu;
 		static Menu viewMenu;
@@ -40,8 +40,8 @@ namespace Parahumans.Core {
 			};
 
 			mainBox = new VBox();
-			MenuBar mainMenus = new MenuBar();
-			mainBox.PackStart(mainMenus, false, false, 0);
+			menuBar = new MenuBar();
+			mainBox.PackStart(menuBar, false, false, 0);
 			mainWindow.Add(mainBox);
 
 			//Menu bar
@@ -51,12 +51,12 @@ namespace Parahumans.Core {
 			toolsButton = new MenuItem("Tools") { Sensitive = false };  //
 			windowButton = new MenuItem("Window") { Sensitive = false };//
 			helpButton = new MenuItem("Help");
-			mainMenus.Append(fileButton);
-			mainMenus.Append(editButton);
-			mainMenus.Append(viewButton);
-			mainMenus.Append(toolsButton);
-			mainMenus.Append(windowButton);
-			mainMenus.Append(helpButton);
+			menuBar.Append(fileButton);
+			menuBar.Append(editButton);
+			menuBar.Append(viewButton);
+			menuBar.Append(toolsButton);
+			menuBar.Append(windowButton);
+			menuBar.Append(helpButton);
 
 			//File menu
 			fileMenu = new Menu();
@@ -64,7 +64,7 @@ namespace Parahumans.Core {
 			MenuItem openButton = new MenuItem("Open");
 			openButton.Activated += (o, a) => IO.SelectOpen();
 			MenuItem saveButton = new MenuItem("Save");
-			saveButton.Activated += (o, a) => IO.Save(currentCity);
+			saveButton.Activated += (o, a) => IO.SaveAs(currentCity, currentCity.saveFolder);
 			MenuItem saveAsButton = new MenuItem("Save As");
 			saveAsButton.Activated += (o, a) => IO.SelectSave(currentCity);
 			MenuItem closeButton = new MenuItem("Close");
@@ -100,6 +100,16 @@ namespace Parahumans.Core {
 				currentCity.Add((Faction)typeof(Faction).GetConstructor(new Type[] { }).Invoke(new object[] { }));
 				DependencyManager.TriggerAllFlags();
 			};
+			MenuItem createLandmarkButton = new MenuItem("Create Landmark");
+			createLandmarkButton.Activated += delegate {
+				currentCity.Add((Landmark)typeof(Landmark).GetConstructor(new Type[] { }).Invoke(new object[] { }));
+				DependencyManager.TriggerAllFlags();
+			};
+			MenuItem createTerritoryButton = new MenuItem("Create Territory");
+			createTerritoryButton.Activated += delegate {
+				currentCity.Add((Territory)typeof(Territory).GetConstructor(new Type[] { }).Invoke(new object[] { }));
+				DependencyManager.TriggerAllFlags();
+			};
 			MenuItem importButton = new MenuItem("Import...") { Sensitive = false };//Implement
 			MenuItem editModeButton = new CheckMenuItem("Edit Mode") { Sensitive = false };
 			editButton.Submenu = editMenu;
@@ -111,6 +121,8 @@ namespace Parahumans.Core {
 			createMenu.Append(createParahumanButton);
 			createMenu.Append(createTeamButton);
 			createMenu.Append(createFactionButton);
+			createMenu.Append(createLandmarkButton);
+			createMenu.Append(createTerritoryButton);
 			editMenu.Append(importButton);
 			editMenu.Append(new SeparatorMenuItem());
 			editMenu.Append(editModeButton);
@@ -132,6 +144,10 @@ namespace Parahumans.Core {
 			MenuItem newSearchWindowButton = new MenuItem("New Search Window") { Sensitive = false }; //Implement
 			windowButton.Submenu = windowMenu;
 			windowMenu.Append(newSearchWindowButton);
+
+			//Window menu
+			helpMenu = new Menu();
+			helpButton.Submenu = helpMenu;
 
 			mainWindow.ShowAll();
 

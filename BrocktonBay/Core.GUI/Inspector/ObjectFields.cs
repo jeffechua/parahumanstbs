@@ -65,7 +65,7 @@ namespace Parahumans.Core {
 			MenuItem addNewButton = new MenuItem("Add New");
 			addNewButton.Activated += delegate {
 				object newObj = typeof(T).GetConstructor(new Type[] { }).Invoke(new object[] { });
-				((IContainer)obj).AddRange(new List<object> { newObj });
+				((IContainer)obj).Add(newObj);
 				if (newObj is GameObject) MainClass.currentCity.Add((GameObject)newObj);
 				DependencyManager.TriggerAllFlags();
 			};
@@ -78,7 +78,7 @@ namespace Parahumans.Core {
 				addExistingButton.Activated += (o, a) => new SelectorDialog(
 					"Select new addition to " + TextTools.ToReadable(property.Name),
 					delegate (GameObject returned) {
-						((IContainer)obj).AddRange(new List<object> { returned });
+						((IContainer)obj).Add(returned);
 						DependencyManager.TriggerAllFlags();
 					},
 					(tested) => ((IContainer)obj).Accepts(tested) && tested is T);
@@ -151,7 +151,7 @@ namespace Parahumans.Core {
 
 		void AttemptDrag(object obj, DragDataReceivedArgs args) {
 			if (parent.Accepts(DragTmpVars.currentDragged)) {
-				parent.AddRange(new List<object> { DragTmpVars.currentDragged });
+				parent.Add(DragTmpVars.currentDragged);
 				DependencyManager.TriggerAllFlags();
 			}
 		}
@@ -183,7 +183,7 @@ namespace Parahumans.Core {
 
 			MenuItem removeButton = new MenuItem("Remove");
 			removeButton.Activated += delegate {
-				parent.RemoveRange(new List<object> { obj });
+				parent.Remove(obj);
 				DependencyManager.TriggerAllFlags();
 			};
 
@@ -194,12 +194,12 @@ namespace Parahumans.Core {
 			//Set up drag/drop
 
 			cellLabel.DragEnd += delegate {
-				parent.RemoveRange(new List<T> { obj });
+				parent.Remove(obj);
 				DependencyManager.TriggerAllFlags();
 			};
 
 			cell.DragEnd += delegate {
-				parent.RemoveRange(new List<T> { obj });
+				parent.Remove(obj);
 				DependencyManager.TriggerAllFlags();
 			};
 

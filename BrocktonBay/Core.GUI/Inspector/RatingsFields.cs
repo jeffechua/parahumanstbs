@@ -34,9 +34,9 @@ namespace Parahumans.Core {
 				}
 
 				for (int k = 1; k <= 3; k++) {
-					if (profile.values[k,0] > 0) {
+					if (profile.values[k, 0] > 0) {
 
-						Label wrapperLabel = new Label(TextTools.PrintRating(k+8, profile.values[k,0]));
+						Label wrapperLabel = new Label(TextTools.PrintRating(k + 8, profile.values[k, 0]));
 						wrapperLabel.SetAlignment(0, 0);
 
 						VBox ratingBox = new VBox(false, 5) { BorderWidth = 5 };
@@ -60,16 +60,18 @@ namespace Parahumans.Core {
 				alignment.Add(box);
 				for (int i = 1; i <= 8; i++) {
 					if (profile.values[0, i] > 0) {
-						Label ratingLabel = new Label(TextTools.PrintRating(i, profile.values[0, i]));
+						Label ratingLabel = new Label((box.Children.Length > 0 ? ", " : "") //Commas to delimit ratings
+						                              + TextTools.PrintRating(i, profile.values[0, i]));
 						ratingLabel.SetAlignment(0, 0);
 						box.PackStart(ratingLabel, false, false, 0);
 					}
 				}
 
 				for (int k = 1; k <= 3; k++) {
-					if (profile.values[k,0] > 0) {
+					if (profile.values[k, 0] > 0) {
 
-						Label ratingLabel = new Label(TextTools.PrintRating(k + 8, profile.values[k,0], true));
+						Label ratingLabel = new Label((box.Children.Length > 0 ? ", " : "") //Commas to delimit ratings
+													  + TextTools.PrintRating(k + 8, profile.values[k, 0], true));
 						ratingLabel.SetAlignment(0, 0);
 
 						List<String> subratings = new List<String>();

@@ -25,6 +25,8 @@ namespace Parahumans.Core {
 			=> new Vector2(k * v.x, k * v.y);
 		public static Vector2 operator / (Vector2 v, double k)
 			=> new Vector2(v.x / k, v.y / k);
+		public override string ToString ()
+			=> "(" + x.ToString() + ", " + y.ToString();
 	}
 
 	public struct IntVector2 {
@@ -71,9 +73,9 @@ namespace Parahumans.Core {
 			this.property = property;
 			this.vertical = vertical;
 			profile = (RatingsProfile)property.GetValue(obj);
-			if(vertical){
+			if (vertical) {
 				SetSizeRequest(10, -1);
-			}else {
+			} else {
 				SetSizeRequest(-1, 10);
 			}
 			SizeAllocated += Initialize;

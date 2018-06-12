@@ -22,13 +22,10 @@ namespace Parahumans.Core {
 		}
 
 		public static void TriggerAllFlags () {
-			for (int i = 0; i < flagged.Count; i++) {
-				for (int j = 0; j < flagged.Values[i].Count; j++) {
-					for (int k = 0; k < flagged.Values[i][j].dependents.Count; k++) {
+			for (int i = 0; i < flagged.Count; i++)
+				for (int j = 0; j < flagged.Values[i].Count; j++)
+					for (int k = 0; k < flagged.Values[i][j].dependents.Count; k++) 
 						Flag(flagged.Values[i][j].dependents[k]);
-					}
-				}
-			}
 			for (int i = 0; i < flagged.Count; i++)
 				for (int j = 0; j < flagged.Values[i].Count; j++)
 					flagged.Values[i][j].Reload();
@@ -69,7 +66,7 @@ namespace Parahumans.Core {
 				int length = obj.dependents.Count;
 				for (int i = 0; i < obj.dependents.Count; i++) {
 					if (obj.dependents[i] is IContainer) {
-						((IContainer)obj.dependents[i]).RemoveRange(new List<object> { obj });
+						((IContainer)obj.dependents[i]).Remove(obj);
 					}
 				}
 				if (obj.dependents.Count == length) break; //Has the length been further reduced?

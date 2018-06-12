@@ -20,10 +20,10 @@ namespace Parahumans.Core {
 
 		//IContainer methods
 		public virtual bool Accepts (object obj) => false;
-		public virtual bool Contains (object obj) => false;
-		public void Add (object obj) => AddRange(new List<object> { obj }); //It is assumed that the invoker has already checked if we Accept(obj).
+		public virtual bool Contains (object obj) => false; //It is NOT assumed that the invoker has already checked if Accept(obj)
+		public void Add (object obj) => AddRange(new List<object> { obj }); //It is assumed that the invoker has already checked if Accept(obj).
 		public void Remove (object obj) => RemoveRange(new List<object> { obj });
-		public virtual void AddRange<T> (List<T> objs) { } //It is assumed that the invoker has already checked if we Accept(obj).
+		public virtual void AddRange<T> (List<T> objs) { } //It is assumed that the invoker has already checked if Accept(obj).
 		public virtual void RemoveRange<T> (List<T> objs) { }
 		public virtual void Sort () { }
 		public int CompareTo (GameObject obj) => ID.CompareTo(obj.ID);
@@ -76,9 +76,10 @@ namespace Parahumans.Core {
 	public interface IContainer {
 		bool Accepts (object obj);
 		bool Contains (object obj);
+		void Add (object obj);
+		void Remove (object obj);
 		void AddRange<T> (List<T> objs); //AddRange() assumes that the invoker has already checked if we Accept(obj).
 		void RemoveRange<T> (List<T> objs);
-		void Sort ();
 	}
 
 }

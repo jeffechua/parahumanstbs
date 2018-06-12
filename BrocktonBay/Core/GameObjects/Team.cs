@@ -1,26 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using Parahumans.Core;
 using Gtk;
 
 namespace Parahumans.Core {
-
-	public enum Alignment {
-		Hero = 2,
-		Vigilante = 1,
-		Rogue = 0,
-		Mercenary = -1,
-		Villain = -2
-	}
-
-	public enum Threat {
-		C = 0, //Default
-		B = 1, //Confirmed team takedown
-		A = 2, //Confirmed kill
-		S = 3, //Kill order receievd
-		X = 4  //World-ending
-	}
 
 	public sealed class TeamData {
 
@@ -59,15 +41,7 @@ namespace Parahumans.Core {
 		public Threat threat { get; set; }
 
 		[Displayable(4, typeof(BasicReadonlyField))]
-		public int reputation {
-			get {
-				int rep = 0;
-				foreach (Parahuman parahuman in roster) {
-					rep += parahuman.reputation;
-				}
-				return rep;
-			}
-		}
+		public int reputation { get; set; }
 
 		[Displayable(5, typeof(IntField))]
 		public int unused_XP { get; set; }
@@ -92,19 +66,25 @@ namespace Parahumans.Core {
 			alignment = data.alignment;
 			unused_XP = data.unused_XP;
 			spent_XP = data.spent_XP;
-			roster = data.roster.ConvertAll((input) => MainClass.currentCity.Get<Parahuman>(input));
-			for (int i = 0; i < roster.Count; i++) {
-				DependencyManager.Connect(roster[i], this);
-				roster[i].parent = this;
+			roster = data.roster.ConvertAll((parahuman) => MainClass.currentCity.Get<Parahuman>(parahuman));
+			foreach (Parahuman parahuman in roster) {
+				DependencyManager.Connect(parahuman, this);
+				parahuman.parent = this;
 			}
 			Reload();
 		}
 
 		public override void Reload () {
+			
 			threat = Threat.C;
 			for (int i = 0; i < roster.Count; i++)
 				if (roster[i].threat > threat)
 					threat = roster[i].threat;
+			
+			reputation = 0;
+			foreach (Parahuman parahuman in roster)
+				reputation += parahuman.reputation;
+			
 		}
 
 		public override Widget GetHeader (bool compact) {
@@ -142,7 +122,7 @@ namespace Parahumans.Core {
 				rosterBox.PackStart(header, false, false, 0);
 			}
 
-			//Set up drag/drop
+			//Set up dropping
 			EventBox eventBox = new EventBox { Child = rosterBox, VisibleWindow = false };
 			Drag.DestSet(eventBox, DestDefaults.All,
 						 new TargetEntry[] { new TargetEntry(typeof(Parahuman).ToString(), TargetFlags.App, 0) },
@@ -161,7 +141,7 @@ namespace Parahumans.Core {
 
 		public override bool Contains (object obj) => obj is Parahuman && roster.Contains((Parahuman)obj);
 		public override bool Accepts (object obj) => obj is Parahuman;
-		public override void Sort () => roster.Sort();
+
 		public override void AddRange<T> (List<T> objs) {
 			foreach (object element in objs) {
 				GameObject obj = (GameObject)element;
@@ -172,8 +152,9 @@ namespace Parahumans.Core {
 				DependencyManager.Flag(obj);
 			}
 			DependencyManager.Flag(this);
-			Sort();
+			roster.Sort();
 		}
+
 		public override void RemoveRange<T> (List<T> objs) {
 			foreach (object element in objs) {
 				GameObject obj = (GameObject)element;

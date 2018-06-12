@@ -18,7 +18,7 @@ namespace Parahumans.Core {
 			PackStart(Inspector.main, false, false, 0);
 
 			//Map tab
-			Map map = new Map(city.saveFolder + "/Map");
+			Map map = new Map(city);
 			Label mapTabLabel = new Label("Map");
 			main.AppendPage(map, mapTabLabel);
 

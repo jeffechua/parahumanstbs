@@ -26,18 +26,17 @@ namespace Parahumans.Core {
 
 		public Map () {}
 
-		public Map (string mapPath) {
+		public Map (City city) {
 
 			stage = new Fixed();
 			positioner = new Fixed();
 			positioner.Put(stage, 0, 0);
 			Add(positioner);
 
-			float defaultWidth = float.Parse(File.ReadAllText(mapPath + "/dimensions.txt"));
-			rawImage = new Gdk.Pixbuf(mapPath + "/map.png");
+			rawImage = new Gdk.Pixbuf(city.mapPngSource);
 			rawImage = rawImage.ScaleSimple(
-				(int)(defaultWidth * maxMagnif),
-				(int)(defaultWidth / rawImage.Width * rawImage.Height * maxMagnif),
+				(int)(city.mapDefaultWidth * maxMagnif),
+				(int)(city.mapDefaultWidth * rawImage.Height * maxMagnif / rawImage.Width),
 				Gdk.InterpType.Hyper);
 			imageWidget = new Image();
 			stage.Put(imageWidget, 0, 0);

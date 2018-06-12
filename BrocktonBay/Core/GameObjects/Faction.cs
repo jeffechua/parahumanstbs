@@ -16,6 +16,7 @@ namespace Parahumans.Core {
 		public int resources = 0;
 		public List<int> roster = new List<int>();
 		public List<int> teams = new List<int>();
+		public List<int> territories = new List<int>();
 
 		public FactionData () { }
 
@@ -26,6 +27,7 @@ namespace Parahumans.Core {
 			resources = 0;
 			roster = faction.roster.ConvertAll((parahuman) => parahuman.ID);
 			teams = faction.teams.ConvertAll((team) => team.ID);
+			territories = faction.teams.ConvertAll((territory) => territory.ID);
 		}
 
 	}
@@ -44,18 +46,7 @@ namespace Parahumans.Core {
 		public int resources { get; set; }
 
 		[Displayable(5, typeof(BasicReadonlyField))]
-		public int reputation {
-			get {
-				int rep = 0;
-				foreach (Parahuman parahuman in roster) {
-					rep += parahuman.reputation;
-				}
-				foreach (Team team in teams) {
-					rep += team.reputation;
-				}
-				return rep;
-			}
-		}
+		public int reputation { get; set; }
 
 		public List<Asset> assets { get; set; }
 
@@ -64,6 +55,9 @@ namespace Parahumans.Core {
 
 		[Displayable(6, typeof(CellObjectListField<Team>), 2), Emphasized]
 		public List<Team> teams { get; set; }
+
+		[Displayable(6, typeof(CellObjectListField<Territory>), 2), Emphasized]
+		public List<Territory> territories { get; set; }
 
 		[Displayable(8, typeof(RatingsSumField), true), Emphasized, VerticalOnly]
 		public RatingsProfile ratings { get { return new RatingsProfile(roster, teams); } }
@@ -78,20 +72,29 @@ namespace Parahumans.Core {
 			ID = data.ID;
 			alignment = data.alignment;
 			resources = data.resources;
-			roster = data.roster.ConvertAll((input) => MainClass.currentCity.Get<Parahuman>(input));
-			for (int i = 0; i < roster.Count; i++) {
-				DependencyManager.Connect(roster[i], this);
-				roster[i].parent = this;
+			roster = data.roster.ConvertAll((parahuman) => MainClass.currentCity.Get<Parahuman>(parahuman));
+			foreach (Parahuman parahuman in roster) {
+				DependencyManager.Connect(parahuman, this);
+				parahuman.parent = this;
 			}
-			teams = data.teams.ConvertAll((input) => MainClass.currentCity.Get<Team>(input));
-			for (int i = 0; i < teams.Count; i++) {
-				DependencyManager.Connect(teams[i], this);
-				teams[i].parent = this;
+			teams = data.teams.ConvertAll((team) => MainClass.currentCity.Get<Team>(team));
+			foreach (Team team in teams) {
+				DependencyManager.Connect(team, this);
+				team.parent = this;
 			}
+			territories = data.territories.ConvertAll((territory) => MainClass.currentCity.Get<Territory>(territory));
+			foreach (Territory territory in territories) {
+				DependencyManager.Connect(territory, this);
+				territory.parent = this;
+			}
+			teams.Sort();
+			roster.Sort();
+			territories.Sort();
 			Reload();
 		}
 
 		public override void Reload () {
+
 			threat = Threat.C;
 			for (int i = 0; i < roster.Count; i++)
 				if (roster[i].threat > threat)
@@ -99,6 +102,13 @@ namespace Parahumans.Core {
 			for (int i = 0; i < teams.Count; i++)
 				if (teams[i].threat > threat)
 					threat = teams[i].threat;
+
+			reputation = 0;
+			foreach (Parahuman parahuman in roster)
+				reputation += parahuman.reputation;
+			foreach (Team team in teams)
+				reputation += team.reputation;
+
 		}
 
 		public override bool Contains (object obj) {
@@ -114,13 +124,7 @@ namespace Parahumans.Core {
 			return false;
 		}
 
-		public override bool Accepts (object obj) => obj is Parahuman || obj is Team || obj is Asset;
-
-		public override void Sort () {
-			teams.Sort();
-			roster.Sort();
-			assets.Sort();
-		}
+		public override bool Accepts (object obj) => obj is Parahuman || obj is Team || obj is Asset || obj is Territory;
 
 		public override void AddRange<T> (List<T> objs) { //It is assumed that the invoker has already checked if we Accept(obj).
 			foreach (object element in objs) {
@@ -140,8 +144,13 @@ namespace Parahumans.Core {
 					assets.Add((Asset)obj);
 					assets.Sort();
 				}
+				if (obj is Territory) {
+					territories.Add((Territory)obj);
+					territories.Sort();
+				}
 				DependencyManager.Flag(obj);
 			}
+			DependencyManager.Flag(this);
 		}
 
 		public override void RemoveRange<T> (List<T> objs) { //It is assumed that the invoker has already checked if we Accept(obj).
@@ -151,6 +160,7 @@ namespace Parahumans.Core {
 				if (obj is Team) teams.Remove((Team)obj);
 				if (obj is Parahuman) roster.Remove((Parahuman)obj);
 				if (obj is Asset) assets.Remove((Asset)obj);
+				if (obj is Territory) territories.Remove((Territory)obj);
 				obj.parent = null;
 				DependencyManager.Flag(obj);
 			}
@@ -177,12 +187,44 @@ namespace Parahumans.Core {
 		}
 
 		public override Widget GetCell () {
-			VBox membersBox = new VBox(false, 0) { BorderWidth = 10 };
-			for (int i = 0; i < roster.Count; i++)
-				membersBox.PackStart(roster[i].GetHeader(true), false, false, 0);
-			for (int i = 0; i < teams.Count; i++)
-				membersBox.PackStart(teams[i].GetHeader(true), false, false, 0);
-			return membersBox;
+
+			//Creates the cell contents
+			VBox childrenBox = new VBox(false, 0) { BorderWidth = 3 };
+			for (int i = 0; i < roster.Count; i++) {
+				Parahuman parahuman = roster[i]; //roster[i] not directly used below since i changes
+				InspectableBox header = (InspectableBox)parahuman.GetHeader(true);
+				header.DragEnd += delegate {
+					Remove(parahuman);
+					DependencyManager.TriggerAllFlags();
+				};
+				childrenBox.PackStart(header, false, false, 0);
+			}
+			for (int i = 0; i < teams.Count; i++) {
+				Team team = teams[i]; //roster[i] not directly used below since i changes
+				InspectableBox header = (InspectableBox)team.GetHeader(true);
+				header.DragEnd += delegate {
+					Remove(team);
+					DependencyManager.TriggerAllFlags();
+				};
+				childrenBox.PackStart(header, false, false, 0);
+			}
+
+			//Set up dropping
+			EventBox eventBox = new EventBox { Child = childrenBox, VisibleWindow = false };
+			Drag.DestSet(eventBox, DestDefaults.All,
+			             new TargetEntry[] { new TargetEntry(typeof(Parahuman).ToString(), TargetFlags.App, 0),
+						                     new TargetEntry(typeof(Team).ToString(), TargetFlags.App, 0) },
+						 Gdk.DragAction.Move);
+			eventBox.DragDataReceived += delegate {
+				if (Accepts(DragTmpVars.currentDragged)) {
+					Add(DragTmpVars.currentDragged);
+					DependencyManager.TriggerAllFlags();
+				}
+			};
+
+			return new Gtk.Alignment(0, 0, 1, 1) { Child = eventBox, BorderWidth = 7 };
+			//For some reason drag/drop highlights include BorderWidth.
+			//The Alignment makes the highlight actually appear at the 3:7 point in the margin.
 		}
 
 	}

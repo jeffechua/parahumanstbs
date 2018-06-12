@@ -17,48 +17,8 @@ namespace Parahumans.Core {
 		public void Reload () { }
 
 		public List<GameObject> gameObjects = new List<GameObject>();
-
-		public bool loadFailure;
-
-		public City () { }
-
-		public City (string path, bool setCurrentCity = false) {
-
-			saveFolder = path;
-			if (setCurrentCity) MainClass.currentCity = this;
-
-			try {
-
-				List<string> parahumanAddresses = new List<string>(Directory.GetFiles(path + "/Parahumans"));
-				AddRange(parahumanAddresses.ConvertAll(
-					(file) => new Parahuman(JsonConvert.DeserializeObject<ParahumanData>(File.ReadAllText(file)))));
-
-				List<string> teamAddresses = new List<string>(Directory.GetFiles(path + "/Teams"));
-				AddRange(teamAddresses.ConvertAll(
-					(file) => new Team(JsonConvert.DeserializeObject<TeamData>(File.ReadAllText(file)))));
-
-				List<string> factionAddresses = new List<string>(Directory.GetFiles(path + "/Factions"));
-				AddRange(factionAddresses.ConvertAll(
-					(file) => new Faction(JsonConvert.DeserializeObject<FactionData>(File.ReadAllText(file)))));
-
-				Sort();
-				loadFailure = false;
-
-			} catch (Exception e) {
-				MessageDialog errorMessage =
-					new MessageDialog(MainClass.mainWindow,
-									  DialogFlags.DestroyWithParent,
-									  MessageType.Error,
-									  ButtonsType.Close,
-					                  "Error loading save from \"" + path + "\".");
-				Console.WriteLine(e.Message);
-				Console.WriteLine(e.StackTrace);
-				errorMessage.Run();
-				errorMessage.Destroy();
-				loadFailure = true;
-			}
-
-		}
+		public byte[] mapPngSource = {};
+		public int mapDefaultWidth = 0;
 
 		public T Get<T> (string name) where T : GameObject => (T)gameObjects.Find(obj => obj is T && obj.name.ToLower() == name.ToLower());
 		public T Get<T> (int ID) where T : GameObject => (T)gameObjects.Find(obj => obj is T && obj.ID == ID);
@@ -67,15 +27,15 @@ namespace Parahumans.Core {
 		public void Sort () => gameObjects.Sort((GameObject gameObject1, GameObject gameObject2) => gameObject1.ID.CompareTo(gameObject2.ID));
 		public bool Accepts (object obj) => obj is GameObject;
 		public bool Contains (object obj) => obj is GameObject && gameObjects.Contains((GameObject)obj);
-		public void Add (GameObject obj) => AddRange(new List<object> { obj });
-		public void Delete (GameObject obj) => RemoveRange(new List<object> { obj });
+		public void Add (object obj) => AddRange(new List<object> { obj });
+		public void Remove (object obj) => RemoveRange(new List<object> { obj });
 		public void AddRange<T> (List<T> objs) {
 			foreach (object obj in objs) {
 				gameObjects.Add((GameObject)obj);
 				DependencyManager.Connect((IDependable)obj, this);
 				DependencyManager.Flag((IDependable)obj);
-				Sort();
 			}
+			Sort();
 			DependencyManager.Flag(this);
 		}
 		public void RemoveRange<T> (List<T> objs) {

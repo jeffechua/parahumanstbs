@@ -106,6 +106,7 @@ namespace Parahumans.Core {
 						Add(parahuman.parent);
 				}
 			}
+			Sort();
 			DependencyManager.Flag(this);
 		}
 

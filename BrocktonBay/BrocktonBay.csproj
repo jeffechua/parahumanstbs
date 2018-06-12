@@ -42,8 +42,6 @@
     <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Core\Parahuman.cs" />
-    <Compile Include="Core\Team.cs" />
     <Compile Include="Core\City.cs" />
     <Compile Include="Core.GUI\Inspector.cs" />
     <Compile Include="Core.GUI\MiscWidgets.cs" />
@@ -51,7 +49,6 @@
     <Compile Include="Core.GUI\Inspector\PrimitiveFields.cs" />
     <Compile Include="Core.GUI\Inspector\RatingsFields.cs" />
     <Compile Include="Core.GUI\BattleInterface.cs" />
-    <Compile Include="Core\Faction.cs" />
     <Compile Include="Core.GUI\Inspector\FieldGizmos.cs" />
     <Compile Include="Core.GUI\Search.cs" />
     <Compile Include="Core.GUI\Windows.cs" />
@@ -65,18 +62,24 @@
     <Compile Include="Core\Battle\Battle.cs" />
     <Compile Include="Core.GUI\GUICaching.cs" />
     <Compile Include="PlatformDetection.cs" />
-    <Compile Include="Map.cs" />
     <Compile Include="IO.cs" />
     <Compile Include="Core.GUI\CityInterface.cs" />
-    <Compile Include="Core.GUI\RatingsRadarChart.cs" />
     <Compile Include="Core.GUI\TextTools.cs" />
     <Compile Include="Core\Ratings.cs" />
+    <Compile Include="Core\GameObjects\Faction.cs" />
+    <Compile Include="Core\GameObjects\Parahuman.cs" />
+    <Compile Include="Core\GameObjects\Team.cs" />
+    <Compile Include="Territory.cs" />
+    <Compile Include="Core.GUI\Inspector\RatingsRadarChart.cs" />
+    <Compile Include="Landmark.cs" />
+    <Compile Include="Core.GUI\Map.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />
     <Folder Include="Core.GUI\" />
     <Folder Include="Core.GUI\Inspector\" />
     <Folder Include="Core\Battle\" />
+    <Folder Include="Core\GameObjects\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -2,6 +2,23 @@
 using System.Collections.Generic;
 
 namespace Parahumans.Core {
+
+	public enum Alignment {
+		Hero = 2,
+		Vigilante = 1,
+		Rogue = 0,
+		Mercenary = -1,
+		Villain = -2
+	}
+
+	public enum Threat {
+		C = 0, //Default
+		B = 1, //Confirmed team takedown
+		A = 2, //Confirmed kill
+		S = 3, //Kill order receievd
+		X = 4  //World-ending
+	}
+
 	public enum Classification {
 		Brute = 1,
 		Blaster = 2,
@@ -72,4 +89,5 @@ namespace Parahumans.Core {
 	public interface Rated {
 		RatingsProfile ratings { get; }
 	}
+
 }
