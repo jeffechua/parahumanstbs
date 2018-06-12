@@ -44,6 +44,7 @@ namespace Parahumans.Core {
 	public abstract class GUIComplete : IDependable {
 
 		virtual public string name { get; set; } = "";
+		public bool destroyed;
 
 		//IDependable requirements
 		public abstract int order { get; }

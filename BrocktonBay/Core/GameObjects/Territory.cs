@@ -83,8 +83,7 @@ namespace Parahumans.Core {
 
 			//Creates the cell contents
 			VBox landmarkBox = new VBox(false, 0) { BorderWidth = 3 };
-			for (int i = 0; i < landmarks.Count; i++) {
-				Landmark landmark = landmarks[i]; //roster[i] not directly used below since i changes
+			foreach(Landmark landmark in landmarks){
 				InspectableBox header = (InspectableBox)landmark.GetHeader(true);
 				header.DragEnd += delegate {
 					Remove(landmark);

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ProjectGuid>{13673191-DA09-43E3-919A-46293A2FDDBB}</ProjectGuid>
     <OutputType>WinExe</OutputType>
@@ -69,10 +68,10 @@
     <Compile Include="Core\GameObjects\Faction.cs" />
     <Compile Include="Core\GameObjects\Parahuman.cs" />
     <Compile Include="Core\GameObjects\Team.cs" />
-    <Compile Include="Territory.cs" />
     <Compile Include="Core.GUI\Inspector\RatingsRadarChart.cs" />
-    <Compile Include="Landmark.cs" />
     <Compile Include="Core.GUI\Map.cs" />
+    <Compile Include="Core\GameObjects\Landmark.cs" />
+    <Compile Include="Core\GameObjects\Territory.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />

@@ -9,6 +9,7 @@ namespace Parahumans.Core {
 
 		public const String savefolder = "/Users/Jefferson/Desktop/Parahumans_Save";
 		public static City currentCity;
+
 		public static CityInterface cityInterface;
 		public static MainWindow mainWindow;
 		public static VBox mainBox;
@@ -27,6 +28,8 @@ namespace Parahumans.Core {
 		static MenuItem toolsButton;
 		static MenuItem windowButton;
 		static MenuItem helpButton;
+
+		public static int textSize;
 
 		public static void Main (string[] args) {
 
@@ -150,6 +153,8 @@ namespace Parahumans.Core {
 			helpButton.Submenu = helpMenu;
 
 			mainWindow.ShowAll();
+
+			textSize = (int)Math.Round(MainClass.mainWindow.Style.FontDescription.Size / Pango.Scale.PangoScale);
 
 			Application.Run();
 

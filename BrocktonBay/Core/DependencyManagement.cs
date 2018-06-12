@@ -62,6 +62,8 @@ namespace Parahumans.Core {
 			if (obj is IContainer)
 				((IContainer)obj).RemoveRange(obj.dependencies.FindAll(
 					(element) => ((IContainer)obj).Contains(element)));
+			if (obj is GUIComplete)
+				((GUIComplete)obj).destroyed = true;
 			while (true) {
 				int length = obj.dependents.Count;
 				for (int i = 0; i < obj.dependents.Count; i++) {

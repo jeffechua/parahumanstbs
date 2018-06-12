@@ -82,7 +82,7 @@ namespace Parahumans.Core {
 
 	public class Inspector : ScrolledWindow, IDependable {
 
-		public int order { get { return obj == null ? 0 : obj.order + 1; } }
+		public int order { get { return 10; } }
 
 		public static Inspector main;
 		public GUIComplete obj;
@@ -95,6 +95,13 @@ namespace Parahumans.Core {
 		public Inspector(GUIComplete obj) : this() => Inspect(obj);
 
 		public void Inspect(GUIComplete obj) {
+			if (obj.destroyed) {
+				this.obj = null;
+				if (Child != null) Child.Destroy();
+				DependencyManager.DisconnectAll(this);
+				ShowAll();
+				return;
+			}
 			this.obj = obj;
 			DependencyManager.DisconnectAll(this);
 			DependencyManager.Connect(obj, this);

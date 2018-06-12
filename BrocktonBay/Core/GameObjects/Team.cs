@@ -90,10 +90,8 @@ namespace Parahumans.Core {
 		public override Widget GetHeader (bool compact) {
 			if (compact) {
 				HBox frameHeader = new HBox(false, 0);
-				Label icon = new Label(" " + EnumTools.GetSymbol(threat) + " ");
-				EnumTools.SetAllStates(icon, EnumTools.GetColor(alignment));
 				frameHeader.PackStart(new Label(name), false, false, 0);
-				frameHeader.PackStart(icon, false, false, 0);
+				frameHeader.PackStart(EnumTools.GetIcon(threat, EnumTools.GetColor(alignment)), false, false, (uint)MainClass.textSize / 5);
 				return new InspectableBox(frameHeader, this);
 			} else {
 				VBox headerBox = new VBox(false, 5);
@@ -112,8 +110,7 @@ namespace Parahumans.Core {
 
 			//Creates the cell contents
 			VBox rosterBox = new VBox(false, 0) { BorderWidth = 3 };
-			for (int i = 0; i < roster.Count; i++) {
-				Parahuman parahuman = roster[i]; //roster[i] not directly used below since i changes
+			foreach(Parahuman parahuman in roster) {
 				InspectableBox header = (InspectableBox)parahuman.GetHeader(true);
 				header.DragEnd += delegate {
 					Remove(parahuman);
