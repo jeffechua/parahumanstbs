@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Collections.Generic;
 using System;
 using Gtk;
 using Gdk;
@@ -27,6 +26,8 @@ namespace Parahumans.Core {
 			=> new Vector2(v.x / k, v.y / k);
 		public override string ToString ()
 			=> "(" + x.ToString() + ", " + y.ToString() + ")";
+		public Point ToPoint ()
+		=> new Point((int)Math.Round(x), (int)Math.Round(y));
 	}
 
 	public struct IntVector2 {
@@ -78,10 +79,12 @@ namespace Parahumans.Core {
 			} else {
 				SetSizeRequest(-1, 10);
 			}
-			SizeAllocated += Initialize;
+			SizeAllocated += OnSizeAllocated;
 		}
 
-		public void Initialize (object obj, SizeAllocatedArgs args) {
+		public void OnSizeAllocated (object obj, SizeAllocatedArgs args) {
+
+			if (!IsRealized) return;
 
 			int width = args.Allocation.Width;
 			int height = args.Allocation.Height;
@@ -94,8 +97,8 @@ namespace Parahumans.Core {
 			int chartRadius = size;
 			int labelRadius = 0;
 
-			Pixmap pixmap = new Pixmap(GdkWindow, size, size);
-			Pixmap mask = new Pixmap(GdkWindow, size, size);
+			Pixmap pixmap = new Pixmap(Toplevel.GdkWindow, size, size);
+			Pixmap mask = new Pixmap(Toplevel.GdkWindow, size, size);
 			Gdk.GC[] contexts = {
 				new Gdk.GC(pixmap) { RgbFgColor = new Gdk.Color(170, 140, 0) }, //Regular
 				new Gdk.GC(pixmap) { RgbFgColor = new Color(0, 150, 0) },       //Master
@@ -231,8 +234,6 @@ namespace Parahumans.Core {
 
 			SetFromPixmap(pixmap, mask);
 			ShowAll();
-
-			KeyPressEvent += (o, a) => ShowAll();
 
 		}
 

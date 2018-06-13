@@ -94,7 +94,7 @@ namespace Parahumans.Core {
 			if (compact) {
 				HBox frameHeader = new HBox(false, 0);
 				frameHeader.PackStart(new Label(name), false, false, 0);
-				frameHeader.PackStart(Graphics.GetIcon(threat, Graphics.GetColor(alignment)), false, false, (uint)MainClass.textSize / 5);
+				frameHeader.PackStart(Graphics.GetIcon(threat, Graphics.GetColor(alignment)), false, false, (uint)(MainClass.textSize / 5));
 				return new InspectableBox(frameHeader, this);
 			} else {
 				VBox headerBox = new VBox(false, 5);

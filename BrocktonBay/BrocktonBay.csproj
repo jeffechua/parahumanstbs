@@ -84,6 +84,7 @@
     <None Include="packages.config" />
     <None Include="Rules.txt" />
     <None Include="Combat.txt" />
+    <None Include="Known Bugs.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

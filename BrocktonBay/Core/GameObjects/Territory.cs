@@ -65,11 +65,15 @@ namespace Parahumans.Core {
 			if (compact) {
 				HBox header = new HBox(false, 0);
 				header.PackStart(new Label(name), false, false, 0);
-				header.PackStart(Graphics.GetIcon(Threat.C, affiliation.color), false, false, 0);
+				header.PackStart(Graphics.GetIcon(Threat.C, (affiliation == null) ? Graphics.Unaffiliated : affiliation.color), false, false, (uint)(MainClass.textSize/5));
 				return new InspectableBox(header, this);
 			} else {
 				VBox headerBox = new VBox(false, 5);
-				headerBox.PackStart(new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = new Label(name), WidthRequest = 200 }, false, false, (uint)MainClass.textSize / 5);
+				Label nameLabel = new Label(name);
+				InspectableBox namebox = new InspectableBox(nameLabel, this);
+				Gtk.Alignment align = new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = namebox };
+				align.WidthRequest = 200;
+				headerBox.PackStart(align, false, false, 0);
 				if (parent != null)
 					headerBox.PackStart(new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = parent.GetHeader(true) });
 				return headerBox;
@@ -80,7 +84,7 @@ namespace Parahumans.Core {
 
 			//Creates the cell contents
 			VBox structureBox = new VBox(false, 0) { BorderWidth = 3 };
-			foreach(Structure structure in structures){
+			foreach (Structure structure in structures) {
 				InspectableBox header = (InspectableBox)structure.GetHeader(true);
 				header.DragEnd += delegate {
 					Remove(structure);
@@ -110,7 +114,7 @@ namespace Parahumans.Core {
 		public override bool Contains (object obj) => obj is Structure && structures.Contains((Structure)obj);
 
 		public override void AddRange<T> (List<T> objs) {
-			foreach(object element in objs) {
+			foreach (object element in objs) {
 				GameObject obj = (GameObject)element;
 				if (obj.parent != null) obj.parent.Remove(obj);
 				obj.parent = this;

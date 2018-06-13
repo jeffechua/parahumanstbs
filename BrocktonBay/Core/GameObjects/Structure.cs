@@ -35,7 +35,7 @@ namespace Parahumans.Core {
 
 				HBox header = new HBox(false, 0);
 				header.PackStart(new Label(name), false, false, 0);
-				header.PackStart(Graphics.GetIcon(Threat.C, (affiliation == null) ? Graphics.Unaffiliated : affiliation.color), false, false, (uint)MainClass.textSize / 5);
+				header.PackStart(Graphics.GetIcon(Threat.C, (affiliation == null) ? Graphics.Unaffiliated : affiliation.color), false, false, (uint)(MainClass.textSize / 5));
 				return new InspectableBox(header, this);
 
 			} else {

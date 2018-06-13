@@ -1,0 +1,4 @@
+UI:
+	When opening an inspector in a new window, the RatingsRadarChart does not render until you resize the window.
+	When opening the RatingsSumTable in a Team's inspector (Inspector.main), the inspector will not expand horizontally to accommodate it, instead expanding *into* the right out of sight.
+	ObjectListFields do not rearrange to fit more cell in one row when space is available.

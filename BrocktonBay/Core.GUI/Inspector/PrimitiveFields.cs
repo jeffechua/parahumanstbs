@@ -42,7 +42,7 @@ namespace Parahumans.Core {
 				HasTooltip = true;
 				TooltipMarkup = tooltipText.text;
 			}
-			                                                               
+
 			rightclickMenu = new Menu();
 			MenuItem edit = new MenuItem("Edit");
 			edit.Activated += (a, b) => Open();
@@ -150,8 +150,13 @@ namespace Parahumans.Core {
 		public Vector2Field (PropertyInfo property, object obj, bool vertical, object arg) : base(property, obj, vertical, arg) { }
 		protected override string GetValueAsString () => property.GetValue(obj).ToString();
 		protected override void SetValueFromString (string text) {
-			if (float.TryParse(text, out float newVal))
-				property.SetValue(obj, newVal);
+			if (text[0] != '(' || text[text.Length - 1] != ')') return;
+			text = text.Substring(1, text.Length - 2);
+			string[] halves = text.Split(',');
+			if (halves.Length != 2) return;
+			if (!float.TryParse(halves[0].Trim(), out float x)) return;
+			if (!float.TryParse(halves[1].Trim(), out float y)) return;
+			property.SetValue(obj, new Vector2(x, y));
 		}
 	}
 

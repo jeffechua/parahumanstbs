@@ -98,17 +98,18 @@ namespace Parahumans.Core {
 				}
 			}
 
-			Pixmap downsizedIconBase = new Pixmap(MainClass.mainWindow.GdkWindow, (int)pixelSize, (int)pixelSize);
-			Pixbuf.FromDrawable(iconBase, Colormap.System, 0, 0, 0, 0, (int)size, (int)size)
-				  .ScaleSimple((int)pixelSize, (int)pixelSize, InterpType.Hyper)
-			      .RenderToDrawable(downsizedIconBase, visible, 0, 0, 0, 0, (int)pixelSize, (int)pixelSize, RgbDither.Max, 0, 0);
+			return new Gtk.Image(Scale(iconBase, size, size, 0.1), Scale(mask, size, size, 0.1));
+		}
 
-			Pixmap downsizedMask = new Pixmap(MainClass.mainWindow.GdkWindow, (int)pixelSize, (int)pixelSize);
-			Pixbuf.FromDrawable(mask, Colormap.System, 0, 0, 0, 0, (int)size, (int)size)
-				  .ScaleSimple((int)pixelSize, (int)pixelSize, InterpType.Hyper)
-				  .RenderToDrawable(downsizedMask, visible, 0, 0, 0, 0, (int)pixelSize, (int)pixelSize, RgbDither.Max, 0, 0);
-			
-			return new Gtk.Image(downsizedIconBase, downsizedMask);
+		public static Pixmap Scale (Pixmap pixmap, double originalWidth, double originalHeight, double factor) {
+			Gdk.GC visible = new Gdk.GC(pixmap) { RgbFgColor = new Color(255, 255, 255) };
+			double finalWidth = originalWidth * factor;
+			double finalHeight = originalHeight * factor;
+			Pixmap newPixmap = new Pixmap(MainClass.mainWindow.GdkWindow, (int)finalWidth, (int)finalHeight);
+			Pixbuf.FromDrawable(pixmap, Colormap.System, 0, 0, 0, 0, (int)originalWidth, (int)originalHeight)
+			      .ScaleSimple((int)finalWidth, (int)finalHeight, InterpType.Hyper)
+			      .RenderToDrawable(newPixmap, visible, 0, 0, 0, 0, (int)finalWidth, (int)finalHeight, RgbDither.Max, 0, 0);
+			return newPixmap;
 		}
 
 	}

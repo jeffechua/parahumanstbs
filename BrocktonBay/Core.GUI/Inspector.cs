@@ -16,6 +16,14 @@ namespace Parahumans.Core {
 		public Listing(GUIComplete obj) {
 			this.obj = obj;
 			DependencyManager.Connect(obj, this);
+			if (obj is GameObject) {
+				if (((GameObject)obj).parent != null) {
+					DependencyManager.Connect(((GameObject)obj).parent, this);
+					if (((GameObject)obj).parent.parent != null) {
+						DependencyManager.Connect(((GameObject)obj).parent.parent, this);
+					}
+				}
+			}
 			LabelXalign = 1;
 			Reload();
 		}
