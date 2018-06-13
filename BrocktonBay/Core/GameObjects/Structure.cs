@@ -4,11 +4,11 @@ using System.Collections.Generic;
 
 
 namespace Parahumans.Core {
-	
+
 	public class StructureData {
 		public string name = "New Landmark";
 		public int ID = 0;
-		public StructureData () {}
+		public StructureData () { }
 		public StructureData (Structure structure) {
 			name = structure.name;
 			ID = structure.ID;
@@ -19,7 +19,10 @@ namespace Parahumans.Core {
 
 		public override int order { get { return 1; } }
 
-		public Structure () : this(new StructureData()) {}
+		[Displayable(2, typeof(ObjectField)), ForceHorizontal]
+		public Faction affiliation { get { return (parent == null) ? null : (Faction)parent.parent; } }
+
+		public Structure () : this(new StructureData()) { }
 
 		public Structure (StructureData data) {
 			name = data.name;
@@ -31,10 +34,8 @@ namespace Parahumans.Core {
 			if (compact) {
 
 				HBox header = new HBox(false, 0);
-				Label icon = new Label(" ● ");
-				//EnumTools.SetAllStates(icon, EnumTools.GetColor(health));
 				header.PackStart(new Label(name), false, false, 0);
-				header.PackStart(icon, false, false, 0);
+				header.PackStart(Graphics.GetIcon(Threat.C, (affiliation == null) ? Graphics.Unaffiliated : affiliation.color), false, false, (uint)MainClass.textSize / 5);
 				return new InspectableBox(header, this);
 
 			} else {

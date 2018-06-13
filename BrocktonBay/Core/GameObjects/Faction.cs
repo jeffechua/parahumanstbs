@@ -9,9 +9,14 @@ namespace Parahumans.Core {
 		[Displayable(2, typeof(StringField))] public String description;
 	}
 
+	public interface Affiliated {
+		Faction affiliation { get; }
+	}
+
 	public sealed class FactionData {
 		public String name = "New Faction";
 		public int ID = 0;
+		public Gdk.Color color = new Gdk.Color(0,0,0);
 		public Alignment alignment = Alignment.Rogue;
 		public int resources = 0;
 		public List<int> roster = new List<int>();
@@ -23,6 +28,7 @@ namespace Parahumans.Core {
 		public FactionData (Faction faction) {
 			name = faction.name;
 			ID = faction.ID;
+			color = faction.color;
 			alignment = faction.alignment;
 			resources = faction.resources;
 			roster = faction.roster.ConvertAll((parahuman) => parahuman.ID);
@@ -36,33 +42,36 @@ namespace Parahumans.Core {
 
 		public override int order { get { return 3; } }
 
-		[Displayable(2, typeof(EnumField<Alignment>))]
+		[Displayable(2, typeof(ColorField))]
+		public Gdk.Color color { get; set; }
+
+		[Displayable(3, typeof(EnumField<Alignment>))]
 		public Alignment alignment { get; set; }
 
-		[Displayable(3, typeof(BasicReadonlyField))]
+		[Displayable(4, typeof(BasicReadonlyField))]
 		public Threat threat { get; set; }
 
-		[Displayable(4, typeof(IntField))]
+		[Displayable(5, typeof(IntField))]
 		public int resources { get; set; }
 
-		[Displayable(5, typeof(BasicReadonlyField))]
+		[Displayable(6, typeof(BasicReadonlyField))]
 		public int reputation { get; set; }
+
+		[Displayable(7, typeof(CellObjectListField<Parahuman>), 3), Emphasized]
+		public List<Parahuman> roster { get; set; }
+
+		[Displayable(8, typeof(CellObjectListField<Team>), 2), Emphasized]
+		public List<Team> teams { get; set; }
+
+		[Displayable(9, typeof(CellObjectListField<Territory>), 2), Emphasized]
+		public List<Territory> territories { get; set; }
 
 		public List<Asset> assets { get; set; }
 
-		[Displayable(6, typeof(CellObjectListField<Parahuman>), 3), Emphasized]
-		public List<Parahuman> roster { get; set; }
-
-		[Displayable(6, typeof(CellObjectListField<Team>), 2), Emphasized]
-		public List<Team> teams { get; set; }
-
-		[Displayable(6, typeof(CellObjectListField<Territory>), 2), Emphasized]
-		public List<Territory> territories { get; set; }
-
-		[Displayable(8, typeof(RatingsSumField), true), Emphasized, VerticalOnly]
+		[Displayable(11, typeof(RatingsSumField), true), Emphasized, VerticalOnly]
 		public RatingsProfile ratings { get { return new RatingsProfile(roster, teams); } }
 
-		[Displayable(8, typeof(RatingsRadarChart), true), Emphasized, VerticalOnly]
+		[Displayable(12, typeof(RatingsRadarChart), true), Emphasized, VerticalOnly]
 		public RatingsProfile ratings_profile_radar { get { return ratings; } }
 
 		public Faction () : this(new FactionData()) { }
@@ -70,6 +79,7 @@ namespace Parahumans.Core {
 		public Faction (FactionData data) {
 			name = data.name;
 			ID = data.ID;
+			color = data.color;
 			alignment = data.alignment;
 			resources = data.resources;
 			roster = data.roster.ConvertAll((parahuman) => MainClass.currentCity.Get<Parahuman>(parahuman));
@@ -169,10 +179,10 @@ namespace Parahumans.Core {
 
 		public override Widget GetHeader (bool compact) {
 			if (compact) {
-				HBox frameHeader = new HBox(false, 0);
-				frameHeader.PackStart(new Label(name), false, false, 0);
-				frameHeader.PackStart(EnumTools.GetIcon(threat, EnumTools.GetColor(alignment)), false, false, (uint)MainClass.textSize / 5);
-				return new InspectableBox(frameHeader, this);
+				HBox header = new HBox(false, 0);
+				header.PackStart(new Label(name), false, false, 0);
+				header.PackStart(Graphics.GetIcon(threat, color), false, false, (uint)MainClass.textSize / 5);
+				return new InspectableBox(header, this);
 			} else {
 				VBox headerBox = new VBox(false, 5);
 				Label nameLabel = new Label(name);

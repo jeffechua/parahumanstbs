@@ -43,19 +43,22 @@ namespace Parahumans.Core {
 		[Displayable(2, typeof(StringField))]
 		public String civilian_name { get; set; }
 
-		[Displayable(3, typeof(EnumField<Alignment>))]
+		[Displayable(3, typeof(ObjectField)), ForceHorizontal]
+		public Faction affiliation { get { return (parent==null)?null:(Faction)parent.parent; } }
+
+		[Displayable(4, typeof(EnumField<Alignment>))]
 		public Alignment alignment { get; set; }
 
-		[Displayable(4, typeof(EnumField<Threat>))]
+		[Displayable(5, typeof(EnumField<Threat>))]
 		public Threat threat { get; set; }
 
-		[Displayable(5, typeof(EnumField<Health>))]
+		[Displayable(6, typeof(EnumField<Health>))]
 		public Health health { get; set; }
 
-		[Displayable(6, typeof(IntField))]
+		[Displayable(7, typeof(IntField))]
 		public int reputation { get; set; }
 
-		[Displayable(7, typeof(RatingListField)), Padded(5, 5), EmphasizedIfHorizontal]
+		[Displayable(8, typeof(RatingListField)), Padded(5, 5), EmphasizedIfHorizontal]
 		public RatingsProfile ratings { get; set; }
 
 		public Parahuman () : this(new ParahumanData()) { }
@@ -78,10 +81,8 @@ namespace Parahumans.Core {
 			if (compact) {
 
 				HBox header = new HBox(false, 0);
-				Label icon = new Label(" ● ");
-				EnumTools.SetAllStates(icon, EnumTools.GetColor(health));
 				header.PackStart(new Label(name), false, false, 0);
-				header.PackStart(icon, false, false, 0);
+				header.PackStart(Graphics.GetIcon(threat, Graphics.GetColor(health)), false, false, (uint)MainClass.textSize / 5);
 				return new InspectableBox(header, this);
 
 			} else {

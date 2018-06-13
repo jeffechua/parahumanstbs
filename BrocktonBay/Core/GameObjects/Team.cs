@@ -34,28 +34,31 @@ namespace Parahumans.Core {
 
 		public override int order { get { return 2; } }
 
-		[Displayable(2, typeof(EnumField<Alignment>))]
+		[Displayable(2, typeof(ObjectField)), ForceHorizontal]
+		public Faction affiliation { get { return (Faction)parent; } }
+
+		[Displayable(3, typeof(EnumField<Alignment>))]
 		public Alignment alignment { get; set; }
 
-		[Displayable(3, typeof(BasicReadonlyField))]
+		[Displayable(4, typeof(BasicReadonlyField))]
 		public Threat threat { get; set; }
 
-		[Displayable(4, typeof(BasicReadonlyField))]
+		[Displayable(5, typeof(BasicReadonlyField))]
 		public int reputation { get; set; }
 
-		[Displayable(5, typeof(IntField))]
+		[Displayable(6, typeof(IntField))]
 		public int unused_XP { get; set; }
 
-		[BimorphicDisplayable(6, typeof(TabularStringFloatPairsField), typeof(LinearStringFloatPairsField)), EmphasizedIfVertical]
+		[BimorphicDisplayable(7, typeof(TabularStringFloatPairsField), typeof(LinearStringFloatPairsField)), EmphasizedIfVertical]
 		public StringFloatPair[] spent_XP { get; set; }
 
-		[Displayable(7, typeof(CellObjectListField<Parahuman>), 3), Emphasized, Padded(0, 5)]
+		[Displayable(8, typeof(CellObjectListField<Parahuman>), 3), Emphasized, Padded(0, 5)]
 		public List<Parahuman> roster { get; set; }
 
-		[Displayable(8, typeof(RatingsSumField), true), Emphasized, VerticalOnly]
+		[Displayable(9, typeof(RatingsSumField), true), Emphasized, VerticalOnly]
 		public RatingsProfile ratings { get { return new RatingsProfile(roster); } }
 
-		[Displayable(8, typeof(RatingsRadarChart), true), Emphasized, VerticalOnly]
+		[Displayable(10, typeof(RatingsRadarChart), true), Emphasized, VerticalOnly]
 		public RatingsProfile ratings_profile_radar { get { return ratings; } }
 
 		public Team () : this(new TeamData()) { }
@@ -75,23 +78,23 @@ namespace Parahumans.Core {
 		}
 
 		public override void Reload () {
-			
+
 			threat = Threat.C;
 			for (int i = 0; i < roster.Count; i++)
 				if (roster[i].threat > threat)
 					threat = roster[i].threat;
-			
+
 			reputation = 0;
 			foreach (Parahuman parahuman in roster)
 				reputation += parahuman.reputation;
-			
+
 		}
 
 		public override Widget GetHeader (bool compact) {
 			if (compact) {
 				HBox frameHeader = new HBox(false, 0);
 				frameHeader.PackStart(new Label(name), false, false, 0);
-				frameHeader.PackStart(EnumTools.GetIcon(threat, EnumTools.GetColor(alignment)), false, false, (uint)MainClass.textSize / 5);
+				frameHeader.PackStart(Graphics.GetIcon(threat, Graphics.GetColor(alignment)), false, false, (uint)MainClass.textSize / 5);
 				return new InspectableBox(frameHeader, this);
 			} else {
 				VBox headerBox = new VBox(false, 5);
@@ -110,7 +113,7 @@ namespace Parahumans.Core {
 
 			//Creates the cell contents
 			VBox rosterBox = new VBox(false, 0) { BorderWidth = 3 };
-			foreach(Parahuman parahuman in roster) {
+			foreach (Parahuman parahuman in roster) {
 				InspectableBox header = (InspectableBox)parahuman.GetHeader(true);
 				header.DragEnd += delegate {
 					Remove(parahuman);

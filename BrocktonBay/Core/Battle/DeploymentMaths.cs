@@ -173,16 +173,16 @@ namespace Parahumans.Core {
 					healthy_chance = 1 - base_chance;
 					break;
 			}
-			injury[0] = new Fraction("Killed", death_chance, EnumTools.GetColor(Health.Deceased));
-			injury[1] = new Fraction("Downed", down_chance, EnumTools.GetColor(Health.Down));
-			injury[2] = new Fraction("Injured", injury_chance, EnumTools.GetColor(Health.Injured));
-			injury[3] = new Fraction("Unharmed", healthy_chance, EnumTools.GetColor(Health.Healthy));
+			injury[0] = new Fraction("Killed", death_chance, Graphics.GetColor(Health.Deceased));
+			injury[1] = new Fraction("Downed", down_chance, Graphics.GetColor(Health.Down));
+			injury[2] = new Fraction("Injured", injury_chance, Graphics.GetColor(Health.Injured));
+			injury[3] = new Fraction("Unharmed", healthy_chance, Graphics.GetColor(Health.Healthy));
 
 			escape = new Fraction[2];
 			float escape_chance = mobility.result / enemy.mobility.result / 2;
 			if (escape_chance > 1) escape_chance = 1;
-			escape[0] = new Fraction("Captured", 1 - escape_chance, EnumTools.GetColor(Alignment.Villain));
-			escape[1] = new Fraction("Escaped", escape_chance, EnumTools.GetColor(Alignment.Hero));
+			escape[0] = new Fraction("Captured", 1 - escape_chance, Graphics.GetColor(Alignment.Villain));
+			escape[1] = new Fraction("Escaped", escape_chance, Graphics.GetColor(Alignment.Hero));
 
 			appraisal = new Fraction[2];
 			float appraise_chance = insight.result / 10;

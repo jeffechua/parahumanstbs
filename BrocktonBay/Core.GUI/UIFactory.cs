@@ -33,7 +33,7 @@ namespace Parahumans.Core {
 				EmphasizedAttribute emphAttribute = (EmphasizedAttribute)properties[i].GetCustomAttribute(typeof(EmphasizedAttribute));
 				PaddedAttribute padded = (PaddedAttribute)properties[i].GetCustomAttribute(typeof(PaddedAttribute));
 				ConstructorInfo constructor = attr.widget.GetConstructor(new Type[] { typeof(PropertyInfo), typeof(object), typeof(bool), typeof(object) });
-				Widget newWidget = (Widget)constructor.Invoke(new object[] { properties[i], obj, true, attr.argument });
+				Widget newWidget = (Widget)constructor.Invoke(new object[] { properties[i], obj, !HasAttribute(properties[i], typeof(ForceHorizontalAttribute)), attr.argument });
 
 				if (padded != null) {
 					newWidget = new Gtk.Alignment(0, 0, 1, 1) {
@@ -93,18 +93,23 @@ namespace Parahumans.Core {
 
 				if (properties[i].GetCustomAttribute(typeof(VerticalOnlyAttribute)) != null) continue;
 
+				//Load the core attributes
 				DisplayableAttribute attr = (DisplayableAttribute)properties[i].GetCustomAttribute(typeof(DisplayableAttribute));
 				EmphasizedAttribute emph = (EmphasizedAttribute)properties[i].GetCustomAttribute(typeof(EmphasizedAttribute));
+
+				//Obtain the correct constructor
 				ConstructorInfo constructor;
 				if(attr is BimorphicDisplayableAttribute) {
 					constructor = ((BimorphicDisplayableAttribute)attr).widget2.GetConstructor(new Type[] { typeof(PropertyInfo), typeof(object), typeof(bool), typeof(object) });
 				}else {
 					constructor = attr.widget.GetConstructor(new Type[] { typeof(PropertyInfo), typeof(object), typeof(bool), typeof(object) });
 				}
-				Widget newWidget = (Widget)constructor.Invoke(new object[] { properties[i], obj, false, attr.argument });
 
+				//Create the widget
+				Widget newWidget = (Widget)constructor.Invoke(new object[] { properties[i], obj, HasAttribute(properties[i], typeof(ForceVerticalAttribute)), attr.argument });
+
+				//Handle emphasis
 				if (emph is EmphasizedIfVerticalAttribute) emph = null;
-
 				if (emph == null) {
 					if (regularBox.Children.Length > 0) regularBox.PackStart(new VSeparator(), false, false, 5);
 					regularBox.PackStart(newWidget, false, false, 0);
@@ -121,7 +126,12 @@ namespace Parahumans.Core {
 
 		}
 
+		public static bool HasAttribute (PropertyInfo property, Type attribute) {
+			return property.GetCustomAttribute(attribute) != null;
+		}
+
 	}
+
 
 	// "DisplayableAttribute" is used to tag a property to indicate that they can be displayed by the UI and to supply the relevant metadata for displaying them.
 	public class DisplayableAttribute : Attribute {
@@ -177,4 +187,6 @@ namespace Parahumans.Core {
 	public class EmphasizedIfVerticalAttribute : EmphasizedAttribute { }
 	public class EmphasizedIfHorizontalAttribute : EmphasizedAttribute { }
 	public class VerticalOnlyAttribute : Attribute { } //Show only if rendered in vertical mode.
+	public class ForceVerticalAttribute : Attribute {} //Force "vertical" to always be passed to the generated field.
+	public class ForceHorizontalAttribute : Attribute { } //Force "horizontal" to always be passed to the generated field.
 }

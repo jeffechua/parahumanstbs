@@ -227,7 +227,7 @@ namespace Parahumans.Core {
 			table.Attach(new VSeparator(), 1, 2, 0, 7);
 			//Column labels and multipliers
 			for (uint i = 1; i <= 8; i++) {
-				Label classLabel = new Label(" " + EnumTools.classSymbols[i] + " ") {
+				Label classLabel = new Label(" " + Graphics.classSymbols[i] + " ") {
 					HasTooltip = true,
 					TooltipText = Enum.GetName(typeof(Classification), i)
 				};
@@ -293,7 +293,7 @@ namespace Parahumans.Core {
 			table0.Attach(new VSeparator(), 1, 2, 0, 7);
 			//Column labels and multipliers
 			for (uint i = 1; i <= 8; i++) {
-				Label classLabel = new Label(" " + EnumTools.classSymbols[i] + " ") {
+				Label classLabel = new Label(" " + Graphics.classSymbols[i] + " ") {
 					HasTooltip = true,
 					TooltipText = Enum.GetName(typeof(Classification), i)
 				};
@@ -318,7 +318,7 @@ namespace Parahumans.Core {
 			table1.Attach(new VSeparator(), 1, 2, 0, 7);
 			//Column labels and multipliers
 			for (uint i = 1; i <= 8; i++) {
-				Label classLabel = new Label(" " + EnumTools.classSymbols[i] + " ") {
+				Label classLabel = new Label(" " + Graphics.classSymbols[i] + " ") {
 					HasTooltip = true,
 					TooltipText = Enum.GetName(typeof(Classification), i)
 				};
@@ -354,7 +354,7 @@ namespace Parahumans.Core {
 			table2.Attach(new VSeparator(), 1, 2, 0, 7);
 			//Column labels and multipliers
 			for (uint i = 1; i <= 8; i++) {
-				Label classLabel = new Label(" " + EnumTools.classSymbols[i] + " ") {
+				Label classLabel = new Label(" " + Graphics.classSymbols[i] + " ") {
 					HasTooltip = true,
 					TooltipText = Enum.GetName(typeof(Classification), i)
 				};

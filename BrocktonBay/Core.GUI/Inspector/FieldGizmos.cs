@@ -54,7 +54,7 @@ namespace Parahumans.Core {
 
 	//The graphical implementation of Expression in the UI.
 	public sealed class ExpressionField : Gtk.Alignment {
-		
+
 		PropertyInfo property;
 		object obj;
 		Expression exp;
@@ -251,7 +251,7 @@ namespace Parahumans.Core {
 				}
 
 				Frame frame = new Frame();
-				EnumTools.SetAllStates(frame, fractions[i].color);
+				Graphics.SetAllFg(frame, fractions[i].color);
 
 				Gtk.Alignment alignment = new Gtk.Alignment(spaceAlloc, 0, fractions[i].val, 1);
 				alignment.Add(frame);
@@ -277,6 +277,59 @@ namespace Parahumans.Core {
 
 			}
 
+		}
+
+	}
+
+	public class ColorField : HBox {
+
+		ClickableEventBox colorButton;
+		PropertyInfo property;
+		object obj;
+		bool vertical;
+
+		public ColorField (PropertyInfo property, object obj, bool vertical, object arg) {
+
+			this.property = property;
+			this.obj = (GUIComplete)obj;
+			this.vertical = vertical;
+
+			Label label = new Label(TextTools.ToReadable(property.Name) + ": ");
+			PackStart(label, false, false, 0);
+
+			colorButton = new ClickableEventBox { VisibleWindow = true, BorderWidth = 1 };
+			Graphics.SetAllBg(colorButton, (Gdk.Color)property.GetValue(obj));
+			PackStart(colorButton, false, false, 0);
+
+			TooltipTextAttribute tooltipText = (TooltipTextAttribute)property.GetCustomAttribute(typeof(TooltipTextAttribute));
+			if (tooltipText != null) {
+				HasTooltip = true;
+				TooltipMarkup = tooltipText.text;
+			}
+
+			colorButton.SetSizeRequest(0, 0);
+
+			SizeAllocated += InitializeDisplay;
+			colorButton.DoubleClicked += OpenPicker;
+		}
+
+		public void InitializeDisplay (object obj, SizeAllocatedArgs args) {
+			SizeAllocated -= InitializeDisplay;
+			colorButton.SetSizeRequest(args.Allocation.Height, 0);
+		}
+
+		public void OpenPicker (object eventBox, ButtonPressEventArgs args) {
+			ColorSelectionDialog dialog = new ColorSelectionDialog("Pick new color for faction.");
+			dialog.ColorSelection.PreviousColor = dialog.ColorSelection.CurrentColor = (Gdk.Color)property.GetValue(obj);
+			dialog.Response += delegate (object o, ResponseArgs response) {
+				if (response.ResponseId == ResponseType.Ok) {
+					property.SetValue(obj, dialog.ColorSelection.CurrentColor);
+					DependencyManager.Flag((IDependable)obj);
+					DependencyManager.TriggerAllFlags();
+				}
+			};
+			dialog.Run();
+			dialog.Destroy();
 		}
 
 	}

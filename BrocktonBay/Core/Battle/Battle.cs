@@ -38,9 +38,9 @@ namespace Parahumans.Core {
 
 			victory = new Fraction[2];
 			victory[0] = new Fraction(actors.name, actors.strength.result / (actors.strength.result + reactors.strength.result),
-										EnumTools.GetColor(actors.alignment));
+										Graphics.GetColor(actors.alignment));
 			victory[1] = new Fraction(reactors.name, reactors.strength.result / (actors.strength.result + reactors.strength.result),
-										EnumTools.GetColor(reactors.alignment));
+										Graphics.GetColor(reactors.alignment));
 
 			if (victory[0].val > 0.33) {
 				territory = new Fraction[3];

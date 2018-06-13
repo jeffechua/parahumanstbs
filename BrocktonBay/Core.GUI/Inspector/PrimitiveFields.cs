@@ -33,6 +33,7 @@ namespace Parahumans.Core {
 			this.property = property;
 			this.obj = (GUIComplete)obj;
 			this.vertical = vertical;
+
 			Label label = new Label(TextTools.ToReadable(property.Name) + ": ");
 			PackStart(label, false, false, 0);
 

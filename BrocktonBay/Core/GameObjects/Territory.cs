@@ -27,17 +27,20 @@ namespace Parahumans.Core {
 
 	}
 
-	public class Territory : GameObject, IContainer {
+	public class Territory : GameObject, IContainer, Affiliated {
 
 		public override int order { get { return 2; } }
 
 		[Displayable(1, typeof(Vector2Field))]
 		public Vector2 location { get; set; }
 
-		[Displayable(1, typeof(IntField))]
+		[Displayable(2, typeof(ObjectField)), ForceHorizontal]
+		public Faction affiliation { get { return (Faction)parent; } }
+
+		[Displayable(3, typeof(IntField))]
 		public int size { get; set; }
 
-		[Displayable(2, typeof(IntField))]
+		[Displayable(4, typeof(IntField))]
 		public int reputation { get; set; }
 
 		[Displayable(5, typeof(CellObjectListField<Structure>), 3), Emphasized]
@@ -60,19 +63,13 @@ namespace Parahumans.Core {
 
 		public override Widget GetHeader (bool compact) {
 			if (compact) {
-				HBox frameHeader = new HBox(false, 0);
-				Label icon = new Label(" ● ");
-				if (parent == null) {
-					icon.State = StateType.Insensitive;
-				} else {
-					EnumTools.SetAllStates(icon, EnumTools.GetColor(((Faction)parent).alignment));
-				}
-				frameHeader.PackStart(new Label(name), false, false, 0);
-				frameHeader.PackStart(icon, false, false, 0);
-				return new InspectableBox(frameHeader, this);
+				HBox header = new HBox(false, 0);
+				header.PackStart(new Label(name), false, false, 0);
+				header.PackStart(Graphics.GetIcon(Threat.C, affiliation.color), false, false, 0);
+				return new InspectableBox(header, this);
 			} else {
 				VBox headerBox = new VBox(false, 5);
-				headerBox.PackStart(new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = new Label(name), WidthRequest = 200 }, false, false, 0);
+				headerBox.PackStart(new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = new Label(name), WidthRequest = 200 }, false, false, (uint)MainClass.textSize / 5);
 				if (parent != null)
 					headerBox.PackStart(new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = parent.GetHeader(true) });
 				return headerBox;

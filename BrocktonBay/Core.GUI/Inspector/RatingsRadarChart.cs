@@ -149,7 +149,7 @@ namespace Parahumans.Core {
 			for (int i = 0; i < 8; i++) {
 				//Label
 				labels[i] = new Pango.Layout(PangoContext);
-				labels[i].SetText(EnumTools.classSymbols[reverseIndexMap[i]]);
+				labels[i].SetText(Graphics.classSymbols[reverseIndexMap[i]]);
 				labels[i].GetSize(out int labelWidth, out int labelHeight);
 				labelSizes[i] = new IntVector2(labelWidth, labelHeight) / Pango.Scale.PangoScale;
 				int thisLabelRadius = Math.Max(labelSizes[i].x, labelSizes[i].y);
