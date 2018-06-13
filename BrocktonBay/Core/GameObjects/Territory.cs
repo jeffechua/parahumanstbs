@@ -12,7 +12,7 @@ namespace Parahumans.Core {
 		public Vector2 location = new Vector2(0, 0);
 		public int size = 0;
 		public int reputation = 0;
-		public List<int> landmarks = new List<int>();
+		public List<int> structures = new List<int>();
 
 		public TerritoryData () { }
 
@@ -22,7 +22,7 @@ namespace Parahumans.Core {
 			location = territory.location;
 			size = territory.size;
 			reputation = territory.reputation;
-			territory.landmarks.ConvertAll((landmark) => landmark.ID);
+			territory.structures.ConvertAll((structure) => structure.ID);
 		}
 
 	}
@@ -40,8 +40,8 @@ namespace Parahumans.Core {
 		[Displayable(2, typeof(IntField))]
 		public int reputation { get; set; }
 
-		[Displayable(5, typeof(CellObjectListField<Landmark>), 3), Emphasized]
-		public List<Landmark> landmarks { get; set; }
+		[Displayable(5, typeof(CellObjectListField<Structure>), 3), Emphasized]
+		public List<Structure> structures { get; set; }
 
 		public Territory () : this(new TerritoryData()) { }
 
@@ -51,10 +51,10 @@ namespace Parahumans.Core {
 			location = data.location;
 			size = data.size;
 			reputation = data.reputation;
-			landmarks = data.landmarks.ConvertAll((landmark) => MainClass.currentCity.Get<Landmark>(landmark));
-			foreach (Landmark landmark in landmarks) {
-				DependencyManager.Connect(landmark, this);
-				landmark.parent = this;
+			structures = data.structures.ConvertAll((structure) => MainClass.currentCity.Get<Structure>(structure));
+			foreach (Structure structure in structures) {
+				DependencyManager.Connect(structure, this);
+				structure.parent = this;
 			}
 		}
 
@@ -82,18 +82,18 @@ namespace Parahumans.Core {
 		public override Widget GetCell () {
 
 			//Creates the cell contents
-			VBox landmarkBox = new VBox(false, 0) { BorderWidth = 3 };
-			foreach(Landmark landmark in landmarks){
-				InspectableBox header = (InspectableBox)landmark.GetHeader(true);
+			VBox structureBox = new VBox(false, 0) { BorderWidth = 3 };
+			foreach(Structure structure in structures){
+				InspectableBox header = (InspectableBox)structure.GetHeader(true);
 				header.DragEnd += delegate {
-					Remove(landmark);
+					Remove(structure);
 					DependencyManager.TriggerAllFlags();
 				};
-				landmarkBox.PackStart(header, false, false, 0);
+				structureBox.PackStart(header, false, false, 0);
 			}
 
 			//Set up dropping
-			EventBox eventBox = new EventBox { Child = landmarkBox, VisibleWindow = false };
+			EventBox eventBox = new EventBox { Child = structureBox, VisibleWindow = false };
 			Drag.DestSet(eventBox, DestDefaults.All,
 						 new TargetEntry[] { new TargetEntry(typeof(Parahuman).ToString(), TargetFlags.App, 0) },
 						 Gdk.DragAction.Move);
@@ -109,15 +109,15 @@ namespace Parahumans.Core {
 			//The Alignment makes the highlight actually appear at the 3:7 point in the margin.
 		}
 
-		public override bool Accepts (object obj) => obj is Landmark;
-		public override bool Contains (object obj) => obj is Landmark && landmarks.Contains((Landmark)obj);
+		public override bool Accepts (object obj) => obj is Structure;
+		public override bool Contains (object obj) => obj is Structure && structures.Contains((Structure)obj);
 
 		public override void AddRange<T> (List<T> objs) {
 			foreach(object element in objs) {
 				GameObject obj = (GameObject)element;
 				if (obj.parent != null) obj.parent.Remove(obj);
 				obj.parent = this;
-				landmarks.Add((Landmark)obj);
+				structures.Add((Structure)obj);
 				DependencyManager.Connect(obj, this);
 				DependencyManager.Flag(obj);
 			}
@@ -127,7 +127,7 @@ namespace Parahumans.Core {
 		public override void RemoveRange<T> (List<T> objs) {
 			foreach (object element in objs) {
 				GameObject obj = (GameObject)element;
-				landmarks.Remove((Landmark)obj);
+				structures.Remove((Structure)obj);
 				obj.parent = null;
 				DependencyManager.Disconnect(obj, this);
 				DependencyManager.Flag(obj);

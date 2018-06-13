@@ -23,6 +23,14 @@ namespace Parahumans.Core {
 		}
 
 		public static void SelectSave (City city) {
+			if (city.saveFolder == "") {
+				SelectSaveAs(city);
+			} else {
+				SaveAs(city, city.saveFolder);
+			}
+		}
+
+		public static void SelectSaveAs (City city) {
 			FileChooserDialog saveDialog = new FileChooserDialog("Save as", MainClass.mainWindow, FileChooserAction.CreateFolder, "Cancel", ResponseType.Cancel, "Save", ResponseType.Accept);
 			saveDialog.Response += delegate (object obj, ResponseArgs args) {
 				if (args.ResponseId == ResponseType.Accept) {
@@ -53,11 +61,11 @@ namespace Parahumans.Core {
 				List<string> factionAddresses = new List<string>(Directory.GetFiles(path + "/Factions"));
 				city.AddRange(factionAddresses.ConvertAll(
 					(file) => new Faction(JsonConvert.DeserializeObject<FactionData>(File.ReadAllText(file)))));
-				
-				List<string> landmarkAddresses = new List<string>(Directory.GetFiles(path + "/Landmarks"));
-				city.AddRange(landmarkAddresses.ConvertAll(
-					(file) => new Landmark(JsonConvert.DeserializeObject<LandmarkData>(File.ReadAllText(file)))));
-				
+
+				List<string> structureAddresses = new List<string>(Directory.GetFiles(path + "/Structures"));
+				city.AddRange(structureAddresses.ConvertAll(
+					(file) => new Structure(JsonConvert.DeserializeObject<StructureData>(File.ReadAllText(file)))));
+
 				List<string> territoryAddresses = new List<string>(Directory.GetFiles(path + "/Territories"));
 				city.AddRange(territoryAddresses.ConvertAll(
 					(file) => new Territory(JsonConvert.DeserializeObject<TerritoryData>(File.ReadAllText(file)))));
@@ -71,7 +79,7 @@ namespace Parahumans.Core {
 				DependencyManager.TriggerAllFlags();
 
 			} catch (Exception e) {
-				
+
 				MessageDialog errorMessage =
 					new MessageDialog(MainClass.mainWindow,
 									  DialogFlags.DestroyWithParent,
@@ -95,14 +103,14 @@ namespace Parahumans.Core {
 			Directory.CreateDirectory(destination + "/Parahumans");
 			Directory.CreateDirectory(destination + "/Teams");
 			Directory.CreateDirectory(destination + "/Factions");
-			Directory.CreateDirectory(destination + "/Landmarks");
+			Directory.CreateDirectory(destination + "/Structures");
 			Directory.CreateDirectory(destination + "/Territories");
 			Directory.CreateDirectory(destination + "/Map");
 
 			Empty(city.saveFolder + "/Parahumans");
 			Empty(city.saveFolder + "/Teams");
 			Empty(city.saveFolder + "/Factions");
-			Empty(city.saveFolder + "/Landmarks");
+			Empty(city.saveFolder + "/Structures");
 			Empty(city.saveFolder + "/Territories");
 
 			List<GameObject> parahumans = city.gameObjects.FindAll((GameObject obj) => obj is Parahuman);
@@ -120,15 +128,18 @@ namespace Parahumans.Core {
 			foreach (FactionData data in factionData)
 				File.WriteAllText(city.saveFolder + "/Factions/" + data.name + data.ID + ".json", JsonConvert.SerializeObject(data));
 
-			List<GameObject> landmarks = city.gameObjects.FindAll((GameObject obj) => obj is Landmark);
-			List<LandmarkData> landmarkData = landmarks.ConvertAll((faction) => new LandmarkData((Landmark)faction));
-			foreach (LandmarkData data in landmarkData)
-				File.WriteAllText(city.saveFolder + "/Landmarks/" + data.name + data.ID + ".json", JsonConvert.SerializeObject(data));
+			List<GameObject> structures = city.gameObjects.FindAll((GameObject obj) => obj is Structure);
+			List<StructureData> structureData = structures.ConvertAll((faction) => new StructureData((Structure)faction));
+			foreach (StructureData data in structureData)
+				File.WriteAllText(city.saveFolder + "/Structures/" + data.name + data.ID + ".json", JsonConvert.SerializeObject(data));
 
 			List<GameObject> territories = city.gameObjects.FindAll((GameObject obj) => obj is Territory);
 			List<TerritoryData> territoryData = territories.ConvertAll((faction) => new TerritoryData((Territory)faction));
 			foreach (TerritoryData data in territoryData)
 				File.WriteAllText(city.saveFolder + "/Territories/" + data.name + data.ID + ".json", JsonConvert.SerializeObject(data));
+
+			File.WriteAllBytes(destination + "/Map/map.png", city.mapPngSource);
+			File.WriteAllText(destination + "/Map/dimensions.txt", "" + city.mapDefaultWidth);
 
 			city.saveFolder = destination;
 

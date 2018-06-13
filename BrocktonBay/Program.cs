@@ -29,6 +29,10 @@ namespace Parahumans.Core {
 		static MenuItem windowButton;
 		static MenuItem helpButton;
 
+		static MenuItem saveButton;
+		static MenuItem saveAsButton;
+		static MenuItem closeButton;
+
 		public static int textSize;
 
 		public static void Main (string[] args) {
@@ -65,13 +69,50 @@ namespace Parahumans.Core {
 			fileMenu = new Menu();
 			MenuItem newGamebutton = new MenuItem("New Game") { Sensitive = false }; //Implement
 			MenuItem openButton = new MenuItem("Open");
-			openButton.Activated += (o, a) => IO.SelectOpen();
-			MenuItem saveButton = new MenuItem("Save");
-			saveButton.Activated += (o, a) => IO.SaveAs(currentCity, currentCity.saveFolder);
-			MenuItem saveAsButton = new MenuItem("Save As");
-			saveAsButton.Activated += (o, a) => IO.SelectSave(currentCity);
-			MenuItem closeButton = new MenuItem("Close");
-			closeButton.Activated += (o, a) => Unload();
+			openButton.Activated += delegate {
+				if (currentCity == null) {
+					IO.SelectOpen();
+				}else {
+					MessageDialog dialog = new MessageDialog(mainWindow, DialogFlags.DestroyWithParent, MessageType.Question, ButtonsType.YesNo, "Save current game?");
+					dialog.Response += delegate (object obj, ResponseArgs response) {
+						if (response.ResponseId == ResponseType.Yes)
+							IO.SelectSave(currentCity);
+						IO.SelectOpen();
+					};
+					dialog.Run();
+					dialog.Destroy();
+				}
+			};
+			saveButton = new MenuItem("Save") { Sensitive = false };
+			saveButton.Activated += (o, a) => IO.SelectSave(currentCity);
+			saveAsButton = new MenuItem("Save As") { Sensitive = false };
+			saveAsButton.Activated += (o, a) => IO.SelectSaveAs(currentCity);
+			closeButton = new MenuItem("Close") { Sensitive = false };
+			closeButton.Activated += delegate {
+				MessageDialog dialog = new MessageDialog(mainWindow, DialogFlags.DestroyWithParent, MessageType.Question, ButtonsType.YesNo, "Save before closing?");
+				dialog.Response += delegate (object obj, ResponseArgs response) {
+					if (response.ResponseId == ResponseType.Yes)
+						IO.SelectSave(currentCity);
+					Unload();
+				};
+				dialog.Run();
+				dialog.Destroy();
+			};
+			MenuItem quitButton = new MenuItem("Quit");
+			quitButton.Activated += delegate {
+				if (currentCity == null) {
+					Application.Quit();
+				} else {
+					MessageDialog dialog = new MessageDialog(mainWindow, DialogFlags.DestroyWithParent, MessageType.Question, ButtonsType.YesNo, "Save before quitting?");
+					dialog.Response += delegate (object obj, ResponseArgs response) {
+						if (response.ResponseId == ResponseType.Yes)
+							IO.SelectSave(currentCity);
+						Application.Quit();
+					};
+					dialog.Run();
+					dialog.Destroy();
+				}
+			};
 			fileButton.Submenu = fileMenu;
 			fileMenu.Append(newGamebutton);
 			fileMenu.Append(new SeparatorMenuItem());
@@ -81,6 +122,7 @@ namespace Parahumans.Core {
 			fileMenu.Append(saveAsButton);
 			fileMenu.Append(new SeparatorMenuItem());
 			fileMenu.Append(closeButton);
+			fileMenu.Append(quitButton);
 
 			//Edit menu
 			editMenu = new Menu();
@@ -103,9 +145,9 @@ namespace Parahumans.Core {
 				currentCity.Add((Faction)typeof(Faction).GetConstructor(new Type[] { }).Invoke(new object[] { }));
 				DependencyManager.TriggerAllFlags();
 			};
-			MenuItem createLandmarkButton = new MenuItem("Create Landmark");
-			createLandmarkButton.Activated += delegate {
-				currentCity.Add((Landmark)typeof(Landmark).GetConstructor(new Type[] { }).Invoke(new object[] { }));
+			MenuItem createStructureButton = new MenuItem("Create Structure");
+			createStructureButton.Activated += delegate {
+				currentCity.Add((Structure)typeof(Structure).GetConstructor(new Type[] { }).Invoke(new object[] { }));
 				DependencyManager.TriggerAllFlags();
 			};
 			MenuItem createTerritoryButton = new MenuItem("Create Territory");
@@ -124,7 +166,7 @@ namespace Parahumans.Core {
 			createMenu.Append(createParahumanButton);
 			createMenu.Append(createTeamButton);
 			createMenu.Append(createFactionButton);
-			createMenu.Append(createLandmarkButton);
+			createMenu.Append(createStructureButton);
 			createMenu.Append(createTerritoryButton);
 			editMenu.Append(importButton);
 			editMenu.Append(new SeparatorMenuItem());
@@ -169,6 +211,9 @@ namespace Parahumans.Core {
 			viewButton.Sensitive = true;
 			toolsButton.Sensitive = true;
 			windowButton.Sensitive = true;
+			saveButton.Sensitive = true;
+			saveAsButton.Sensitive = true;
+			closeButton.Sensitive = true;
 			mainWindow.ShowAll();
 		}
 
@@ -181,6 +226,9 @@ namespace Parahumans.Core {
 			viewButton.Sensitive = false;
 			toolsButton.Sensitive = false;
 			windowButton.Sensitive = false;
+			saveButton.Sensitive = false;
+			saveAsButton.Sensitive = false;
+			closeButton.Sensitive = false;
 			mainWindow.ShowAll();
 		}
 

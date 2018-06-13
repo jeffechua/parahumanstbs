@@ -24,10 +24,10 @@ namespace Parahumans.Core {
 			name = faction.name;
 			ID = faction.ID;
 			alignment = faction.alignment;
-			resources = 0;
+			resources = faction.resources;
 			roster = faction.roster.ConvertAll((parahuman) => parahuman.ID);
 			teams = faction.teams.ConvertAll((team) => team.ID);
-			territories = faction.teams.ConvertAll((territory) => territory.ID);
+			territories = faction.territories.ConvertAll((territory) => territory.ID);
 		}
 
 	}

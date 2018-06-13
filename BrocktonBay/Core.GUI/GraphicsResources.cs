@@ -48,7 +48,7 @@ namespace Parahumans.Core {
 									 (int)(size * 0.55), (int)(size * 0.55), 0, 23040);
 						break;
 					case Threat.B: // A square
-						double squareSize = 0.575 * size;
+						double squareSize = 0.55 * size;
 						double margin = (size - squareSize) / 2;
 						mask.DrawPolygon(visible, true, new Point[]{
 							new Point((int)margin, (int)margin),
@@ -94,7 +94,7 @@ namespace Parahumans.Core {
 			Pixbuf.FromDrawable(mask, Colormap.System, 0, 0, 0, 0, (int)(size), (int)(size))
 				  .ScaleSimple((int)(finalSize), (int)(finalSize), InterpType.Hyper)
 				  .RenderToDrawable(downsizedMask, visible, 0, 0, 0, 0, (int)(finalSize), (int)(finalSize), RgbDither.Max, 0, 0);
-
+			
 			return new Gtk.Image(iconBase, downsizedMask);
 		}
 

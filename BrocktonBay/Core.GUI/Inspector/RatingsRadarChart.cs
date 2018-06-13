@@ -26,7 +26,7 @@ namespace Parahumans.Core {
 		public static Vector2 operator / (Vector2 v, double k)
 			=> new Vector2(v.x / k, v.y / k);
 		public override string ToString ()
-			=> "(" + x.ToString() + ", " + y.ToString();
+			=> "(" + x.ToString() + ", " + y.ToString() + ")";
 	}
 
 	public struct IntVector2 {

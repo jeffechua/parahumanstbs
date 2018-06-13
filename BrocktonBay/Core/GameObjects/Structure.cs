@@ -4,24 +4,24 @@ using System.Collections.Generic;
 
 
 namespace Parahumans.Core {
-
-	public class LandmarkData {
+	
+	public class StructureData {
 		public string name = "New Landmark";
 		public int ID = 0;
-		public LandmarkData () {}
-		public LandmarkData (Landmark landmark) {
-			name = landmark.name;
-			ID = landmark.ID;
+		public StructureData () {}
+		public StructureData (Structure structure) {
+			name = structure.name;
+			ID = structure.ID;
 		}
 	}
 
-	public class Landmark : GameObject {
+	public class Structure : GameObject {
 
 		public override int order { get { return 1; } }
 
-		public Landmark () : this(new LandmarkData()) {}
+		public Structure () : this(new StructureData()) {}
 
-		public Landmark (LandmarkData data) {
+		public Structure (StructureData data) {
 			name = data.name;
 			ID = data.ID;
 		}

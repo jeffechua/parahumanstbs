@@ -1,5 +1,6 @@
 ﻿using System;
 using Gtk;
+using Parahumans.Core;
 
 public class DefocusableWindow : Gtk.Window {
 
@@ -16,7 +17,18 @@ public class DefocusableWindow : Gtk.Window {
 public partial class MainWindow : DefocusableWindow {
 	public MainWindow () {
 		DeleteEvent += delegate (object obj, DeleteEventArgs args) {
-			Application.Quit();
+			if (MainClass.currentCity == null) {
+				Application.Quit();
+			} else {
+				MessageDialog dialog = new MessageDialog(this, DialogFlags.DestroyWithParent, MessageType.Question, ButtonsType.YesNo, "Save before quitting?");
+				dialog.Response += delegate (object o, ResponseArgs response) {
+					if (response.ResponseId == ResponseType.Yes)
+						IO.SelectSave(MainClass.currentCity);
+					Application.Quit();
+				};
+				dialog.Run();
+				dialog.Destroy();
+			}
 			args.RetVal = true;
 		};
 	}
