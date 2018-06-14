@@ -54,5 +54,10 @@ namespace Parahumans.Core {
 			Console.WriteLine("\t" + "Planner interface: " + plannerCreateTime + " ms");
 		}
 
+		public static void WriteLog () {
+			double logged = (DateTime.Now - currentTime).TotalMilliseconds;
+			Console.WriteLine("Operation took " + logged + " ms.");
+		}
+
 	}
 }

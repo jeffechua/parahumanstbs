@@ -16,7 +16,7 @@ namespace Parahumans.Core {
 	public sealed class FactionData {
 		public String name = "New Faction";
 		public int ID = 0;
-		public Gdk.Color color = new Gdk.Color(0,0,0);
+		public Gdk.Color color = new Gdk.Color(0, 0, 0);
 		public Alignment alignment = Alignment.Rogue;
 		public int resources = 0;
 		public List<int> roster = new List<int>();
@@ -82,17 +82,17 @@ namespace Parahumans.Core {
 			color = data.color;
 			alignment = data.alignment;
 			resources = data.resources;
-			roster = data.roster.ConvertAll((parahuman) => MainClass.currentCity.Get<Parahuman>(parahuman));
+			roster = data.roster.ConvertAll((parahuman) => MainClass.city.Get<Parahuman>(parahuman));
 			foreach (Parahuman parahuman in roster) {
 				DependencyManager.Connect(parahuman, this);
 				parahuman.parent = this;
 			}
-			teams = data.teams.ConvertAll((team) => MainClass.currentCity.Get<Team>(team));
+			teams = data.teams.ConvertAll((team) => MainClass.city.Get<Team>(team));
 			foreach (Team team in teams) {
 				DependencyManager.Connect(team, this);
 				team.parent = this;
 			}
-			territories = data.territories.ConvertAll((territory) => MainClass.currentCity.Get<Territory>(territory));
+			territories = data.territories.ConvertAll((territory) => MainClass.city.Get<Territory>(territory));
 			foreach (Territory territory in territories) {
 				DependencyManager.Connect(territory, this);
 				territory.parent = this;
@@ -104,6 +104,10 @@ namespace Parahumans.Core {
 		}
 
 		public override void Reload () {
+
+			teams.Sort();
+			roster.Sort();
+			territories.Sort();
 
 			threat = Threat.C;
 			for (int i = 0; i < roster.Count; i++)
@@ -142,22 +146,10 @@ namespace Parahumans.Core {
 				DependencyManager.Connect(obj, this);
 				if (obj.parent != null) obj.parent.Remove(obj);
 				obj.parent = this;
-				if (obj is Team) {
-					teams.Add((Team)obj);
-					teams.Sort();
-				}
-				if (obj is Parahuman) {
-					roster.Add((Parahuman)obj);
-					roster.Sort();
-				}
-				if (obj is Asset) {
-					assets.Add((Asset)obj);
-					assets.Sort();
-				}
-				if (obj is Territory) {
-					territories.Add((Territory)obj);
-					territories.Sort();
-				}
+				if (obj is Team) teams.Add((Team)obj);
+				if (obj is Parahuman) roster.Add((Parahuman)obj);
+				if (obj is Asset) assets.Add((Asset)obj);
+				if (obj is Territory) territories.Add((Territory)obj);
 				DependencyManager.Flag(obj);
 			}
 			DependencyManager.Flag(this);
@@ -181,7 +173,8 @@ namespace Parahumans.Core {
 			if (compact) {
 				HBox header = new HBox(false, 0);
 				header.PackStart(new Label(name), false, false, 0);
-				header.PackStart(Graphics.GetIcon(threat, color), false, false, (uint)(MainClass.textSize / 5));
+				header.PackStart(Graphics.GetIcon(threat, color, MainClass.textSize),
+								 false, false, (uint)(MainClass.textSize / 5));
 				return new InspectableBox(header, this);
 			} else {
 				VBox headerBox = new VBox(false, 5);

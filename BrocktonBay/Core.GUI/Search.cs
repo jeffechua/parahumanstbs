@@ -56,7 +56,7 @@ namespace Parahumans.Core {
 
 		public Search(Func<GameObject, bool> Filter = null, Action<GameObject> OnClicked = null) {
 
-			DependencyManager.Connect(MainClass.currentCity, this);
+			DependencyManager.Connect(MainClass.city, this);
 			this.Filter = Filter ?? delegate { return true; };
 			this.OnClicked = OnClicked ?? delegate { };
 
@@ -68,9 +68,9 @@ namespace Parahumans.Core {
 			resultsWindow = new ScrolledWindow();
 			PackStart(resultsWindow, true, true, 0);
 
-			lister = new CachingLister<GameObject>(MainClass.currentCity.gameObjects, SetupListing);
-			tesselator = new CachingTesselator<GameObject>(MainClass.currentCity.gameObjects, SetupCell, resultsWindow);
-			headerer = new CachingLister<GameObject>(MainClass.currentCity.gameObjects, SetupHeader);
+			lister = new CachingLister<GameObject>(MainClass.city.gameObjects, SetupListing);
+			tesselator = new CachingTesselator<GameObject>(MainClass.city.gameObjects, SetupCell, resultsWindow);
+			headerer = new CachingLister<GameObject>(MainClass.city.gameObjects, SetupHeader);
 
 			//Search
 			searchText = new Entry();
@@ -222,7 +222,7 @@ namespace Parahumans.Core {
 
 		public void Reload() {
 
-			List<GameObject> resultsList = MainClass.currentCity.gameObjects.FindAll(SatisfiesFilters);
+			List<GameObject> resultsList = MainClass.city.gameObjects.FindAll(SatisfiesFilters);
 
 			switch (presentation.Active) {
 				case 0:

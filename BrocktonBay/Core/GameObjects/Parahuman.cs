@@ -19,7 +19,7 @@ namespace Parahumans.Core {
 		public Threat threat = Threat.C;
 		public Health health = Health.Healthy;
 		public int reputation = 0;
-		public float[,] ratings = new float[5,9];
+		public float[,] ratings = new float[5, 9];
 
 		public ParahumanData () { }
 
@@ -44,7 +44,7 @@ namespace Parahumans.Core {
 		public String civilian_name { get; set; }
 
 		[Displayable(3, typeof(ObjectField)), ForceHorizontal]
-		public Faction affiliation { get { return (parent==null)?null:(Faction)parent.parent; } }
+		public Faction affiliation { get { return (parent == null) ? null : (Faction)parent.parent; } }
 
 		[Displayable(4, typeof(EnumField<Alignment>))]
 		public Alignment alignment { get; set; }
@@ -82,7 +82,8 @@ namespace Parahumans.Core {
 
 				HBox header = new HBox(false, 0);
 				header.PackStart(new Label(name), false, false, 0);
-				header.PackStart(Graphics.GetIcon(threat, Graphics.GetColor(health)), false, false, (uint)(MainClass.textSize / 5));
+				header.PackStart(Graphics.GetIcon(threat, Graphics.GetColor(health), MainClass.textSize),
+								 false, false, (uint)(MainClass.textSize / 5));
 				return new InspectableBox(header, this);
 
 			} else {
@@ -112,7 +113,7 @@ namespace Parahumans.Core {
 		}
 
 		public override Widget GetCell () {
-			
+
 			VBox ratingsBox = new VBox(false, 0) { BorderWidth = 5 };
 
 			for (int i = 1; i <= 8; i++) {
@@ -124,15 +125,15 @@ namespace Parahumans.Core {
 			}
 
 			for (int k = 1; k <= 3; k++) {
-				if (ratings.values[k,0] > 0) {
+				if (ratings.values[k, 0] > 0) {
 
-					Label ratingLabel = new Label(TextTools.PrintRating(k+8, ratings.values[k,0], true));
+					Label ratingLabel = new Label(TextTools.PrintRating(k + 8, ratings.values[k, 0], true));
 					ratingLabel.SetAlignment(0, 0);
 
 					List<String> subratings = new List<String>();
 					for (int i = 1; i <= 8; i++)
-						if(ratings.values[k,i]>0)
-							subratings.Add(TextTools.PrintRating(i, ratings.values[k,i]));
+						if (ratings.values[k, i] > 0)
+							subratings.Add(TextTools.PrintRating(i, ratings.values[k, i]));
 					ratingLabel.TooltipText = String.Join("\n", subratings);
 
 					ratingsBox.PackStart(ratingLabel, false, false, 0);

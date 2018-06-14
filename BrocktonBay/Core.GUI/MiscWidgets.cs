@@ -58,9 +58,8 @@ namespace Parahumans.Core {
 		public GUIComplete inspected;
 		public Menu rightclickMenu;
 
-		public InspectableBox(Widget child, GUIComplete inspected) {
+		public InspectableBox(GUIComplete inspected) {
 			
-			Child = child;
 			this.inspected = inspected;
 
 			Clicked += delegate (object obj, ButtonReleaseEventArgs args) {
@@ -96,6 +95,9 @@ namespace Parahumans.Core {
 			DragDataGet += (o, a) => DragTmpVars.currentDragged = inspected;
 
 		}
+
+		public InspectableBox(Widget child, GUIComplete inspected) : this(inspected)
+			=> Child = child;
 
 	}
 

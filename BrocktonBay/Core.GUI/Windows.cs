@@ -17,13 +17,13 @@ public class DefocusableWindow : Gtk.Window {
 public partial class MainWindow : DefocusableWindow {
 	public MainWindow () {
 		DeleteEvent += delegate (object obj, DeleteEventArgs args) {
-			if (MainClass.currentCity == null) {
+			if (MainClass.city == null) {
 				Application.Quit();
 			} else {
 				MessageDialog dialog = new MessageDialog(this, DialogFlags.DestroyWithParent, MessageType.Question, ButtonsType.YesNo, "Save before quitting?");
 				dialog.Response += delegate (object o, ResponseArgs response) {
 					if (response.ResponseId == ResponseType.Yes)
-						IO.SelectSave(MainClass.currentCity);
+						IO.SelectSave(MainClass.city);
 					Application.Quit();
 				};
 				dialog.Run();

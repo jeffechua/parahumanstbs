@@ -5,28 +5,50 @@ using System.Collections.Generic;
 
 namespace Parahumans.Core {
 
+	public enum StructureType {
+		Tactical = 0,
+		Economic = 1,
+		Aesthetic = 2
+	}
+
 	public class StructureData {
+
 		public string name = "New Landmark";
 		public int ID = 0;
+		public IntVector2 location = new IntVector2(0, 0);
+		public StructureType type;
+
 		public StructureData () { }
+
 		public StructureData (Structure structure) {
 			name = structure.name;
 			ID = structure.ID;
+			location = structure.location;
+			type = structure.type;
 		}
+
 	}
 
 	public class Structure : GameObject {
 
 		public override int order { get { return 1; } }
 
-		[Displayable(2, typeof(ObjectField)), ForceHorizontal]
+		[Displayable(2, typeof(IntVector2Field))]
+		public IntVector2 location { get; set; }
+
+		[Displayable(3, typeof(ObjectField)), ForceHorizontal]
 		public Faction affiliation { get { return (parent == null) ? null : (Faction)parent.parent; } }
+
+		[Displayable(4, typeof(EnumField<StructureType>))]
+		public StructureType type { get; set; }
 
 		public Structure () : this(new StructureData()) { }
 
 		public Structure (StructureData data) {
 			name = data.name;
 			ID = data.ID;
+			location = data.location;
+			type = data.type;
 		}
 
 		public override Widget GetHeader (bool compact) {
@@ -35,7 +57,8 @@ namespace Parahumans.Core {
 
 				HBox header = new HBox(false, 0);
 				header.PackStart(new Label(name), false, false, 0);
-				header.PackStart(Graphics.GetIcon(Threat.C, (affiliation == null) ? Graphics.Unaffiliated : affiliation.color), false, false, (uint)(MainClass.textSize / 5));
+				header.PackStart(Graphics.GetIcon(type, Graphics.GetColor(affiliation), MainClass.textSize),
+								 false, false, (uint)(MainClass.textSize / 5));
 				return new InspectableBox(header, this);
 
 			} else {

@@ -36,6 +36,7 @@ namespace Parahumans.Core {
 				if (args.ResponseId == ResponseType.Accept) {
 					string path = new Uri(saveDialog.Uri).AbsolutePath;
 					SaveAs(city, path);
+					Console.WriteLine(path);
 				}
 			};
 			saveDialog.Run();
@@ -48,7 +49,7 @@ namespace Parahumans.Core {
 
 				City city = new City();
 				city.saveFolder = path;
-				MainClass.currentCity = city;
+				MainClass.city = city;
 
 				Profiler.Log();
 
@@ -64,12 +65,6 @@ namespace Parahumans.Core {
 
 				Profiler.Log(ref Profiler.teamLoadTime);
 
-				List<string> factionAddresses = new List<string>(Directory.GetFiles(path + "/Factions"));
-				city.AddRange(factionAddresses.ConvertAll(
-					(file) => new Faction(JsonConvert.DeserializeObject<FactionData>(File.ReadAllText(file)))));
-
-				Profiler.Log(ref Profiler.factionLoadTime);
-
 				List<string> structureAddresses = new List<string>(Directory.GetFiles(path + "/Structures"));
 				city.AddRange(structureAddresses.ConvertAll(
 					(file) => new Structure(JsonConvert.DeserializeObject<StructureData>(File.ReadAllText(file)))));
@@ -82,12 +77,18 @@ namespace Parahumans.Core {
 
 				Profiler.Log(ref Profiler.territoryLoadTime);
 
+				List<string> factionAddresses = new List<string>(Directory.GetFiles(path + "/Factions"));
+				city.AddRange(factionAddresses.ConvertAll(
+					(file) => new Faction(JsonConvert.DeserializeObject<FactionData>(File.ReadAllText(file)))));
+
+				Profiler.Log(ref Profiler.factionLoadTime);
+
 				city.mapPngSource = File.ReadAllBytes(path + "/Map/map.png");
 				city.mapDefaultWidth = int.Parse(File.ReadAllText(path + "/Map/dimensions.txt"));
+				city.territorySizeScale = int.Parse(File.ReadAllText(path + "/Map/scale.txt"));
 
 				Profiler.Log(ref Profiler.mapDataLoadTime);
 
-				city.Sort();
 				DependencyManager.TriggerAllFlags();
 
 				Profiler.Log(ref Profiler.updateTime);
@@ -108,6 +109,7 @@ namespace Parahumans.Core {
 				Console.WriteLine(e.StackTrace);
 				errorMessage.Run();
 				errorMessage.Destroy();
+				MainClass.city = null;
 
 			}
 
@@ -125,39 +127,40 @@ namespace Parahumans.Core {
 			Directory.CreateDirectory(destination + "/Territories");
 			Directory.CreateDirectory(destination + "/Map");
 
-			Empty(city.saveFolder + "/Parahumans");
-			Empty(city.saveFolder + "/Teams");
-			Empty(city.saveFolder + "/Factions");
-			Empty(city.saveFolder + "/Structures");
-			Empty(city.saveFolder + "/Territories");
+			Empty(destination + "/Parahumans");
+			Empty(destination + "/Teams");
+			Empty(destination + "/Factions");
+			Empty(destination + "/Structures");
+			Empty(destination + "/Territories");
 
 			List<GameObject> parahumans = city.gameObjects.FindAll((GameObject obj) => obj is Parahuman);
 			List<ParahumanData> parahumanData = parahumans.ConvertAll((parahuman) => new ParahumanData((Parahuman)parahuman));
 			foreach (ParahumanData data in parahumanData)
-				File.WriteAllText(city.saveFolder + "/Parahumans/" + data.name + data.ID + ".json", JsonConvert.SerializeObject(data));
+				File.WriteAllText(destination + "/Parahumans/" + data.name + data.ID + ".json", JsonConvert.SerializeObject(data));
 
 			List<GameObject> teams = city.gameObjects.FindAll((GameObject obj) => obj is Team);
 			List<TeamData> teamData = teams.ConvertAll((team) => new TeamData((Team)team));
 			foreach (TeamData data in teamData)
-				File.WriteAllText(city.saveFolder + "/Teams/" + data.name + data.ID + ".json", JsonConvert.SerializeObject(data));
+				File.WriteAllText(destination + "/Teams/" + data.name + data.ID + ".json", JsonConvert.SerializeObject(data));
 
 			List<GameObject> factions = city.gameObjects.FindAll((GameObject obj) => obj is Faction);
 			List<FactionData> factionData = factions.ConvertAll((faction) => new FactionData((Faction)faction));
 			foreach (FactionData data in factionData)
-				File.WriteAllText(city.saveFolder + "/Factions/" + data.name + data.ID + ".json", JsonConvert.SerializeObject(data));
+				File.WriteAllText(destination + "/Factions/" + data.name + data.ID + ".json", JsonConvert.SerializeObject(data));
 
 			List<GameObject> structures = city.gameObjects.FindAll((GameObject obj) => obj is Structure);
-			List<StructureData> structureData = structures.ConvertAll((faction) => new StructureData((Structure)faction));
+			List<StructureData> structureData = structures.ConvertAll((structure) => new StructureData((Structure)structure));
 			foreach (StructureData data in structureData)
-				File.WriteAllText(city.saveFolder + "/Structures/" + data.name + data.ID + ".json", JsonConvert.SerializeObject(data));
+				File.WriteAllText(destination + "/Structures/" + data.name + data.ID + ".json", JsonConvert.SerializeObject(data));
 
 			List<GameObject> territories = city.gameObjects.FindAll((GameObject obj) => obj is Territory);
-			List<TerritoryData> territoryData = territories.ConvertAll((faction) => new TerritoryData((Territory)faction));
+			List<TerritoryData> territoryData = territories.ConvertAll((territory) => new TerritoryData((Territory)territory));
 			foreach (TerritoryData data in territoryData)
-				File.WriteAllText(city.saveFolder + "/Territories/" + data.name + data.ID + ".json", JsonConvert.SerializeObject(data));
+				File.WriteAllText(destination + "/Territories/" + data.name + data.ID + ".json", JsonConvert.SerializeObject(data));
 
 			File.WriteAllBytes(destination + "/Map/map.png", city.mapPngSource);
 			File.WriteAllText(destination + "/Map/dimensions.txt", "" + city.mapDefaultWidth);
+			File.WriteAllText(destination + "/Map/scale.txt", "" + city.territorySizeScale);
 
 			city.saveFolder = destination;
 

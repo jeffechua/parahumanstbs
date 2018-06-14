@@ -13,7 +13,7 @@ namespace Parahumans.Core {
 		public List<IDependable> dependencies { get; set; } = new List<IDependable>();
 		public List<IDependable> dependents { get; set; } = new List<IDependable>();
 
-		public Listing(GUIComplete obj) {
+		public Listing (GUIComplete obj) {
 			this.obj = obj;
 			DependencyManager.Connect(obj, this);
 			if (obj is GameObject) {
@@ -28,7 +28,7 @@ namespace Parahumans.Core {
 			Reload();
 		}
 
-		public void Reload() {
+		public void Reload () {
 			if (Child != null) Child.Destroy();
 			if (LabelWidget != null) LabelWidget.Destroy();
 			LabelWidget = obj.GetHeader(true);
@@ -47,8 +47,8 @@ namespace Parahumans.Core {
 		public List<IDependable> dependencies { get; set; } = new List<IDependable>();
 		public List<IDependable> dependents { get; set; } = new List<IDependable>();
 
-		public Cell(GUIComplete obj) {
-			
+		public Cell (GUIComplete obj) {
+
 			//Basic setup
 			this.obj = obj;
 			frame = new Frame();
@@ -60,7 +60,7 @@ namespace Parahumans.Core {
 
 			//Set up drag and drop
 			Drag.SourceSet(this, Gdk.ModifierType.Button1Mask,
-			               new TargetEntry[] { new TargetEntry(obj.GetType().ToString(), TargetFlags.App, 0) },
+						   new TargetEntry[] { new TargetEntry(obj.GetType().ToString(), TargetFlags.App, 0) },
 						   Gdk.DragAction.Move);
 			DragDataGet += (o, a) => DragTmpVars.currentDragged = obj;
 
@@ -78,7 +78,7 @@ namespace Parahumans.Core {
 
 		}
 
-		public void Reload() {
+		public void Reload () {
 			if (frame.Child != null) frame.Child.Destroy();
 			if (frame.LabelWidget != null) frame.LabelWidget.Destroy();
 			frame.LabelWidget = obj.GetHeader(true);
@@ -99,10 +99,10 @@ namespace Parahumans.Core {
 		public List<IDependable> dependencies { get; set; } = new List<IDependable>();
 		public List<IDependable> dependents { get; set; } = new List<IDependable>();
 
-		public Inspector() => HscrollbarPolicy = PolicyType.Never;
-		public Inspector(GUIComplete obj) : this() => Inspect(obj);
+		public Inspector () => HscrollbarPolicy = PolicyType.Never;
+		public Inspector (GUIComplete obj) : this() => Inspect(obj);
 
-		public void Inspect(GUIComplete obj) {
+		public void Inspect (GUIComplete obj) {
 			if (obj.destroyed) {
 				this.obj = null;
 				if (Child != null) Child.Destroy();
@@ -130,25 +130,26 @@ namespace Parahumans.Core {
 			ShowAll();
 		}
 
-		public void Reload() => Inspect(obj);
+		public void Reload () => Inspect(obj);
 
-		public static Window InspectInNewWindow(GUIComplete newObj) {
+		public static Window InspectInNewWindow (GUIComplete newObj) {
 			DefocusableWindow win = new DefocusableWindow();
 			win.SetPosition(WindowPosition.Center);
 			win.Title = "Inspector";
 			win.TransientFor = (Window)main.Toplevel;
-			win.TypeHint = Gdk.WindowTypeHint.Dialog;
+			win.TypeHint = Gdk.WindowTypeHint.Utility;
 			Inspector inspector = new Inspector(newObj) { BorderWidth = 2 };
 			win.Add(inspector);
 			win.DeleteEvent += (o, a) => DependencyManager.DisconnectAll(inspector);
 			//Gtk complains if GC hasn't gotten around to us, and obj tries to reload this.
+			win.FocusInEvent += (o, a) => win.TransientFor = (Window)main.Toplevel;
 			inspector.Realize();
 			win.DefaultHeight = inspector.Child.Requisition.Height + 10;
 			win.ShowAll();
 			return win;
 		}
 
-		public static Inspector GetNearestInspector(Widget widget) {
+		public static Inspector GetNearestInspector (Widget widget) {
 			Widget container = widget.Parent;
 			while (container != null && !container.IsTopLevel && !(container is Inspector)) container = container.Parent;
 			if (container is Inspector) return (Inspector)container;

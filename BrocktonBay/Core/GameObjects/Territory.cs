@@ -22,7 +22,7 @@ namespace Parahumans.Core {
 			location = territory.location;
 			size = territory.size;
 			reputation = territory.reputation;
-			territory.structures.ConvertAll((structure) => structure.ID);
+			structures = territory.structures.ConvertAll((structure) => structure.ID);
 		}
 
 	}
@@ -31,19 +31,19 @@ namespace Parahumans.Core {
 
 		public override int order { get { return 2; } }
 
-		[Displayable(1, typeof(Vector2Field))]
-		public Vector2 location { get; set; }
+		[Displayable(2, typeof(IntVector2Field))]
+		public IntVector2 location { get; set; }
 
-		[Displayable(2, typeof(ObjectField)), ForceHorizontal]
+		[Displayable(3, typeof(ObjectField)), ForceHorizontal]
 		public Faction affiliation { get { return (Faction)parent; } }
 
-		[Displayable(3, typeof(IntField))]
+		[Displayable(4, typeof(IntField))]
 		public int size { get; set; }
 
-		[Displayable(4, typeof(IntField))]
+		[Displayable(5, typeof(IntField))]
 		public int reputation { get; set; }
 
-		[Displayable(5, typeof(CellObjectListField<Structure>), 3), Emphasized]
+		[Displayable(6, typeof(CellObjectListField<Structure>), 3), Emphasized]
 		public List<Structure> structures { get; set; }
 
 		public Territory () : this(new TerritoryData()) { }
@@ -54,7 +54,7 @@ namespace Parahumans.Core {
 			location = data.location;
 			size = data.size;
 			reputation = data.reputation;
-			structures = data.structures.ConvertAll((structure) => MainClass.currentCity.Get<Structure>(structure));
+			structures = data.structures.ConvertAll((structure) => MainClass.city.Get<Structure>(structure));
 			foreach (Structure structure in structures) {
 				DependencyManager.Connect(structure, this);
 				structure.parent = this;
@@ -65,7 +65,8 @@ namespace Parahumans.Core {
 			if (compact) {
 				HBox header = new HBox(false, 0);
 				header.PackStart(new Label(name), false, false, 0);
-				header.PackStart(Graphics.GetIcon(Threat.C, (affiliation == null) ? Graphics.Unaffiliated : affiliation.color), false, false, (uint)(MainClass.textSize/5));
+				header.PackStart(Graphics.GetIcon(Threat.C, Graphics.GetColor(affiliation), MainClass.textSize),
+				                 false, false, (uint)(MainClass.textSize/5));
 				return new InspectableBox(header, this);
 			} else {
 				VBox headerBox = new VBox(false, 5);
@@ -134,6 +135,10 @@ namespace Parahumans.Core {
 				DependencyManager.Flag(obj);
 			}
 			DependencyManager.Flag(this);
+		}
+
+		public override void Reload () {
+			structures.Sort();
 		}
 
 

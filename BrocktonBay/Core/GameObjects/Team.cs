@@ -69,7 +69,7 @@ namespace Parahumans.Core {
 			alignment = data.alignment;
 			unused_XP = data.unused_XP;
 			spent_XP = data.spent_XP;
-			roster = data.roster.ConvertAll((parahuman) => MainClass.currentCity.Get<Parahuman>(parahuman));
+			roster = data.roster.ConvertAll((parahuman) => MainClass.city.Get<Parahuman>(parahuman));
 			foreach (Parahuman parahuman in roster) {
 				DependencyManager.Connect(parahuman, this);
 				parahuman.parent = this;
@@ -78,6 +78,8 @@ namespace Parahumans.Core {
 		}
 
 		public override void Reload () {
+
+			roster.Sort();
 
 			threat = Threat.C;
 			for (int i = 0; i < roster.Count; i++)
@@ -94,7 +96,8 @@ namespace Parahumans.Core {
 			if (compact) {
 				HBox frameHeader = new HBox(false, 0);
 				frameHeader.PackStart(new Label(name), false, false, 0);
-				frameHeader.PackStart(Graphics.GetIcon(threat, Graphics.GetColor(alignment)), false, false, (uint)(MainClass.textSize / 5));
+				frameHeader.PackStart(Graphics.GetIcon(threat, Graphics.GetColor(alignment), MainClass.textSize),
+									  false, false, (uint)(MainClass.textSize / 5));
 				return new InspectableBox(frameHeader, this);
 			} else {
 				VBox headerBox = new VBox(false, 5);
@@ -152,7 +155,6 @@ namespace Parahumans.Core {
 				DependencyManager.Flag(obj);
 			}
 			DependencyManager.Flag(this);
-			roster.Sort();
 		}
 
 		public override void RemoveRange<T> (List<T> objs) {

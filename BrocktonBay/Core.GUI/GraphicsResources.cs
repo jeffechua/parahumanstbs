@@ -12,8 +12,6 @@ namespace Parahumans.Core {
 		public static readonly Gdk.Color[] healthColors = { new Color(100, 100, 100), new Color(230, 0, 0), new Color(200, 200, 0), new Color(0, 200, 0) };
 		public static readonly Gdk.Color[] alignmentColors = { new Color(0, 100, 230), new Color(170, 140, 0), new Color(100, 150, 0), new Color(0, 0, 0), new Color(150, 0, 175) };
 
-		public static readonly Gdk.Color Unaffiliated = new Gdk.Color(125, 125, 125);
-
 		public static Gdk.Color GetColor (Health health) => healthColors[(int)health];
 		public static Gdk.Color GetColor (Alignment alignment) => alignmentColors[2 - (int)alignment];
 		public static string GetSymbol (Classification clssf) => classSymbols[(int)clssf];
@@ -35,9 +33,13 @@ namespace Parahumans.Core {
 			widget.ModifyBg(StateType.Insensitive, color);
 		}
 
-		public static Widget GetIcon (object iconified, Color color) {
+		public static Color GetColor (Faction faction) {
+			return (faction == null) ? new Gdk.Color(125, 125, 125) : faction.color;
+		}
 
-			double pixelSize = MainClass.textSize;
+		public static Gtk.Image GetIcon (object iconified, Color color, int iconSize) {
+
+			double pixelSize = iconSize;
 			double size = pixelSize * 10; //Since 12 across is 0-11; we don't want to draw on 12 and lose pixels.
 			Pixmap iconBase = new Pixmap(MainClass.mainWindow.GdkWindow, (int)size, (int)size);
 			Pixmap mask = new Pixmap(MainClass.mainWindow.GdkWindow, (int)size, (int)size);
@@ -50,8 +52,7 @@ namespace Parahumans.Core {
 			mask.DrawRectangle(invisible, true, new Rectangle(0, 0, (int)size, (int)size));
 
 			if (iconified is Threat) {
-				Threat threat = (Threat)iconified;
-				switch (threat) {
+				switch ((Threat)iconified) {
 					case Threat.C: // a circle
 						mask.DrawArc(visible, true, (int)(size * 0.225), (int)(size * 0.225),
 									 (int)(size * 0.55), (int)(size * 0.55), 0, 23040);
@@ -98,7 +99,136 @@ namespace Parahumans.Core {
 				}
 			}
 
+			if (iconified is StructureType) {
+				switch ((StructureType)iconified) {
+					case StructureType.Tactical:
+						double width = size * 0.7;
+						double height = size * 0.75;
+						double xMargin = (size - width) / 2;
+						double yMargin = (size - height) / 2;
+						double dipHeight = size * 0.1;
+						double peakHeight = size * 0.3;
+						Vector2 upperLeft = new Vector2(xMargin, yMargin);
+						Vector2 upperRight = upperLeft + new Vector2(width, 0);
+						Vector2 lowerLeft = upperLeft + new Vector2(0, height - peakHeight);
+						Vector2 lowerRight = upperRight + new Vector2(0, height - peakHeight);
+						Vector2 upperMiddle = new Vector2(size / 2, yMargin + dipHeight);
+						Vector2 lowerMiddle = new Vector2(size / 2, size - yMargin);
+						mask.DrawPolygon(visible, true, new Point[]{
+							upperLeft.ToPoint(),
+							upperMiddle.ToPoint(),
+							upperRight.ToPoint(),
+							lowerRight.ToPoint(),
+							lowerMiddle.ToPoint(),
+							lowerLeft.ToPoint()
+						});
+						break;
+					case StructureType.Economic:
+						Vector2 center = new Vector2(size / 2, size / 2);
+						double radii = 0.2 * size;
+						double diameter = radii * 2;
+						Vector2 topCenter = center - new Vector2(0, 2 * radii / Math.Sqrt(3));
+						Vector2 leftCenter = center + new Vector2(radii, Math.Sqrt(2) / 2 * radii);
+						Vector2 rightCenter = center + new Vector2(-radii, Math.Sqrt(2) / 2 * radii);
+						Vector2 topCorner = topCenter - new Vector2(radii, radii);
+						Vector2 leftCorner = leftCenter - new Vector2(radii, radii);
+						Vector2 rightCorner = rightCenter - new Vector2(radii, radii);
+						mask.DrawArc(visible, true, (int)topCorner.x, (int)topCorner.y, (int)diameter, (int)diameter, 0, 23040);
+						mask.DrawArc(visible, true, (int)leftCorner.x, (int)leftCorner.y, (int)diameter, (int)diameter, 0, 23040);
+						mask.DrawArc(visible, true, (int)rightCorner.x, (int)rightCorner.y, (int)diameter, (int)diameter, 0, 23040);
+						break;
+					case StructureType.Aesthetic:
+						double radius = 0.55 * size;
+						double d = radius * 2;
+						double eyeballRadius = radius * 0.45;
+						double pupilRadius = eyeballRadius * 0.45;
+						Vector2 upCenter = new Vector2(size / 2, size / 2 - radius / 2);
+						Vector2 downCenter = new Vector2(size / 2, size / 2 + radius / 2);
+						Vector2 upCorner = upCenter - new Vector2(radius, radius);
+						Vector2 downCorner = downCenter - new Vector2(radius, radius);
+						mask.DrawArc(visible, true, (int)upCorner.x, (int)upCorner.y, (int)d, (int)d, -30 * 64, -120 * 64);
+						mask.DrawArc(visible, true, (int)downCorner.x, (int)downCorner.y, (int)d, (int)d, 30 * 64, 120 * 64);
+						mask.DrawArc(invisible, true, (int)(size / 2 - eyeballRadius), (int)(size / 2 - eyeballRadius),
+									 (int)(eyeballRadius * 2), (int)(eyeballRadius * 2), 0, 23040);
+						mask.DrawArc(visible, true, (int)(size / 2 - pupilRadius), (int)(size / 2 - pupilRadius),
+									 (int)(pupilRadius * 2), (int)(pupilRadius * 2), 0, 23040);
+						break;
+				}
+			}
+
 			return new Gtk.Image(Scale(iconBase, size, size, 0.1), Scale(mask, size, size, 0.1));
+		}
+
+		public static Gtk.Image GetCircle (Color circleColor, byte alpha, int radius) {
+
+			Pixmap color = new Pixmap(MainClass.mainWindow.GdkWindow, radius * 2, radius * 2);
+			Pixmap mask = new Pixmap(MainClass.mainWindow.GdkWindow, radius * 2, radius * 2);
+
+			Gdk.GC background = new Gdk.GC(color) { RgbFgColor = circleColor };
+			Gdk.GC visible = new Gdk.GC(mask) { RgbFgColor = new Color(alpha, alpha, alpha) };
+			Gdk.GC invisible = new Gdk.GC(mask) { RgbFgColor = new Color(0, 0, 0) };
+
+			color.DrawRectangle(background, true, new Rectangle(0, 0, radius * 2, radius * 2));
+			mask.DrawRectangle(invisible, true, new Rectangle(0, 0, radius * 2, radius * 2));
+
+			mask.DrawArc(visible, true, 0, 0, radius * 2, radius * 2, 0, 23040);
+
+			return new Gtk.Image(color, mask);
+
+		}
+
+		public static Gtk.Image GetLocationPin (Color pinColor, int pinWidth, int pinHeight) {
+
+			double pixelWidth = pinWidth;
+			double pixelHeight = pinHeight;
+
+			double width = pixelWidth * 10;
+			double height = pixelHeight * 10;
+
+			Pixmap color = new Pixmap(MainClass.mainWindow.GdkWindow, (int)width, (int)height);
+			Pixmap mask = new Pixmap(MainClass.mainWindow.GdkWindow, (int)width, (int)height);
+
+			Gdk.GC markerShape = new Gdk.GC(color) { RgbFgColor = pinColor };
+			Gdk.GC visible = new Gdk.GC(mask) { RgbFgColor = new Color(255, 255, 255) };
+			Gdk.GC translucent = new Gdk.GC(mask) { RgbFgColor = new Color(150, 150, 150) };
+			Gdk.GC invisible = new Gdk.GC(mask) { RgbFgColor = new Color(0, 0, 0) };
+
+			color.DrawRectangle(markerShape, true, new Rectangle(0, 0, (int)width, (int)height));
+			mask.DrawRectangle(invisible, true, new Rectangle(0, 0, (int)width, (int)height));
+
+			mask.DrawArc(visible, true, 0, 0, (int)width, (int)width, 0, 23040);
+
+			// The "triangle" here refers to the triangle formed by the bottom vertex, a tangent point and the bottom of the image.
+			//    ______
+			//  /        \
+			// |          |
+			// |          |
+			//  \        /.
+			//   \      / .
+			//    \    /  .  <-- this triangle.
+			//     \  /   .
+			//      \/.....
+
+			double triangleHypotenuse = Math.Sqrt(height * height - height * width);
+			double triangleWidth = width / (2 * height - width) * triangleHypotenuse;
+			double triangleHeight = Math.Sqrt(triangleHypotenuse * triangleHypotenuse - triangleWidth * triangleWidth);
+
+			Vector2 bottomVertex = new Vector2(width / 2, height);
+			Vector2 leftVertex = bottomVertex + new Vector2(-triangleWidth, -triangleHeight);
+			Vector2 rightVertex = bottomVertex + new Vector2(triangleWidth, -triangleHeight);
+
+			mask.DrawPolygon(visible, true, new Point[] { bottomVertex.ToPoint(), leftVertex.ToPoint(), rightVertex.ToPoint() });
+
+			double coreRadius = width / 5;
+			double coreCenter = width / 2;
+
+			mask.DrawArc(translucent, true,
+						  (int)(coreCenter - coreRadius), (int)(coreCenter - coreRadius),
+						  (int)(coreRadius * 2), (int)(coreRadius * 2),
+						  0, 23040);
+
+			return new Gtk.Image(Graphics.Scale(color, width, height, 0.1), Graphics.Scale(mask, width, height, 0.1));
+
 		}
 
 		public static Pixmap Scale (Pixmap pixmap, double originalWidth, double originalHeight, double factor) {
@@ -107,9 +237,27 @@ namespace Parahumans.Core {
 			double finalHeight = originalHeight * factor;
 			Pixmap newPixmap = new Pixmap(MainClass.mainWindow.GdkWindow, (int)finalWidth, (int)finalHeight);
 			Pixbuf.FromDrawable(pixmap, Colormap.System, 0, 0, 0, 0, (int)originalWidth, (int)originalHeight)
-			      .ScaleSimple((int)finalWidth, (int)finalHeight, InterpType.Hyper)
-			      .RenderToDrawable(newPixmap, visible, 0, 0, 0, 0, (int)finalWidth, (int)finalHeight, RgbDither.Max, 0, 0);
+				  .ScaleSimple((int)finalWidth, (int)finalHeight, InterpType.Hyper)
+				  .RenderToDrawable(newPixmap, visible, 0, 0, 0, 0, (int)finalWidth, (int)finalHeight, RgbDither.Max, 0, 0);
 			return newPixmap;
+		}
+
+		public static void SetAllocationTrigger (Widget widget, System.Action action) {
+			SizeAllocatedHandler handler = null;
+			handler = delegate {
+				widget.SizeAllocated -= handler;
+				action();
+			};
+			widget.SizeAllocated += handler;
+		}
+
+		public static void SetAllocationTrigger<T1, T2> (Widget widget, System.Action<T1, T2> action, T1 arg1, T2 arg2) {
+			SizeAllocatedHandler handler = null;
+			handler = delegate {
+				widget.SizeAllocated -= handler;
+				action(arg1, arg2);
+			};
+			widget.SizeAllocated += handler;
 		}
 
 	}

@@ -60,7 +60,9 @@ namespace Parahumans.Core {
 		public static bool operator == (IntVector2 u, IntVector2 v)
 			=> u.x == v.x && u.y == v.y;
 		public static bool operator != (IntVector2 u, IntVector2 v)
-			=> u.x != v.x || u.y != v.y;
+		=> u.x != v.x || u.y != v.y;
+		public override string ToString ()
+			=> "(" + x.ToString() + ", " + y.ToString() + ")";
 	}
 
 	public class RatingsRadarChart : Gtk.Image {

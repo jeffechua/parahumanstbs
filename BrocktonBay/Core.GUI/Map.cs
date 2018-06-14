@@ -6,17 +6,143 @@ using Gdk;
 
 namespace Parahumans.Core {
 
-	public class MapMarker {
+	public class TerritoryMarker : InspectableBox, IDependable {
+
+		public int order { get { return 3; } }
+		public List<IDependable> dependents { get; set; } = new List<IDependable>();
+		public List<IDependable> dependencies { get; set; } = new List<IDependable>();
+
+		public Map map;
+
+		static readonly int markerWidth = 30;
+		static readonly int markerHeight = 50;
 		public Gtk.Image markerImage;
+		public Gtk.Image zone;
+		public Vector2 scaledPosition;
+
+		Territory territory;
 		public Faction affiliation;
 		public IntVector2 location; //We round this to prevent floating point precision errors
-		public Vector2 scaledPosition;
-		public MapMarker (Territory territory) {
-			markerImage = Map.DrawTerritoryMarker(territory);
+		public int size;
+
+		public TerritoryMarker (Territory territory, Map map) : base(territory) {
+
+			this.map = map;
+
+			this.territory = territory;
 			affiliation = territory.affiliation;
 			location = territory.location;
-			scaledPosition = location;
+			size = territory.size;
+
+			map.stage.Put(this, 0, 0);
+			Redraw();
+			Rezone();
+			Repin();
+			VisibleWindow = false;
+
+			DependencyManager.Connect(territory, this);
+
 		}
+
+		public void Redraw () {
+			markerImage = Graphics.GetLocationPin(Graphics.GetColor(affiliation), markerWidth, markerHeight);
+			if (Child != null) Remove(Child);
+			Add(markerImage);
+		}
+
+		public void Rezone () {
+			if (zone != null) map.stage.Remove(zone);
+			zone = Graphics.GetCircle(Graphics.GetColor(affiliation), 50, size * MainClass.city.territorySizeScale);
+			Vector2 zonePosition = scaledPosition - new Vector2(1, 1) * size * MainClass.city.territorySizeScale;
+			map.stage.Put(zone, (int)zonePosition.x, (int)zonePosition.y);
+		}
+
+		public void Repin () {
+			scaledPosition = location * map.currentMagnif;
+			Vector2 stagePosition = scaledPosition - new Vector2(markerWidth / 2, markerHeight);
+			Vector2 zonePosition = scaledPosition - new Vector2(1, 1) * size * MainClass.city.territorySizeScale;
+			map.stage.Move(this, (int)stagePosition.x, (int)stagePosition.y);
+			map.stage.Move(zone, (int)zonePosition.x, (int)zonePosition.y);
+		}
+
+		public void Reload () {
+			if (affiliation != territory.affiliation) {
+				affiliation = territory.affiliation;
+				Redraw();
+				Rezone();
+			}
+			if (size != territory.size) {
+				size = territory.size;
+				Rezone();
+			}
+			if (location != territory.location) {
+				location = territory.location;
+				Repin();
+			}
+		}
+
+	}
+
+	public class StructureMarker : InspectableBox, IDependable {
+
+		public int order { get { return 2; } }
+		public List<IDependable> dependents { get; set; } = new List<IDependable>();
+		public List<IDependable> dependencies { get; set; } = new List<IDependable>();
+
+		public Map map;
+
+		public static readonly int markerSize = 25;
+		public Gtk.Image markerImage;
+		public Vector2 scaledPosition;
+
+		public Structure structure;
+		public IntVector2 location; //We round this to prevent floating point precision errors
+		public Faction affiliation;
+		public StructureType type;
+
+		public StructureMarker (Structure structure, Map map) : base(structure) {
+
+			this.map = map;
+
+			this.structure = structure;
+			location = structure.location;
+			affiliation = structure.affiliation;
+			type = structure.type;
+
+			VisibleWindow = false;
+			Redraw();
+			map.stage.Put(this, 0, 0);
+			Repin();
+
+			DependencyManager.Connect(structure, this);
+			if (structure.parent != null) DependencyManager.Connect(structure.parent, this);
+
+		}
+
+		public void Redraw () {
+			markerImage = Graphics.GetIcon(structure.type, Graphics.GetColor(affiliation), markerSize);
+			if (Child != null) Remove(Child);
+			Add(markerImage);
+		}
+
+		public void Repin () {
+			scaledPosition = location * map.currentMagnif;
+			scaledPosition -= new Vector2(markerSize / 2, markerSize / 2);
+			map.stage.Move(this, (int)scaledPosition.x, (int)scaledPosition.y);
+		}
+
+		public void Reload () {
+			if (affiliation != structure.affiliation || type != structure.type) {
+				affiliation = structure.affiliation;
+				type = structure.type;
+				Redraw();
+			}
+			if (location != structure.location) {
+				location = structure.location;
+				Repin();
+			}
+		}
+
 	}
 
 	public class Map : EventBox, IDependable {
@@ -27,17 +153,18 @@ namespace Parahumans.Core {
 
 		public City city;
 
-		Fixed stage;
+		public Fixed stage;
 		Fixed positioner;
 		Gtk.Image mapImage;
 		VScale zoomScale;
 		Gdk.Pixbuf baseMap;
 
-		Dictionary<Territory, MapMarker> territoryRegister;
+		Dictionary<Territory, TerritoryMarker> territoryRegister;
+		Dictionary<Structure, StructureMarker> structureRegister;
 
-		Vector2 currentDrag;
-		Vector2 currentPan;
-		double currentMagnif;
+		public Vector2 currentDrag;
+		public Vector2 currentPan;
+		public double currentMagnif;
 		bool dragging;
 
 		const double maxZoom = 5;
@@ -49,9 +176,6 @@ namespace Parahumans.Core {
 		public Map (City city) {
 
 			this.city = city;
-
-			//Constructing the map itself
-
 			DependencyManager.Connect(city, this);
 
 			Profiler.Log();
@@ -61,6 +185,8 @@ namespace Parahumans.Core {
 			positioner.Put(stage, 0, 0);
 			Add(positioner);
 
+
+			//Drawing the map background
 			baseMap = new Pixbuf(city.mapPngSource);
 			baseMap = baseMap.ScaleSimple(
 				(int)(city.mapDefaultWidth * maxMagnif),
@@ -71,18 +197,11 @@ namespace Parahumans.Core {
 
 			Profiler.Log(ref Profiler.mapBackgroundCreateTime);
 
-			//Placing markers
+			//Register territories
+			territoryRegister = new Dictionary<Territory, TerritoryMarker>();
+			structureRegister = new Dictionary<Structure, StructureMarker>();
+			Reload();
 
-			List<GameObject> territories = city.gameObjects.FindAll((obj) => obj is Territory);
-			territoryRegister = new Dictionary<Territory, MapMarker>();
-			foreach (GameObject obj in territories) {
-				Territory territory = (Territory)obj;
-				MapMarker marker = new MapMarker(territory);
-				territoryRegister.Add(territory, marker);
-				stage.Put(marker.markerImage, marker.location.x, marker.location.y);
-			}
-
-			Profiler.Log(ref Profiler.mapTerritoriesPlaceTime);
 			Profiler.Log(ref Profiler.mapStructuresPlaceTime);
 
 			//Panning and zooming functionality
@@ -114,12 +233,7 @@ namespace Parahumans.Core {
 			};
 
 			SetSizeRequest(0, 0);
-			SizeAllocatedHandler InitialZoom = null;
-			InitialZoom = delegate {
-				SizeAllocated -= InitialZoom;
-				Zoom();
-			};
-			SizeAllocated += InitialZoom;
+			Graphics.SetAllocationTrigger(this, Zoom);
 
 			Profiler.Log(ref Profiler.mapBehaviourAssignTime);
 		}
@@ -135,111 +249,31 @@ namespace Parahumans.Core {
 			currentMagnif = newMagnif;
 
 			//Repin the markers
-			foreach (KeyValuePair<Territory, MapMarker> pair in territoryRegister)
-				PinMarker(pair.Key, pair.Value);
+			foreach (KeyValuePair<Territory, TerritoryMarker> pair in territoryRegister)
+				pair.Value.Repin();
+			foreach (KeyValuePair<Structure, StructureMarker> pair in structureRegister)
+				pair.Value.Repin();
 
 			ShowAll();
+
 		}
 
 		public void Reload () {
-			foreach (KeyValuePair<Territory, MapMarker> pair in territoryRegister) {
-				Territory territory = pair.Key;
-				MapMarker marker = pair.Value;
-				if (territory.affiliation != marker.affiliation) {
-					stage.Remove(marker.markerImage);
-					marker.markerImage = DrawTerritoryMarker(territory);
-					PinMarker(territory, marker);
-					marker.affiliation = territory.affiliation;
-					//Update position once this has realized
-					SizeAllocatedHandler handler = null;
-					handler = delegate {
-						marker.markerImage.SizeAllocated -= handler;
-						PinMarker(territory, marker);
-					};
-					marker.markerImage.SizeAllocated += handler;
-				}
-				if (territory.location != marker.location) {
-					PinMarker(territory, marker);
-					marker.location = territory.location;
-				}
-			}
-			List<GameObject> unregistered = city.gameObjects.FindAll((obj) => obj is Territory);
-			unregistered.RemoveAll((territory) => territoryRegister.ContainsKey((Territory)territory));
-			foreach (GameObject obj in unregistered) {
+			List<GameObject> unregisteredTerritories = city.gameObjects.FindAll((obj) => obj is Territory);
+			unregisteredTerritories.RemoveAll((territory) => territoryRegister.ContainsKey((Territory)territory));
+			foreach (GameObject obj in unregisteredTerritories) {
 				Territory territory = (Territory)obj;
-				MapMarker marker = new MapMarker(territory);
+				TerritoryMarker marker = new TerritoryMarker(territory, this);
 				territoryRegister.Add(territory, marker);
-				PinMarker(territory, marker);
+			}
+			List<GameObject> unregisteredStructures = city.gameObjects.FindAll((obj) => obj is Structure);
+			unregisteredStructures.RemoveAll((structure) => structureRegister.ContainsKey((Structure)structure));
+			foreach (GameObject obj in unregisteredStructures) {
+				Structure structure = (Structure)obj;
+				StructureMarker marker = new StructureMarker(structure, this);
+				structureRegister.Add(structure, marker);
 			}
 			ShowAll();
-		}
-
-		// Pinning the markers. As they are inside "stage", their position is relative to the map's upper-left
-		// corner and thus easy to manipulate. I just scale their position to the magnification.
-		public void PinMarker (Territory territory, MapMarker marker) {
-			marker.scaledPosition = territory.location * currentMagnif;
-			marker.scaledPosition = territory.location * currentMagnif;
-			marker.scaledPosition.x -= marker.markerImage.Allocation.Width / 2; // Center the tip instead 
-			marker.scaledPosition.y -= marker.markerImage.Allocation.Height;    // of the upper-left corner.
-			if (marker.markerImage.Parent == stage) {
-				stage.Move(marker.markerImage, (int)marker.scaledPosition.x, (int)marker.scaledPosition.y);
-			} else {
-				stage.Put(marker.markerImage, (int)marker.scaledPosition.x, (int)marker.scaledPosition.y);
-			}
-		}
-
-		public static Gtk.Image DrawTerritoryMarker (Territory territory) {
-
-			double pixelWidth = 40;
-			double pixelHeight = 60;
-
-			double width = pixelWidth * 10;
-			double height = pixelHeight * 10;
-
-			Pixmap color = new Pixmap(MainClass.mainWindow.GdkWindow, (int)width, (int)height);
-			Pixmap mask = new Pixmap(MainClass.mainWindow.GdkWindow, (int)width, (int)height);
-
-			Gdk.GC markerShape = new Gdk.GC(color) { RgbFgColor = territory.affiliation == null ? Graphics.Unaffiliated : territory.affiliation.color };
-			Gdk.GC markerCore = new Gdk.GC(color) { RgbFgColor = new Color(100, 100, 100) };
-			Gdk.GC visible = new Gdk.GC(mask) { RgbFgColor = new Color(255, 255, 255) };
-			Gdk.GC invisible = new Gdk.GC(mask) { RgbFgColor = new Color(0, 0, 0) };
-
-			color.DrawRectangle(markerShape, true, new Rectangle(0, 0, (int)width, (int)height));
-			mask.DrawRectangle(invisible, true, new Rectangle(0, 0, (int)width, (int)height));
-
-			mask.DrawArc(visible, true, 0, 0, (int)width, (int)width, 0, 23040);
-
-			// The "triangle" here refers to the triangle formed by the bottom vertex, a tangent point and the bottom of the image.
-			//    ______
-			//  /        \
-			// |          |
-			// |          |
-			//  \        /.
-			//   \      / .
-			//    \    /  .  <-- this triangle.
-			//     \  /   .
-			//      \/.....
-
-			double triangleHypotenuse = Math.Sqrt(height * height - height * width);
-			double triangleWidth = width / (2 * height - width) * triangleHypotenuse;
-			double triangleHeight = Math.Sqrt(triangleHypotenuse * triangleHypotenuse - triangleWidth * triangleWidth);
-
-			Vector2 bottomVertex = new Vector2(width / 2, height);
-			Vector2 leftVertex = bottomVertex + new Vector2(-triangleWidth, -triangleHeight);
-			Vector2 rightVertex = bottomVertex + new Vector2(triangleWidth, -triangleHeight);
-
-			mask.DrawPolygon(visible, true, new Point[] { bottomVertex.ToPoint(), leftVertex.ToPoint(), rightVertex.ToPoint() });
-
-			double coreRadius = width / 5;
-			double coreCenter = width / 2;
-
-			color.DrawArc(markerCore, true,
-						  (int)(coreCenter - coreRadius), (int)(coreCenter - coreRadius),
-						  (int)(coreRadius * 2), (int)(coreRadius * 2),
-						  0, 23040);
-
-			return new Gtk.Image(Graphics.Scale(color, width, height, 0.1), Graphics.Scale(mask, width, height, 0.1));
-
 		}
 
 	}

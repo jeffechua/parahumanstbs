@@ -5,7 +5,8 @@ namespace Parahumans.Core {
 
 	public class CityInterface : HBox {
 
-		City city;
+		public City city;
+		public Map map;
 
 		public CityInterface (City city) {
 
@@ -18,7 +19,7 @@ namespace Parahumans.Core {
 			PackStart(Inspector.main, false, false, 0);
 
 			//Map tab
-			Map map = new Map(city); //Profiler called inside Map constructor
+			map = new Map(city); //Profiler called inside Map constructor
 			Label mapTabLabel = new Label("Map");
 			main.AppendPage(map, mapTabLabel);
 

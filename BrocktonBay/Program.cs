@@ -8,7 +8,7 @@ namespace Parahumans.Core {
 	class MainClass {
 
 		public const String savefolder = "/Users/Jefferson/Desktop/Parahumans_Save";
-		public static City currentCity;
+		public static City city;
 
 		public static CityInterface cityInterface;
 		public static MainWindow mainWindow;
@@ -70,13 +70,13 @@ namespace Parahumans.Core {
 			MenuItem newGamebutton = new MenuItem("New Game") { Sensitive = false }; //Implement
 			MenuItem openButton = new MenuItem("Open");
 			openButton.Activated += delegate {
-				if (currentCity == null) {
+				if (city == null) {
 					IO.SelectOpen();
 				}else {
 					MessageDialog dialog = new MessageDialog(mainWindow, DialogFlags.DestroyWithParent, MessageType.Question, ButtonsType.YesNo, "Save current game?");
 					dialog.Response += delegate (object obj, ResponseArgs response) {
 						if (response.ResponseId == ResponseType.Yes)
-							IO.SelectSave(currentCity);
+							IO.SelectSave(city);
 						IO.SelectOpen();
 					};
 					dialog.Run();
@@ -84,15 +84,15 @@ namespace Parahumans.Core {
 				}
 			};
 			saveButton = new MenuItem("Save") { Sensitive = false };
-			saveButton.Activated += (o, a) => IO.SelectSave(currentCity);
+			saveButton.Activated += (o, a) => IO.SelectSave(city);
 			saveAsButton = new MenuItem("Save As") { Sensitive = false };
-			saveAsButton.Activated += (o, a) => IO.SelectSaveAs(currentCity);
+			saveAsButton.Activated += (o, a) => IO.SelectSaveAs(city);
 			closeButton = new MenuItem("Close") { Sensitive = false };
 			closeButton.Activated += delegate {
 				MessageDialog dialog = new MessageDialog(mainWindow, DialogFlags.DestroyWithParent, MessageType.Question, ButtonsType.YesNo, "Save before closing?");
 				dialog.Response += delegate (object obj, ResponseArgs response) {
 					if (response.ResponseId == ResponseType.Yes)
-						IO.SelectSave(currentCity);
+						IO.SelectSave(city);
 					Unload();
 				};
 				dialog.Run();
@@ -100,13 +100,13 @@ namespace Parahumans.Core {
 			};
 			MenuItem quitButton = new MenuItem("Quit");
 			quitButton.Activated += delegate {
-				if (currentCity == null) {
+				if (city == null) {
 					Application.Quit();
 				} else {
 					MessageDialog dialog = new MessageDialog(mainWindow, DialogFlags.DestroyWithParent, MessageType.Question, ButtonsType.YesNo, "Save before quitting?");
 					dialog.Response += delegate (object obj, ResponseArgs response) {
 						if (response.ResponseId == ResponseType.Yes)
-							IO.SelectSave(currentCity);
+							IO.SelectSave(city);
 						Application.Quit();
 					};
 					dialog.Run();
@@ -132,27 +132,27 @@ namespace Parahumans.Core {
 			Menu createMenu = new Menu();
 			MenuItem createParahumanButton = new MenuItem("Create Parahuman");
 			createParahumanButton.Activated += delegate {
-				currentCity.Add((Parahuman)typeof(Parahuman).GetConstructor(new Type[] { }).Invoke(new object[] { }));
+				city.Add((Parahuman)typeof(Parahuman).GetConstructor(new Type[] { }).Invoke(new object[] { }));
 				DependencyManager.TriggerAllFlags();
 			};
 			MenuItem createTeamButton = new MenuItem("Create Team");
 			createTeamButton.Activated += delegate {
-				currentCity.Add((Team)typeof(Team).GetConstructor(new Type[] { }).Invoke(new object[] { }));
+				city.Add((Team)typeof(Team).GetConstructor(new Type[] { }).Invoke(new object[] { }));
 				DependencyManager.TriggerAllFlags();
 			};
 			MenuItem createFactionButton = new MenuItem("Create Faction");
 			createFactionButton.Activated += delegate {
-				currentCity.Add((Faction)typeof(Faction).GetConstructor(new Type[] { }).Invoke(new object[] { }));
+				city.Add((Faction)typeof(Faction).GetConstructor(new Type[] { }).Invoke(new object[] { }));
 				DependencyManager.TriggerAllFlags();
 			};
 			MenuItem createStructureButton = new MenuItem("Create Structure");
 			createStructureButton.Activated += delegate {
-				currentCity.Add((Structure)typeof(Structure).GetConstructor(new Type[] { }).Invoke(new object[] { }));
+				city.Add((Structure)typeof(Structure).GetConstructor(new Type[] { }).Invoke(new object[] { }));
 				DependencyManager.TriggerAllFlags();
 			};
 			MenuItem createTerritoryButton = new MenuItem("Create Territory");
 			createTerritoryButton.Activated += delegate {
-				currentCity.Add((Territory)typeof(Territory).GetConstructor(new Type[] { }).Invoke(new object[] { }));
+				city.Add((Territory)typeof(Territory).GetConstructor(new Type[] { }).Invoke(new object[] { }));
 				DependencyManager.TriggerAllFlags();
 			};
 			MenuItem importButton = new MenuItem("Import...") { Sensitive = false };//Implement
@@ -204,7 +204,7 @@ namespace Parahumans.Core {
 
 		public static void Load (City city) {
 			Unload();
-			currentCity = city;
+			MainClass.city = city;
 			cityInterface = new CityInterface(city);
 			mainBox.PackStart(cityInterface, true, true, 0);
 			editButton.Sensitive = true;
@@ -218,7 +218,8 @@ namespace Parahumans.Core {
 		}
 
 		public static void Unload () {
-			currentCity = null;
+			city = null;
+			cityInterface = null;
 			if (mainBox.Children.Length == 2) {
 				mainBox.Children[1].Destroy();
 			}

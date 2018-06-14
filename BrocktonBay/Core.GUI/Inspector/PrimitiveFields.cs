@@ -160,4 +160,18 @@ namespace Parahumans.Core {
 		}
 	}
 
+	public class IntVector2Field : TextEditableField {
+		public IntVector2Field (PropertyInfo property, object obj, bool vertical, object arg) : base(property, obj, vertical, arg) { }
+		protected override string GetValueAsString () => property.GetValue(obj).ToString();
+		protected override void SetValueFromString (string text) {
+			if (text[0] != '(' || text[text.Length - 1] != ')') return;
+			text = text.Substring(1, text.Length - 2);
+			string[] halves = text.Split(',');
+			if (halves.Length != 2) return;
+			if (!float.TryParse(halves[0].Trim(), out float x)) return;
+			if (!float.TryParse(halves[1].Trim(), out float y)) return;
+			property.SetValue(obj, new IntVector2(x, y));
+		}
+	}
+
 }
