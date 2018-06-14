@@ -72,6 +72,7 @@
     <Compile Include="Core.GUI\Map.cs" />
     <Compile Include="Core\GameObjects\Structure.cs" />
     <Compile Include="Core\GameObjects\Territory.cs" />
+    <Compile Include="Profiler.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />

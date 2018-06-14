@@ -18,14 +18,18 @@ namespace Parahumans.Core {
 			PackStart(Inspector.main, false, false, 0);
 
 			//Map tab
-			Map map = new Map(city);
+			Map map = new Map(city); //Profiler called inside Map constructor
 			Label mapTabLabel = new Label("Map");
 			main.AppendPage(map, mapTabLabel);
+
+			Profiler.Log();
 
 			//Search tab
 			Search search = new Search(null, (obj) => Inspector.main.Inspect(obj));
 			Label searchLabel = new Label("Search");
 			main.AppendPage(search, searchLabel);
+
+			Profiler.Log(ref Profiler.searchCreateTime);
 
 			//Battle sandbox tab
 			Deployment actors = new Deployment();
@@ -37,6 +41,8 @@ namespace Parahumans.Core {
 			main.AppendPage(actorsPlanner, APLabel);
 			main.AppendPage(reactorsPlanner, RPLabel);
 			Battle battle = new Battle(actors, reactors);
+
+			Profiler.Log(ref Profiler.plannerCreateTime);
 
 			Inspector.main.Inspect(new Deployment());
 

@@ -9,7 +9,7 @@ namespace Parahumans.Core {
 
 		public string name = "New Territory";
 		public int ID = 0;
-		public Vector2 location = new Vector2(0, 0);
+		public IntVector2 location = new IntVector2(0, 0);
 		public int size = 0;
 		public int reputation = 0;
 		public List<int> structures = new List<int>();

@@ -50,33 +50,51 @@ namespace Parahumans.Core {
 				city.saveFolder = path;
 				MainClass.currentCity = city;
 
+				Profiler.Log();
+
 				List<string> parahumanAddresses = new List<string>(Directory.GetFiles(path + "/Parahumans"));
 				city.AddRange(parahumanAddresses.ConvertAll(
 					(file) => new Parahuman(JsonConvert.DeserializeObject<ParahumanData>(File.ReadAllText(file)))));
+
+				Profiler.Log(ref Profiler.parahumanLoadTime);
 
 				List<string> teamAddresses = new List<string>(Directory.GetFiles(path + "/Teams"));
 				city.AddRange(teamAddresses.ConvertAll(
 					(file) => new Team(JsonConvert.DeserializeObject<TeamData>(File.ReadAllText(file)))));
 
+				Profiler.Log(ref Profiler.teamLoadTime);
+
 				List<string> factionAddresses = new List<string>(Directory.GetFiles(path + "/Factions"));
 				city.AddRange(factionAddresses.ConvertAll(
 					(file) => new Faction(JsonConvert.DeserializeObject<FactionData>(File.ReadAllText(file)))));
+
+				Profiler.Log(ref Profiler.factionLoadTime);
 
 				List<string> structureAddresses = new List<string>(Directory.GetFiles(path + "/Structures"));
 				city.AddRange(structureAddresses.ConvertAll(
 					(file) => new Structure(JsonConvert.DeserializeObject<StructureData>(File.ReadAllText(file)))));
 
+				Profiler.Log(ref Profiler.structureLoadTime);
+
 				List<string> territoryAddresses = new List<string>(Directory.GetFiles(path + "/Territories"));
 				city.AddRange(territoryAddresses.ConvertAll(
 					(file) => new Territory(JsonConvert.DeserializeObject<TerritoryData>(File.ReadAllText(file)))));
 
+				Profiler.Log(ref Profiler.territoryLoadTime);
+
 				city.mapPngSource = File.ReadAllBytes(path + "/Map/map.png");
 				city.mapDefaultWidth = int.Parse(File.ReadAllText(path + "/Map/dimensions.txt"));
 
-				city.Sort();
+				Profiler.Log(ref Profiler.mapDataLoadTime);
 
-				MainClass.Load(city);
+				city.Sort();
 				DependencyManager.TriggerAllFlags();
+
+				Profiler.Log(ref Profiler.updateTime);
+
+				MainClass.Load(city); //Profiler calls inside CityInterface constructor.
+
+				Profiler.Report();
 
 			} catch (Exception e) {
 

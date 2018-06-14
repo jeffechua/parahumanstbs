@@ -54,6 +54,8 @@ namespace Parahumans.Core {
 
 			DependencyManager.Connect(city, this);
 
+			Profiler.Log();
+
 			stage = new Fixed();
 			positioner = new Fixed();
 			positioner.Put(stage, 0, 0);
@@ -67,6 +69,8 @@ namespace Parahumans.Core {
 			mapImage = new Gtk.Image();
 			stage.Put(mapImage, 0, 0);
 
+			Profiler.Log(ref Profiler.mapBackgroundCreateTime);
+
 			//Placing markers
 
 			List<GameObject> territories = city.gameObjects.FindAll((obj) => obj is Territory);
@@ -77,6 +81,9 @@ namespace Parahumans.Core {
 				territoryRegister.Add(territory, marker);
 				stage.Put(marker.markerImage, marker.location.x, marker.location.y);
 			}
+
+			Profiler.Log(ref Profiler.mapTerritoriesPlaceTime);
+			Profiler.Log(ref Profiler.mapStructuresPlaceTime);
 
 			//Panning and zooming functionality
 
@@ -114,6 +121,7 @@ namespace Parahumans.Core {
 			};
 			SizeAllocated += InitialZoom;
 
+			Profiler.Log(ref Profiler.mapBehaviourAssignTime);
 		}
 
 		public void Zoom () {
