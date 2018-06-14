@@ -52,8 +52,9 @@ namespace Parahumans.Core {
 
 		public void Rezone () {
 			if (zone != null) map.stage.Remove(zone);
-			zone = Graphics.GetCircle(Graphics.GetColor(affiliation), 50, size * MainClass.city.territorySizeScale);
-			Vector2 zonePosition = scaledPosition - new Vector2(1, 1) * size * MainClass.city.territorySizeScale;
+			int radius = (int)(size * MainClass.city.territorySizeScale * map.currentMagnif);
+			zone = Graphics.GetCircle(Graphics.GetColor(affiliation), 50, radius);
+			Vector2 zonePosition = scaledPosition - new Vector2(radius, radius);
 			map.stage.Put(zone, (int)zonePosition.x, (int)zonePosition.y);
 		}
 
@@ -249,8 +250,10 @@ namespace Parahumans.Core {
 			currentMagnif = newMagnif;
 
 			//Repin the markers
-			foreach (KeyValuePair<Territory, TerritoryMarker> pair in territoryRegister)
+			foreach (KeyValuePair<Territory, TerritoryMarker> pair in territoryRegister) {
 				pair.Value.Repin();
+				pair.Value.Rezone();
+			}
 			foreach (KeyValuePair<Structure, StructureMarker> pair in structureRegister)
 				pair.Value.Repin();
 
