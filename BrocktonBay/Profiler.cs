@@ -14,14 +14,13 @@ namespace Parahumans.Core {
 
 		public static double updateTime;
 
-		public static double UICreateTime { get { return mapCreateTime + searchCreateTime + plannerCreateTime; } }
+		public static double UICreateTime { get { return mapCreateTime + searchCreateTime; } }
 		public static double mapCreateTime { get { return mapBackgroundCreateTime + mapTerritoriesPlaceTime + mapStructuresPlaceTime + mapBehaviourAssignTime; } }
 		public static double mapBackgroundCreateTime;
 		public static double mapTerritoriesPlaceTime;
 		public static double mapStructuresPlaceTime;
 		public static double mapBehaviourAssignTime;
 		public static double searchCreateTime;
-		public static double plannerCreateTime;
 
 		public static DateTime currentTime = DateTime.Now;
 
@@ -51,7 +50,6 @@ namespace Parahumans.Core {
 			Console.WriteLine("\t" + "\t" + "Map structures: " + mapStructuresPlaceTime + " ms");
 			Console.WriteLine("\t" + "\t" + "Map behaviour: " + mapBehaviourAssignTime + " ms");
 			Console.WriteLine("\t" + "Search interface: " + searchCreateTime + " ms");
-			Console.WriteLine("\t" + "Planner interface: " + plannerCreateTime + " ms");
 		}
 
 		public static void WriteLog () {

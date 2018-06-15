@@ -107,7 +107,7 @@ namespace Parahumans.Core {
 				align.WidthRequest = 200;
 				headerBox.PackStart(align, false, false, 0);
 				if (parent != null)
-					headerBox.PackStart(new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = parent.GetHeader(true) });
+					headerBox.PackStart(new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = parent.GetSmartHeader(true) });
 				return headerBox;
 			}
 		}

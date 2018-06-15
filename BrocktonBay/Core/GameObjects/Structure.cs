@@ -73,10 +73,10 @@ namespace Parahumans.Core {
 				if (parent != null) {
 					HBox row2 = new HBox(false, 0);
 					row2.PackStart(new Label(), true, true, 0);
-					row2.PackStart(parent.GetHeader(true), false, false, 0);
+					row2.PackStart(parent.GetSmartHeader(true), false, false, 0);
 					if (parent.parent != null) {
 						row2.PackStart(new VSeparator(), false, false, 10);
-						row2.PackStart(parent.parent.GetHeader(true), false, false, 0);
+						row2.PackStart(parent.parent.GetSmartHeader(true), false, false, 0);
 					}
 					row2.PackStart(new Label(), true, true, 0);
 					headerBox.PackStart(row2);

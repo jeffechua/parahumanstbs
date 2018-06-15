@@ -176,7 +176,7 @@ namespace Parahumans.Core {
 				header.PackStart(Graphics.GetIcon(threat, color, MainClass.textSize),
 								 false, false, (uint)(MainClass.textSize / 5));
 				return new InspectableBox(header, this);
-			} else {
+			} else { //A dependable wrapper is not necessary as noncompact headers only exist in inspectors of this object, which will reload anyway.
 				VBox headerBox = new VBox(false, 5);
 				Label nameLabel = new Label(name);
 				InspectableBox namebox = new InspectableBox(nameLabel, this);

@@ -32,7 +32,7 @@ namespace Parahumans.Core {
 
 			Profiler.Log(ref Profiler.searchCreateTime);
 
-			//Battle sandbox tab
+			/*
 			Deployment actors = new Deployment();
 			Deployment reactors = new Deployment();
 			DeploymentPlanner actorsPlanner = new DeploymentPlanner(actors);
@@ -42,8 +42,7 @@ namespace Parahumans.Core {
 			main.AppendPage(actorsPlanner, APLabel);
 			main.AppendPage(reactorsPlanner, RPLabel);
 			Battle battle = new Battle(actors, reactors);
-
-			Profiler.Log(ref Profiler.plannerCreateTime);
+			*/
 
 			Inspector.main.Inspect(new Deployment());
 

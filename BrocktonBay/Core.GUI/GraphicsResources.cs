@@ -5,6 +5,34 @@ using System.Collections.Generic;
 
 namespace Parahumans.Core {
 
+	public struct IconRequest {
+		readonly string iconified;
+		readonly Color color;
+		readonly int size;
+		public IconRequest (object iconified, Color color, int size) {
+			this.iconified = iconified.ToString();
+			this.color = color;
+			this.size = size;
+		}
+		public override bool Equals (object obj) {
+			if (!(obj is IconRequest)) return false;
+			IconRequest request = (IconRequest)obj;
+			return iconified.Equals(request.iconified) && color.Equal(request.color) && size == request.size;
+		}
+		public override int GetHashCode () {
+			return new Tuple<Tuple<object, Color>, int>(new Tuple<object, Color>(iconified, color), size).GetHashCode();
+		}
+	}
+
+	public struct Icon {
+		public Pixmap color;
+		public Pixmap mask;
+		public Icon (Pixmap color, Pixmap mask) {
+			this.color = color;
+			this.mask = mask;
+		}
+	}
+
 	public static class Graphics {
 
 		public static readonly string[] classSymbols = { "", "β", "δ", "Σ", "ψ", "μ", "φ", "ξ", "Ω", "Γ", "Λ", "Δ" };
@@ -12,8 +40,11 @@ namespace Parahumans.Core {
 		public static readonly Gdk.Color[] healthColors = { new Color(100, 100, 100), new Color(230, 0, 0), new Color(200, 200, 0), new Color(0, 200, 0) };
 		public static readonly Gdk.Color[] alignmentColors = { new Color(0, 100, 230), new Color(170, 140, 0), new Color(100, 150, 0), new Color(0, 0, 0), new Color(150, 0, 175) };
 
-		public static Gdk.Color GetColor (Health health) => healthColors[(int)health];
-		public static Gdk.Color GetColor (Alignment alignment) => alignmentColors[2 - (int)alignment];
+		public static Dictionary<IconRequest, Icon> iconCache = new Dictionary<IconRequest, Icon>();
+
+		public static Color GetColor (Health health) => healthColors[(int)health];
+		public static Color GetColor (Alignment alignment) => alignmentColors[2 - (int)alignment];
+		public static Color GetColor (Faction faction) => (faction == null) ? new Gdk.Color(125, 125, 125) : faction.color;
 		public static string GetSymbol (Classification clssf) => classSymbols[(int)clssf];
 		public static string GetSymbol (Threat threat) => threatSymbols[(int)threat];
 
@@ -33,11 +64,12 @@ namespace Parahumans.Core {
 			widget.ModifyBg(StateType.Insensitive, color);
 		}
 
-		public static Color GetColor (Faction faction) {
-			return (faction == null) ? new Gdk.Color(125, 125, 125) : faction.color;
-		}
-
 		public static Gtk.Image GetIcon (object iconified, Color color, int iconSize) {
+
+			IconRequest request = new IconRequest(iconified, color, iconSize);
+
+			if (iconCache.ContainsKey(request))
+				return new Gtk.Image(iconCache[request].color, iconCache[request].mask);
 
 			double pixelSize = iconSize;
 			double size = pixelSize * 10; //Since 12 across is 0-11; we don't want to draw on 12 and lose pixels.
@@ -156,7 +188,12 @@ namespace Parahumans.Core {
 				}
 			}
 
-			return new Gtk.Image(Scale(iconBase, size, size, 0.1), Scale(mask, size, size, 0.1));
+			Pixmap scaledIconBase = Scale(iconBase, size, size, 0.1);
+			Pixmap scaledMask = Scale(mask, size, size, 0.1);
+
+			iconCache.Add(request, new Icon(scaledIconBase, scaledMask));
+			return new Gtk.Image(scaledIconBase, scaledMask);
+
 		}
 
 		public static Gtk.Image GetCircle (Color circleColor, byte alpha, int radius) {

@@ -26,9 +26,10 @@ namespace Parahumans.Core {
 	public class Search : VBox, IDependable {
 
 		public int order { get { return 5; } }
+		public bool destroyed { get; set; }
 
-		public List<IDependable> dependencies { get; set; } = new List<IDependable>();
-		public List<IDependable> dependents { get; set; } = new List<IDependable>();
+		public List<IDependable> triggers { get; set; } = new List<IDependable>();
+		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 
 		Toolbar searchBar;
 		Entry searchText;
@@ -204,7 +205,7 @@ namespace Parahumans.Core {
 		}
 
 		Widget SetupCell(GameObject obj) {
-			Cell cell = new Cell(obj);
+			Cell cell = new SmartCell(obj);
 			cell.BorderWidth = 5;
 			cell.prelight = true;
 			cell.Clicked += (o, a) => OnClicked(obj);

@@ -9,8 +9,9 @@ namespace Parahumans.Core {
 	public class TerritoryMarker : InspectableBox, IDependable {
 
 		public int order { get { return 3; } }
-		public List<IDependable> dependents { get; set; } = new List<IDependable>();
-		public List<IDependable> dependencies { get; set; } = new List<IDependable>();
+		public bool destroyed { get; set; }
+		public List<IDependable> listeners { get; set; } = new List<IDependable>();
+		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 
 		public Map map;
 
@@ -87,8 +88,9 @@ namespace Parahumans.Core {
 	public class StructureMarker : InspectableBox, IDependable {
 
 		public int order { get { return 2; } }
-		public List<IDependable> dependents { get; set; } = new List<IDependable>();
-		public List<IDependable> dependencies { get; set; } = new List<IDependable>();
+		public bool destroyed { get; set; }
+		public List<IDependable> listeners { get; set; } = new List<IDependable>();
+		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 
 		public Map map;
 
@@ -149,8 +151,9 @@ namespace Parahumans.Core {
 	public class Map : EventBox, IDependable {
 
 		public int order { get { return 10; } }
-		public List<IDependable> dependencies { get; set; } = new List<IDependable>();
-		public List<IDependable> dependents { get; set; } = new List<IDependable>();
+		public bool destroyed { get; set; }
+		public List<IDependable> triggers { get; set; } = new List<IDependable>();
+		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 
 		public City city;
 
@@ -186,7 +189,6 @@ namespace Parahumans.Core {
 			positioner.Put(stage, 0, 0);
 			Add(positioner);
 
-
 			//Drawing the map background
 			baseMap = new Pixbuf(city.mapPngSource);
 			baseMap = baseMap.ScaleSimple(
@@ -201,7 +203,6 @@ namespace Parahumans.Core {
 			//Register territories
 			territoryRegister = new Dictionary<Territory, TerritoryMarker>();
 			structureRegister = new Dictionary<Structure, StructureMarker>();
-			Reload();
 
 			Profiler.Log(ref Profiler.mapStructuresPlaceTime);
 
@@ -234,7 +235,7 @@ namespace Parahumans.Core {
 			};
 
 			SetSizeRequest(0, 0);
-			Graphics.SetAllocationTrigger(this, Zoom);
+			Graphics.SetAllocationTrigger(this, delegate { Zoom(); Reload(); });
 
 			Profiler.Log(ref Profiler.mapBehaviourAssignTime);
 		}

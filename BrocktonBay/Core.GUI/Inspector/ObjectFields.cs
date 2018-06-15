@@ -6,28 +6,42 @@ using Gtk;
 
 namespace Parahumans.Core {
 
-	public class ObjectField : Gtk.Alignment {
+	public class ObjectField : Gtk.Alignment, IDependable {
+
+		public int order { get { return obj.order + 1; } }
+		public bool destroyed { get; set; }
+		public List<IDependable> triggers { get; set; } = new List<IDependable>();
+		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 
 		public PropertyInfo property;
-		public GUIComplete displayed;
+		public GUIComplete obj;
 		public bool vertical;
 
 		public ObjectField (PropertyInfo property, object obj, bool vertical, object arg) : base(0, 0, 1, 1) {
+
 			this.property = property;
-			this.displayed = (GUIComplete)property.GetValue(obj);
+			this.obj = (GUIComplete)property.GetValue(obj);
 			this.vertical = vertical;
 
+			DependencyManager.Connect(this.obj, this);
+			Destroyed += (o, a) => DependencyManager.DisconnectAll(this);
+
+			Reload();
+
+		}
+
+		public void Reload () {
+			if (Child != null) Child.Destroy();
 			if (vertical) {
-				Expander expander = new Expander(TextTools.ToReadable(property.Name) + ": " + displayed.name) { Expanded = true };
-				expander.Add(UIFactory.GenerateVertical(displayed));
+				Expander expander = new Expander(TextTools.ToReadable(property.Name) + ": " + obj.name) { Expanded = true };
+				expander.Add(UIFactory.GenerateVertical(obj));
 				Add(expander);
 			} else {
 				HBox headerBox = new HBox(false, 0);
 				headerBox.PackStart(new Label(TextTools.ToReadable(property.Name) + ": "), false, false, 0);
-				headerBox.PackStart(displayed.GetHeader(true), false, false, 0);
+				headerBox.PackStart(obj.GetHeader(true), false, false, 0);
 				Add(headerBox);
 			}
-
 			ShowAll();
 		}
 
@@ -167,7 +181,10 @@ namespace Parahumans.Core {
 
 		protected override Widget GetListElementWidget (T obj) {
 
-			Cell cell = new Cell(obj);
+			// Set up the actual widget.
+
+			Cell cell;
+			cell = new Cell(obj);
 			InspectableBox cellLabel = (InspectableBox)cell.frame.LabelWidget;
 
 			//Set up menu
@@ -175,7 +192,7 @@ namespace Parahumans.Core {
 			MenuItem moveButton = new MenuItem("Move");
 			moveButton.Activated += (o, a)
 				=> new SelectorDialog("Select new parent for " + obj.name,
-				                      (tested) => tested.Accepts(obj),
+									  (tested) => tested.Accepts(obj),
 									  delegate (GameObject returned) {
 										  returned.Add(obj);
 										  DependencyManager.TriggerAllFlags();
@@ -211,6 +228,7 @@ namespace Parahumans.Core {
 			// - Only if the user has dragged cellObject from any list to *nothing* can it be assumed that they need it manually removed by us.
 
 			return cell;
+
 		}
 
 	}

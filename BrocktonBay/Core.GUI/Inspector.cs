@@ -8,22 +8,15 @@ namespace Parahumans.Core {
 	public class Listing : Frame, IDependable {
 
 		public int order { get { return obj == null ? 0 : obj.order + 1; } }
+		public bool destroyed { get; set; }
 
 		public GUIComplete obj;
-		public List<IDependable> dependencies { get; set; } = new List<IDependable>();
-		public List<IDependable> dependents { get; set; } = new List<IDependable>();
+		public List<IDependable> triggers { get; set; } = new List<IDependable>();
+		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 
 		public Listing (GUIComplete obj) {
 			this.obj = obj;
 			DependencyManager.Connect(obj, this);
-			if (obj is GameObject) {
-				if (((GameObject)obj).parent != null) {
-					DependencyManager.Connect(((GameObject)obj).parent, this);
-					if (((GameObject)obj).parent.parent != null) {
-						DependencyManager.Connect(((GameObject)obj).parent.parent, this);
-					}
-				}
-			}
 			LabelXalign = 1;
 			Reload();
 		}
@@ -38,14 +31,26 @@ namespace Parahumans.Core {
 
 	}
 
-	public class Cell : ClickableEventBox, IDependable {
+	// In fact, the Reload() requirement of IDependable is already fulfilled in Cell. There, it is not triggered by
+	// DependencyManager when flagged, but instead called once in the constructor to initialize the Cell.
+	public class SmartCell : Cell, IDependable {
 
 		public int order { get { return obj == null ? 0 : obj.order + 1; } }
+		public bool destroyed { get; set; }
+		public List<IDependable> triggers { get; set; } = new List<IDependable>();
+		public List<IDependable> listeners { get; set; } = new List<IDependable>();
+
+		public SmartCell (GUIComplete obj) : base(obj) {
+			DependencyManager.Connect(obj, this);
+			Destroyed += (o, a) => DependencyManager.DisconnectAll(this);
+		}
+
+	}
+
+	public class Cell : ClickableEventBox {
 
 		public Frame frame;
 		public GUIComplete obj;
-		public List<IDependable> dependencies { get; set; } = new List<IDependable>();
-		public List<IDependable> dependents { get; set; } = new List<IDependable>();
 
 		public Cell (GUIComplete obj) {
 
@@ -53,7 +58,6 @@ namespace Parahumans.Core {
 			this.obj = obj;
 			frame = new Frame();
 			Child = frame;
-			DependencyManager.Connect(obj, this);
 
 			//Graphical tweak
 			prelight = false;
@@ -91,18 +95,19 @@ namespace Parahumans.Core {
 	public class Inspector : ScrolledWindow, IDependable {
 
 		public int order { get { return 10; } }
+		public bool destroyed { get; set; }
+		public List<IDependable> triggers { get; set; } = new List<IDependable>();
+		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 
 		public static Inspector main;
 		public GUIComplete obj;
 		public ScrolledWindow scrollbin;
 
-		public List<IDependable> dependencies { get; set; } = new List<IDependable>();
-		public List<IDependable> dependents { get; set; } = new List<IDependable>();
-
 		public Inspector () => HscrollbarPolicy = PolicyType.Never;
 		public Inspector (GUIComplete obj) : this() => Inspect(obj);
 
 		public void Inspect (GUIComplete obj) {
+			// Clean up prior attachments
 			if (obj.destroyed) {
 				this.obj = null;
 				if (Child != null) Child.Destroy();
@@ -112,15 +117,8 @@ namespace Parahumans.Core {
 			}
 			this.obj = obj;
 			DependencyManager.DisconnectAll(this);
+			// Set up new inspection
 			DependencyManager.Connect(obj, this);
-			if (obj is GameObject) {
-				if (((GameObject)obj).parent != null) {
-					DependencyManager.Connect(((GameObject)obj).parent, this);
-					if (((GameObject)obj).parent.parent != null) {
-						DependencyManager.Connect(((GameObject)obj).parent.parent, this);
-					}
-				}
-			}
 			if (Child != null) Child.Destroy();
 			VBox mainbox = new VBox(false, 0);
 			mainbox.PackStart(obj.GetHeader(false), false, false, 10);

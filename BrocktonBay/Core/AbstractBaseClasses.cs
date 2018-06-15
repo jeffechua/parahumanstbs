@@ -44,13 +44,14 @@ namespace Parahumans.Core {
 	public abstract class GUIComplete : IDependable {
 
 		virtual public string name { get; set; } = "";
-		public bool destroyed;
+		public bool destroyed { get; set; }
 
 		//IDependable requirements
 		public abstract int order { get; }
-		public List<IDependable> dependents { get; set; } = new List<IDependable>();
-		public List<IDependable> dependencies { get; set; } = new List<IDependable>();
+		public List<IDependable> listeners { get; set; } = new List<IDependable>();
+		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 		public virtual void Reload () { }
+		public virtual void Destroy () { }
 
 		// Gets a "header" to denote the GUIComplete object:
 		// compact=true returns a simple one-line name with icons, compact=false returns the multi-line header shown at the top of the inspector.
@@ -59,6 +60,18 @@ namespace Parahumans.Core {
 		// Gets a approximate square of key information on the object, APART FROM information already in the header
 		// For example, a Parahuman returns a list of its condensed ratings. A Team returns a list of its members.
 		public virtual Widget GetCell () => new Label();
+
+		public Widget GetSmartHeader (bool compact) {
+			DependableShell shell = new DependableShell(order + 1);
+			shell.ReloadEvent += delegate {
+				if (shell.Child != null) shell.Child.Destroy();
+				shell.Add(GetHeader(compact));
+				shell.ShowAll();
+			};
+			shell.Reload();
+			DependencyManager.Connect(this, shell);
+			return shell;
+		}
 
 	}
 

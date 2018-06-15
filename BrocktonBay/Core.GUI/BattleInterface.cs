@@ -7,9 +7,10 @@ namespace Parahumans.Core {
 	public class DeploymentPlanner : HBox, IDependable {
 
 		public int order { get { return 6; } }
+		public bool destroyed { get; set; }
 
-		public List<IDependable> dependents { get; set; } = new List<IDependable>();
-		public List<IDependable> dependencies { get; set; } = new List<IDependable>();
+		public List<IDependable> listeners { get; set; } = new List<IDependable>();
+		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 
 		Deployment deployment;
 
