@@ -22,7 +22,7 @@ namespace Parahumans.Core {
 	}
 
 	public abstract class TextEditableField : HBox {
-
+		
 		protected PropertyInfo property;
 		protected GUIComplete obj;
 		protected Menu rightclickMenu;

@@ -10,11 +10,7 @@ namespace Parahumans.Core {
 		public int ID = 0;
 		public Alignment alignment = Alignment.Rogue;
 		public int unused_XP = 0;
-		public StringFloatPair[] spent_XP = new StringFloatPair[3] {
-			new StringFloatPair("Strength", 0),
-			new StringFloatPair("Mobility", 0),
-			new StringFloatPair("Insight", 0)
-		};
+		public int[] spent_XP = { 0, 0, 0 };
 		public List<int> roster = new List<int>();
 
 		public TeamData () { }
@@ -24,7 +20,7 @@ namespace Parahumans.Core {
 			ID = team.ID;
 			alignment = team.alignment;
 			unused_XP = team.unused_XP;
-			spent_XP = team.spent_XP;
+			spent_XP = new int[] { team.spent_XP[0].value, team.spent_XP[1].value, team.spent_XP[2].value };
 			roster = team.roster.ConvertAll((parahuman) => parahuman.ID);
 		}
 
@@ -49,8 +45,8 @@ namespace Parahumans.Core {
 		[Displayable(6, typeof(IntField))]
 		public int unused_XP { get; set; }
 
-		[BimorphicDisplayable(7, typeof(TabularStringFloatPairsField), typeof(LinearStringFloatPairsField)), EmphasizedIfVertical]
-		public StringFloatPair[] spent_XP { get; set; }
+		[BimorphicDisplayable(7, typeof(TabularLabeledValuesField<int>), typeof(LinearLabeledValuesField<int>)), EmphasizedIfVertical]
+		public LabeledValue<int>[] spent_XP { get; set; }
 
 		[Displayable(8, typeof(CellObjectListField<Parahuman>), 3), Emphasized, Padded(0, 5)]
 		public List<Parahuman> roster { get; set; }
@@ -68,7 +64,11 @@ namespace Parahumans.Core {
 			ID = data.ID;
 			alignment = data.alignment;
 			unused_XP = data.unused_XP;
-			spent_XP = data.spent_XP;
+			spent_XP = new LabeledValue<int>[]{
+				new LabeledValue<int>("Strength", data.spent_XP[0]),
+				new LabeledValue<int>("Mobility", data.spent_XP[1]),
+				new LabeledValue<int>("Insight", data.spent_XP[2])
+			};
 			roster = data.roster.ConvertAll((parahuman) => MainClass.city.Get<Parahuman>(parahuman));
 			foreach (Parahuman parahuman in roster) {
 				DependencyManager.Connect(parahuman, this);

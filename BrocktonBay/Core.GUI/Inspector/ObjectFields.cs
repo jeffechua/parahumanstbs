@@ -109,19 +109,10 @@ namespace Parahumans.Core {
 
 			if (context.vertical) {
 
-				Expander expander = new Expander(TextTools.ToReadable(property.Name));
-				expander.Expanded = (int)arg > 0;
 				Table table = new Table(0, 0, true) {
-					BorderWidth = 10,
+					BorderWidth = (uint)(context.compact?0:10),
 					ColumnSpacing = 10,
 					RowSpacing = 10
-				};
-
-				expander.ButtonPressEvent += delegate (object widget, ButtonPressEventArgs args) {
-					if (args.Event.Button == 3) {
-						rightclickMenu.Popup();
-						rightclickMenu.ShowAll();
-					}
 				};
 
 				for (int i = 0; i < list.Count; i++) {
@@ -132,14 +123,47 @@ namespace Parahumans.Core {
 								 AttachOptions.Fill, AttachOptions.Fill, 0, 0);
 				}
 
-				expander.Add(table);
-				alignment.Add(expander);
+				if (context.compact) {
+					
+					EventBox eventBox = new EventBox { Child = table };
+					alignment.Add(eventBox);
 
-				//Set up drag support
-				Drag.DestSet(expander, DestDefaults.All,
-							 new TargetEntry[] { new TargetEntry(typeof(T).ToString(), TargetFlags.App, 0) },
-							 Gdk.DragAction.Move);
-				expander.DragDataReceived += AttemptDrag;
+					//Set up right-click menu
+					eventBox.ButtonPressEvent += delegate (object widget, ButtonPressEventArgs args) {
+						if (args.Event.Button == 3) {
+							rightclickMenu.Popup();
+							rightclickMenu.ShowAll();
+						}
+					};
+
+					//Set up drag support
+					Drag.DestSet(eventBox, DestDefaults.All,
+								 new TargetEntry[] { new TargetEntry(typeof(T).ToString(), TargetFlags.App, 0) },
+								 Gdk.DragAction.Move);
+					eventBox.DragDataReceived += AttemptDrag;
+
+				} else {
+					
+					Expander expander = new Expander(TextTools.ToReadable(property.Name));
+					expander.Expanded = (int)arg > 0;
+					expander.Add(table);
+					alignment.Add(expander);
+
+					//Set up right-click menu
+					expander.ButtonPressEvent += delegate (object widget, ButtonPressEventArgs args) {
+						if (args.Event.Button == 3) {
+							rightclickMenu.Popup();
+							rightclickMenu.ShowAll();
+						}
+					};
+
+					//Set up drag support
+					Drag.DestSet(expander, DestDefaults.All,
+								 new TargetEntry[] { new TargetEntry(typeof(T).ToString(), TargetFlags.App, 0) },
+								 Gdk.DragAction.Move);
+					expander.DragDataReceived += AttemptDrag;
+				}
+
 
 			} else {
 

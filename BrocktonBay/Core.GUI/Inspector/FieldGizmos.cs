@@ -8,15 +8,24 @@ namespace Parahumans.Core {
 	// A pair consisting of a string and a float. Two functions:
 	//      - It is used to hold numbers associated with words, e.g. {"Strength", 0} to indicate a strength of 0.
 	//      - It is used to hold numbers and their preferred ToString argument for printing. Mainly used in Expression and ExpressionField.
-	public sealed class StringFloatPair {
-		public string str;
-		public float val;
-		public StringFloatPair (string str, float val) {
-			this.str = str;
-			this.val = val;
+	public sealed class FormattedFloat {
+		public float value;
+		public string format;
+		public FormattedFloat (float val, string str) {
+			this.value = val;
+			this.format = str;
 		}
 		public override String ToString () {
-			return val.ToString(str);
+			return value.ToString(format);
+		}
+	}
+
+	public sealed class LabeledValue<T> where T : IConvertible {
+		public string label;
+		public T value;
+		public LabeledValue (string label, T value) {
+			this.label = label;
+			this.value = value;
 		}
 	}
 
@@ -24,10 +33,10 @@ namespace Parahumans.Core {
 	public sealed class Expression {
 
 		public string text;
-		public List<StringFloatPair> terms;
+		public List<FormattedFloat> terms;
 
 		//The last term is assumed to be the "result" of the calculation. This is purely for convenience.
-		public float result { get { return terms[terms.Count - 1].val; } }
+		public float result { get { return terms[terms.Count - 1].value; } }
 		public string formattedResult { get { return terms[terms.Count - 1].ToString(); } }
 
 		//t is the textual part of the expression with the values represented by @x, e.g. "@0 + @1 / @2 = @3".
@@ -35,9 +44,9 @@ namespace Parahumans.Core {
 		//The values of the expressions are manually assigned. To assign the number for @2, write to terms[2].val
 		public Expression (string text, params string[] formatting) {
 			this.text = text;
-			terms = new List<StringFloatPair>();
+			terms = new List<FormattedFloat>();
 			for (int i = 0; i < formatting.Length; i++) {
-				terms.Add(new StringFloatPair(formatting[i], 0));
+				terms.Add(new FormattedFloat(0, formatting[i]));
 			}
 		}
 
@@ -108,14 +117,14 @@ namespace Parahumans.Core {
 	 *  <property name> | <string 2>: <value 2>
 	 *                  | <string 3>: <value 3>
 	 */
-	public sealed class TabularStringFloatPairsField : Table {
+	public sealed class TabularLabeledValuesField<T> : Table where T : IConvertible {
 
-		StringFloatPair[] pairs;
+		LabeledValue<T>[] pairs;
 		Context context;
 
-		public TabularStringFloatPairsField (PropertyInfo property, object obj, Context context, object arg) : base(1, 1, false) {
+		public TabularLabeledValuesField (PropertyInfo property, object obj, Context context, object arg) : base(1, 1, false) {
 
-			pairs = (StringFloatPair[])property.GetValue(obj);
+			pairs = (LabeledValue<T>[])property.GetValue(obj);
 			this.context = context;
 
 			ColumnSpacing = 5;
@@ -133,7 +142,7 @@ namespace Parahumans.Core {
 			Attach(new VSeparator(), 1, 2, 0, (uint)(2 * pairs.Length - 1), AttachOptions.Shrink, AttachOptions.Fill, 0, 0);
 
 			for (uint i = 0; i < pairs.Length; i++) {
-				Attach(new StringFloatPairArrayElementField(property, obj, context, null, (int)i, "G6"), 2, 3, 2 * i, 2 * i + 1);
+				Attach(new LabeledValuesArrayElementField<T>(property, obj, context, null, (int)i, "G6"), 2, 3, 2 * i, 2 * i + 1);
 				if (i != pairs.Length - 1) Attach(new HSeparator(), 2, 3, 2 * i + 1, 2 * i + 2);
 			}
 
@@ -145,18 +154,18 @@ namespace Parahumans.Core {
 	// Renders an array of StringFloatPairs in a single line.
 	// <property name>: <val1>/<val2>/<val3>
 	// e.g. Spent XP: 0/2/4
-	public sealed class LinearStringFloatPairsField : TextEditableField {
+	public sealed class LinearLabeledValuesField<T> : TextEditableField where T : IConvertible {
 
-		StringFloatPair[] array;
+		LabeledValue<T>[] array;
 
-		public LinearStringFloatPairsField (PropertyInfo property, object obj, Context context, object arg) : base(property, obj, context, arg) { }
+		public LinearLabeledValuesField (PropertyInfo property, object obj, Context context, object arg) : base(property, obj, context, arg) { }
 
 		protected override string GetValueAsString () {
-			if (array == null) array = (StringFloatPair[])property.GetValue(obj);
+			if (array == null) array = (LabeledValue<T>[])property.GetValue(obj);
 			string text = "";
 			for (int i = 0; i < array.Length; i++) {
 				if (i != 0) text += "/";
-				text += array[i].val.ToString();
+				text += array[i].value.ToString();
 			}
 			return text;
 		}
@@ -165,7 +174,7 @@ namespace Parahumans.Core {
 			string[] fragments = text.Split('/');
 			for (int i = 0; i < fragments.Length && i < array.Length; i++)
 				if (float.TryParse(fragments[i], out float newVal))
-					array[i].val = newVal;
+					array[i].value = (T)Convert.ChangeType(newVal, typeof(T));
 		}
 
 	}
@@ -173,27 +182,27 @@ namespace Parahumans.Core {
 	// This inherits from PrimitiveField for the assignment functionality but pretty much doensn't actually use reflection at all.
 	// It intercepts the GetValueAsString and SetValueFromString methods, and instead of piping them to property.GetValue() and property.SetValue() like it's supposed to,
 	// just directly assigns them into the array element that it extracted from the property beforehand.
-	public sealed class StringFloatPairArrayElementField : TextEditableField {
+	public sealed class LabeledValuesArrayElementField<T> : TextEditableField where T : IConvertible {
 
 		int index;
 		string format;
-		StringFloatPair target;
+		LabeledValue<T> labeledValue;
 
 		//The "true" suppresses Reload() at the end of the base constructor, allowing us to define "target" before Reload()ing manually. Otherwise, GetValueAsString() will fail.
-		public StringFloatPairArrayElementField (PropertyInfo property, object obj, Context context, object arg, int index, string format) : base(property, obj, context, arg, true) {
+		public LabeledValuesArrayElementField (PropertyInfo property, object obj, Context context, object arg, int index, string format) : base(property, obj, context, arg, true) {
 			this.index = index;
 			this.format = format;
-			target = ((StringFloatPair[])property.GetValue(obj))[index];
-			OverrideLabel(target.str + ": ");
+			labeledValue = ((LabeledValue<T>[])property.GetValue(obj))[index];
+			OverrideLabel(labeledValue.label + ": ");
 			Reload();
 		}
 
 		protected override string GetValueAsString ()
-			=> target.val.ToString(format);
+			=> labeledValue.value.ToString();
 
 		protected override void SetValueFromString (string text) {
 			if (float.TryParse(text, out float newVal))
-				target.val = newVal;
+				labeledValue.value = (T)Convert.ChangeType(newVal, typeof(T));
 		}
 
 	}

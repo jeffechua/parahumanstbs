@@ -103,38 +103,38 @@ namespace Parahumans.Core {
 			strength = new Expression("@0 + @1 + @2 + @3 = @4\n" +
 									  "@4 + @5 + @6 = @7"
 									  , "0", "0", "0", "0", "0.0", "0", "0", "0.0");
-			strength.terms[0].val = ratings.values[2][4, 1]; //Brute
-			strength.terms[1].val = ratings.values[2][4, 2]; //Blaster
-			strength.terms[2].val = ratings.values[2][4, 3]; //Shaker
-			strength.terms[3].val = ratings.values[2][4, 4]; //Striker
-			strength.terms[4].val = strength.terms[0].val + strength.terms[1].val + strength.terms[2].val + strength.terms[3].val;
-			strength.terms[5].val = combined_roster.Count;
-			for (int i = 0; i < teams.Count; i++) strength.terms[6].val += teams[i].spent_XP[0].val;
-			strength.terms[7].val = strength.terms[4].val + strength.terms[5].val + strength.terms[6].val;
+			strength.terms[0].value = ratings.values[2][4, 1]; //Brute
+			strength.terms[1].value = ratings.values[2][4, 2]; //Blaster
+			strength.terms[2].value = ratings.values[2][4, 3]; //Shaker
+			strength.terms[3].value = ratings.values[2][4, 4]; //Striker
+			strength.terms[4].value = strength.terms[0].value + strength.terms[1].value + strength.terms[2].value + strength.terms[3].value;
+			strength.terms[5].value = combined_roster.Count;
+			for (int i = 0; i < teams.Count; i++) strength.terms[6].value += teams[i].spent_XP[0].value;
+			strength.terms[7].value = strength.terms[4].value + strength.terms[5].value + strength.terms[6].value;
 
 			if (authorized_force != Threat.B) {
 				strength.text += "\n[" + (authorized_force == Threat.C ? "caution" : "brutality") + "]  @8 = @9";
-				strength.terms.Add(new StringFloatPair("+##%;−##%;+0", (float)(((int)authorized_force - 1) * 0.1)));
-				strength.terms.Add(new StringFloatPair("0.0", strength.terms[7].val * (1 + strength.terms[8].val)));
+				strength.terms.Add(new FormattedFloat((float)(((int)authorized_force - 1) * 0.1), "+##%;−##%;+0"));
+				strength.terms.Add(new FormattedFloat(strength.terms[7].value * (1 + strength.terms[8].value), "0.0"));
 			}
 
 			mobility = new Expression("@0 + @1 = @2\n" +
 									  "@2 @3 + @4 = @5", "0", "0", "0.0", "+#;−#;+0", "0", "0.0");
-			mobility.terms[0].val = ratings.values[2][4, 5]; //Mover
-			mobility.terms[1].val = ratings.values[2][4, 6]; //Stranger
-			mobility.terms[2].val = mobility.terms[0].val + mobility.terms[1].val;
-			mobility.terms[3].val = 3 - combined_roster.Count;
-			for (int i = 0; i < teams.Count; i++) mobility.terms[4].val += teams[i].spent_XP[1].val;
-			mobility.terms[5].val = mobility.terms[2].val + mobility.terms[3].val + mobility.terms[4].val;
+			mobility.terms[0].value = ratings.values[2][4, 5]; //Mover
+			mobility.terms[1].value = ratings.values[2][4, 6]; //Stranger
+			mobility.terms[2].value = mobility.terms[0].value + mobility.terms[1].value;
+			mobility.terms[3].value = 3 - combined_roster.Count;
+			for (int i = 0; i < teams.Count; i++) mobility.terms[4].value += teams[i].spent_XP[1].value;
+			mobility.terms[5].value = mobility.terms[2].value + mobility.terms[3].value + mobility.terms[4].value;
 
 			insight = new Expression("@0 + @1 = @2\n" +
 									 "@2 + @3 + @4 = @5", "0", "0", "0.0", "0", "0", "0.0");
-			insight.terms[0].val = ratings.values[2][4, 7]; //Thinker
-			insight.terms[1].val = ratings.values[2][4, 8]; //Trump
-			insight.terms[2].val = insight.terms[0].val + insight.terms[1].val;
-			insight.terms[3].val = 1;
-			for (int i = 0; i < teams.Count; i++) insight.terms[4].val += teams[i].spent_XP[2].val;
-			insight.terms[5].val = insight.terms[2].val + insight.terms[3].val + insight.terms[4].val;
+			insight.terms[0].value = ratings.values[2][4, 7]; //Thinker
+			insight.terms[1].value = ratings.values[2][4, 8]; //Trump
+			insight.terms[2].value = insight.terms[0].value + insight.terms[1].value;
+			insight.terms[3].value = 1;
+			for (int i = 0; i < teams.Count; i++) insight.terms[4].value += teams[i].spent_XP[2].value;
+			insight.terms[5].value = insight.terms[2].value + insight.terms[3].value + insight.terms[4].value;
 
 		}
 

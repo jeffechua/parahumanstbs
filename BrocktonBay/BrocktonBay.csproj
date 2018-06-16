@@ -69,10 +69,14 @@
     <Compile Include="Core\GameObjects\Parahuman.cs" />
     <Compile Include="Core\GameObjects\Team.cs" />
     <Compile Include="Core.GUI\Inspector\RatingsRadarChart.cs" />
-    <Compile Include="Core.GUI\Map.cs" />
     <Compile Include="Core\GameObjects\Structure.cs" />
     <Compile Include="Core\GameObjects\Territory.cs" />
     <Compile Include="Profiler.cs" />
+    <Compile Include="UtilityObjects.cs" />
+    <Compile Include="Core.GUI\UIFactoryObjects.cs" />
+    <Compile Include="Core.GUI\Map\Map.cs" />
+    <Compile Include="Core.GUI\Map\TerritoryMapping.cs" />
+    <Compile Include="Core.GUI\Map\StructureMapping.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />
@@ -80,6 +84,7 @@
     <Folder Include="Core.GUI\Inspector\" />
     <Folder Include="Core\Battle\" />
     <Folder Include="Core\GameObjects\" />
+    <Folder Include="Core.GUI\Map\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

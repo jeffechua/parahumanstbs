@@ -12,11 +12,12 @@ namespace Parahumans.Core {
 	}
 
 	public class StructureData {
-
+		
 		public string name = "New Landmark";
 		public int ID = 0;
 		public IntVector2 location = new IntVector2(0, 0);
 		public StructureType type;
+		public int[] buffs = { 0, 0, 0 };
 
 		public StructureData () { }
 
@@ -25,6 +26,7 @@ namespace Parahumans.Core {
 			ID = structure.ID;
 			location = structure.location;
 			type = structure.type;
+			buffs = new int[] { structure.buffs[0].value, structure.buffs[1].value, structure.buffs[2].value };
 		}
 
 	}
@@ -42,6 +44,9 @@ namespace Parahumans.Core {
 		[Displayable(4, typeof(EnumField<StructureType>))]
 		public StructureType type { get; set; }
 
+		[BimorphicDisplayable(7, typeof(TabularLabeledValuesField<int>), typeof(LinearLabeledValuesField<int>)), EmphasizedIfVertical]
+		public LabeledValue<int>[] buffs { get; set; }
+
 		public Structure () : this(new StructureData()) { }
 
 		public Structure (StructureData data) {
@@ -49,6 +54,11 @@ namespace Parahumans.Core {
 			ID = data.ID;
 			location = data.location;
 			type = data.type;
+			buffs = new LabeledValue<int>[]{
+				new LabeledValue<int>("Combat Strength", data.buffs[0]),
+				new LabeledValue<int>("Resource income", data.buffs[1]),
+				new LabeledValue<int>("Reputation income", data.buffs[2])
+			};
 		}
 
 		public override Widget GetHeader (Context context) {
