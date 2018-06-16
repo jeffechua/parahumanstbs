@@ -69,10 +69,10 @@ namespace Parahumans.Core {
 		public List<Asset> assets { get; set; }
 
 		[Displayable(11, typeof(RatingsSumField), true), Emphasized, VerticalOnly]
-		public RatingsProfile ratings { get { return new RatingsProfile(roster, teams); } }
+		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
 
 		[Displayable(12, typeof(RatingsRadarChart), true), Emphasized, VerticalOnly]
-		public RatingsProfile ratings_profile_radar { get { return ratings; } }
+		public Func<Context, RatingsProfile> ratings_profile_radar { get { return ratings; } }
 
 		public Faction () : this(new FactionData()) { }
 
@@ -101,6 +101,10 @@ namespace Parahumans.Core {
 			roster.Sort();
 			territories.Sort();
 			Reload();
+		}
+
+		public RatingsProfile GetRatingsProfile (Context context) {
+			return new RatingsProfile(context, roster, teams);
 		}
 
 		public override void Reload () {
@@ -169,8 +173,8 @@ namespace Parahumans.Core {
 			DependencyManager.Flag(this);
 		}
 
-		public override Widget GetHeader (bool compact) {
-			if (compact) {
+		public override Widget GetHeader (Context context) {
+			if (context.compact) {
 				HBox header = new HBox(false, 0);
 				header.PackStart(new Label(name), false, false, 0);
 				header.PackStart(Graphics.GetIcon(threat, color, MainClass.textSize),
@@ -187,12 +191,12 @@ namespace Parahumans.Core {
 			}
 		}
 
-		public override Widget GetCell () {
+		public override Widget GetCell (Context context) {
 
 			//Creates the cell contents
 			VBox childrenBox = new VBox(false, 0) { BorderWidth = 3 };
 			foreach (Parahuman parahuman in roster) {
-				InspectableBox header = (InspectableBox)parahuman.GetHeader(true);
+				InspectableBox header = (InspectableBox)parahuman.GetHeader(context.butCompact);
 				header.DragEnd += delegate {
 					Remove(parahuman);
 					DependencyManager.TriggerAllFlags();
@@ -200,7 +204,7 @@ namespace Parahumans.Core {
 				childrenBox.PackStart(header, false, false, 0);
 			}
 			foreach (Team team in teams) {
-				InspectableBox header = (InspectableBox)team.GetHeader(true);
+				InspectableBox header = (InspectableBox)team.GetHeader(context.butCompact);
 				header.DragEnd += delegate {
 					Remove(team);
 					DependencyManager.TriggerAllFlags();

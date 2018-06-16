@@ -58,14 +58,14 @@ namespace Parahumans.Core {
 		PropertyInfo property;
 		object obj;
 		Expression exp;
-		bool vertical;
+		Context context;
 
-		public ExpressionField (PropertyInfo property, object obj, bool vertical, object arg) : base(0, 0, 1, 1) {
+		public ExpressionField (PropertyInfo property, object obj, Context context, object arg) : base(0, 0, 1, 1) {
 
 			this.property = property;
 			this.obj = obj;
 			exp = (Expression)property.GetValue(obj);
-			this.vertical = vertical;
+			this.context = context;
 
 			Label label = new Label();
 			label.UseMarkup = true;
@@ -111,12 +111,12 @@ namespace Parahumans.Core {
 	public sealed class TabularStringFloatPairsField : Table {
 
 		StringFloatPair[] pairs;
-		bool vertical;
+		Context context;
 
-		public TabularStringFloatPairsField (PropertyInfo property, object obj, bool vertical, object arg) : base(1, 1, false) {
+		public TabularStringFloatPairsField (PropertyInfo property, object obj, Context context, object arg) : base(1, 1, false) {
 
 			pairs = (StringFloatPair[])property.GetValue(obj);
-			this.vertical = vertical;
+			this.context = context;
 
 			ColumnSpacing = 5;
 			RowSpacing = 2;
@@ -133,7 +133,7 @@ namespace Parahumans.Core {
 			Attach(new VSeparator(), 1, 2, 0, (uint)(2 * pairs.Length - 1), AttachOptions.Shrink, AttachOptions.Fill, 0, 0);
 
 			for (uint i = 0; i < pairs.Length; i++) {
-				Attach(new StringFloatPairArrayElementField(property, obj, !vertical, null, (int)i, "G6"), 2, 3, 2 * i, 2 * i + 1);
+				Attach(new StringFloatPairArrayElementField(property, obj, context, null, (int)i, "G6"), 2, 3, 2 * i, 2 * i + 1);
 				if (i != pairs.Length - 1) Attach(new HSeparator(), 2, 3, 2 * i + 1, 2 * i + 2);
 			}
 
@@ -149,7 +149,7 @@ namespace Parahumans.Core {
 
 		StringFloatPair[] array;
 
-		public LinearStringFloatPairsField (PropertyInfo property, object obj, bool vertical, object arg) : base(property, obj, vertical, arg) { }
+		public LinearStringFloatPairsField (PropertyInfo property, object obj, Context context, object arg) : base(property, obj, context, arg) { }
 
 		protected override string GetValueAsString () {
 			if (array == null) array = (StringFloatPair[])property.GetValue(obj);
@@ -180,7 +180,7 @@ namespace Parahumans.Core {
 		StringFloatPair target;
 
 		//The "true" suppresses Reload() at the end of the base constructor, allowing us to define "target" before Reload()ing manually. Otherwise, GetValueAsString() will fail.
-		public StringFloatPairArrayElementField (PropertyInfo property, object obj, bool vertical, object arg, int index, string format) : base(property, obj, vertical, arg, true) {
+		public StringFloatPairArrayElementField (PropertyInfo property, object obj, Context context, object arg, int index, string format) : base(property, obj, context, arg, true) {
 			this.index = index;
 			this.format = format;
 			target = ((StringFloatPair[])property.GetValue(obj))[index];
@@ -218,12 +218,12 @@ namespace Parahumans.Core {
 	public sealed class FractionsBar : Table {
 
 		public Fraction[] fractions;
-		public bool vertical;
+		public Context context;
 
-		public FractionsBar (PropertyInfo property, object obj, bool vertical, object arg) : base(1, 3, false) {
+		public FractionsBar (PropertyInfo property, object obj, Context context, object arg) : base(1, 3, false) {
 
 			fractions = (Fraction[])property.GetValue(obj);
-			this.vertical = vertical;
+			this.context = context;
 
 			RowSpacing = 2;
 			Label title = new Label("[ " + TextTools.ToReadable(property.Name) + " ]");
@@ -286,13 +286,13 @@ namespace Parahumans.Core {
 		ClickableEventBox colorButton;
 		PropertyInfo property;
 		object obj;
-		bool vertical;
+		Context context;
 
-		public ColorField (PropertyInfo property, object obj, bool vertical, object arg) {
+		public ColorField (PropertyInfo property, object obj, Context context, object arg) {
 
 			this.property = property;
 			this.obj = (GUIComplete)obj;
-			this.vertical = vertical;
+			this.context = context;
 
 			Label label = new Label(TextTools.ToReadable(property.Name) + ": ");
 			PackStart(label, false, false, 0);

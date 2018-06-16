@@ -35,7 +35,8 @@ namespace Parahumans.Core {
 
 	public struct RatingsProfile : Rated {
 		
-		public RatingsProfile ratings { get { return this; } }
+		public Func<Context, RatingsProfile> ratings { get { return This; } }
+		public RatingsProfile This (Context context) => this;
 
 		public float[,] values;
 		public float strength;
@@ -48,14 +49,14 @@ namespace Parahumans.Core {
 			EvaluateStats();
 		}
 
-		public RatingsProfile(params IEnumerable<Rated>[] ratedLists) {
+		public RatingsProfile(Context context, params IEnumerable<Rated>[] ratedLists) {
 			values = new float[5, 9];
 			foreach (IEnumerable<Rated> ratedList in ratedLists) {
 				foreach (Rated rated in ratedList) {
 					for (int i = 0; i < 4; i++) {
 						for (int j = 0; j <=8; j++) {
-							values[i, j] += rated.ratings.values[i, j];
-							values[4, j] += rated.ratings.values[i, j];
+							values[i, j] += rated.ratings(context).values[i, j];
+							values[4, j] += rated.ratings(context).values[i, j];
 						}
 					}
 				}
@@ -64,13 +65,13 @@ namespace Parahumans.Core {
 			EvaluateStats();
 		}
 
-		public RatingsProfile(params Rated[] rateds) {
+		public RatingsProfile(Context context, params Rated[] rateds) {
 			values = new float[5, 9];
 			foreach (Rated rated in rateds) {
 				for (int i = 0; i < 5; i++) {
 					for (int j = 0; j <= 8; j++) {
-						values[i, j] += rated.ratings.values[i, j];
-						values[4, j] += rated.ratings.values[i, j];
+						values[i, j] += rated.ratings(context).values[i, j];
+						values[4, j] += rated.ratings(context).values[i, j];
 					}
 				}
 			}
@@ -87,7 +88,7 @@ namespace Parahumans.Core {
 	}
 
 	public interface Rated {
-		RatingsProfile ratings { get; }
+		Func<Context, RatingsProfile> ratings { get; }
 	}
 
 }

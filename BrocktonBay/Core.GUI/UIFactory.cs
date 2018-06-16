@@ -11,10 +11,18 @@ namespace Parahumans.Core {
 
 	public static class UIFactory {
 
+		static readonly Type[] constructorSignature = {
+			typeof(PropertyInfo),
+			typeof(object),
+			typeof(Context),
+			typeof(object)
+		};
+
 		public static VBox GenerateVertical (object obj) {
 
-			VBox mainBox = new VBox(false, 0) { BorderWidth = 5 };
+			Context context = new Context(obj, 0, true, false);
 
+			//Load up all properties
 			List<PropertyInfo> properties = new List<PropertyInfo>(obj.GetType().GetProperties());
 			for (int i = 0; i < properties.Count; i++) {
 				if (properties[i].GetValue(obj) == null || properties[i].GetCustomAttribute(typeof(DisplayableAttribute)) == null) {
@@ -25,16 +33,29 @@ namespace Parahumans.Core {
 			properties.Sort((x, y) => ((DisplayableAttribute)x.GetCustomAttribute(typeof(DisplayableAttribute))).order.CompareTo(
 				((DisplayableAttribute)y.GetCustomAttribute(typeof(DisplayableAttribute))).order));
 
+			//Create boxes
+			VBox mainBox = new VBox(false, 0) { BorderWidth = 5 };
 			VBox emphasisBox = null;
 
+			//Draw each property
 			for (int i = 0; i < properties.Count; i++) {
 
+				//Load up attributes
 				DisplayableAttribute attr = (DisplayableAttribute)properties[i].GetCustomAttribute(typeof(DisplayableAttribute));
 				EmphasizedAttribute emphAttribute = (EmphasizedAttribute)properties[i].GetCustomAttribute(typeof(EmphasizedAttribute));
 				PaddedAttribute padded = (PaddedAttribute)properties[i].GetCustomAttribute(typeof(PaddedAttribute));
-				ConstructorInfo constructor = attr.widget.GetConstructor(new Type[] { typeof(PropertyInfo), typeof(object), typeof(bool), typeof(object) });
-				Widget newWidget = (Widget)constructor.Invoke(new object[] { properties[i], obj, !HasAttribute(properties[i], typeof(ForceHorizontalAttribute)), attr.argument });
+				bool forceHorizontal = HasAttribute(properties[i], typeof(ForceHorizontalAttribute));
 
+				//Construct the widget
+				ConstructorInfo constructor = attr.widget.GetConstructor(constructorSignature);
+				Widget newWidget = (Widget)constructor.Invoke(new object[] {
+					properties[i],
+					obj,
+					forceHorizontal ? context.butHorizontal : context,
+					attr.argument
+				});
+
+				//Manage padding
 				if (padded != null) {
 					newWidget = new Gtk.Alignment(0, 0, 1, 1) {
 						Child = newWidget,
@@ -45,24 +66,25 @@ namespace Parahumans.Core {
 					};
 				}
 
+				//Manage emphasis
 				if (emphAttribute is EmphasizedIfHorizontalAttribute) emphAttribute = null;
-
 				if (emphAttribute != null) {
-					if (emphasisBox == null)
-						emphasisBox = new VBox(false, 5);
-					emphasisBox.PackStart(new HSeparator(), false, false, 0);
-					emphasisBox.PackStart(newWidget, false, false, 0);
-				} else {
+					if (emphasisBox == null)                                     // If no emphasisBox at the moment,
+						emphasisBox = new VBox(false, 5);                        // make one.
+					emphasisBox.PackStart(new HSeparator(), false, false, 0);    // Install a delimiter
+					emphasisBox.PackStart(newWidget, false, false, 0);           // Pack the widget into emphasisBox
+				} else { // and non-emphasis
 					if (emphasisBox != null) {
-						emphasisBox.PackStart(new HSeparator(), false, false, 0);
-						mainBox.PackStart(emphasisBox, false, false, 6);
-						emphasisBox = null;
+						emphasisBox.PackStart(new HSeparator(), false, false, 0); // Finish off the emphasis box
+						mainBox.PackStart(emphasisBox, false, false, 6);          // And pack emphasisBox into mainBox
+						emphasisBox = null;                                       // Null it so we know to create a new one next time
 					}
-					mainBox.PackStart(newWidget, false, false, 2);
+					mainBox.PackStart(newWidget, false, false, 2);                // Now actually pack the current widget
 				}
 
 			}
 
+			//Pack the emphasisBox into mainBox if it's not already.
 			if (emphasisBox != null) {
 				emphasisBox.PackStart(new HSeparator(), false, false, 0);
 				mainBox.PackStart(emphasisBox, false, false, 5);
@@ -75,8 +97,9 @@ namespace Parahumans.Core {
 
 		public static VBox GenerateHorizontal (object obj) {
 
-			VBox mainBox = new VBox(false, 10) { BorderWidth = 5 };
+			Context context = new Context(obj, 0, false, false);
 
+			//Load up all properties
 			List<PropertyInfo> properties = new List<PropertyInfo>(obj.GetType().GetProperties());
 			for (int i = 0; i < properties.Count; i++) {
 				if (properties[i].GetValue(obj) == null || properties[i].GetCustomAttribute(typeof(DisplayableAttribute)) == null) {
@@ -87,28 +110,37 @@ namespace Parahumans.Core {
 			properties.Sort((x, y) => ((DisplayableAttribute)x.GetCustomAttribute(typeof(DisplayableAttribute))).order.CompareTo(
 				((DisplayableAttribute)y.GetCustomAttribute(typeof(DisplayableAttribute))).order));
 
+			//Initialize boxes
+			VBox mainBox = new VBox(false, 10) { BorderWidth = 5 };
 			HBox regularBox = new HBox(false, 0);
 			VBox emphasisBox = new VBox(false, 2);
+
 			for (int i = 0; i < properties.Count; i++) {
 
 				if (properties[i].GetCustomAttribute(typeof(VerticalOnlyAttribute)) != null) continue;
 
-				//Load the core attributes
+				//Load attributes
 				DisplayableAttribute attr = (DisplayableAttribute)properties[i].GetCustomAttribute(typeof(DisplayableAttribute));
 				EmphasizedAttribute emph = (EmphasizedAttribute)properties[i].GetCustomAttribute(typeof(EmphasizedAttribute));
+				bool forceVertical = HasAttribute(properties[i], typeof(ForceVerticalAttribute));
 
 				//Obtain the correct constructor
 				ConstructorInfo constructor;
-				if(attr is BimorphicDisplayableAttribute) {
-					constructor = ((BimorphicDisplayableAttribute)attr).widget2.GetConstructor(new Type[] { typeof(PropertyInfo), typeof(object), typeof(bool), typeof(object) });
-				}else {
-					constructor = attr.widget.GetConstructor(new Type[] { typeof(PropertyInfo), typeof(object), typeof(bool), typeof(object) });
+				if (attr is BimorphicDisplayableAttribute) {
+					constructor = ((BimorphicDisplayableAttribute)attr).widget2.GetConstructor(constructorSignature);
+				} else {
+					constructor = attr.widget.GetConstructor(constructorSignature);
 				}
 
-				//Create the widget
-				Widget newWidget = (Widget)constructor.Invoke(new object[] { properties[i], obj, HasAttribute(properties[i], typeof(ForceVerticalAttribute)), attr.argument });
+				//Construct the widget
+				Widget newWidget = (Widget)constructor.Invoke(new object[] {
+					properties[i],
+					obj,
+					forceVertical?context.butVertical:context,
+					attr.argument
+				});
 
-				//Handle emphasis
+				//Pack into the correct box (emphasisBox/regularBox)
 				if (emph is EmphasizedIfVerticalAttribute) emph = null;
 				if (emph == null) {
 					if (regularBox.Children.Length > 0) regularBox.PackStart(new VSeparator(), false, false, 5);
@@ -119,6 +151,7 @@ namespace Parahumans.Core {
 
 			}
 
+			//Pack emphasisBox and regularBox into mainBox
 			mainBox.PackStart(new Gtk.Alignment(0, 0, 1, 1) { Child = regularBox, RightPadding = 5 }, false, false, 0);
 			mainBox.PackStart(emphasisBox, false, false, 0);
 
@@ -126,9 +159,8 @@ namespace Parahumans.Core {
 
 		}
 
-		public static bool HasAttribute (PropertyInfo property, Type attribute) {
-			return property.GetCustomAttribute(attribute) != null;
-		}
+		public static bool HasAttribute (PropertyInfo property, Type attribute)
+			=> property.GetCustomAttribute(attribute) != null;
 
 	}
 
@@ -187,6 +219,6 @@ namespace Parahumans.Core {
 	public class EmphasizedIfVerticalAttribute : EmphasizedAttribute { }
 	public class EmphasizedIfHorizontalAttribute : EmphasizedAttribute { }
 	public class VerticalOnlyAttribute : Attribute { } //Show only if rendered in vertical mode.
-	public class ForceVerticalAttribute : Attribute {} //Force "vertical" to always be passed to the generated field.
+	public class ForceVerticalAttribute : Attribute { } //Force "vertical" to always be passed to the generated field.
 	public class ForceHorizontalAttribute : Attribute { } //Force "horizontal" to always be passed to the generated field.
 }

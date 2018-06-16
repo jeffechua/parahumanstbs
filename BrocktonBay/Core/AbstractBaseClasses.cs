@@ -55,17 +55,17 @@ namespace Parahumans.Core {
 
 		// Gets a "header" to denote the GUIComplete object:
 		// compact=true returns a simple one-line name with icons, compact=false returns the multi-line header shown at the top of the inspector.
-		public virtual Widget GetHeader (bool compact) => new Label(name);
+		public virtual Widget GetHeader (Context context) => new Label(name);
 
 		// Gets a approximate square of key information on the object, APART FROM information already in the header
 		// For example, a Parahuman returns a list of its condensed ratings. A Team returns a list of its members.
-		public virtual Widget GetCell () => new Label();
+		public virtual Widget GetCell (Context context) => new Label();
 
-		public Widget GetSmartHeader (bool compact) {
+		public Widget GetSmartHeader (Context context) {
 			DependableShell shell = new DependableShell(order + 1);
 			shell.ReloadEvent += delegate {
 				if (shell.Child != null) shell.Child.Destroy();
-				shell.Add(GetHeader(compact));
+				shell.Add(GetHeader(context));
 				shell.ShowAll();
 			};
 			shell.Reload();
@@ -94,6 +94,30 @@ namespace Parahumans.Core {
 		void Remove (object obj);
 		void AddRange<T> (List<T> objs); //AddRange() assumes that the invoker has already checked if we Accept(obj).
 		void RemoveRange<T> (List<T> objs);
+	}
+
+	public struct Context {
+		
+		public object UIContext;
+		public int knowledge;
+		public bool vertical;
+		public bool compact;
+
+		//Convenience properties and methods for on-the-go modifications.
+		public Context butCompact { get { return new Context(UIContext, knowledge, vertical, true); } }
+		public Context butVertical { get { return new Context(UIContext, knowledge, true, compact); } }
+		public Context butNotCompact { get { return new Context(UIContext, knowledge, vertical, false); } }
+		public Context butHorizontal { get { return new Context(UIContext, knowledge, false, compact); } }
+		public Context butIn (GUIComplete newUIContext) => new Context(newUIContext, knowledge, vertical, compact);
+		public Context butKnownTo (int newKnowledge) => new Context(UIContext, newKnowledge, vertical, compact);
+
+		public Context (object UIContext, int knowledge, bool vertical = true, bool compact = false) {
+			this.UIContext = UIContext;
+			this.knowledge = knowledge;
+			this.vertical = vertical;
+			this.compact = compact;
+		}
+
 	}
 
 }

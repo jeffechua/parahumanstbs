@@ -7,7 +7,7 @@ namespace Parahumans.Core {
 	public abstract class ReadonlyField : Label {
 		protected PropertyInfo property;
 		protected object obj;
-		public ReadonlyField (PropertyInfo property, object obj, bool vertical, object arg) {
+		public ReadonlyField (PropertyInfo property, object obj, Context context, object arg) {
 			this.property = property;
 			this.obj = obj;
 			Text = TextTools.ToReadable(property.Name) + ": " + GetValueAsString();
@@ -17,7 +17,7 @@ namespace Parahumans.Core {
 	}
 
 	public class BasicReadonlyField : ReadonlyField {
-		public BasicReadonlyField (PropertyInfo property, object obj, bool vertical, object arg) : base(property, obj, vertical, arg) { }
+		public BasicReadonlyField (PropertyInfo property, object obj, Context context, object arg) : base(property, obj, context, arg) { }
 		protected override string GetValueAsString () => property.GetValue(obj).ToString();
 	}
 
@@ -26,13 +26,13 @@ namespace Parahumans.Core {
 		protected PropertyInfo property;
 		protected GUIComplete obj;
 		protected Menu rightclickMenu;
-		protected bool vertical;
+		protected Context context;
 
-		public TextEditableField (PropertyInfo property, object obj, bool vertical, object arg, bool suppressReload = false) {
+		public TextEditableField (PropertyInfo property, object obj, Context context, object arg, bool suppressReload = false) {
 
 			this.property = property;
 			this.obj = (GUIComplete)obj;
-			this.vertical = vertical;
+			this.context = context;
 
 			Label label = new Label(TextTools.ToReadable(property.Name) + ": ");
 			PackStart(label, false, false, 0);
@@ -105,7 +105,7 @@ namespace Parahumans.Core {
 	}
 
 	public class EnumField<T> : TextEditableField where T : struct, IConvertible {
-		public EnumField (PropertyInfo property, object obj, bool vertical, object arg) : base(property, obj, vertical, arg) { }
+		public EnumField (PropertyInfo property, object obj, Context context, object arg) : base(property, obj, context, arg) { }
 		protected override string GetValueAsString () => property.GetValue(obj).ToString();
 		protected override void SetValueFromString (string text) {
 			if (Enum.TryParse(text, true, out T newVal))
@@ -114,7 +114,7 @@ namespace Parahumans.Core {
 	}
 
 	public class IntField : TextEditableField {
-		public IntField (PropertyInfo property, object obj, bool vertical, object arg) : base(property, obj, vertical, arg) { }
+		public IntField (PropertyInfo property, object obj, Context context, object arg) : base(property, obj, context, arg) { }
 		protected override string GetValueAsString () => property.GetValue(obj).ToString();
 		protected override void SetValueFromString (string text) {
 			if (int.TryParse(text, out int newVal))
@@ -123,7 +123,7 @@ namespace Parahumans.Core {
 	}
 
 	public class FloatField : TextEditableField {
-		public FloatField (PropertyInfo property, object obj, bool vertical, object arg) : base(property, obj, vertical, arg) { }
+		public FloatField (PropertyInfo property, object obj, Context context, object arg) : base(property, obj, context, arg) { }
 		protected override string GetValueAsString () => ((float)property.GetValue(obj)).ToString("0.00");
 		protected override void SetValueFromString (string text) {
 			if (float.TryParse(text, out float newVal))
@@ -132,7 +132,7 @@ namespace Parahumans.Core {
 	}
 
 	public class PercentageField : TextEditableField {
-		public PercentageField (PropertyInfo property, object obj, bool vertical, object arg) : base(property, obj, vertical, arg) { }
+		public PercentageField (PropertyInfo property, object obj, Context context, object arg) : base(property, obj, context, arg) { }
 		protected override string GetValueAsString () => ((float)property.GetValue(obj)).ToString("P");
 		protected override void SetValueFromString (string text) {
 			if (float.TryParse(text, out float newVal))
@@ -141,13 +141,13 @@ namespace Parahumans.Core {
 	}
 
 	public class StringField : TextEditableField {
-		public StringField (PropertyInfo property, object obj, bool vertical, object arg) : base(property, obj, vertical, arg) { }
+		public StringField (PropertyInfo property, object obj, Context context, object arg) : base(property, obj, context, arg) { }
 		protected override string GetValueAsString () => property.GetValue(obj).ToString();
 		protected override void SetValueFromString (string text) => property.SetValue(obj, text);
 	}
 
 	public class Vector2Field : TextEditableField {
-		public Vector2Field (PropertyInfo property, object obj, bool vertical, object arg) : base(property, obj, vertical, arg) { }
+		public Vector2Field (PropertyInfo property, object obj, Context context, object arg) : base(property, obj, context, arg) { }
 		protected override string GetValueAsString () => property.GetValue(obj).ToString();
 		protected override void SetValueFromString (string text) {
 			if (text[0] != '(' || text[text.Length - 1] != ')') return;
@@ -161,7 +161,7 @@ namespace Parahumans.Core {
 	}
 
 	public class IntVector2Field : TextEditableField {
-		public IntVector2Field (PropertyInfo property, object obj, bool vertical, object arg) : base(property, obj, vertical, arg) { }
+		public IntVector2Field (PropertyInfo property, object obj, Context context, object arg) : base(property, obj, context, arg) { }
 		protected override string GetValueAsString () => property.GetValue(obj).ToString();
 		protected override void SetValueFromString (string text) {
 			if (text[0] != '(' || text[text.Length - 1] != ')') return;

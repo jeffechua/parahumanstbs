@@ -9,17 +9,17 @@ namespace Parahumans.Core {
 	public sealed class RatingListField : ClickableEventBox {
 
 		RatingsProfile profile;
-		public bool vertical;
+		public Context context;
 
-		public RatingListField (PropertyInfo property, object obj, bool vertical, object arg) {
+		public RatingListField (PropertyInfo property, object obj, Context context, object arg) {
 
-			profile = (RatingsProfile)property.GetValue(obj);
-			this.vertical = vertical;
+			profile = ((Func<Context, RatingsProfile>)property.GetValue(obj))(context);
+			this.context = context;
 
 			Gtk.Alignment alignment = new Gtk.Alignment(0, 0, 1, 0);
 			Add(alignment);
 
-			if (vertical) {
+			if (context.vertical) {
 				Frame frame = new Frame(TextTools.ToReadable(property.Name));
 				VBox box = new VBox(false, 4) { BorderWidth = 5 };
 				frame.Add(box);
@@ -89,38 +89,7 @@ namespace Parahumans.Core {
 			DoubleClicked += (o, a) => new RatingsEditorDialog((Parahuman)obj);
 		}
 	}
-	/*
-	public sealed class RatingListFieldElement : Gtk.Alignment {
 
-		public List<Rating> parentList;
-		public int index;
-		public bool expanded;
-
-		public RatingListFieldElement (List<Rating> ratings, int ind, bool e = true) : base(0, 0, 1, 0) {
-
-			parentList = ratings;
-			index = ind;
-			expanded = e;
-
-			Rating rating = ratings[ind];
-
-
-			if (rating.subratings.Count > 0) {
-				if (expanded) {
-				} else {
-					String[] subratings = new string[rating.subratings.Count];
-					for (int j = 0; j < subratings.Length; j++) {
-						subratings[j] = rating.subratings[j].ToString();
-					}
-					ratingLabel.TooltipText = String.Join("\n", subratings);
-					Add(ratingLabel);
-				}
-			} else {
-			}
-		}
-
-	}
-	*/
 	public sealed class RatingsEditorDialog : DefocusableWindow {
 
 		Parahuman parahuman;
@@ -145,7 +114,7 @@ namespace Parahumans.Core {
 			VBox mainBox = new VBox();
 
 			editBox = new TextView();
-			editBox.Buffer.Text = TextTools.PrintRatings(parahuman.ratings);
+			editBox.Buffer.Text = TextTools.PrintRatings(parahuman.baseRatings);
 			mainBox.PackStart(editBox, true, true, 0);
 			editBox.SetBorderWindowSize(TextWindowType.Top, 10);
 
@@ -167,7 +136,7 @@ namespace Parahumans.Core {
 
 		void AttemptConfirm (object obj, EventArgs args) {
 			if (TextTools.TryParseRatings(editBox.Buffer.Text, out RatingsProfile? newRatings)) {
-				parahuman.ratings = (RatingsProfile)newRatings;
+				parahuman.baseRatings = (RatingsProfile)newRatings;
 				DependencyManager.Flag(parahuman);
 				DependencyManager.TriggerAllFlags();
 				this.Destroy();
@@ -208,12 +177,12 @@ namespace Parahumans.Core {
 	public sealed class RatingsSumField : Expander {
 
 		public float[,] ratings;
-		public bool vertical;
+		public Context context;
 
-		public RatingsSumField (PropertyInfo property, object obj, bool vert, object arg) : base(TextTools.ToReadable(property.Name)) {
+		public RatingsSumField (PropertyInfo property, object obj, Context context, object arg) : base(TextTools.ToReadable(property.Name)) {
 
-			ratings = ((RatingsProfile)property.GetValue(obj)).values;
-			vertical = vert;
+			ratings = ((Func<Context, RatingsProfile>)property.GetValue(obj))(context).values;
+			this.context = context;
 
 			Expanded = (bool)arg;
 
@@ -254,14 +223,14 @@ namespace Parahumans.Core {
 	}
 
 	public sealed class RatingsComparisonField : Expander {
-
+		
 		public RatingsComparison comparison;
-		public bool compact;
+		public Context context;
 
-		public RatingsComparisonField (PropertyInfo property, object obj, bool comp, object arg) : base(TextTools.ToReadable(property.Name)) {
+		public RatingsComparisonField (PropertyInfo property, object obj, Context context, object arg) : base(TextTools.ToReadable(property.Name)) {
 
 			comparison = (RatingsComparison)property.GetValue(obj);
-			compact = comp;
+			this.context = context;
 
 			Expanded = (bool)arg;
 

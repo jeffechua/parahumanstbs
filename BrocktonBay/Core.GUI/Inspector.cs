@@ -24,7 +24,7 @@ namespace Parahumans.Core {
 		public void Reload () {
 			if (Child != null) Child.Destroy();
 			if (LabelWidget != null) LabelWidget.Destroy();
-			LabelWidget = obj.GetHeader(true);
+			LabelWidget = obj.GetHeader(new Context(obj, 0, false, true));
 			Add(UIFactory.GenerateHorizontal(obj));
 			ShowAll();
 		}
@@ -40,7 +40,7 @@ namespace Parahumans.Core {
 		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 
-		public SmartCell (GUIComplete obj) : base(obj) {
+		public SmartCell (Context context, GUIComplete obj) : base(context, obj) {
 			DependencyManager.Connect(obj, this);
 			Destroyed += (o, a) => DependencyManager.DisconnectAll(this);
 		}
@@ -51,8 +51,9 @@ namespace Parahumans.Core {
 
 		public Frame frame;
 		public GUIComplete obj;
+		public Context context;
 
-		public Cell (GUIComplete obj) {
+		public Cell (Context context, GUIComplete obj) {
 
 			//Basic setup
 			this.obj = obj;
@@ -85,8 +86,8 @@ namespace Parahumans.Core {
 		public void Reload () {
 			if (frame.Child != null) frame.Child.Destroy();
 			if (frame.LabelWidget != null) frame.LabelWidget.Destroy();
-			frame.LabelWidget = obj.GetHeader(true);
-			frame.Add(new Gtk.Alignment(0, 0, 1, 0) { Child = obj.GetCell() });
+			frame.LabelWidget = obj.GetHeader(context.butCompact);
+			frame.Add(new Gtk.Alignment(0, 0, 1, 0) { Child = obj.GetCell(context) });
 			ShowAll();
 		}
 
@@ -121,7 +122,7 @@ namespace Parahumans.Core {
 			DependencyManager.Connect(obj, this);
 			if (Child != null) Child.Destroy();
 			VBox mainbox = new VBox(false, 0);
-			mainbox.PackStart(obj.GetHeader(false), false, false, 10);
+			mainbox.PackStart(obj.GetHeader(new Context(obj, 0, true, false)), false, false, 10);
 			mainbox.PackStart(new HSeparator(), false, false, 0);
 			mainbox.PackStart(UIFactory.GenerateVertical(obj), false, false, 5);
 			AddWithViewport(mainbox);

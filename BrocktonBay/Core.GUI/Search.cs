@@ -205,7 +205,7 @@ namespace Parahumans.Core {
 		}
 
 		Widget SetupCell(GameObject obj) {
-			Cell cell = new SmartCell(obj);
+			Cell cell = new SmartCell(new Context(obj, 0), obj);
 			cell.BorderWidth = 5;
 			cell.prelight = true;
 			cell.Clicked += (o, a) => OnClicked(obj);
@@ -213,7 +213,7 @@ namespace Parahumans.Core {
 		}
 
 		Widget SetupHeader(GameObject obj) {
-			Widget baseHeader = obj.GetHeader(true);
+			Widget baseHeader = obj.GetHeader(new Context(obj, 0, false, true));
 			HBox hbox = new HBox();
 			hbox.PackStart(baseHeader, false, false, 5);
 			ClickableEventBox eventbox = new ClickableEventBox { Child = hbox };

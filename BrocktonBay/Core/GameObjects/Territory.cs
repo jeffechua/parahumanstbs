@@ -61,8 +61,8 @@ namespace Parahumans.Core {
 			}
 		}
 
-		public override Widget GetHeader (bool compact) {
-			if (compact) {
+		public override Widget GetHeader (Context context) {
+			if (context.compact) {
 				HBox header = new HBox(false, 0);
 				header.PackStart(new Label(name), false, false, 0);
 				header.PackStart(Graphics.GetIcon(Threat.C, Graphics.GetColor(affiliation), MainClass.textSize),
@@ -76,17 +76,17 @@ namespace Parahumans.Core {
 				align.WidthRequest = 200;
 				headerBox.PackStart(align, false, false, 0);
 				if (parent != null)
-					headerBox.PackStart(new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = parent.GetSmartHeader(true) });
+					headerBox.PackStart(new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = parent.GetSmartHeader(context.butCompact) });
 				return headerBox;
 			}
 		}
 
-		public override Widget GetCell () {
-
+		public override Widget GetCell (Context context) {
+			
 			//Creates the cell contents
 			VBox structureBox = new VBox(false, 0) { BorderWidth = 3 };
 			foreach (Structure structure in structures) {
-				InspectableBox header = (InspectableBox)structure.GetHeader(true);
+				InspectableBox header = (InspectableBox)structure.GetHeader(context.butCompact);
 				header.DragEnd += delegate {
 					Remove(structure);
 					DependencyManager.TriggerAllFlags();

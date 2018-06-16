@@ -55,7 +55,7 @@ namespace Parahumans.Core {
 
 		}
 
-		public override Widget GetHeader (bool compact) => new InspectableBox(new Label("Simulated Battle") { WidthRequest = 300 }, this);
+		public override Widget GetHeader (Context context) => new InspectableBox(new Label("Simulated Battle") { WidthRequest = 300 }, this);
 
 	}
 

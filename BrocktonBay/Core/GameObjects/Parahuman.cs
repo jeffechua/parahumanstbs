@@ -31,7 +31,7 @@ namespace Parahumans.Core {
 			threat = parahuman.threat;
 			health = parahuman.health;
 			reputation = parahuman.reputation;
-			ratings = parahuman.ratings.values;
+			ratings = parahuman.baseRatings.values;
 		}
 
 	}
@@ -59,7 +59,9 @@ namespace Parahumans.Core {
 		public int reputation { get; set; }
 
 		[Displayable(8, typeof(RatingListField)), Padded(5, 5), EmphasizedIfHorizontal]
-		public RatingsProfile ratings { get; set; }
+		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
+
+		public RatingsProfile baseRatings { get; set; }
 
 		public Parahuman () : this(new ParahumanData()) { }
 
@@ -70,15 +72,16 @@ namespace Parahumans.Core {
 			alignment = data.alignment;
 			threat = data.threat;
 			health = data.health;
-			ratings = new RatingsProfile(data.ratings);
+			baseRatings = new RatingsProfile(data.ratings);
 		}
 
-		public override void Sort () {
+		public RatingsProfile GetRatingsProfile (Context context) {
+			return baseRatings;
 		}
 
-		public override Widget GetHeader (bool compact) {
+		public override Widget GetHeader (Context context) {
 
-			if (compact) {
+			if (context.compact) {
 
 				HBox header = new HBox(false, 0);
 				header.PackStart(new Label(name), false, false, 0);
@@ -98,10 +101,10 @@ namespace Parahumans.Core {
 				if (parent != null) {
 					HBox row2 = new HBox(false, 0);
 					row2.PackStart(new Label(), true, true, 0);
-					row2.PackStart(parent.GetSmartHeader(true), false, false, 0);
+					row2.PackStart(parent.GetSmartHeader(context.butCompact), false, false, 0);
 					if (parent.parent != null) {
 						row2.PackStart(new VSeparator(), false, false, 10);
-						row2.PackStart(parent.parent.GetSmartHeader(true), false, false, 0);
+						row2.PackStart(parent.parent.GetSmartHeader(context.butCompact), false, false, 0);
 					}
 					row2.PackStart(new Label(), true, true, 0);
 					headerBox.PackStart(row2);
@@ -112,28 +115,28 @@ namespace Parahumans.Core {
 			}
 		}
 
-		public override Widget GetCell () {
+		public override Widget GetCell (Context context) {
 
 			VBox ratingsBox = new VBox(false, 0) { BorderWidth = 5 };
 
 			for (int i = 1; i <= 8; i++) {
-				if (ratings.values[0, i] > 0) {
-					Label ratingLabel = new Label(TextTools.PrintRating(i, ratings.values[0, i]));
+				if (ratings(context).values[0, i] > 0) {
+					Label ratingLabel = new Label(TextTools.PrintRating(i, ratings(context).values[0, i]));
 					ratingLabel.SetAlignment(0, 0);
 					ratingsBox.PackStart(ratingLabel, false, false, 0);
 				}
 			}
 
 			for (int k = 1; k <= 3; k++) {
-				if (ratings.values[k, 0] > 0) {
+				if (ratings(context).values[k, 0] > 0) {
 
-					Label ratingLabel = new Label(TextTools.PrintRating(k + 8, ratings.values[k, 0], true));
+					Label ratingLabel = new Label(TextTools.PrintRating(k + 8, ratings(context).values[k, 0], true));
 					ratingLabel.SetAlignment(0, 0);
 
 					List<String> subratings = new List<String>();
 					for (int i = 1; i <= 8; i++)
-						if (ratings.values[k, i] > 0)
-							subratings.Add(TextTools.PrintRating(i, ratings.values[k, i]));
+						if (ratings(context).values[k, i] > 0)
+							subratings.Add(TextTools.PrintRating(i, ratings(context).values[k, i]));
 					ratingLabel.TooltipText = String.Join("\n", subratings);
 
 					ratingsBox.PackStart(ratingLabel, false, false, 0);

@@ -51,9 +51,9 @@ namespace Parahumans.Core {
 			type = data.type;
 		}
 
-		public override Widget GetHeader (bool compact) {
+		public override Widget GetHeader (Context context) {
 
-			if (compact) {
+			if (context.compact) {
 
 				HBox header = new HBox(false, 0);
 				header.PackStart(new Label(name), false, false, 0);
@@ -73,10 +73,10 @@ namespace Parahumans.Core {
 				if (parent != null) {
 					HBox row2 = new HBox(false, 0);
 					row2.PackStart(new Label(), true, true, 0);
-					row2.PackStart(parent.GetSmartHeader(true), false, false, 0);
+					row2.PackStart(parent.GetSmartHeader(context.butCompact), false, false, 0);
 					if (parent.parent != null) {
 						row2.PackStart(new VSeparator(), false, false, 10);
-						row2.PackStart(parent.parent.GetSmartHeader(true), false, false, 0);
+						row2.PackStart(parent.parent.GetSmartHeader(context.butCompact), false, false, 0);
 					}
 					row2.PackStart(new Label(), true, true, 0);
 					headerBox.PackStart(row2);

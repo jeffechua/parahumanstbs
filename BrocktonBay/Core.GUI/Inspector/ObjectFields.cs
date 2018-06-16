@@ -15,13 +15,13 @@ namespace Parahumans.Core {
 
 		public PropertyInfo property;
 		public GUIComplete obj;
-		public bool vertical;
+		public Context context;
 
-		public ObjectField (PropertyInfo property, object obj, bool vertical, object arg) : base(0, 0, 1, 1) {
+		public ObjectField (PropertyInfo property, object obj, Context context, object arg) : base(0, 0, 1, 1) {
 
 			this.property = property;
 			this.obj = (GUIComplete)property.GetValue(obj);
-			this.vertical = vertical;
+			this.context = context;
 
 			DependencyManager.Connect(this.obj, this);
 			Destroyed += (o, a) => DependencyManager.DisconnectAll(this);
@@ -32,14 +32,14 @@ namespace Parahumans.Core {
 
 		public void Reload () {
 			if (Child != null) Child.Destroy();
-			if (vertical) {
+			if (context.vertical) {
 				Expander expander = new Expander(TextTools.ToReadable(property.Name) + ": " + obj.name) { Expanded = true };
 				expander.Add(UIFactory.GenerateVertical(obj));
 				Add(expander);
 			} else {
 				HBox headerBox = new HBox(false, 0);
 				headerBox.PackStart(new Label(TextTools.ToReadable(property.Name) + ": "), false, false, 0);
-				headerBox.PackStart(obj.GetHeader(true), false, false, 0);
+				headerBox.PackStart(obj.GetHeader(context.butCompact), false, false, 0);
 				Add(headerBox);
 			}
 			ShowAll();
@@ -52,10 +52,12 @@ namespace Parahumans.Core {
 	public abstract class ObjectListField<T> : EventBox where T : GUIComplete {
 
 		protected IContainer parent;
+		protected Context context;
 
-		public ObjectListField (PropertyInfo property, object obj, bool vertical, object arg) { //obj must be an IContainer.
+		public ObjectListField (PropertyInfo property, object obj, Context context, object arg) { //obj must be an IContainer.
 
 			parent = (IContainer)obj;
+			this.context = context;
 
 			// Local convenience variable
 			List<T> list = (List<T>)property.GetValue(obj);
@@ -105,7 +107,7 @@ namespace Parahumans.Core {
 				TooltipMarkup = tooltipText.text;
 			}
 
-			if (vertical) {
+			if (context.vertical) {
 
 				Expander expander = new Expander(TextTools.ToReadable(property.Name));
 				expander.Expanded = (int)arg > 0;
@@ -176,15 +178,15 @@ namespace Parahumans.Core {
 
 	public class CellObjectListField<T> : ObjectListField<T> where T : GUIComplete {
 
-		public CellObjectListField (PropertyInfo property, object obj, bool vertical, object arg)
-			: base(property, obj, vertical, arg) { }
+		public CellObjectListField (PropertyInfo property, object obj, Context context, object arg)
+			: base(property, obj, context, arg) { }
 
 		protected override Widget GetListElementWidget (T obj) {
 
 			// Set up the actual widget.
 
 			Cell cell;
-			cell = new Cell(obj);
+			cell = new Cell(context, obj);
 			InspectableBox cellLabel = (InspectableBox)cell.frame.LabelWidget;
 
 			//Set up menu

@@ -35,7 +35,7 @@ namespace Parahumans.Core {
 		[Displayable(7, typeof(CellObjectListField<Parahuman>), 3), Emphasized]
 		public List<Parahuman> combined_roster { get; set; }
 
-		public RatingsProfile ratings_profile { get { return new RatingsProfile(teams, independents); } }
+		public RatingsProfile ratings_profile { get { return new RatingsProfile(new Context(this, 0), teams, independents); } }
 
 		[Displayable(8, typeof(RatingsComparisonField), false), Emphasized]
 		public RatingsComparison ratings { get; set; }

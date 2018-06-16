@@ -69,14 +69,14 @@ namespace Parahumans.Core {
 
 		PropertyInfo property;
 		RatingsProfile profile;
-		bool vertical;
+		Context context;
 		int currentSize;
 
-		public RatingsRadarChart (PropertyInfo property, object obj, bool vertical, object arg) {
+		public RatingsRadarChart (PropertyInfo property, object obj, Context context, object arg) {
 			this.property = property;
-			this.vertical = vertical;
-			profile = (RatingsProfile)property.GetValue(obj);
-			if (vertical) {
+			this.context = context;
+			profile = ((Func<Context, RatingsProfile>)property.GetValue(obj))(context);
+			if (context.vertical) {
 				SetSizeRequest(10, -1);
 			} else {
 				SetSizeRequest(-1, 10);
@@ -90,7 +90,7 @@ namespace Parahumans.Core {
 
 			int width = args.Allocation.Width;
 			int height = args.Allocation.Height;
-			int size = vertical ? width : height;
+			int size = context.vertical ? width : height;
 
 			//If this is true, then we don't need to change. Removing this line also traps us in a loop since Initialize() triggers SizeAllocated();
 			if (size == currentSize) return;
