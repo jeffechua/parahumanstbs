@@ -130,8 +130,11 @@ namespace Parahumans.Core {
 			mainBox.PackStart(new CellObjectListField<Structure>(territory.GetType().GetProperty("structures"), territory, context, 2));
 			Add(mainBox);
 
-			((Window)marker.Toplevel).GdkWindow.GetOrigin(out int x, out int y);
-			Move(x + marker.Allocation.Right + TerritoryMarker.markerWidth * 3 / 2, y + marker.Allocation.Top + TerritoryMarker.markerWidth / 2);
+			marker.GdkWindow.GetOrigin(out int x, out int y);
+			Graphics.SetAllocationTrigger(this, delegate {
+				Move(x + marker.Allocation.Right + TerritoryMarker.markerWidth * 3 / 2,
+				     y + marker.Allocation.Top + TerritoryMarker.markerHeight / 2 - Allocation.Height / 4);
+			});
 
 			ShowAll();
 		}

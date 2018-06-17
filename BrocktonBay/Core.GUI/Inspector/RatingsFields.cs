@@ -86,7 +86,7 @@ namespace Parahumans.Core {
 				}
 			}
 
-			DoubleClicked += (o, a) => new RatingsEditorDialog((Parahuman)obj);
+			DoubleClicked += (o, a) => new RatingsEditorDialog((Parahuman)obj, (Window)Toplevel);
 		}
 	}
 
@@ -100,7 +100,7 @@ namespace Parahumans.Core {
 
 		int timeoutCountdown;
 
-		public RatingsEditorDialog (Parahuman p) {
+		public RatingsEditorDialog (Parahuman p, Window transientFor) {
 
 			parahuman = p;
 
@@ -108,7 +108,7 @@ namespace Parahumans.Core {
 			Title = "Edit ratings of " + parahuman.name;
 			SetSizeRequest(300, 300);
 			SetPosition(WindowPosition.Center);
-			TransientFor = (Window)Inspector.main.Toplevel;
+			TransientFor = transientFor;
 			TypeHint = Gdk.WindowTypeHint.Dialog;
 
 			VBox mainBox = new VBox();

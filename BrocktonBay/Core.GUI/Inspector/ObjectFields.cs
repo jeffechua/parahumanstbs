@@ -92,7 +92,7 @@ namespace Parahumans.Core {
 				MenuItem addExistingButton = new MenuItem("Add Existing");
 				rightclickMenu.Append(addExistingButton);
 				addExistingButton.Activated += (o, a) => new SelectorDialog(
-					"Select new addition to " + TextTools.ToReadable(property.Name),
+					(Window)Toplevel, "Select new addition to " + TextTools.ToReadable(property.Name),
 					(tested) => ((IContainer)obj).Accepts(tested) && tested is T,
 					delegate (GameObject returned) {
 						((IContainer)obj).Add(returned);
@@ -217,7 +217,7 @@ namespace Parahumans.Core {
 
 			MenuItem moveButton = new MenuItem("Move");
 			moveButton.Activated += (o, a)
-				=> new SelectorDialog("Select new parent for " + obj.name,
+				=> new SelectorDialog((Window)Toplevel, "Select new parent for " + obj.name,
 									  (tested) => tested.Accepts(obj),
 									  delegate (GameObject returned) {
 										  returned.Add(obj);

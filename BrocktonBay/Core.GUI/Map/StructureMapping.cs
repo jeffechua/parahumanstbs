@@ -43,7 +43,7 @@ namespace Parahumans.Core {
 			EnterNotifyEvent += delegate {
 				if (popup != null) popup.Destroy();
 				popup = new StructurePopup(this);
-				map.stage.Put(line, (int)scaledPosition.x, (int)scaledPosition.y-2);
+				map.stage.Put(line, (int)scaledPosition.x, (int)scaledPosition.y - 2);
 				line.GdkWindow.Raise();
 				line.ShowAll();
 			};
@@ -92,7 +92,6 @@ namespace Parahumans.Core {
 
 		public StructurePopup (StructureMarker marker) : base(WindowType.Popup) {
 			structure = marker.structure;
-			Gravity = Gdk.Gravity.West;
 			TransientFor = (Window)marker.map.Toplevel;
 
 			Context context = new Context(structure, 0, true, true);
@@ -113,8 +112,11 @@ namespace Parahumans.Core {
 			mainBox.PackStart(new TabularLabeledValuesField<int>(structure.GetType().GetProperty("buffs"), structure, context, 2));
 			Add(mainBox);
 
-			((Window)marker.Toplevel).GdkWindow.GetOrigin(out int x, out int y);
-			Move(x + marker.Allocation.Right + StructureMarker.markerSize * 3 / 2, y + marker.Allocation.Top + StructureMarker.markerSize / 2);
+			marker.GdkWindow.GetOrigin(out int x, out int y);
+			Graphics.SetAllocationTrigger(this, delegate {
+				Move(x + marker.Allocation.Right + StructureMarker.markerSize * 3 / 2,
+					 y + marker.Allocation.Top + StructureMarker.markerSize / 2 - Allocation.Height / 4);
+			});
 
 			ShowAll();
 		}

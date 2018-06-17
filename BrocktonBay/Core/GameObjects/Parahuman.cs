@@ -146,7 +146,7 @@ namespace Parahumans.Core {
 
 			ClickableEventBox clickableEventBox = new ClickableEventBox { BorderWidth = 5 };
 			clickableEventBox.Add(ratingsBox);
-			clickableEventBox.DoubleClicked += (o, a) => new RatingsEditorDialog(this);
+			clickableEventBox.DoubleClicked += (o, a) => new RatingsEditorDialog(this, (Window)clickableEventBox.Toplevel);
 			return clickableEventBox;
 
 		}

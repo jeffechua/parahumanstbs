@@ -3,32 +3,32 @@ using Gtk;
 
 namespace Parahumans.Core {
 
-	public class CityInterface : HBox {
+	public class MainInterface : HBox {
 
 		public City city;
 		public Map map;
 
-		public CityInterface (City city) {
+		public MainInterface (City city) {
 
 			this.city = city;
 
 			//Sets up main layout and inspector
-			Notebook main = new Notebook();
-			Inspector.main = new Inspector { BorderWidth = 10 };
-			PackStart(main, true, true, 0);
-			PackStart(Inspector.main, false, false, 0);
+			Notebook notebook = new Notebook();
+			Inspector inspector = new Inspector { BorderWidth = 10 };
+			PackStart(notebook, true, true, 0);
+			PackStart(inspector, false, false, 0);
 
 			//Map tab
 			map = new Map(city); //Profiler called inside Map constructor
 			Label mapTabLabel = new Label("Map");
-			main.AppendPage(map, mapTabLabel);
+			notebook.AppendPage(map, mapTabLabel);
 
 			Profiler.Log();
 
 			//Search tab
-			Search search = new Search(null, (obj) => Inspector.main.Inspect(obj));
+			Search search = new Search(null, (obj) => Inspector.InspectInNearestInspector(obj, this));
 			Label searchLabel = new Label("Search");
-			main.AppendPage(search, searchLabel);
+			notebook.AppendPage(search, searchLabel);
 
 			Profiler.Log(ref Profiler.searchCreateTime);
 
@@ -44,7 +44,9 @@ namespace Parahumans.Core {
 			Battle battle = new Battle(actors, reactors);
 			*/
 
-			Inspector.main.Inspect(new Deployment());
+			inspector.Inspect(new Deployment());
+
+			MainClass.mainWindow.inspector = inspector;
 
 		}
 	}

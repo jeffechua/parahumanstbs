@@ -79,13 +79,14 @@ namespace Parahumans.Core {
 
 		// Utility function to:
 		//  - DisconnectAll(obj)
-		//  - obj.Destroy
-		//  - Call Destroy() for all obj.dependents
+		//  - obj.Destroy()
 		//  - Call obj.RemoveRange(dependencies) if obj is an IContainer
 		//  - Call dependent.Remove(obj) for all dependents that are IContainers
 		// This is because we assume that parents are dependent on children,
 		// and children are dependencies of parents.
 		public static void Delete (IDependable obj) {
+
+			obj.destroyed = true;
 
 			if (obj is IContainer)
 				((IContainer)obj).RemoveRange(obj.triggers.FindAll(
@@ -97,7 +98,7 @@ namespace Parahumans.Core {
 						((IContainer)obj.listeners[i]).Remove(obj);
 					}
 				}
-				if (obj.listeners.Count == length) break; //Has the length been further reduced?
+				if (obj.listeners.Count == length) break; //If there has been no new removals, exit the loop
 			}
 
 			Flag(obj);

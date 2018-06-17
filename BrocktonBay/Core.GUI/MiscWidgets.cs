@@ -64,9 +64,9 @@ namespace Parahumans.Core {
 
 			Clicked += delegate (object obj, ButtonReleaseEventArgs args) {
 				if (args.Event.Button == 2 || (args.Event.Type == Gdk.EventType.TwoButtonPress && args.Event.Button == 1)) {
-					Inspector.InspectInNewWindow(inspected);
+					Inspector.InspectInNewWindow(inspected, (Window)Toplevel);
 				} else if (args.Event.Button == 1) {
-					Inspector.GetNearestInspector(this).Inspect(inspected);
+					Inspector.InspectInNearestInspector(inspected, this);
 				}
 			};
 
@@ -77,9 +77,9 @@ namespace Parahumans.Core {
 
 			rightclickMenu = new Menu();
 			MenuItem inspectButton = new MenuItem("Inspect");
-			inspectButton.Activated += (o, args) => Inspector.GetNearestInspector(this).Inspect(inspected);
+			inspectButton.Activated += (o, args) => Inspector.InspectInNearestInspector(inspected, this);
 			MenuItem inspectInWindowButton = new MenuItem("Inspect in New Window");
-			inspectInWindowButton.Activated += (o, args) => Inspector.InspectInNewWindow(inspected);
+			inspectInWindowButton.Activated += (o, args) => Inspector.InspectInNewWindow(inspected, (Window)Toplevel);
 			MenuItem deleteButton = new MenuItem("Delete");
 			deleteButton.Activated += (o, args) => DependencyManager.Delete(inspected);
 

@@ -6,11 +6,11 @@ using Gtk;
 namespace Parahumans.Core {
 
 	public class SelectorDialog : DefocusableWindow {
-		public SelectorDialog(string title, Func<GameObject, bool> Filter = null, Action<GameObject> OnClicked = null) {
+		public SelectorDialog(Window transientFor, string title, Func<GameObject, bool> Filter = null, Action<GameObject> OnClicked = null) {
 			//Setup window
 			Title = title;
 			SetPosition(WindowPosition.Center);
-			TransientFor = (Window)Inspector.main.Toplevel;
+			TransientFor = transientFor;
 			TypeHint = Gdk.WindowTypeHint.Dialog;
 			//Setup search
 			Search search = new Search(Filter, delegate (GameObject obj) { OnClicked(obj); this.Destroy(); });

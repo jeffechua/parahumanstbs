@@ -100,59 +100,86 @@ namespace Parahumans.Core {
 		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 
-		public static Inspector main;
 		public GUIComplete obj;
 		public ScrolledWindow scrollbin;
 
-		public Inspector () => HscrollbarPolicy = PolicyType.Never;
-		public Inspector (GUIComplete obj) : this() => Inspect(obj);
-
-		public void Inspect (GUIComplete obj) {
-			// Clean up prior attachments
-			if (obj.destroyed) {
-				this.obj = null;
-				if (Child != null) Child.Destroy();
-				DependencyManager.DisconnectAll(this);
-				ShowAll();
-				return;
-			}
-			this.obj = obj;
-			DependencyManager.DisconnectAll(this);
-			// Set up new inspection
-			DependencyManager.Connect(obj, this);
-			if (Child != null) Child.Destroy();
-			VBox mainbox = new VBox(false, 0);
-			mainbox.PackStart(obj.GetHeader(new Context(obj, 0, true, false)), false, false, 10);
-			mainbox.PackStart(new HSeparator(), false, false, 0);
-			mainbox.PackStart(UIFactory.GenerateVertical(obj), false, false, 5);
-			AddWithViewport(mainbox);
-			ShowAll();
+		public Inspector () : this(null) { }
+		public Inspector (GUIComplete obj) {
+			HscrollbarPolicy = PolicyType.Never;
+			Inspect(obj);
+			Shown += delegate {
+				if (this.obj == null)
+					Hide();
+			};
 		}
 
-		public void Reload () => Inspect(obj);
+		public void Inspect (GUIComplete obj) {
 
-		public static Window InspectInNewWindow (GUIComplete newObj) {
+			// Clean up prior attachments
+			if (Child != null) Child.Destroy();
+			DependencyManager.DisconnectAll(this);
+			ShowAll();
+
+			// Handle inspection request
+			this.obj = obj;
+			if (obj == null) {
+				Hide();
+			} else {
+				DependencyManager.Connect(obj, this);
+				if (Child != null) Child.Destroy();
+				VBox mainbox = new VBox(false, 0);
+				mainbox.PackStart(obj.GetHeader(new Context(obj, 0, true, false)), false, false, 10);
+				mainbox.PackStart(new HSeparator(), false, false, 0);
+				mainbox.PackStart(UIFactory.GenerateVertical(obj), false, false, 5);
+				AddWithViewport(mainbox);
+				ShowAll();
+			}
+		}
+
+		public void Reload () {
+			if (obj.destroyed) {
+				Inspect(null);
+			} else {
+				Inspect(obj);
+			}
+		}
+
+		public static Window InspectInNewWindow (GUIComplete newObj, Window transientFor) {
 			DefocusableWindow win = new DefocusableWindow();
 			win.SetPosition(WindowPosition.Center);
 			win.Title = "Inspector";
-			win.TransientFor = (Window)main.Toplevel;
+			win.TransientFor = transientFor;
 			win.TypeHint = Gdk.WindowTypeHint.Utility;
 			Inspector inspector = new Inspector(newObj) { BorderWidth = 2 };
+			inspector.Hidden += delegate { if (inspector.obj == null) win.Destroy(); };
 			win.Add(inspector);
 			win.DeleteEvent += (o, a) => DependencyManager.DisconnectAll(inspector);
 			//Gtk complains if GC hasn't gotten around to us, and obj tries to reload this.
-			win.FocusInEvent += (o, a) => win.TransientFor = (Window)main.Toplevel;
+			win.FocusInEvent += (o, a) => win.TransientFor = transientFor;
 			inspector.Realize();
 			win.DefaultHeight = inspector.Child.Requisition.Height + 10;
 			win.ShowAll();
 			return win;
 		}
 
-		public static Inspector GetNearestInspector (Widget widget) {
-			Widget container = widget.Parent;
-			while (container != null && !container.IsTopLevel && !(container is Inspector)) container = container.Parent;
-			if (container is Inspector) return (Inspector)container;
-			return main;
+		public static void InspectInNearestInspector (GUIComplete obj, Widget referenceWidget) {
+			Inspector nearestInspector = FindNearestInspector(referenceWidget);
+			if (nearestInspector == null) {
+				InspectInNewWindow(obj, (Window)referenceWidget.Toplevel);
+			} else {
+				nearestInspector.Inspect(obj);
+			}
+		}
+
+		private static Inspector FindNearestInspector (Widget referenceWidget) {
+			Widget container = referenceWidget;
+			while (!container.IsTopLevel && !(container is Inspector)) container = container.Parent;
+			if (container is Inspector)
+				return (Inspector)container;
+			if (container is DefocusableWindowWithInspector)
+				if (((DefocusableWindowWithInspector)container).inspectorEnabled)
+					return ((DefocusableWindowWithInspector)container).inspector;
+			return null;    // Null -> invoker should InspectInNewWindow. I could just return main, but this is clearer.
 		}
 
 	}

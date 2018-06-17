@@ -297,5 +297,7 @@ namespace Parahumans.Core {
 			widget.SizeAllocated += handler;
 		}
 
+		public static void RemainInvisible (object obj, EventArgs args) => ((Widget)obj).Hide();
+
 	}
 }

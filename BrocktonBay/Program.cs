@@ -10,7 +10,7 @@ namespace Parahumans.Core {
 		public const String savefolder = "/Users/Jefferson/Desktop/Parahumans_Save";
 		public static City city;
 
-		public static CityInterface cityInterface;
+		public static MainInterface cityInterface;
 		public static MainWindow mainWindow;
 		public static VBox mainBox;
 
@@ -72,7 +72,7 @@ namespace Parahumans.Core {
 			openButton.Activated += delegate {
 				if (city == null) {
 					IO.SelectOpen();
-				}else {
+				} else {
 					MessageDialog dialog = new MessageDialog(mainWindow, DialogFlags.DestroyWithParent, MessageType.Question, ButtonsType.YesNo, "Save current game?");
 					dialog.Response += delegate (object obj, ResponseArgs response) {
 						if (response.ResponseId == ResponseType.Yes)
@@ -174,8 +174,19 @@ namespace Parahumans.Core {
 
 			//View menu
 			viewMenu = new Menu();
+			CheckMenuItem inspectorEnabledButton = new CheckMenuItem("Inspector Panel") { Active = true };
+			inspectorEnabledButton.Toggled += delegate {
+				if (inspectorEnabledButton.Active) {
+					mainWindow.inspectorEnabled = true;
+				} else {
+					mainWindow.inspectorEnabled = false;
+					mainWindow.inspector.Inspect(null);
+				}
+			};
 			CheckMenuItem omniscientToggle = new CheckMenuItem("Omniscient") { Active = true, Sensitive = false }; //Implement
 			viewButton.Submenu = viewMenu;
+			viewMenu.Append(inspectorEnabledButton);
+			viewMenu.Append(new SeparatorMenuItem());
 			viewMenu.Append(omniscientToggle);
 
 			//Tools menu
@@ -186,9 +197,21 @@ namespace Parahumans.Core {
 
 			//Window menu
 			windowMenu = new Menu();
-			MenuItem newSearchWindowButton = new MenuItem("New Search Window") { Sensitive = false }; //Implement
+			MenuItem newSearchWindowButton = new MenuItem("New Search Window");
+			newSearchWindowButton.Activated += delegate {
+				SecondaryWindow newWindow = new SecondaryWindow("Search Utility");
+				newWindow.SetMainWidget(new Search(null, (obj) => Inspector.InspectInNearestInspector(obj, newWindow)));
+				newWindow.ShowAll();
+			};
+			MenuItem newMapWindowButton = new MenuItem("New Map Window");
+			newMapWindowButton.Activated += delegate {
+				SecondaryWindow newWindow = new SecondaryWindow("Map");
+				newWindow.SetMainWidget(new Frame { Child = new Map(city) });
+				newWindow.ShowAll();
+			};
 			windowButton.Submenu = windowMenu;
 			windowMenu.Append(newSearchWindowButton);
+			windowMenu.Append(newMapWindowButton);
 
 			//Window menu
 			helpMenu = new Menu();
@@ -205,7 +228,7 @@ namespace Parahumans.Core {
 		public static void Load (City city) {
 			Unload();
 			MainClass.city = city;
-			cityInterface = new CityInterface(city);
+			cityInterface = new MainInterface(city);
 			mainBox.PackStart(cityInterface, true, true, 0);
 			editButton.Sensitive = true;
 			viewButton.Sensitive = true;
