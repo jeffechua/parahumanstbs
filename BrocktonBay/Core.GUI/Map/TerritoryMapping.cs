@@ -16,7 +16,7 @@ namespace Parahumans.Core {
 		public static readonly int markerHeight = 50;
 		public Image markerImage;
 		public Image zone;
-		public Widget arrow;
+		public Widget line;
 		public Window popup;
 		public Vector2 scaledPosition;
 
@@ -40,22 +40,22 @@ namespace Parahumans.Core {
 			Repin();
 			VisibleWindow = false;
 
-			arrow = new HSeparator();
-			arrow.SetSizeRequest(markerWidth * 2, 3);
+			line = new HSeparator();
+			line.SetSizeRequest(markerWidth * 2, 4);
 
 			EnterNotifyEvent += delegate {
 				if (popup != null) popup.Destroy();
 				popup = new TerritoryPopup(this);
-				map.stage.Put(arrow, (int)scaledPosition.x, (int)scaledPosition.y - markerHeight + markerWidth / 2 - 1);
-				arrow.GdkWindow.Raise();
-				arrow.ShowAll();
+				map.stage.Put(line, (int)scaledPosition.x, (int)scaledPosition.y - markerHeight + markerWidth / 2 - 2);
+				line.GdkWindow.Raise();
+				line.ShowAll();
 			};
 			LeaveNotifyEvent += delegate {
 				if (popup != null) {
 					popup.Destroy();
 					popup = null;
 				}
-				map.stage.Remove(arrow);
+				map.stage.Remove(line);
 			};
 
 			DependencyManager.Connect(territory, this);
