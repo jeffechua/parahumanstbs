@@ -58,7 +58,7 @@
     <Compile Include="Core.GUI\UIFactory.cs" />
     <Compile Include="Core\Battle\DeploymentCore.cs" />
     <Compile Include="Core\Battle\DeploymentMaths.cs" />
-    <Compile Include="Core\Battle\Battle.cs" />
+    <Compile Include="Core\Battle\GameEvent.cs" />
     <Compile Include="Core.GUI\GUICaching.cs" />
     <Compile Include="PlatformDetection.cs" />
     <Compile Include="IO.cs" />
@@ -72,11 +72,12 @@
     <Compile Include="Core\GameObjects\Structure.cs" />
     <Compile Include="Core\GameObjects\Territory.cs" />
     <Compile Include="Profiler.cs" />
-    <Compile Include="UtilityObjects.cs" />
     <Compile Include="Core.GUI\UIFactoryObjects.cs" />
     <Compile Include="Core.GUI\Map\Map.cs" />
     <Compile Include="Core.GUI\Map\TerritoryMapping.cs" />
     <Compile Include="Core.GUI\Map\StructureMapping.cs" />
+    <Compile Include="Core\Battle\EventLocation.cs" />
+    <Compile Include="Core\UtilityObjects.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />

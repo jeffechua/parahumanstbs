@@ -2,13 +2,23 @@
 
 namespace Parahumans.Core {
 
-	public sealed class Battle : GUIComplete {
+	public enum GameEventType {
+		Attack = 0
+	}
+
+	public sealed class GameEvent : GUIComplete {
 
 		public override int order { get { return 5; } }
 
 		public Deployment[] deploys;
 
 		public override string name { get { return actors.name + " vs." + reactors.name; } }
+
+		[Displayable(0, typeof(EnumField<GameEventType>))] 
+		public GameEventType type;
+
+		[Displayable(1, typeof(ObjectField)), ForceHorizontal]
+		public EventLocation location;
 
 		[Displayable(2, typeof(ObjectField)), Emphasized, Padded(0, 10)]
 		public Deployment actors { get { return deploys[0]; } set { deploys[0] = value; } }
@@ -23,10 +33,9 @@ namespace Parahumans.Core {
 		public Deployment reactors { get { return deploys[1]; } set { deploys[1] = value; } }
 
 
-		public Battle (Deployment d1, Deployment d2) {
-			deploys = new Deployment[2];
-			deploys[0] = d1;
-			deploys[1] = d2;
+		public GameEvent (EventLocation location) {
+			this.location = location;
+			deploys = new Deployment[] { new Deployment(), new Deployment() };
 			DependencyManager.Connect(actors, this);
 			DependencyManager.Connect(reactors, this);
 			Reload();
@@ -55,7 +64,11 @@ namespace Parahumans.Core {
 
 		}
 
-		public override Widget GetHeader (Context context) => new InspectableBox(new Label("Simulated Battle") { WidthRequest = 300 }, this);
+		public override Widget GetHeader (Context context) {
+			Label label = new Label("Battle of " + location.name);
+			if (!context.compact) label.WidthRequest = 300;
+			return new InspectableBox(label, this);
+		}
 
 	}
 

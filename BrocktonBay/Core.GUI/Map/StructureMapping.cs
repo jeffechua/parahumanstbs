@@ -16,6 +16,7 @@ namespace Parahumans.Core {
 		public Image markerImage;
 		public Widget line;
 		public Window popup;
+		public InspectableBox eventIndicator;
 		public Vector2 scaledPosition;
 
 		public Structure structure;
@@ -81,6 +82,18 @@ namespace Parahumans.Core {
 			if (location != structure.location) {
 				location = structure.location;
 				Repin();
+			}
+			if (structure.ongoing_event == null && eventIndicator != null) {
+				map.stage.Remove(eventIndicator);
+				eventIndicator.Destroy();
+				eventIndicator = null;
+			} else if (structure.ongoing_event != null && eventIndicator == null) {
+				int iconSize = markerSize * 6 / 5;
+				Image icon = Graphics.GetIcon(structure.ongoing_event.type, new Gdk.Color(230, 120, 0), iconSize);
+				eventIndicator = new InspectableBox(icon, structure.ongoing_event);
+				eventIndicator.VisibleWindow = false;
+				Vector2 pos = scaledPosition - new Vector2(iconSize / 2, markerSize * 2);
+				map.stage.Put(eventIndicator, (int)pos.x, (int)pos.y);
 			}
 		}
 

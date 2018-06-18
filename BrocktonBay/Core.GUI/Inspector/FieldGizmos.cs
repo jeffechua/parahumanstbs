@@ -343,5 +343,19 @@ namespace Parahumans.Core {
 
 	}
 
+	public sealed class ActionField : Button {
+		public GameAction action;
+
+		public ActionField (PropertyInfo property, object obj, Context context, object arg) : base(new Gtk.Alignment(0,0,1,1)) {
+			action = (GameAction)property.GetValue(obj);
+			Gtk.Alignment alignment = (Gtk.Alignment)Child;
+			alignment.Add(new Label(action.name));
+			alignment.BorderWidth = 10;
+			TooltipText = action.description;
+			Sensitive = action.condition(context);
+			Clicked += (o, a) => action.action();
+		}
+
+	}
 
 }

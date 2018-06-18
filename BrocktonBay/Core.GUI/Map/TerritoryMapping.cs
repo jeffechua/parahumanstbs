@@ -18,6 +18,7 @@ namespace Parahumans.Core {
 		public Image zone;
 		public Widget line;
 		public Window popup;
+		public InspectableBox eventIndicator;
 		public Vector2 scaledPosition;
 
 		public Territory territory;
@@ -98,6 +99,17 @@ namespace Parahumans.Core {
 				location = territory.location;
 				Repin();
 			}
+			if (territory.ongoing_event == null && eventIndicator != null) {
+				map.stage.Remove(eventIndicator);
+				eventIndicator.Destroy();
+				eventIndicator = null;
+			} else if (territory.ongoing_event != null && eventIndicator == null) {
+				Image icon = Graphics.GetIcon(territory.ongoing_event.type, new Gdk.Color(230, 0, 0), markerHeight);
+				eventIndicator = new InspectableBox(icon, territory.ongoing_event);
+				eventIndicator.VisibleWindow = false;
+				Vector2 pos = scaledPosition - new Vector2(markerHeight / 2, markerHeight * 2 + markerWidth * 1 / 3);
+				map.stage.Put(eventIndicator, (int)pos.x, (int)pos.y);
+			}
 		}
 
 	}
@@ -133,7 +145,7 @@ namespace Parahumans.Core {
 			marker.GdkWindow.GetOrigin(out int x, out int y);
 			Graphics.SetAllocationTrigger(this, delegate {
 				Move(x + marker.Allocation.Right + TerritoryMarker.markerWidth * 3 / 2,
-				     y + marker.Allocation.Top + TerritoryMarker.markerHeight / 2 - Allocation.Height / 4);
+					 y + marker.Allocation.Top + TerritoryMarker.markerHeight / 2 - Allocation.Height / 4);
 			});
 
 			ShowAll();

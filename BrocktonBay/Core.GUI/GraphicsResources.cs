@@ -77,6 +77,7 @@ namespace Parahumans.Core {
 			Pixmap mask = new Pixmap(MainClass.mainWindow.GdkWindow, (int)size, (int)size);
 
 			Gdk.GC iconColor = new Gdk.GC(iconBase) { RgbFgColor = color };
+			Gdk.GC black = new Gdk.GC(iconBase) { RgbFgColor = new Color(0, 0, 0) };
 			Gdk.GC invisible = new Gdk.GC(mask) { RgbFgColor = new Color(0, 0, 0) };
 			Gdk.GC visible = new Gdk.GC(mask) { RgbFgColor = new Color(255, 255, 255) };
 
@@ -186,6 +187,30 @@ namespace Parahumans.Core {
 									 (int)(pupilRadius * 2), (int)(pupilRadius * 2), 0, 23040);
 						break;
 				}
+			}
+
+			if (iconified is GameEventType) {
+				//The background is black this time
+				iconBase.DrawRectangle(black, true, new Rectangle(0, 0, (int)size, (int)size));
+				//The shaft
+				double width = size / 4.5;
+				double height = width * 3;
+				Vector2 corner = new Vector2(size / 2 - width / 2, 0);
+				double margin = width / 5;
+				double width2 = width - margin * 2;
+				double height2 = height - margin * 2;
+				Vector2 corner2 = corner + new Vector2(margin, margin);
+				mask.DrawRectangle(visible, true, new Rectangle((int)corner.x, (int)corner.y, (int)width, (int)height));
+				iconBase.DrawRectangle(iconColor, true, new Rectangle((int)corner2.x, (int)corner2.y, (int)width2, (int)height2));
+				//The bulb
+				double diameter = width;
+				double radius = diameter/2;
+				corner = new Vector2(size / 2 - radius, size - diameter);
+				double diameter2 = diameter - margin * 2;
+				double radius2 = diameter2 / 2;
+				corner2 = corner + new Vector2(margin, margin);
+				mask.DrawArc(visible, true, (int)corner.x, (int)corner.y, (int)diameter, (int)diameter, 0, 23040);
+				iconBase.DrawArc(iconColor, true, (int)corner2.x, (int)corner2.y, (int)diameter2, (int)diameter2, 0, 23040);
 			}
 
 			Pixmap scaledIconBase = Scale(iconBase, size, size, 0.1);

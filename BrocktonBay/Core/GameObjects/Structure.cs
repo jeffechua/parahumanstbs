@@ -31,7 +31,7 @@ namespace Parahumans.Core {
 
 	}
 
-	public class Structure : GameObject {
+	public class Structure : GameObject, EventLocation, Affiliated {
 
 		public override int order { get { return 1; } }
 
@@ -47,6 +47,12 @@ namespace Parahumans.Core {
 		[BimorphicDisplayable(7, typeof(TabularLabeledValuesField<int>), typeof(LinearLabeledValuesField<int>)), EmphasizedIfVertical]
 		public LabeledValue<int>[] buffs { get; set; }
 
+		[Displayable(7, typeof(ObjectField)), ForceHorizontal, Padded(10, 10, 10, 10), Emphasized]
+		public GameEvent ongoing_event { get; set; }
+
+		[Displayable(7, typeof(ActionField)), Padded(20, 20, 20, 20), VerticalOnly]
+		public GameAction attack { get; set; }
+
 		public Structure () : this(new StructureData()) { }
 
 		public Structure (StructureData data) {
@@ -58,6 +64,19 @@ namespace Parahumans.Core {
 				new LabeledValue<int>("Combat Strength", data.buffs[0]),
 				new LabeledValue<int>("Resource income", data.buffs[1]),
 				new LabeledValue<int>("Reputation income", data.buffs[2])
+			};
+			attack = new GameAction {
+				name = "Attack",
+				description = "Launch an attack on " + name,
+				action = delegate {
+					ongoing_event = new GameEvent(this);
+					DependencyManager.Connect(ongoing_event, this);
+					DependencyManager.Flag(ongoing_event);
+					DependencyManager.TriggerAllFlags();
+				},
+				condition = delegate (Context context) {
+					return ongoing_event == null;
+				}
 			};
 		}
 

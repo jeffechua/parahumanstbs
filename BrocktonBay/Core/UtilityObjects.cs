@@ -3,8 +3,9 @@ using Gdk;
 
 namespace Parahumans.Core {
 
-	public struct PlayerAction {
+	public struct GameAction {
 		public string name;
+		public string description;
 		public Action action;
 		public Func<Context, bool> condition;
 	}

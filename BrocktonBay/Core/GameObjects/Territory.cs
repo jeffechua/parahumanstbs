@@ -27,7 +27,7 @@ namespace Parahumans.Core {
 
 	}
 
-	public class Territory : GameObject, IContainer, Affiliated {
+	public class Territory : GameObject, IContainer, EventLocation, Affiliated {
 
 		public override int order { get { return 2; } }
 
@@ -46,6 +46,12 @@ namespace Parahumans.Core {
 		[Displayable(6, typeof(CellObjectListField<Structure>), 2), Emphasized]
 		public List<Structure> structures { get; set; }
 
+		[Displayable(7, typeof(ObjectField)), ForceHorizontal, Padded(10, 10, 10, 10), Emphasized]
+		public GameEvent ongoing_event { get; set; }
+
+		[Displayable(7, typeof(ActionField)), Padded(20, 20, 20, 20), VerticalOnly]
+		public GameAction attack { get; set; }
+
 		public Territory () : this(new TerritoryData()) { }
 
 		public Territory (TerritoryData data) {
@@ -59,6 +65,20 @@ namespace Parahumans.Core {
 				DependencyManager.Connect(structure, this);
 				structure.parent = this;
 			}
+			attack = new GameAction {
+				name = "Attack",
+				description = "Launch an attack on " + name,
+				action = delegate {
+					ongoing_event = new GameEvent(this);
+					DependencyManager.Connect(ongoing_event, this);
+					DependencyManager.Flag(ongoing_event);
+					DependencyManager.TriggerAllFlags();
+				},
+				condition = delegate (Context context) {
+					return ongoing_event == null;
+				}
+			};
+
 		}
 
 		public override Widget GetHeader (Context context) {
@@ -66,7 +86,7 @@ namespace Parahumans.Core {
 				HBox header = new HBox(false, 0);
 				header.PackStart(new Label(name), false, false, 0);
 				header.PackStart(Graphics.GetIcon(Threat.C, Graphics.GetColor(affiliation), MainClass.textSize),
-				                 false, false, (uint)(MainClass.textSize/5));
+								 false, false, (uint)(MainClass.textSize / 5));
 				return new InspectableBox(header, this);
 			} else {
 				VBox headerBox = new VBox(false, 5);
@@ -82,7 +102,7 @@ namespace Parahumans.Core {
 		}
 
 		public override Widget GetCell (Context context) {
-			
+
 			//Creates the cell contents
 			VBox structureBox = new VBox(false, 0) { BorderWidth = 3 };
 			foreach (Structure structure in structures) {
