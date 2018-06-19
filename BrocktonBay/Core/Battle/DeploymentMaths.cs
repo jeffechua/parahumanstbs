@@ -18,8 +18,8 @@ namespace Parahumans.Core {
 	}
 
 
-	public sealed partial class Deployment : GUIComplete {
-
+	public sealed partial class Deployment {
+		/*
 		public static void Compare(Deployment l1, Deployment l2) {
 			l1.enemy = l2;
 			l2.enemy = l1;
@@ -190,7 +190,7 @@ namespace Parahumans.Core {
 			appraisal[0] = new Fraction("Successful", appraise_chance, new Gdk.Color(200, 200, 200));
 			appraisal[1] = new Fraction("Unsuccessful", 1 - appraise_chance, new Gdk.Color(50, 50, 50));
 		}
-
+		*/
 	}
 
 }

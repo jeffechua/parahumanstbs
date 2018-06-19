@@ -44,7 +44,7 @@ namespace Parahumans.Core {
 
 		public static Color GetColor (Health health) => healthColors[(int)health];
 		public static Color GetColor (Alignment alignment) => alignmentColors[2 - (int)alignment];
-		public static Color GetColor (Faction faction) => (faction == null) ? new Gdk.Color(125, 125, 125) : faction.color;
+		public static Color GetColor (Agent agent) => (agent == null) ? new Color(125, 125, 125) : agent.color;
 		public static string GetSymbol (Classification clssf) => classSymbols[(int)clssf];
 		public static string GetSymbol (Threat threat) => threatSymbols[(int)threat];
 
@@ -323,6 +323,18 @@ namespace Parahumans.Core {
 		}
 
 		public static void RemainInvisible (object obj, EventArgs args) => ((Widget)obj).Hide();
+
+		public static Widget GetSmartHeader (Context context, IGUIComplete obj) {
+			DependableShell shell = new DependableShell(obj.order + 1);
+			shell.ReloadEvent += delegate {
+				if (shell.Child != null) shell.Child.Destroy();
+				shell.Add(obj.GetHeader(context));
+				shell.ShowAll();
+			};
+			shell.Reload();
+			DependencyManager.Connect(obj, shell);
+			return shell;
+		}
 
 	}
 }

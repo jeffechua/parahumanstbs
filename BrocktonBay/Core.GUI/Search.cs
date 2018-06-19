@@ -27,7 +27,6 @@ namespace Parahumans.Core {
 
 		public int order { get { return 5; } }
 		public bool destroyed { get; set; }
-
 		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 
@@ -205,7 +204,7 @@ namespace Parahumans.Core {
 		}
 
 		Widget SetupCell(GameObject obj) {
-			Cell cell = new SmartCell(new Context(obj, 0), obj);
+			Cell cell = new SmartCell(new Context(MainClass.playerEntity, obj), obj);
 			cell.BorderWidth = 5;
 			cell.prelight = true;
 			cell.Clicked += (o, a) => OnClicked(obj);
@@ -213,7 +212,7 @@ namespace Parahumans.Core {
 		}
 
 		Widget SetupHeader(GameObject obj) {
-			Widget baseHeader = obj.GetHeader(new Context(obj, 0, false, true));
+			Widget baseHeader = obj.GetHeader(new Context(MainClass.playerEntity, obj, false, true));
 			HBox hbox = new HBox();
 			hbox.PackStart(baseHeader, false, false, 5);
 			ClickableEventBox eventbox = new ClickableEventBox { Child = hbox };

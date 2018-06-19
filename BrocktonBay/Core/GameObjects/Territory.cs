@@ -35,7 +35,7 @@ namespace Parahumans.Core {
 		public IntVector2 location { get; set; }
 
 		[Displayable(3, typeof(ObjectField)), ForceHorizontal]
-		public Faction affiliation { get { return (Faction)parent; } }
+		public Agent affiliation { get { return (Agent)parent; } }
 
 		[Displayable(4, typeof(IntField))]
 		public int size { get; set; }
@@ -96,7 +96,7 @@ namespace Parahumans.Core {
 				align.WidthRequest = 200;
 				headerBox.PackStart(align, false, false, 0);
 				if (parent != null)
-					headerBox.PackStart(new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = parent.GetSmartHeader(context.butCompact) });
+					headerBox.PackStart(new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = Graphics.GetSmartHeader(context.butCompact, parent) });
 				return headerBox;
 			}
 		}
@@ -117,7 +117,7 @@ namespace Parahumans.Core {
 			//Set up dropping
 			EventBox eventBox = new EventBox { Child = structureBox, VisibleWindow = false };
 			Drag.DestSet(eventBox, DestDefaults.All,
-						 new TargetEntry[] { new TargetEntry(typeof(Parahuman).ToString(), TargetFlags.App, 0) },
+						 new TargetEntry[] { new TargetEntry(typeof(Structure).ToString(), TargetFlags.App, 0) },
 						 Gdk.DragAction.Move);
 			eventBox.DragDataReceived += delegate {
 				if (Accepts(DragTmpVars.currentDragged)) {

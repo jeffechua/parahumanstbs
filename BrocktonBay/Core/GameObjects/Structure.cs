@@ -12,7 +12,7 @@ namespace Parahumans.Core {
 	}
 
 	public class StructureData {
-		
+
 		public string name = "New Landmark";
 		public int ID = 0;
 		public IntVector2 location = new IntVector2(0, 0);
@@ -39,7 +39,7 @@ namespace Parahumans.Core {
 		public IntVector2 location { get; set; }
 
 		[Displayable(3, typeof(ObjectField)), ForceHorizontal]
-		public Faction affiliation { get { return (parent == null) ? null : (Faction)parent.parent; } }
+		public Agent affiliation { get { return (parent == null) ? null : (Agent)parent.parent; } }
 
 		[Displayable(4, typeof(EnumField<StructureType>))]
 		public StructureType type { get; set; }
@@ -102,10 +102,10 @@ namespace Parahumans.Core {
 				if (parent != null) {
 					HBox row2 = new HBox(false, 0);
 					row2.PackStart(new Label(), true, true, 0);
-					row2.PackStart(parent.GetSmartHeader(context.butCompact), false, false, 0);
+					row2.PackStart(Graphics.GetSmartHeader(context.butCompact, parent), false, false, 0);
 					if (parent.parent != null) {
 						row2.PackStart(new VSeparator(), false, false, 10);
-						row2.PackStart(parent.parent.GetSmartHeader(context.butCompact), false, false, 0);
+						row2.PackStart(Graphics.GetSmartHeader(context.butCompact, parent.parent), false, false, 0);
 					}
 					row2.PackStart(new Label(), true, true, 0);
 					headerBox.PackStart(row2);
@@ -114,6 +114,15 @@ namespace Parahumans.Core {
 				return headerBox;
 
 			}
+		}
+
+		public override Widget GetCell (Context context) {
+			Label label = new Label("Strength + " + buffs[0].value + "\nResources + " + buffs[1].value + "\nReputation + " + buffs[2].value);
+			label.Justify = Justification.Left;
+			return new Gtk.Alignment(0, 0, 1, 1) { Child = label, BorderWidth = 10 };
+		}
+
+		public override void Reload () {
 		}
 
 	}

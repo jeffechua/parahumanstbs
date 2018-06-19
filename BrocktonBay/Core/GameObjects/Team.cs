@@ -26,12 +26,13 @@ namespace Parahumans.Core {
 
 	}
 
-	public sealed class Team : GameObject, Rated {
+	public sealed class Team : GameObject, IRated, Agent {
 
 		public override int order { get { return 2; } }
+		public Gdk.Color color { get { return new Gdk.Color(0, 0, 0); }}
 
 		[Displayable(2, typeof(ObjectField)), ForceHorizontal]
-		public Faction affiliation { get { return (Faction)parent; } }
+		public Agent affiliation { get { return (Agent)(parent??this); } }
 
 		[Displayable(3, typeof(EnumField<Alignment>))]
 		public Alignment alignment { get; set; }
@@ -111,7 +112,7 @@ namespace Parahumans.Core {
 				align.WidthRequest = 200;
 				headerBox.PackStart(align, false, false, 0);
 				if (parent != null)
-					headerBox.PackStart(new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = parent.GetSmartHeader(context.butCompact) });
+					headerBox.PackStart(new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = Graphics.GetSmartHeader(context.butCompact, parent) });
 				return headerBox;
 			}
 		}

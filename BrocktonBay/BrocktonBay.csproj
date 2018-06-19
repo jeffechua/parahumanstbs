@@ -47,7 +47,7 @@
     <Compile Include="Core.GUI\Inspector\ObjectFields.cs" />
     <Compile Include="Core.GUI\Inspector\PrimitiveFields.cs" />
     <Compile Include="Core.GUI\Inspector\RatingsFields.cs" />
-    <Compile Include="Core.GUI\BattleInterface.cs" />
+    <Compile Include="Core.GUI\EventInterface.cs" />
     <Compile Include="Core.GUI\Inspector\FieldGizmos.cs" />
     <Compile Include="Core.GUI\Search.cs" />
     <Compile Include="Core.GUI\Windows.cs" />

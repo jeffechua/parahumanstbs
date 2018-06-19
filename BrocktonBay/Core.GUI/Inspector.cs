@@ -10,11 +10,11 @@ namespace Parahumans.Core {
 		public int order { get { return obj == null ? 0 : obj.order + 1; } }
 		public bool destroyed { get; set; }
 
-		public GUIComplete obj;
+		public IGUIComplete obj;
 		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 
-		public Listing (GUIComplete obj) {
+		public Listing (IGUIComplete obj) {
 			this.obj = obj;
 			DependencyManager.Connect(obj, this);
 			LabelXalign = 1;
@@ -24,7 +24,7 @@ namespace Parahumans.Core {
 		public void Reload () {
 			if (Child != null) Child.Destroy();
 			if (LabelWidget != null) LabelWidget.Destroy();
-			LabelWidget = obj.GetHeader(new Context(obj, 0, false, true));
+			LabelWidget = obj.GetHeader(new Context(MainClass.playerEntity, obj, false, true));
 			Add(UIFactory.GenerateHorizontal(obj));
 			ShowAll();
 		}
@@ -40,7 +40,7 @@ namespace Parahumans.Core {
 		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 
-		public SmartCell (Context context, GUIComplete obj) : base(context, obj) {
+		public SmartCell (Context context, IGUIComplete obj) : base(context, obj) {
 			DependencyManager.Connect(obj, this);
 			Destroyed += (o, a) => DependencyManager.DisconnectAll(this);
 		}
@@ -50,10 +50,10 @@ namespace Parahumans.Core {
 	public class Cell : ClickableEventBox {
 
 		public Frame frame;
-		public GUIComplete obj;
+		public IGUIComplete obj;
 		public Context context;
 
-		public Cell (Context context, GUIComplete obj) {
+		public Cell (Context context, IGUIComplete obj) {
 
 			//Basic setup
 			this.obj = obj;
@@ -100,11 +100,11 @@ namespace Parahumans.Core {
 		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 
-		public GUIComplete obj;
+		public IGUIComplete obj;
 		public ScrolledWindow scrollbin;
 
 		public Inspector () : this(null) { }
-		public Inspector (GUIComplete obj) {
+		public Inspector (IGUIComplete obj) {
 			HscrollbarPolicy = PolicyType.Never;
 			Inspect(obj);
 			Shown += delegate {
@@ -113,7 +113,7 @@ namespace Parahumans.Core {
 			};
 		}
 
-		public void Inspect (GUIComplete obj) {
+		public void Inspect (IGUIComplete obj) {
 
 			// Clean up prior attachments
 			if (Child != null) Child.Destroy();
@@ -128,7 +128,7 @@ namespace Parahumans.Core {
 				DependencyManager.Connect(obj, this);
 				if (Child != null) Child.Destroy();
 				VBox mainbox = new VBox(false, 0);
-				mainbox.PackStart(obj.GetHeader(new Context(obj, 0, true, false)), false, false, 10);
+				mainbox.PackStart(obj.GetHeader(new Context(MainClass.playerEntity, obj, true, false)), false, false, 10);
 				mainbox.PackStart(new HSeparator(), false, false, 0);
 				mainbox.PackStart(UIFactory.GenerateVertical(obj), false, false, 5);
 				AddWithViewport(mainbox);
@@ -144,7 +144,7 @@ namespace Parahumans.Core {
 			}
 		}
 
-		public static Window InspectInNewWindow (GUIComplete newObj, Window transientFor) {
+		public static Window InspectInNewWindow (IGUIComplete newObj, Window transientFor) {
 			DefocusableWindow win = new DefocusableWindow();
 			win.SetPosition(WindowPosition.Center);
 			win.Title = "Inspector";
@@ -162,7 +162,7 @@ namespace Parahumans.Core {
 			return win;
 		}
 
-		public static void InspectInNearestInspector (GUIComplete obj, Widget referenceWidget) {
+		public static void InspectInNearestInspector (IGUIComplete obj, Widget referenceWidget) {
 			Inspector nearestInspector = FindNearestInspector(referenceWidget);
 			if (nearestInspector == null) {
 				InspectInNewWindow(obj, (Window)referenceWidget.Toplevel);

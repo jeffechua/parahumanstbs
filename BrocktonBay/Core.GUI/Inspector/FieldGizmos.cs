@@ -27,6 +27,9 @@ namespace Parahumans.Core {
 			this.label = label;
 			this.value = value;
 		}
+		public override string ToString () {
+			return label + ": " + value;
+		}
 	}
 
 	// Essentially, a mathematical expression of a calculation or equality, e.g. "54 + 6 - 5 / 2 = 22".
@@ -300,7 +303,7 @@ namespace Parahumans.Core {
 		public ColorField (PropertyInfo property, object obj, Context context, object arg) {
 
 			this.property = property;
-			this.obj = (GUIComplete)obj;
+			this.obj = (IGUIComplete)obj;
 			this.context = context;
 
 			Label label = new Label(TextTools.ToReadable(property.Name) + ": ");

@@ -94,6 +94,7 @@ namespace Parahumans.Core {
 				Profiler.Log(ref Profiler.updateTime);
 
 				MainClass.Load(city); //Profiler calls inside CityInterface constructor.
+				MainClass.playerEntity = (Agent)city.Get<GameObject>(int.Parse(File.ReadAllText(path + "/player.txt")));
 
 				Profiler.Report();
 
@@ -161,6 +162,7 @@ namespace Parahumans.Core {
 			File.WriteAllBytes(destination + "/Map/map.png", city.mapPngSource);
 			File.WriteAllText(destination + "/Map/dimensions.txt", "" + city.mapDefaultWidth);
 			File.WriteAllText(destination + "/Map/scale.txt", "" + city.territorySizeScale);
+			File.WriteAllText(destination + "/player.txt", ((GameObject)MainClass.playerEntity).ID.ToString());
 
 			city.saveFolder = destination;
 

@@ -36,15 +36,27 @@ namespace Parahumans.Core {
 
 	}
 
-	public sealed class Parahuman : GameObject, Rated {
+	public sealed class Parahuman : GameObject, IRated, Agent {
 
 		public override int order { get { return 1; } }
+		public Gdk.Color color { get { return new Gdk.Color(0, 0, 0); } }
 
 		[Displayable(2, typeof(StringField))]
 		public String civilian_name { get; set; }
 
 		[Displayable(3, typeof(ObjectField)), ForceHorizontal]
-		public Faction affiliation { get { return (parent == null) ? null : (Faction)parent.parent; } }
+		public Agent affiliation {
+			get {
+				if (parent != null) {
+					if (parent.parent != null) {
+						return (Agent)parent.parent;
+					} else {
+						return (Agent)parent;
+					}
+				}
+				return this;
+			}
+		}
 
 		[Displayable(4, typeof(EnumField<Alignment>))]
 		public Alignment alignment { get; set; }
@@ -75,6 +87,9 @@ namespace Parahumans.Core {
 			baseRatings = new RatingsProfile(data.ratings);
 		}
 
+		public override void Reload () {
+		}
+
 		public RatingsProfile GetRatingsProfile (Context context) {
 			return baseRatings;
 		}
@@ -101,10 +116,10 @@ namespace Parahumans.Core {
 				if (parent != null) {
 					HBox row2 = new HBox(false, 0);
 					row2.PackStart(new Label(), true, true, 0);
-					row2.PackStart(parent.GetSmartHeader(context.butCompact), false, false, 0);
+					row2.PackStart(Graphics.GetSmartHeader(context.butCompact, parent), false, false, 0);
 					if (parent.parent != null) {
 						row2.PackStart(new VSeparator(), false, false, 10);
-						row2.PackStart(parent.parent.GetSmartHeader(context.butCompact), false, false, 0);
+						row2.PackStart(Graphics.GetSmartHeader(context.butCompact, parent.parent), false, false, 0);
 					}
 					row2.PackStart(new Label(), true, true, 0);
 					headerBox.PackStart(row2);

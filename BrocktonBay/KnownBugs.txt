@@ -3,3 +3,11 @@ UI:
 	When opening the RatingsSumTable in a Team's inspector (Inspector.main), the inspector will not expand horizontally to accommodate it, instead expanding *into* the right out of sight.
 	ObjectListFields do not rearrange to fit more cell in one row when space is available.
 	Sometimes children don't disappear from parents' lists when murdered.
+	Affiliation of parahuman doesn't update when its team is removed from the team's faction. Should turn from the faction to the team.
+	Event planner
+	    If Inspector inspecting deployment:
+	        Dragging to and from the lists will trigger DragEnd.
+	        Dragging from cell innards to itself will not.
+	    If EventInterface generating deployment
+	        Dragging to and from lists will trigger DragEnd
+	        Dragging from cell innards to itself will trigger DragEnd.

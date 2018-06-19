@@ -18,11 +18,11 @@ namespace Parahumans.Core {
 		public Image zone;
 		public Widget line;
 		public Window popup;
-		public InspectableBox eventIndicator;
+		public ClickableEventBox eventIndicator;
 		public Vector2 scaledPosition;
 
 		public Territory territory;
-		public Faction affiliation;
+		public Agent affiliation;
 		public IntVector2 location; //We round this to prevent floating point precision errors
 		public int size;
 
@@ -105,7 +105,12 @@ namespace Parahumans.Core {
 				eventIndicator = null;
 			} else if (territory.ongoing_event != null && eventIndicator == null) {
 				Image icon = Graphics.GetIcon(territory.ongoing_event.type, new Gdk.Color(230, 0, 0), markerHeight);
-				eventIndicator = new InspectableBox(icon, territory.ongoing_event);
+				eventIndicator = new ClickableEventBox { Child = icon };
+				eventIndicator.Clicked += delegate {
+					SecondaryWindow eventWindow = new SecondaryWindow("Event at " + territory.name);
+					eventWindow.SetMainWidget(new EventInterface(territory.ongoing_event));
+					eventWindow.ShowAll();
+				};
 				eventIndicator.VisibleWindow = false;
 				Vector2 pos = scaledPosition - new Vector2(markerHeight / 2, markerHeight * 2 + markerWidth * 1 / 3);
 				map.stage.Put(eventIndicator, (int)pos.x, (int)pos.y);
@@ -123,7 +128,7 @@ namespace Parahumans.Core {
 			Gravity = Gdk.Gravity.West;
 			TransientFor = (Window)marker.map.Toplevel;
 
-			Context context = new Context(territory, 0, true, true);
+			Context context = new Context(MainClass.playerEntity, territory, true, true);
 
 			VBox mainBox = new VBox(false, 2) { BorderWidth = 10 };
 			mainBox.PackStart(new Gtk.Alignment(0.5f, 0, 0, 1) { Child = territory.GetHeader(context) }, false, false, 3);

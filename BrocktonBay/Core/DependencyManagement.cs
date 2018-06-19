@@ -36,23 +36,23 @@ namespace Parahumans.Core {
 		}
 
 		public static void TriggerAllFlags () {
-			Console.WriteLine("Triggering all flags:");
+			//Console.WriteLine("Triggering all flags:");
 			for (int i = 0; i < flagged.Count; i++)
 				for (int j = 0; j < flagged.Values[i].Count; j++)
 					for (int k = 0; k < flagged.Values[i][j].listeners.Count; k++)
 						Flag(flagged.Values[i][j].listeners[k]);
 			for (int i = 0; i < flagged.Count; i++) {
-				Console.WriteLine("\t" + "Reloading order " + i + " objects.");
+				//Console.WriteLine("\t" + "Reloading order " + i + " objects.");
 				for (int j = 0; j < flagged.Values[i].Count; j++) {
 					flagged.Values[i][j].Reload();
-					if (flagged.Values[i][j] is GUIComplete) {
-						Console.WriteLine("\t" + "\t" + "Reloading " + ((GUIComplete)flagged.Values[i][j]).name);
+					if (flagged.Values[i][j] is IGUIComplete) {
+						//Console.WriteLine("\t" + "\t" + "Reloading " + ((IGUIComplete)flagged.Values[i][j]).name);
 					} else {
-						Console.WriteLine("\t" + "\t" + "Reloading " + flagged.Values[i][j].ToString());
+						//Console.WriteLine("\t" + "\t" + "Reloading " + flagged.Values[i][j].ToString());
 					}
 				}
 			}
-			Console.WriteLine("\n");
+			//Console.WriteLine("\n");
 			flagged.Clear();
 		}
 

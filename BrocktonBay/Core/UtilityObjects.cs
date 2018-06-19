@@ -11,23 +11,23 @@ namespace Parahumans.Core {
 	}
 
 	public struct Context {
-
+		
+		public Agent requester;
 		public object UIContext;
-		public int knowledge;
 		public bool vertical;
 		public bool compact;
 
 		//Convenience properties and methods for on-the-go modifications.
-		public Context butCompact { get { return new Context(UIContext, knowledge, vertical, true); } }
-		public Context butVertical { get { return new Context(UIContext, knowledge, true, compact); } }
-		public Context butNotCompact { get { return new Context(UIContext, knowledge, vertical, false); } }
-		public Context butHorizontal { get { return new Context(UIContext, knowledge, false, compact); } }
-		public Context butIn (GUIComplete newUIContext) => new Context(newUIContext, knowledge, vertical, compact);
-		public Context butKnownTo (int newKnowledge) => new Context(UIContext, newKnowledge, vertical, compact);
+		public Context butCompact { get { return new Context(requester, UIContext, vertical, true); } }
+		public Context butVertical { get { return new Context(requester, UIContext, true, compact); } }
+		public Context butNotCompact { get { return new Context(requester, UIContext, vertical, false); } }
+		public Context butHorizontal { get { return new Context(requester, UIContext, false, compact); } }
+		public Context butRequestedBy (Agent newRequester) => new Context(newRequester, UIContext, vertical, compact);
+		public Context butIn (object newUIContext) => new Context(requester, newUIContext, vertical, compact);
 
-		public Context (object UIContext, int knowledge, bool vertical = true, bool compact = false) {
+		public Context (Agent requester, object UIContext, bool vertical = true, bool compact = false) {
+			this.requester = requester;
 			this.UIContext = UIContext;
-			this.knowledge = knowledge;
 			this.vertical = vertical;
 			this.compact = compact;
 		}

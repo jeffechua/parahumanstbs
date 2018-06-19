@@ -24,14 +24,14 @@ namespace Parahumans.Core {
 	public abstract class TextEditableField : HBox {
 		
 		protected PropertyInfo property;
-		protected GUIComplete obj;
+		protected IGUIComplete obj;
 		protected Menu rightclickMenu;
 		protected Context context;
 
 		public TextEditableField (PropertyInfo property, object obj, Context context, object arg, bool suppressReload = false) {
 
 			this.property = property;
-			this.obj = (GUIComplete)obj;
+			this.obj = (IGUIComplete)obj;
 			this.context = context;
 
 			Label label = new Label(TextTools.ToReadable(property.Name) + ": ");

@@ -44,8 +44,6 @@ namespace Parahumans.Core {
 			Battle battle = new Battle(actors, reactors);
 			*/
 
-			inspector.Inspect(new Deployment());
-
 			MainClass.mainWindow.inspector = inspector;
 
 		}

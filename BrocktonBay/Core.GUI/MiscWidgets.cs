@@ -55,10 +55,10 @@ namespace Parahumans.Core {
 
 	public class InspectableBox : ClickableEventBox {
 
-		public GUIComplete inspected;
+		public IGUIComplete inspected;
 		public Menu rightclickMenu;
 
-		public InspectableBox(GUIComplete inspected) {
+		public InspectableBox(IGUIComplete inspected) {
 			
 			this.inspected = inspected;
 
@@ -96,7 +96,7 @@ namespace Parahumans.Core {
 
 		}
 
-		public InspectableBox(Widget child, GUIComplete inspected) : this(inspected)
+		public InspectableBox(Widget child, IGUIComplete inspected) : this(inspected)
 			=> Child = child;
 
 	}

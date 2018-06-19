@@ -16,12 +16,12 @@ namespace Parahumans.Core {
 		public Image markerImage;
 		public Widget line;
 		public Window popup;
-		public InspectableBox eventIndicator;
+		public ClickableEventBox eventIndicator;
 		public Vector2 scaledPosition;
 
 		public Structure structure;
 		public IntVector2 location; //We round this to prevent floating point precision errors
-		public Faction affiliation;
+		public Agent affiliation;
 		public StructureType type;
 
 		public StructureMarker (Structure structure, Map map) : base(structure) {
@@ -90,7 +90,12 @@ namespace Parahumans.Core {
 			} else if (structure.ongoing_event != null && eventIndicator == null) {
 				int iconSize = markerSize * 6 / 5;
 				Image icon = Graphics.GetIcon(structure.ongoing_event.type, new Gdk.Color(230, 120, 0), iconSize);
-				eventIndicator = new InspectableBox(icon, structure.ongoing_event);
+				eventIndicator = new ClickableEventBox { Child = icon };
+				eventIndicator.Clicked += delegate {
+					SecondaryWindow eventWindow = new SecondaryWindow("Event at " + structure.name);
+					eventWindow.SetMainWidget(new EventInterface(structure.ongoing_event));
+					eventWindow.ShowAll();
+				};
 				eventIndicator.VisibleWindow = false;
 				Vector2 pos = scaledPosition - new Vector2(iconSize / 2, markerSize * 2);
 				map.stage.Put(eventIndicator, (int)pos.x, (int)pos.y);
@@ -107,7 +112,7 @@ namespace Parahumans.Core {
 			structure = marker.structure;
 			TransientFor = (Window)marker.map.Toplevel;
 
-			Context context = new Context(structure, 0, true, true);
+			Context context = new Context(MainClass.playerEntity, structure, true, true);
 
 			VBox mainBox = new VBox(false, 2) { BorderWidth = 10 };
 			mainBox.PackStart(new Gtk.Alignment(0.5f, 0, 0, 1) { Child = structure.GetHeader(context) }, false, false, 3);

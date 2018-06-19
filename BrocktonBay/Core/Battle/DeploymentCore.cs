@@ -3,19 +3,22 @@ using System;
 
 namespace Parahumans.Core {
 
-	public sealed partial class Deployment : GUIComplete, IContainer {
+	public sealed partial class Deployment : IGUIComplete, IContainer, IRated, IDependable, Affiliated {
 
-		public override int order { get { return 4; } }
+		public string name { get { return ""; }}
+		public Gtk.Widget GetHeader (Context context) => new Gtk.Label();
+		public Gtk.Widget GetCell (Context context) => new Gtk.Label();
 
-		public override string name {
-			get {
-				if (teams.Count > 0) {
-					return teams[0].name + ((teams.Count > 1) ? (" [+" + (teams.Count - 1) + "]") : "");
-				} else {
-					return "Empty";
-				}
-			}
-		}
+		public int order { get { return 4; } }
+		public bool destroyed { get; set; }
+		public List<IDependable> triggers { get; set; } = new List<IDependable>();
+		public List<IDependable> listeners { get; set; } = new List<IDependable>();
+
+		[Displayable(1, typeof(ObjectField)), ForceHorizontal]
+		public Parahuman leader { get; set; }
+
+		[Displayable(1, typeof(ObjectField)), ForceHorizontal]
+		public Agent affiliation { get { return leader == null ? null : leader.affiliation; } }
 
 		[Displayable(2, typeof(BasicReadonlyField))]
 		public Alignment alignment { get; set; }
@@ -35,10 +38,13 @@ namespace Parahumans.Core {
 		[Displayable(7, typeof(CellObjectListField<Parahuman>), 3), Emphasized]
 		public List<Parahuman> combined_roster { get; set; }
 
-		public RatingsProfile ratings_profile { get { return new RatingsProfile(new Context(this, 0), teams, independents); } }
+		[Displayable(9, typeof(RatingsSumField), true), Emphasized, VerticalOnly]
+		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
 
-		[Displayable(8, typeof(RatingsComparisonField), false), Emphasized]
-		public RatingsComparison ratings { get; set; }
+		[Displayable(10, typeof(RatingsRadarChart), true), Emphasized, VerticalOnly]
+		public Func<Context, RatingsProfile> ratings_profile_radar { get { return ratings; } }
+
+		/*
 
 		[Displayable(9, typeof(ExpressionField)), TooltipText("β + δ + Σ + ψ\n+ pop. + xp\n+ bonuses")]
 		public Expression strength { get; set; }
@@ -49,36 +55,41 @@ namespace Parahumans.Core {
 		[Displayable(11, typeof(ExpressionField)), TooltipText("ξ + Ω\n+ 1 + xp\n + bonuses")]
 		public Expression insight { get; set; }
 
-		[Displayable(12, typeof(FractionsBar)), TooltipText("STR<sub>enemy</sub> / STR<sub>self</sub> / 4"), Emphasized]
+		[Displayable(12, typeof(FractionsBar)), TooltipText("STR<sub>enemy</sub> / STR<sub>total</sub> / 2"), Emphasized]
 		public Fraction[] injury { get; set; } //Chance of being injured, per member
 
-		[Displayable(13, typeof(FractionsBar)), TooltipText("MOB<sub>self</sub> / MOB<sub>enemy</sub> / 2"), Emphasized]
+		[Displayable(13, typeof(FractionsBar)), TooltipText("MOB<sub>self</sub> / INS<sub>enemy</sub> / 2"), Emphasized]
 		public Fraction[] escape { get; set; } //Chance of escaping, per member
-
-		[Displayable(14, typeof(FractionsBar)), TooltipText("INS / 10"), Emphasized]
-		public Fraction[] appraisal { get; set; } //Chance of gaining an insight, per member
 
 		public Deployment enemy;
 
-		public Deployment () {
-			teams = new List<Team>();
-			independents = new List<Parahuman>();
+		*/
+
+		public Deployment () : this(new List<Team>(), new List<Parahuman>()) { }
+
+		public Deployment (List<Team> teams, List<Parahuman> independents, Parahuman leader = null) {
+			this.teams = teams;
+			this.independents = independents;
+			this.leader = leader;
 			Reload();
 		}
 
-		public override void Reload () {
+		public RatingsProfile GetRatingsProfile (Context context) => new RatingsProfile(context, teams, independents);
 
-			ratings = new RatingsComparison();
-
+		public void Reload () {
 			Sort();
-			if (combined_roster.Count == 0) return;
-
+			if (combined_roster.Count == 0){
+				leader = null;
+				return;
+			}
+			if (!combined_roster.Contains(leader)) {
+				leader = combined_roster[0];
+				foreach (Parahuman parahuman in combined_roster)
+					if (parahuman.reputation > leader.reputation)
+						leader = parahuman;
+			}
 			threat = combined_roster[0].threat;
 			alignment = combined_roster[0].alignment;
-
-			//Load all ratings
-			ratings.values[0] = ratings_profile.values;
-
 		}
 
 		public static float GetMultiplier (float x, float from, float to, float rate)
@@ -146,20 +157,13 @@ namespace Parahumans.Core {
 
 			//Sort stuff.
 			teams.Sort((x, y) => y.ID.CompareTo(x.ID));
-			teams.Sort((x, y) => x.alignment.CompareTo(y.alignment));
-			teams.Sort((x, y) => y.threat.CompareTo(x.threat));
 			independents.Sort((x, y) => y.ID.CompareTo(x.ID));
-			independents.Sort((x, y) => x.alignment.CompareTo(y.alignment));
-			independents.Sort((x, y) => y.threat.CompareTo(x.threat));
 
-			//Load all teams into roster and remove all invalids
+			//Load stuff into combined_roster
 			CombineRoster();
-			combined_roster.RemoveAll((input) => input.health != Health.Healthy);
 
-			//Sort more stuff
-			combined_roster.Sort((x, y) => y.ID.CompareTo(x.ID));
-			combined_roster.Sort((x, y) => x.alignment.CompareTo(y.alignment));
-			combined_roster.Sort((x, y) => y.threat.CompareTo(x.threat));
+			//Remove all invalids
+			combined_roster.RemoveAll((input) => input.health != Health.Healthy);
 
 		}
 
@@ -171,11 +175,14 @@ namespace Parahumans.Core {
 		}
 
 		public static Deployment operator + (Deployment a, Deployment b) {
-			Deployment newDeployment = new Deployment();
-			newDeployment.teams.AddRange(a.teams);
-			newDeployment.teams.AddRange(b.teams);
-			newDeployment.independents.AddRange(a.independents);
-			newDeployment.independents.AddRange(a.independents);
+			List<Team> teams = new List<Team>();
+			List<Parahuman> independents = new List<Parahuman>();
+			Parahuman leader = (a.leader.reputation >= b.leader.reputation) ? a.leader : b.leader;
+			teams.AddRange(a.teams);
+			teams.AddRange(b.teams);
+			independents.AddRange(a.independents);
+			independents.AddRange(a.independents);
+			Deployment newDeployment = new Deployment(teams, independents, leader);
 			return newDeployment;
 		}
 

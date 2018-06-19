@@ -18,9 +18,14 @@ namespace Parahumans.Core {
 			typeof(object)
 		};
 
-		public static VBox GenerateVertical (object obj) {
+		public static VBox GenerateVertical (object obj)
+			=> GenerateVertical(new Context(MainClass.playerEntity, obj, true, false), obj);
+		public static VBox GenerateHorizontal (object obj)
+			=> GenerateHorizontal(new Context(MainClass.playerEntity, obj, false, false), obj);
 
-			Context context = new Context(obj, 0, true, false);
+		public static VBox GenerateVertical (Context context, object obj) {
+
+			context = context.butVertical;
 
 			//Load up all properties
 			List<PropertyInfo> properties = new List<PropertyInfo>(obj.GetType().GetProperties());
@@ -95,9 +100,9 @@ namespace Parahumans.Core {
 
 		}
 
-		public static VBox GenerateHorizontal (object obj) {
+		public static VBox GenerateHorizontal (Context context, object obj) {
 
-			Context context = new Context(obj, 0, false, false);
+			context = context.butHorizontal;
 
 			//Load up all properties
 			List<PropertyInfo> properties = new List<PropertyInfo>(obj.GetType().GetProperties());

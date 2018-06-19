@@ -14,13 +14,13 @@ namespace Parahumans.Core {
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 
 		public PropertyInfo property;
-		public GUIComplete obj;
+		public IGUIComplete obj;
 		public Context context;
 
 		public ObjectField (PropertyInfo property, object obj, Context context, object arg) : base(0, 0, 1, 1) {
 
 			this.property = property;
-			this.obj = (GUIComplete)property.GetValue(obj);
+			this.obj = (IGUIComplete)property.GetValue(obj);
 			this.context = context;
 
 			DependencyManager.Connect(this.obj, this);
@@ -49,7 +49,7 @@ namespace Parahumans.Core {
 
 	// the absolute value of (int)arg = number of columns in table if used
 	// arg>0 => expander starts expanded, <0 => starts collapsed
-	public abstract class ObjectListField<T> : EventBox where T : GUIComplete {
+	public abstract class ObjectListField<T> : EventBox where T : IGUIComplete {
 
 		protected IContainer parent;
 		protected Context context;
@@ -200,7 +200,7 @@ namespace Parahumans.Core {
 
 	}
 
-	public class CellObjectListField<T> : ObjectListField<T> where T : GUIComplete {
+	public class CellObjectListField<T> : ObjectListField<T> where T : IGUIComplete {
 
 		public CellObjectListField (PropertyInfo property, object obj, Context context, object arg)
 			: base(property, obj, context, arg) { }
@@ -237,11 +237,13 @@ namespace Parahumans.Core {
 			//Set up drag/drop
 
 			cellLabel.DragEnd += delegate {
+				Console.WriteLine("DragEnd");
 				parent.Remove(obj);
 				DependencyManager.TriggerAllFlags();
 			};
 
 			cell.DragEnd += delegate {
+				Console.WriteLine("DragEnd");
 				parent.Remove(obj);
 				DependencyManager.TriggerAllFlags();
 			};

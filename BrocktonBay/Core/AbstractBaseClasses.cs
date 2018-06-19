@@ -7,16 +7,27 @@ namespace Parahumans.Core {
 
 	// A GameObject is a base class for most objects in the game. This includes players, teams, factions and territories - NOT assets.
 	// GameObjects are assigned IDs mainly used for importing/exporting from/to JSON files, as they allow parent/child relationships to be reduced to primitive expressions.
-	public abstract class GameObject : GUIComplete, IComparable<GameObject>, IContainer {
+	public abstract class GameObject : IGUIComplete, IComparable<GameObject>, IContainer {
 
 		[Displayable(0, typeof(StringField))]
-		public override string name { get; set; } = "";
+		public string name { get; set; } = "";
 
 		[Displayable(1, typeof(IntField))]
 		public int ID { get; set; }
 
 		// This is a field and not a Displayable property as parentage is usually displayed in implementation of GetHeader(), so it would be redundant.
 		public GameObject parent;
+
+		//IGUIComplete stuff
+		public abstract Widget GetHeader (Context context);
+		public abstract Widget GetCell (Context context);
+
+		//IDependable stuff
+		public abstract int order { get; }
+		public bool destroyed { get; set; }
+		public List<IDependable> triggers { get; set; } = new List<IDependable>();
+		public List<IDependable> listeners { get; set; } = new List<IDependable>();
+		public abstract void Reload ();
 
 		//IContainer methods
 		public virtual bool Accepts (object obj) => false;
@@ -41,38 +52,26 @@ namespace Parahumans.Core {
 
 	// A GUIComplete is an object that can be fully expressed and manipulated by the modular GUI system employed.
 	// It is necessarily IDependable as it has to send update notifications to UI elements displaying it.
-	public abstract class GUIComplete : IDependable {
+	public interface IGUIComplete : IDependable {
 
-		virtual public string name { get; set; } = "";
-		public bool destroyed { get; set; }
-
-		//IDependable requirements
-		public abstract int order { get; }
-		public List<IDependable> listeners { get; set; } = new List<IDependable>();
-		public List<IDependable> triggers { get; set; } = new List<IDependable>();
-		public virtual void Reload () { }
-		public virtual void Destroy () { }
+		string name { get; }
 
 		// Gets a "header" to denote the GUIComplete object:
 		// compact=true returns a simple one-line name with icons, compact=false returns the multi-line header shown at the top of the inspector.
-		public virtual Widget GetHeader (Context context) => new Label(name);
+		Widget GetHeader (Context context);
 
 		// Gets a approximate square of key information on the object, APART FROM information already in the header
 		// For example, a Parahuman returns a list of its condensed ratings. A Team returns a list of its members.
-		public virtual Widget GetCell (Context context) => new Label();
+		Widget GetCell (Context context);
 
-		public Widget GetSmartHeader (Context context) {
-			DependableShell shell = new DependableShell(order + 1);
-			shell.ReloadEvent += delegate {
-				if (shell.Child != null) shell.Child.Destroy();
-				shell.Add(GetHeader(context));
-				shell.ShowAll();
-			};
-			shell.Reload();
-			DependencyManager.Connect(this, shell);
-			return shell;
-		}
+	}
 
+	public interface Affiliated {
+		Agent affiliation { get; }
+	}
+
+	public interface Agent : IGUIComplete {
+		Gdk.Color color { get; }
 	}
 
 	/* 

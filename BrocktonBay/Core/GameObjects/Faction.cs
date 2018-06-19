@@ -4,14 +4,12 @@ using Gtk;
 
 namespace Parahumans.Core {
 
+	/*
 	public class Asset : GameObject {
 		public override int order { get { return 0; } }
 		[Displayable(2, typeof(StringField))] public String description;
 	}
-
-	public interface Affiliated {
-		Faction affiliation { get; }
-	}
+	*/
 
 	public sealed class FactionData {
 		public String name = "New Faction";
@@ -38,7 +36,7 @@ namespace Parahumans.Core {
 
 	}
 
-	public sealed class Faction : GameObject, Rated {
+	public sealed class Faction : GameObject, IRated, Agent {
 
 		public override int order { get { return 3; } }
 
@@ -66,7 +64,7 @@ namespace Parahumans.Core {
 		[Displayable(9, typeof(CellObjectListField<Territory>), 2), Emphasized]
 		public List<Territory> territories { get; set; }
 
-		public List<Asset> assets { get; set; }
+		//public List<Asset> assets { get; set; }
 
 		[Displayable(11, typeof(RatingsSumField), true), Emphasized, VerticalOnly]
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
@@ -131,7 +129,7 @@ namespace Parahumans.Core {
 
 		public override bool Contains (object obj) {
 			if (obj is Team) return teams.Contains((Team)obj);
-			if (obj is Asset) return assets.Contains((Asset)obj);
+			//if (obj is Asset) return assets.Contains((Asset)obj);
 			if (obj is Parahuman) {
 				if (roster.Contains((Parahuman)obj))
 					return true;
@@ -142,7 +140,7 @@ namespace Parahumans.Core {
 			return false;
 		}
 
-		public override bool Accepts (object obj) => obj is Parahuman || obj is Team || obj is Asset || obj is Territory;
+		public override bool Accepts (object obj) => obj is Parahuman || obj is Team || /*obj is Asset ||*/ obj is Territory;
 
 		public override void AddRange<T> (List<T> objs) { //It is assumed that the invoker has already checked if we Accept(obj).
 			foreach (object element in objs) {
@@ -152,7 +150,7 @@ namespace Parahumans.Core {
 				obj.parent = this;
 				if (obj is Team) teams.Add((Team)obj);
 				if (obj is Parahuman) roster.Add((Parahuman)obj);
-				if (obj is Asset) assets.Add((Asset)obj);
+				//if (obj is Asset) assets.Add((Asset)obj);
 				if (obj is Territory) territories.Add((Territory)obj);
 				DependencyManager.Flag(obj);
 			}
@@ -165,7 +163,7 @@ namespace Parahumans.Core {
 				DependencyManager.Disconnect(obj, this);
 				if (obj is Team) teams.Remove((Team)obj);
 				if (obj is Parahuman) roster.Remove((Parahuman)obj);
-				if (obj is Asset) assets.Remove((Asset)obj);
+				//if (obj is Asset) assets.Remove((Asset)obj);
 				if (obj is Territory) territories.Remove((Territory)obj);
 				obj.parent = null;
 				DependencyManager.Flag(obj);
