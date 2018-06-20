@@ -78,6 +78,8 @@
     <Compile Include="Core.GUI\Map\StructureMapping.cs" />
     <Compile Include="Core\Battle\EventLocation.cs" />
     <Compile Include="Core\UtilityObjects.cs" />
+    <Compile Include="Deployment.cs" />
+    <Compile Include="MyDragDrop.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />

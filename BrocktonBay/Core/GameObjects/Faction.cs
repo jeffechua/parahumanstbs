@@ -166,7 +166,14 @@ namespace Parahumans.Core {
 				//if (obj is Asset) assets.Remove((Asset)obj);
 				if (obj is Territory) territories.Remove((Territory)obj);
 				obj.parent = null;
+				//Flag all the things
 				DependencyManager.Flag(obj);
+				if (obj is Team)        //To notify extended family of changes in leadership
+					foreach (Parahuman child in ((Team)obj).roster)
+						DependencyManager.Flag(child);
+				if (obj is Territory)   //To notify extended family of changes in leadership
+					foreach (Structure child in ((Territory)obj).structures)
+						DependencyManager.Flag(child);
 			}
 			DependencyManager.Flag(this);
 		}
@@ -212,16 +219,13 @@ namespace Parahumans.Core {
 
 			//Set up dropping
 			EventBox eventBox = new EventBox { Child = childrenBox, VisibleWindow = false };
-			Drag.DestSet(eventBox, DestDefaults.All,
-						 new TargetEntry[] { new TargetEntry(typeof(Parahuman).ToString(), TargetFlags.App, 0),
-											 new TargetEntry(typeof(Team).ToString(), TargetFlags.App, 0) },
-						 Gdk.DragAction.Move);
-			eventBox.DragDataReceived += delegate {
-				if (Accepts(DragTmpVars.currentDragged)) {
-					Add(DragTmpVars.currentDragged);
+			MyDragDrop.DestSet(eventBox, typeof(Parahuman).ToString(), typeof(Team).ToString());
+			MyDragDrop.DestSetDropAction(eventBox, delegate {
+				if (Accepts(MyDragDrop.currentDragged)) {
+					Add(MyDragDrop.currentDragged);
 					DependencyManager.TriggerAllFlags();
 				}
-			};
+			});
 
 			return new Gtk.Alignment(0, 0, 1, 1) { Child = eventBox, BorderWidth = 7 };
 			//For some reason drag/drop highlights include BorderWidth.

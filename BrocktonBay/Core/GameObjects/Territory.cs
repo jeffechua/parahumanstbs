@@ -27,7 +27,7 @@ namespace Parahumans.Core {
 
 	}
 
-	public class Territory : GameObject, IContainer, EventLocation, Affiliated {
+	public class Territory : GameObject, IContainer, EventLocation, IAffiliated {
 
 		public override int order { get { return 2; } }
 
@@ -116,15 +116,13 @@ namespace Parahumans.Core {
 
 			//Set up dropping
 			EventBox eventBox = new EventBox { Child = structureBox, VisibleWindow = false };
-			Drag.DestSet(eventBox, DestDefaults.All,
-						 new TargetEntry[] { new TargetEntry(typeof(Structure).ToString(), TargetFlags.App, 0) },
-						 Gdk.DragAction.Move);
-			eventBox.DragDataReceived += delegate {
-				if (Accepts(DragTmpVars.currentDragged)) {
-					Add(DragTmpVars.currentDragged);
+			MyDragDrop.DestSet(eventBox, typeof(Structure).ToString());
+			MyDragDrop.DestSetDropAction(eventBox, delegate {
+				if (Accepts(MyDragDrop.currentDragged)) {
+					Add(MyDragDrop.currentDragged);
 					DependencyManager.TriggerAllFlags();
 				}
-			};
+			});
 
 			return new Gtk.Alignment(0, 0, 1, 1) { Child = eventBox, BorderWidth = 7 };
 			//For some reason drag/drop highlights include BorderWidth.

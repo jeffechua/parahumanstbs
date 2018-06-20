@@ -24,18 +24,18 @@ namespace Parahumans.Core {
 		[Displayable(1, typeof(ObjectField)), ForceHorizontal]
 		public EventLocation location;
 
+		[Displayable(2, typeof(ObjectField)), Emphasized, Padded(0, 10), ForceHorizontal]
 		public Deployment initiators { get { return deploys[0]; } set { deploys[0] = value; } }
 		/*
-		[Displayable(2, typeof(ObjectField)), Emphasized, Padded(0, 10)]
 
 		[Displayable(3, typeof(FractionsBar)), Emphasized, Padded(10, 10)]
 		public Fraction[] victory { get; set; }
 
 		[Displayable(4, typeof(FractionsBar)), Emphasized, Padded(10, 10)]
 		public Fraction[] territory { get; set; }
-		
-		[Displayable(5, typeof(ObjectField)), Emphasized, Padded(0, 10)]
+
 		*/
+		[Displayable(5, typeof(ObjectField)), Emphasized, Padded(0, 10), ForceHorizontal]
 		public Deployment responders { get { return deploys[1]; } set { deploys[1] = value; } }
 
 
@@ -85,7 +85,7 @@ namespace Parahumans.Core {
 				Gtk.Alignment align = new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = namebox };
 				align.WidthRequest = 200;
 				headerBox.PackStart(align, false, false, 0);
-
+				/*
 				HBox versusBox = new HBox();
 				if (initiators.affiliation == null) {
 					versusBox.PackStart(new Label("Nobody"));
@@ -99,13 +99,14 @@ namespace Parahumans.Core {
 					versusBox.PackStart(responders.affiliation.GetHeader(context.butCompact));
 				}
 				headerBox.PackStart(versusBox, false, false, 0);
-
+				*/
 				return headerBox;
 			}
 		}
 
 		public Widget GetCell (Context context) {
 			VBox versusBox = new VBox();
+			/*
 			if (initiators.affiliation == null) {
 				versusBox.PackStart(new Label("Nobody"));
 			} else {
@@ -117,6 +118,7 @@ namespace Parahumans.Core {
 			} else {
 				versusBox.PackStart(responders.affiliation.GetHeader(context.butCompact));
 			}
+			*/
 			return versusBox;
 		}
 

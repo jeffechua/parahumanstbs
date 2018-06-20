@@ -64,13 +64,10 @@ namespace Parahumans.Core {
 			prelight = false;
 
 			//Set up drag and drop
-			Drag.SourceSet(this, Gdk.ModifierType.Button1Mask,
-						   new TargetEntry[] { new TargetEntry(obj.GetType().ToString(), TargetFlags.App, 0) },
-						   Gdk.DragAction.Move);
-			DragDataGet += (o, a) => DragTmpVars.currentDragged = obj;
+			MyDragDrop.SourceSet(this, obj, obj.GetType().ToString());
 
 			// "Removing by dragging away to nothing" functionality should be implemented manually when the Cell is created.
-			// It should be implemented via DragEnd +=
+			// It should be implemented via MyDragDrop.SourceSetFailAction
 			// The object should generally be removed from the parent list ONLY in this case.
 			// Rationale for removing only if drag had no target:
 			// - If cellObject is dragged from an aggregative list to another aggregative list,

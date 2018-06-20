@@ -31,7 +31,7 @@ namespace Parahumans.Core {
 
 	}
 
-	public class Structure : GameObject, EventLocation, Affiliated {
+	public class Structure : GameObject, EventLocation, IAffiliated {
 
 		public override int order { get { return 1; } }
 

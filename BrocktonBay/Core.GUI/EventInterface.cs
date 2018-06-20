@@ -21,12 +21,12 @@ namespace Parahumans.Core {
 
 		public void Reload () {
 			while(Children.Length>0)
-				Remove(Children[0]);
-			PackStart(GenerateDeploymentInterface(gameEvent.initiators));
-			PackStart(new VSeparator());
-			PackStart(GenerateEventCenter());
-			PackStart(new VSeparator());
-			PackStart(GenerateDeploymentInterface(gameEvent.responders));
+				Children[0].Destroy();
+			PackStart(GenerateDeploymentInterface(gameEvent.initiators), true, true, 0);
+			PackStart(new VSeparator(), false, false, 0);
+			PackStart(GenerateEventCenter(), true, true, 0);
+			PackStart(new VSeparator(), false, false, 0);
+			PackStart(GenerateDeploymentInterface(gameEvent.responders), true, true, 0);
 			ShowAll();
 		}
 

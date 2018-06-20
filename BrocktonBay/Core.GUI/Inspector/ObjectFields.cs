@@ -137,10 +137,8 @@ namespace Parahumans.Core {
 					};
 
 					//Set up drag support
-					Drag.DestSet(eventBox, DestDefaults.All,
-								 new TargetEntry[] { new TargetEntry(typeof(T).ToString(), TargetFlags.App, 0) },
-								 Gdk.DragAction.Move);
-					eventBox.DragDataReceived += AttemptDrag;
+					MyDragDrop.DestSet(eventBox, typeof(T).ToString());
+					MyDragDrop.DestSetDropAction(eventBox, AttemptDrag);
 
 				} else {
 					
@@ -158,10 +156,8 @@ namespace Parahumans.Core {
 					};
 
 					//Set up drag support
-					Drag.DestSet(expander, DestDefaults.All,
-								 new TargetEntry[] { new TargetEntry(typeof(T).ToString(), TargetFlags.App, 0) },
-								 Gdk.DragAction.Move);
-					expander.DragDataReceived += AttemptDrag;
+					MyDragDrop.DestSet(expander, typeof(T).ToString());
+					MyDragDrop.DestSetDropAction(expander, AttemptDrag);
 				}
 
 
@@ -180,18 +176,16 @@ namespace Parahumans.Core {
 				alignment.Add(box);
 
 				//Set up drag support
-				Drag.DestSet(this, DestDefaults.All,
-							 new TargetEntry[] { new TargetEntry(typeof(T).ToString(), TargetFlags.App, 0) },
-							 Gdk.DragAction.Move);
-				DragDataReceived += AttemptDrag;
+				MyDragDrop.DestSet(this, typeof(T).ToString());
+				MyDragDrop.DestSetDropAction(this, AttemptDrag);
 
 			}
 
 		}
 
-		void AttemptDrag (object obj, DragDataReceivedArgs args) {
-			if (parent.Accepts(DragTmpVars.currentDragged)) {
-				parent.Add(DragTmpVars.currentDragged);
+		void AttemptDrag (object data) {
+			if (parent.Accepts(data)) {
+				parent.Add(data);
 				DependencyManager.TriggerAllFlags();
 			}
 		}
@@ -206,7 +200,7 @@ namespace Parahumans.Core {
 			: base(property, obj, context, arg) { }
 
 		protected override Widget GetListElementWidget (T obj) {
-
+			
 			// Set up the actual widget.
 
 			Cell cell;
@@ -236,17 +230,15 @@ namespace Parahumans.Core {
 
 			//Set up drag/drop
 
-			cellLabel.DragEnd += delegate {
-				Console.WriteLine("DragEnd");
+			MyDragDrop.SetFailAction(cellLabel, delegate {
 				parent.Remove(obj);
 				DependencyManager.TriggerAllFlags();
-			};
+			});
 
-			cell.DragEnd += delegate {
-				Console.WriteLine("DragEnd");
+			MyDragDrop.SetFailAction(cell, delegate {
 				parent.Remove(obj);
 				DependencyManager.TriggerAllFlags();
-			};
+			});
 
 			// Rationale for removing only if drag had no target
 			// - If cellObject is dragged from an aggregative list to another aggregative list,

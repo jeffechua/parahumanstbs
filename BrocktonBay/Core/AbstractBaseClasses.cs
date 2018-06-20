@@ -29,7 +29,7 @@ namespace Parahumans.Core {
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 		public abstract void Reload ();
 
-		//IContainer methods
+		//IContainer stuff
 		public virtual bool Accepts (object obj) => false;
 		public virtual bool Contains (object obj) => false; //It is NOT assumed that the invoker has already checked if Accept(obj)
 		public void Add (object obj) => AddRange(new List<object> { obj }); //It is assumed that the invoker has already checked if Accept(obj).
@@ -66,7 +66,7 @@ namespace Parahumans.Core {
 
 	}
 
-	public interface Affiliated {
+	public interface IAffiliated {
 		Agent affiliation { get; }
 	}
 

@@ -89,10 +89,7 @@ namespace Parahumans.Core {
 			rightclickMenu.Append(deleteButton);
 
 			//Set up drag support
-			Drag.SourceSet(this, Gdk.ModifierType.Button1Mask,
-						   new TargetEntry[] { new TargetEntry(inspected.GetType().ToString(), TargetFlags.App, 0) },
-						   Gdk.DragAction.Move);
-			DragDataGet += (o, a) => DragTmpVars.currentDragged = inspected;
+			MyDragDrop.SourceSet(this, inspected, inspected.GetType().ToString());
 
 		}
 

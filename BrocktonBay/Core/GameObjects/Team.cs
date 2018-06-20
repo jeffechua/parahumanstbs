@@ -29,10 +29,10 @@ namespace Parahumans.Core {
 	public sealed class Team : GameObject, IRated, Agent {
 
 		public override int order { get { return 2; } }
-		public Gdk.Color color { get { return new Gdk.Color(0, 0, 0); }}
+		public Gdk.Color color { get { return new Gdk.Color(0, 0, 0); } }
 
 		[Displayable(2, typeof(ObjectField)), ForceHorizontal]
-		public Agent affiliation { get { return (Agent)(parent??this); } }
+		public Agent affiliation { get { return (Agent)(parent ?? this); } }
 
 		[Displayable(3, typeof(EnumField<Alignment>))]
 		public Alignment alignment { get; set; }
@@ -123,24 +123,22 @@ namespace Parahumans.Core {
 			VBox rosterBox = new VBox(false, 0) { BorderWidth = 3 };
 			foreach (Parahuman parahuman in roster) {
 				InspectableBox header = (InspectableBox)parahuman.GetHeader(context.butCompact);
-				header.DragEnd += delegate {
+				MyDragDrop.SetFailAction(header, delegate {
 					Remove(parahuman);
 					DependencyManager.TriggerAllFlags();
-				};
+				});
 				rosterBox.PackStart(header, false, false, 0);
 			}
 
 			//Set up dropping
 			EventBox eventBox = new EventBox { Child = rosterBox, VisibleWindow = false };
-			Drag.DestSet(eventBox, DestDefaults.All,
-						 new TargetEntry[] { new TargetEntry(typeof(Parahuman).ToString(), TargetFlags.App, 0) },
-						 Gdk.DragAction.Move);
-			eventBox.DragDataReceived += delegate {
-				if (Accepts(DragTmpVars.currentDragged)) {
-					Add(DragTmpVars.currentDragged);
+			MyDragDrop.DestSet(eventBox, typeof(Parahuman).ToString());
+			MyDragDrop.DestSetDropAction(eventBox, delegate {
+				if (Accepts(MyDragDrop.currentDragged)) {
+					Add(MyDragDrop.currentDragged);
 					DependencyManager.TriggerAllFlags();
 				}
-			};
+			});
 
 			return new Gtk.Alignment(0, 0, 1, 1) { Child = eventBox, BorderWidth = 7 };
 			//For some reason drag/drop highlights include BorderWidth.

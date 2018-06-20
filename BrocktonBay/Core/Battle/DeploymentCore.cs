@@ -3,10 +3,10 @@ using System;
 
 namespace Parahumans.Core {
 
-	public sealed partial class Deployment : IGUIComplete, IContainer, IRated, IDependable, Affiliated {
+	public sealed partial class Deployment : IGUIComplete, IContainer, IRated, IDependable, IAffiliated {
 
 		public string name { get { return ""; }}
-		public Gtk.Widget GetHeader (Context context) => new Gtk.Label();
+		public Gtk.Widget GetHeader (Context context) => new InspectableBox(new Gtk.Label("Deployment"), this);
 		public Gtk.Widget GetCell (Context context) => new Gtk.Label();
 
 		public int order { get { return 4; } }
@@ -17,25 +17,25 @@ namespace Parahumans.Core {
 		[Displayable(1, typeof(ObjectField)), ForceHorizontal]
 		public Parahuman leader { get; set; }
 
-		[Displayable(1, typeof(ObjectField)), ForceHorizontal]
+		[Displayable(2, typeof(ObjectField)), ForceHorizontal]
 		public Agent affiliation { get { return leader == null ? null : leader.affiliation; } }
 
-		[Displayable(2, typeof(BasicReadonlyField))]
+		[Displayable(3, typeof(BasicReadonlyField))]
 		public Alignment alignment { get; set; }
 
-		[Displayable(3, typeof(BasicReadonlyField))]
+		[Displayable(4, typeof(BasicReadonlyField))]
 		public Threat threat { get; set; }
 
-		[Displayable(4, typeof(BasicReadonlyField))]
+		[Displayable(5, typeof(BasicReadonlyField))]
 		public Threat authorized_force { get; set; }
 
-		[Displayable(5, typeof(CellObjectListField<Team>), 2), Emphasized]
+		[Displayable(6, typeof(CellObjectListField<Team>), 2), Emphasized]
 		public List<Team> teams { get; set; }
 
-		[Displayable(6, typeof(CellObjectListField<Parahuman>), 3), Emphasized]
+		[Displayable(7, typeof(CellObjectListField<Parahuman>), 3), Emphasized]
 		public List<Parahuman> independents { get; set; }
 
-		[Displayable(7, typeof(CellObjectListField<Parahuman>), 3), Emphasized]
+		[Displayable(8, typeof(CellObjectListField<Parahuman>), 3), Emphasized]
 		public List<Parahuman> combined_roster { get; set; }
 
 		[Displayable(9, typeof(RatingsSumField), true), Emphasized, VerticalOnly]

@@ -11,3 +11,5 @@ UI:
 	    If EventInterface generating deployment
 	        Dragging to and from lists will trigger DragEnd
 	        Dragging from cell innards to itself will trigger DragEnd.
+	    Avenues of attack:
+	        Track drag data received

@@ -5,10 +5,6 @@ using Gtk;
 
 namespace Parahumans.Core {
 
-	public static class DragTmpVars {
-		public static object currentDragged;
-	}
-
 	public static class UIFactory {
 
 		static readonly Type[] constructorSignature = {
