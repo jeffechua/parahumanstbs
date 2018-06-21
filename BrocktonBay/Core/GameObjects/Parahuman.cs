@@ -70,7 +70,7 @@ namespace Parahumans.Core {
 		[Displayable(7, typeof(IntField))]
 		public int reputation { get; set; }
 
-		[Displayable(8, typeof(RatingListField)), Padded(5, 5), EmphasizedIfHorizontal]
+		[Displayable(8, typeof(RatingsListField)), Padded(5, 5), EmphasizedIfHorizontal]
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
 
 		public RatingsProfile baseRatings { get; set; }

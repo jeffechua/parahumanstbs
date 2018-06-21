@@ -52,11 +52,11 @@ namespace Parahumans.Core {
 		[Displayable(8, typeof(CellObjectListField<Parahuman>), 3), Emphasized, Padded(0, 5)]
 		public List<Parahuman> roster { get; set; }
 
-		[Displayable(9, typeof(RatingsSumField), true), Emphasized, VerticalOnly]
+		[Displayable(9, typeof(RatingsMultiviewField), true), Emphasized, VerticalOnly]
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
 
-		[Displayable(10, typeof(RatingsRadarChart), true), Emphasized, VerticalOnly]
-		public Func<Context, RatingsProfile> ratings_profile_radar { get { return ratings; } }
+		//[Displayable(10, typeof(RatingsRadarChart), true), Emphasized, VerticalOnly]
+		//public Func<Context, RatingsProfile> ratings_profile_radar { get { return ratings; } }
 
 		public Team () : this(new TeamData()) { }
 

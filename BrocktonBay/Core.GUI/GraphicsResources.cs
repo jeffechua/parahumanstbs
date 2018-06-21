@@ -204,13 +204,32 @@ namespace Parahumans.Core {
 				iconBase.DrawRectangle(iconColor, true, new Rectangle((int)corner2.x, (int)corner2.y, (int)width2, (int)height2));
 				//The bulb
 				double diameter = width;
-				double radius = diameter/2;
+				double radius = diameter / 2;
 				corner = new Vector2(size / 2 - radius, size - diameter);
 				double diameter2 = diameter - margin * 2;
 				double radius2 = diameter2 / 2;
 				corner2 = corner + new Vector2(margin, margin);
 				mask.DrawArc(visible, true, (int)corner.x, (int)corner.y, (int)diameter, (int)diameter, 0, 23040);
 				iconBase.DrawArc(iconColor, true, (int)corner2.x, (int)corner2.y, (int)diameter2, (int)diameter2, 0, 23040);
+			}
+
+			if (iconified is DirectionType) {
+				switch ((DirectionType)iconified) {
+					case DirectionType.Left:
+						mask.DrawPolygon(visible, true, new Point[]{
+							new Point((int)size, 0),
+							new Point(0, (int)(size / 2)),
+							new Point((int)size, (int)size)
+						});
+						break;
+					case DirectionType.Right:
+						mask.DrawPolygon(visible, true, new Point[]{
+							new Point(0, 0),
+							new Point((int)size, (int)(size / 2)),
+							new Point(0, (int)size)
+						});
+						break;
+				}
 			}
 
 			Pixmap scaledIconBase = Scale(iconBase, size, size, 0.1);

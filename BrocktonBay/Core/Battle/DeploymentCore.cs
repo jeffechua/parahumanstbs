@@ -38,11 +38,9 @@ namespace Parahumans.Core {
 		[Displayable(8, typeof(CellObjectListField<Parahuman>), 3), Emphasized]
 		public List<Parahuman> combined_roster { get; set; }
 
-		[Displayable(9, typeof(RatingsSumField), true), Emphasized, VerticalOnly]
+		[Displayable(9, typeof(RatingsMultiviewField), true), Emphasized, VerticalOnly]
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
 
-		[Displayable(10, typeof(RatingsRadarChart), true), Emphasized, VerticalOnly]
-		public Func<Context, RatingsProfile> ratings_profile_radar { get { return ratings; } }
 
 		/*
 

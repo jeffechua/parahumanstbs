@@ -66,11 +66,9 @@ namespace Parahumans.Core {
 
 		//public List<Asset> assets { get; set; }
 
-		[Displayable(11, typeof(RatingsSumField), true), Emphasized, VerticalOnly]
+		[Displayable(9, typeof(RatingsMultiviewField), true), Emphasized, VerticalOnly]
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
 
-		[Displayable(12, typeof(RatingsRadarChart), true), Emphasized, VerticalOnly]
-		public Func<Context, RatingsProfile> ratings_profile_radar { get { return ratings; } }
 
 		public Faction () : this(new FactionData()) { }
 
@@ -153,6 +151,12 @@ namespace Parahumans.Core {
 				//if (obj is Asset) assets.Add((Asset)obj);
 				if (obj is Territory) territories.Add((Territory)obj);
 				DependencyManager.Flag(obj);
+				if (obj is Team)        //To notify extended family of changes in leadership
+					foreach (Parahuman child in ((Team)obj).roster)
+						DependencyManager.Flag(child);
+				if (obj is Territory)   //To notify extended family of changes in leadership
+					foreach (Structure child in ((Territory)obj).structures)
+						DependencyManager.Flag(child);
 			}
 			DependencyManager.Flag(this);
 		}

@@ -10,61 +10,68 @@ namespace Parahumans.Core {
 		PropertyInfo property;
 		RatingsProfile profile;
 		Context context;
+
 		int currentSize;
+		Pixmap color;
+		Pixmap mask;
 
 		public RatingsRadarChart (PropertyInfo property, object obj, Context context, object arg) {
 			this.property = property;
 			this.context = context;
 			profile = ((Func<Context, RatingsProfile>)property.GetValue(obj))(context);
 			if (context.vertical) {
-				SetSizeRequest(10, -1);
+				SetSizeRequest(0, 0);
 			} else {
-				SetSizeRequest(-1, 10);
+				SetSizeRequest(0, 0);
 			}
-			SizeAllocated += OnSizeAllocated;
+			SizeAllocated += DrawChart;
 		}
 
-		public void OnSizeAllocated (object obj, SizeAllocatedArgs args) {
-
-			if (!IsRealized) return;
+		public void DrawChart (object obj, SizeAllocatedArgs args) {
 
 			int width = args.Allocation.Width;
 			int height = args.Allocation.Height;
 			int size = context.vertical ? width : height;
 
-			//If this is true, then we don't need to change. Removing this line also traps us in a loop since Initialize() triggers SizeAllocated();
+			//If this is true, then we don't need to update.
 			if (size == currentSize) return;
 			currentSize = size;
 
+			currentSize = size;
 			int chartRadius = size;
 			int labelRadius = 0;
 
-			Pixmap pixmap = new Pixmap(Toplevel.GdkWindow, size, size);
-			Pixmap mask = new Pixmap(Toplevel.GdkWindow, size, size);
-			Gdk.GC[] contexts = {
-				new Gdk.GC(pixmap) { RgbFgColor = new Gdk.Color(170, 140, 0) }, //Regular
-				new Gdk.GC(pixmap) { RgbFgColor = new Color(0, 150, 0) },       //Master
-				new Gdk.GC(pixmap) { RgbFgColor = new Color(0, 0, 200) },       //Tinker
-				new Gdk.GC(pixmap) { RgbFgColor = new Color(0, 0, 0) },         //Breaker and transparent
-				new Gdk.GC(pixmap) { RgbFgColor = new Color(255, 255, 255) },   //White, for marking the mask.
-				new Gdk.GC(pixmap) { RgbFgColor = new Color(200, 200, 200) },   //Grey, for the axes
-				new Gdk.GC(pixmap) { RgbFgColor = new Color(125, 125, 125) },   //Darkish grey, for the axis markings
-				new Gdk.GC(pixmap) { RgbFgColor = new Color(100, 100, 100) }       //Darker grey, for the axis labels
-			};
-			pixmap.DrawRectangle(contexts[4], true, new Rectangle(0, 0, size, size));
-			mask.DrawRectangle(contexts[3], true, new Rectangle(0, 0, size, size));
+			color = new Pixmap(Toplevel.GdkWindow, size, size);
+			mask = new Pixmap(Toplevel.GdkWindow, size, size);
+
+			Gdk.GC visible = new Gdk.GC(mask) { RgbFgColor = new Color(255, 255, 255) };
+			Gdk.GC invisible = new Gdk.GC(mask) { RgbFgColor = new Color(0, 0, 0) };
+
+			Gdk.GC white = new Gdk.GC(color) { RgbFgColor = new Color(255, 255, 255) };      // for marking the mask.
+			Gdk.GC lightGrey = new Gdk.GC(color) { RgbFgColor = new Color(200, 200, 200) };  // for the axes
+			Gdk.GC grey = new Gdk.GC(color) { RgbFgColor = new Color(125, 125, 125) };       // for the axis markings
+			Gdk.GC darkGrey = new Gdk.GC(color) { RgbFgColor = new Color(100, 100, 100) };   // for the axis labels
+			Gdk.GC[] wrapperColors = {
+					new Gdk.GC(color) { RgbFgColor = new Gdk.Color(170, 140, 0) }, //Regular
+					new Gdk.GC(color) { RgbFgColor = new Color(0, 150, 0) },       //Master
+					new Gdk.GC(color) { RgbFgColor = new Color(0, 0, 200) },       //Tinker
+					new Gdk.GC(color) { RgbFgColor = new Color(0, 0, 0) },         //Breaker and transparent
+				};
+
+			color.DrawRectangle(white, true, new Rectangle(0, 0, size, size));
+			mask.DrawRectangle(invisible, true, new Rectangle(0, 0, size, size));
 
 			//The eight directions in which vertices lie
 			Vector2[] directions = {
-				new Vector2(0,-1),
-				new Vector2(Math.Sqrt(2)/2, -Math.Sqrt(2)/2),
-				new Vector2(1,0),
-				new Vector2(Math.Sqrt(2)/2, Math.Sqrt(2)/2),
-				new Vector2(0,1),
-				new Vector2(-Math.Sqrt(2)/2, Math.Sqrt(2)/2),
-				new Vector2(-1,0),
-				new Vector2(-Math.Sqrt(2)/2, -Math.Sqrt(2)/2)
-			};
+					new Vector2(0,-1),
+					new Vector2(Math.Sqrt(2)/2, -Math.Sqrt(2)/2),
+					new Vector2(1,0),
+					new Vector2(Math.Sqrt(2)/2, Math.Sqrt(2)/2),
+					new Vector2(0,1),
+					new Vector2(-Math.Sqrt(2)/2, Math.Sqrt(2)/2),
+					new Vector2(-1,0),
+					new Vector2(-Math.Sqrt(2)/2, -Math.Sqrt(2)/2)
+				};
 			IntVector2 center = new IntVector2(size / 2, size / 2);
 
 
@@ -106,12 +113,12 @@ namespace Parahumans.Core {
 
 			for (int i = 0; i < 8; i++) {
 				IntVector2 textPoint = directions[i] * (chartRadius + labelRadius) + (Vector2)center - (Vector2)labelSizes[i] / 2;
-				pixmap.DrawLayout(contexts[7], textPoint.x, textPoint.y, labels[i]);
-				mask.DrawLayout(contexts[4], textPoint.x, textPoint.y, labels[i]);
+				color.DrawLayout(darkGrey, textPoint.x, textPoint.y, labels[i]);
+				mask.DrawLayout(visible, textPoint.x, textPoint.y, labels[i]);
 				//Line
 				IntVector2 endPoint = (directions[i] * chartRadius) + (Vector2)center;
-				pixmap.DrawLine(contexts[5], center.x, center.y, endPoint.x, endPoint.y);
-				mask.DrawLine(contexts[4], center.x, center.y, endPoint.x, endPoint.y);
+				color.DrawLine(lightGrey, center.x, center.y, endPoint.x, endPoint.y);
+				mask.DrawLine(visible, center.x, center.y, endPoint.x, endPoint.y);
 			}
 
 
@@ -124,11 +131,11 @@ namespace Parahumans.Core {
 			for (int i = 1; ptInterval * i < chartRadius; i++) {
 				//Circle
 				int radius = (int)(ptInterval * i);
-				pixmap.DrawArc(contexts[5], false,
+				color.DrawArc(lightGrey, false,
 							   center.x - radius, center.y - radius,
 							   radius * 2, radius * 2,
 							   0, 23040); //Angles are in 1/64th degrees, 23040 = 360*64 = full circle.
-				mask.DrawArc(contexts[4], false,
+				mask.DrawArc(visible, false,
 							 center.x - radius, center.y - radius,
 							 radius * 2, radius * 2,
 							 0, 23040);
@@ -138,10 +145,10 @@ namespace Parahumans.Core {
 				mark.GetSize(out int markWidth, out int markHeight);
 				IntVector2 markSize = new IntVector2(markWidth, markHeight) / Pango.Scale.PangoScale;
 				IntVector2 markCenter = (Vector2)center + directions[2] * ptInterval * i;
-				mask.DrawArc(contexts[3], true, markCenter.x - markSize.x / 2, markCenter.y - markSize.y / 2,
+				mask.DrawArc(invisible, true, markCenter.x - markSize.x / 2, markCenter.y - markSize.y / 2,
 							 markSize.x, markSize.y, 0, 23040); //Clears a circular space for the mark
-				pixmap.DrawLayout(contexts[6], markCenter.x - markSize.x / 2, markCenter.y - markSize.y / 2, mark); //Actually
-				mask.DrawLayout(contexts[4], markCenter.x - markSize.x / 2, markCenter.y - markSize.y / 2, mark);   //draw the mark.
+				color.DrawLayout(grey, markCenter.x - markSize.x / 2, markCenter.y - markSize.y / 2, mark); //Actually
+				mask.DrawLayout(visible, markCenter.x - markSize.x / 2, markCenter.y - markSize.y / 2, mark);   //draw the mark.
 			}
 
 			//Compute vertices
@@ -159,23 +166,23 @@ namespace Parahumans.Core {
 			//Draw polygons
 			for (int i = 0; i < 4; i++) {
 				for (int j = 0; j < 7; j++) { //j=7 is excluded as we need to connect it to vertex 0 manually.
-					pixmap.DrawLine(contexts[i],
+					color.DrawLine(wrapperColors[i],
 									vertices[i, j].x, vertices[i, j].y,          //This point
 									vertices[i, j + 1].x, vertices[i, j + 1].y); //Next point
-					mask.DrawLine(contexts[4],
+					mask.DrawLine(visible,
 									vertices[i, j].x, vertices[i, j].y,          //This point
 									vertices[i, j + 1].x, vertices[i, j + 1].y); //Next point
 				}
-				pixmap.DrawLine(contexts[i],
+				color.DrawLine(wrapperColors[i],
 								vertices[i, 7].x, vertices[i, 7].y,  //Point 7
 								vertices[i, 0].x, vertices[i, 0].y); //Point 0
-				mask.DrawLine(contexts[4],
+				mask.DrawLine(visible,
 								vertices[i, 7].x, vertices[i, 7].y,  //Point 7
 								vertices[i, 0].x, vertices[i, 0].y); //Point 0
 			}
 
-			SetFromPixmap(pixmap, mask);
-			ShowAll();
+			SetFromPixmap(color, mask);
+
 
 		}
 

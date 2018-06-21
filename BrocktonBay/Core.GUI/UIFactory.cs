@@ -45,6 +45,7 @@ namespace Parahumans.Core {
 				DisplayableAttribute attr = (DisplayableAttribute)properties[i].GetCustomAttribute(typeof(DisplayableAttribute));
 				EmphasizedAttribute emphAttribute = (EmphasizedAttribute)properties[i].GetCustomAttribute(typeof(EmphasizedAttribute));
 				PaddedAttribute padded = (PaddedAttribute)properties[i].GetCustomAttribute(typeof(PaddedAttribute));
+				bool expand = HasAttribute(properties[i], typeof(ExpandAttribute));
 				bool forceHorizontal = HasAttribute(properties[i], typeof(ForceHorizontalAttribute));
 
 				//Construct the widget
@@ -73,14 +74,14 @@ namespace Parahumans.Core {
 					if (emphasisBox == null)                                     // If no emphasisBox at the moment,
 						emphasisBox = new VBox(false, 5);                        // make one.
 					emphasisBox.PackStart(new HSeparator(), false, false, 0);    // Install a delimiter
-					emphasisBox.PackStart(newWidget, false, false, 0);           // Pack the widget into emphasisBox
+					emphasisBox.PackStart(newWidget, expand, expand, 0);           // Pack the widget into emphasisBox
 				} else { // and non-emphasis
 					if (emphasisBox != null) {
 						emphasisBox.PackStart(new HSeparator(), false, false, 0); // Finish off the emphasis box
 						mainBox.PackStart(emphasisBox, false, false, 6);          // And pack emphasisBox into mainBox
 						emphasisBox = null;                                       // Null it so we know to create a new one next time
 					}
-					mainBox.PackStart(newWidget, false, false, 2);                // Now actually pack the current widget
+					mainBox.PackStart(newWidget, expand, expand, 2);                // Now actually pack the current widget
 				}
 
 			}
@@ -88,7 +89,7 @@ namespace Parahumans.Core {
 			//Pack the emphasisBox into mainBox if it's not already.
 			if (emphasisBox != null) {
 				emphasisBox.PackStart(new HSeparator(), false, false, 0);
-				mainBox.PackStart(emphasisBox, false, false, 5);
+				mainBox.PackStart(emphasisBox, true, true, 5);
 				emphasisBox = null;
 			}
 
@@ -123,6 +124,7 @@ namespace Parahumans.Core {
 				//Load attributes
 				DisplayableAttribute attr = (DisplayableAttribute)properties[i].GetCustomAttribute(typeof(DisplayableAttribute));
 				EmphasizedAttribute emph = (EmphasizedAttribute)properties[i].GetCustomAttribute(typeof(EmphasizedAttribute));
+				bool expand = HasAttribute(properties[i], typeof(ExpandAttribute));
 				bool forceVertical = HasAttribute(properties[i], typeof(ForceVerticalAttribute));
 
 				//Obtain the correct constructor
@@ -145,9 +147,9 @@ namespace Parahumans.Core {
 				if (emph is EmphasizedIfVerticalAttribute) emph = null;
 				if (emph == null) {
 					if (regularBox.Children.Length > 0) regularBox.PackStart(new VSeparator(), false, false, 5);
-					regularBox.PackStart(newWidget, false, false, 0);
+					regularBox.PackStart(newWidget, expand, expand, 0);
 				} else {
-					emphasisBox.PackStart(newWidget, false, false, 0);
+					emphasisBox.PackStart(newWidget, expand, expand, 0);
 				}
 
 			}

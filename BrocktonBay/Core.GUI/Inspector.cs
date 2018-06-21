@@ -127,7 +127,7 @@ namespace Parahumans.Core {
 				VBox mainbox = new VBox(false, 0);
 				mainbox.PackStart(obj.GetHeader(new Context(MainClass.playerEntity, obj, true, false)), false, false, 10);
 				mainbox.PackStart(new HSeparator(), false, false, 0);
-				mainbox.PackStart(UIFactory.GenerateVertical(obj), false, false, 5);
+				mainbox.PackStart(UIFactory.GenerateVertical(obj), true, true, 5);
 				AddWithViewport(mainbox);
 				ShowAll();
 			}

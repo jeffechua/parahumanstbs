@@ -53,6 +53,7 @@ namespace Parahumans.Core {
 
 	// "EmphasizedAttribute" 'emphasizes' a property in the UI, separating the from other attributes with horizontal separators and adding some padding in cases.
 	// Emphasis does not change the actual contents displayed, only the spacing and placing of the display widget relative to the surroundings.
+	public class ExpandAttribute : Attribute { } //Only really works in a vertical generation, with either no emphasisBoxes or the property being in the last emphasisBox.
 	public class EmphasizedAttribute : Attribute { }
 	public class EmphasizedIfVerticalAttribute : EmphasizedAttribute { }
 	public class EmphasizedIfHorizontalAttribute : EmphasizedAttribute { }

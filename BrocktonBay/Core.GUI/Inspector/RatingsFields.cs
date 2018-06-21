@@ -6,12 +6,12 @@ using Gtk;
 namespace Parahumans.Core {
 
 
-	public sealed class RatingListField : ClickableEventBox {
+	public sealed class RatingsListField : ClickableEventBox {
 
 		RatingsProfile profile;
 		public Context context;
 
-		public RatingListField (PropertyInfo property, object obj, Context context, object arg) {
+		public RatingsListField (PropertyInfo property, object obj, Context context, object arg) {
 
 			profile = ((Func<Context, RatingsProfile>)property.GetValue(obj))(context);
 			this.context = context;
@@ -174,17 +174,15 @@ namespace Parahumans.Core {
 	}
 
 
-	public sealed class RatingsSumField : Expander {
+	public sealed class RatingsTableField : Gtk.Alignment {
 
 		public float[,] ratings;
 		public Context context;
 
-		public RatingsSumField (PropertyInfo property, object obj, Context context, object arg) : base(TextTools.ToReadable(property.Name)) {
+		public RatingsTableField (PropertyInfo property, object obj, Context context, object arg) : base(0,0,1,1) {
 
 			ratings = ((Func<Context, RatingsProfile>)property.GetValue(obj))(context).values;
 			this.context = context;
-
-			Expanded = (bool)arg;
 
 			Table table = new Table(7, 10, false) {
 				ColumnSpacing = 5,
@@ -216,7 +214,14 @@ namespace Parahumans.Core {
 				}
 			}
 
-			Add(table);
+			if (context.compact) {
+				Add(table);
+			}else {
+				Expander expander = new Expander(TextTools.ToReadable(property.Name));
+				expander.Expanded = (bool)arg;
+				expander.Add(table);
+				Add(expander);
+			}
 
 		}
 

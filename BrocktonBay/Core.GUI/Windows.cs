@@ -1,5 +1,6 @@
 ﻿using System;
 using Gtk;
+using Gdk;
 using Parahumans.Core;
 
 public class DefocusableWindow : Gtk.Window {
