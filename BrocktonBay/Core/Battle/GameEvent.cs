@@ -29,7 +29,7 @@ namespace Parahumans.Core {
 		public EventLocation location;
 
 		[Displayable(2, typeof(EffectiveRatingsMultiview)), EmphasizedAttribute]
-		public EffectiveRatingsProfile initiator_profile { get { return profiles[0]; } set { profiles[0] = value; }  }
+		public EffectiveRatingsProfile initiator_profile { get { return profiles[0]; } set { profiles[0] = value; } }
 
 		[Displayable(3, typeof(ExpressionField)), TooltipText("β + δ + ½Σ + ½ψ + bonuses\n× force multiplier")]
 		public Expression initiator_strength { get; set; }
@@ -111,7 +111,7 @@ namespace Parahumans.Core {
 		}
 
 		public Expression[] GetStats (int i) {
-			
+
 			Expression[] expressions = {
 				new Expression("@0 + @1 + ½(@2) + ½(@3) = @4\n" +
 							   "@4 + @5 (bonus) = @6\n" +
@@ -205,33 +205,31 @@ namespace Parahumans.Core {
 			} else {
 				VBox headerBox = new VBox(false, 5);
 
-				Label nameLabel = new Label(name);
-				InspectableBox namebox = new InspectableBox(nameLabel, this);
-				Gtk.Alignment align = new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = namebox };
-				align.WidthRequest = 200;
-				headerBox.PackStart(align, false, false, 0);
-				/*
+				Label nameLabel = new Label(name) { Justify = Justification.Center };
+				nameLabel.WidthRequest = 200;
+				headerBox.PackStart(nameLabel, false, false, 0);
+
 				HBox versusBox = new HBox();
 				if (initiators.affiliation == null) {
 					versusBox.PackStart(new Label("Nobody"));
 				} else {
 					versusBox.PackStart(initiators.affiliation.GetHeader(context.butCompact));
 				}
-				versusBox.PackStart(new Label(" vs. "));
+				versusBox.PackStart(new Label(" vs. "), false, false, 5);
 				if (responders.affiliation == null) {
 					versusBox.PackStart(new Label("Nobody"));
 				} else {
 					versusBox.PackStart(responders.affiliation.GetHeader(context.butCompact));
 				}
-				headerBox.PackStart(versusBox, false, false, 0);
-				*/
+				headerBox.PackStart(new Gtk.Alignment(0.5f, 0, 0, 0) { Child = versusBox }, false, false, 0);
+
 				return headerBox;
 			}
 		}
 
 		public Widget GetCell (Context context) {
 			VBox versusBox = new VBox();
-			/*
+
 			if (initiators.affiliation == null) {
 				versusBox.PackStart(new Label("Nobody"));
 			} else {
@@ -243,7 +241,7 @@ namespace Parahumans.Core {
 			} else {
 				versusBox.PackStart(responders.affiliation.GetHeader(context.butCompact));
 			}
-			*/
+
 			return versusBox;
 		}
 

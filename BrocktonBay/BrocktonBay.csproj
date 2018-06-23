@@ -56,8 +56,7 @@
     <Compile Include="Core\DependencyManagement.cs" />
     <Compile Include="Core.GUI\GraphicsResources.cs" />
     <Compile Include="Core.GUI\UIFactory.cs" />
-    <Compile Include="Core\Battle\DeploymentCore.cs" />
-    <Compile Include="Core\Battle\DeploymentMaths.cs" />
+    <Compile Include="Core\Battle\Deployment.cs" />
     <Compile Include="Core\Battle\GameEvent.cs" />
     <Compile Include="Core.GUI\GUICaching.cs" />
     <Compile Include="PlatformDetection.cs" />

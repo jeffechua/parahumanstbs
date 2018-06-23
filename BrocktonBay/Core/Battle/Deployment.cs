@@ -3,11 +3,7 @@ using System;
 
 namespace Parahumans.Core {
 
-	public sealed partial class Deployment : IGUIComplete, IContainer, IRated, IDependable, IAffiliated {
-
-		public string name { get { return ""; } }
-		public Gtk.Widget GetHeader (Context context) => new InspectableBox(new Gtk.Label("Deployment"), this);
-		public Gtk.Widget GetCell (Context context) => new Gtk.Label();
+	public sealed partial class Deployment : IContainer, IRated, IDependable, IAffiliated {
 
 		public int order { get { return 4; } }
 		public bool destroyed { get; set; }

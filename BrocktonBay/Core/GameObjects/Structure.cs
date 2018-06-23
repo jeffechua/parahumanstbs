@@ -47,7 +47,7 @@ namespace Parahumans.Core {
 		[BimorphicDisplayable(7, typeof(TabularLabeledValuesField<int>), typeof(LinearLabeledValuesField<int>)), EmphasizedIfVertical]
 		public LabeledValue<int>[] buffs { get; set; }
 
-		[Displayable(7, typeof(ObjectField)), ForceHorizontal, Padded(10, 10, 10, 10), Emphasized]
+		//[Displayable(7, typeof(ObjectField)), ForceHorizontal, Padded(10, 10, 10, 10), Emphasized]
 		public GameEvent ongoing_event { get; set; }
 
 		[Displayable(7, typeof(ActionField)), Padded(20, 20, 20, 20), VerticalOnly]

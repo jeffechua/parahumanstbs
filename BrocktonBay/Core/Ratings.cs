@@ -33,6 +33,22 @@ namespace Parahumans.Core {
 		Breaker = 11
 	}
 
+	public struct EffectiveRatingsProfile {
+
+		public RatingsProfile original;
+		public RatingsProfile final;
+		public float[] multipliers;
+		public float[] metamultipliers;
+
+		public EffectiveRatingsProfile (RatingsProfile original, RatingsProfile final, float[] multipliers, float[] metamultipliers) {
+			this.original = original;
+			this.final = final;
+			this.multipliers = multipliers;
+			this.metamultipliers = metamultipliers;
+		}
+
+	}
+
 	public struct RatingsProfile : IRated {
 
 		public Func<Context, RatingsProfile> ratings { get { return This; } }
