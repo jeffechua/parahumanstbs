@@ -15,9 +15,9 @@ namespace Parahumans.Core {
 		};
 
 		public static VBox GenerateVertical (object obj)
-			=> GenerateVertical(new Context(MainClass.playerEntity, obj, true, false), obj);
+			=> GenerateVertical(new Context(MainClass.playerAgent, obj, true, false), obj);
 		public static VBox GenerateHorizontal (object obj)
-			=> GenerateHorizontal(new Context(MainClass.playerEntity, obj, false, false), obj);
+			=> GenerateHorizontal(new Context(MainClass.playerAgent, obj, false, false), obj);
 
 		public static VBox GenerateVertical (Context context, object obj) {
 

@@ -53,6 +53,11 @@ namespace Parahumans.Core {
 			}
 		}
 
+		public void SetValues (params float[] values) {
+			for (int i = 0; i < values.Length; i++)
+				terms[i].value = values[i];
+		}
+
 		//Obtains the expression for 
 		public override string ToString () {
 			string parsedText = text;
@@ -114,6 +119,7 @@ namespace Parahumans.Core {
 		}
 
 	}
+
 
 	/*  Renders an array of StringFloatPairs in a tabular manner:
 	 *                  | <string 1>: <value 1>

@@ -79,7 +79,7 @@
     <Compile Include="Core\Battle\EventLocation.cs" />
     <Compile Include="Core\UtilityObjects.cs" />
     <Compile Include="MyDragDrop.cs" />
-    <Compile Include="RatingsMultiviewField.cs" />
+    <Compile Include="Core.GUI\Inspector\RatingsMultiviewField.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />

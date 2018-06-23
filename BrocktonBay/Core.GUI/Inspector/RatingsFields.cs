@@ -61,7 +61,7 @@ namespace Parahumans.Core {
 				for (int i = 1; i <= 8; i++) {
 					if (profile.values[0, i] > 0) {
 						Label ratingLabel = new Label((box.Children.Length > 0 ? ", " : "") //Commas to delimit ratings
-						                              + TextTools.PrintRating(i, profile.values[0, i]));
+													  + TextTools.PrintRating(i, profile.values[0, i]));
 						ratingLabel.SetAlignment(0, 0);
 						box.PackStart(ratingLabel, false, false, 0);
 					}
@@ -174,67 +174,83 @@ namespace Parahumans.Core {
 	}
 
 
-	public sealed class RatingsTableField : Gtk.Alignment {
+	public sealed class RatingsTable : Table {
 
-		public float[,] ratings;
-		public Context context;
 
-		public RatingsTableField (PropertyInfo property, object obj, Context context, object arg) : base(0,0,1,1) {
+		public RatingsTable (Context context, RatingsProfile profile, float[] multipliers = null, float[] metamultipliers = null) : base(7, 10, false) {
 
-			ratings = ((Func<Context, RatingsProfile>)property.GetValue(obj))(context).values;
-			this.context = context;
+			float[,] ratings = profile.values;
 
-			Table table = new Table(7, 10, false) {
-				ColumnSpacing = 5,
-				RowSpacing = 5,
-				BorderWidth = 10
-			};
+			ColumnSpacing = 5;
+			RowSpacing = 5;
+			BorderWidth = 10;
 
-			table.Attach(new HSeparator(), 0, 10, 1, 2);
-			table.Attach(new VSeparator(), 1, 2, 0, 7);
+			Attach(new HSeparator(), 0, 10, 1, 2);
+			Attach(new VSeparator(), 1, 2, 0, 7);
+
 			//Column labels and multipliers
 			for (uint i = 1; i <= 8; i++) {
 				Label classLabel = new Label(" " + Graphics.classSymbols[i] + " ") {
 					HasTooltip = true,
 					TooltipText = Enum.GetName(typeof(Classification), i)
 				};
-				table.Attach(classLabel, i + 1, i + 2, 0, 1);
+				Attach(classLabel, i + 1, i + 2, 0, 1);
 			}
 			//Fill in rows, including labels, numbers and multipliers
 			for (uint i = 0; i < 5; i++) {
 				//Row label
 				Label rowLabel = new Label(TextTools.deploymentRows[i]);
 				rowLabel.SetAlignment(1, 0);
-				table.Attach(rowLabel, 0, 1, i + 2, i + 3);
+				Attach(rowLabel, 0, 1, i + 2, i + 3);
 				//Numbers
 				for (uint j = 1; j <= 8; j++) {
-					Label numberLabel = new Label(ratings[i, j].ToString());
+					Label numberLabel = new Label(ratings[i, j].ToString("0.0"));
+					if (numberLabel.Text == "0.0") numberLabel.Text = "-";
 					numberLabel.SetAlignment(1, 1);
-					table.Attach(numberLabel, j + 1, j + 2, i + 2, i + 3);
+					Attach(numberLabel, j + 1, j + 2, i + 2, i + 3);
 				}
 			}
 
-			if (context.compact) {
-				Add(table);
-			}else {
-				Expander expander = new Expander(TextTools.ToReadable(property.Name));
-				expander.Expanded = (bool)arg;
-				expander.Add(table);
-				Add(expander);
+			if (multipliers != null && metamultipliers != null) {
+				//Column multipliers
+				for (uint i = 1; i <= 4; i++) {
+					Label multiplier = new Label {
+						UseMarkup = true,
+						Markup = "<small> ×" + multipliers[i].ToString("0.00") + "</small>",
+						HasTooltip = true,
+						TooltipText = TextTools.multiplierExplain[i],
+						Angle = -90
+					};
+					multiplier.SetAlignment(1, 0);
+					Attach(multiplier, i + 1, i + 2, 7, 8);
+				}
+
+				//Row metamultipliers
+				for (uint i = 0; i < 4; i++) {
+					//Row multiplier
+					Label multiplier = new Label {
+						UseMarkup = true,
+						Markup = "<small>  ×" + metamultipliers[i].ToString("0.00") + ((i == 3) ? ", fix" : "") + "</small>",
+						HasTooltip = true,
+						TooltipText = TextTools.metamultiplierExplain[i]
+					};
+					multiplier.SetAlignment(0, 0);
+					Attach(multiplier, 10, 11, i + 2, i + 3);
+				}
 			}
 
 		}
 
 	}
+	/*
+	public sealed class AlteredRatingsTable : Expander {
 
-	public sealed class RatingsComparisonField : Expander {
-		
-		public RatingsComparison comparison;
+		public RatingsProfile comparison;
 		public Context context;
 
-		public RatingsComparisonField (PropertyInfo property, object obj, Context context, object arg) : base(TextTools.ToReadable(property.Name)) {
+		public AlteredRatingsTable (PropertyInfo property, object obj, Context context, object arg) : base(TextTools.ToReadable(property.Name)) {
 
-			comparison = (RatingsComparison)property.GetValue(obj);
+			comparison = (RatingsProfile)property.GetValue(obj);
 			this.context = context;
 
 			Expanded = (bool)arg;
@@ -323,53 +339,8 @@ namespace Parahumans.Core {
 				}
 			}
 
-			//Final ratings table
-			table2.Attach(new HSeparator(), 0, 10, 1, 2);
-			table2.Attach(new VSeparator(), 1, 2, 0, 7);
-			//Column labels and multipliers
-			for (uint i = 1; i <= 8; i++) {
-				Label classLabel = new Label(" " + Graphics.classSymbols[i] + " ") {
-					HasTooltip = true,
-					TooltipText = Enum.GetName(typeof(Classification), i)
-				};
-				table2.Attach(classLabel, i + 1, i + 2, 0, 1);
-				if (i < 5) {
-					Label multiplier = new Label {
-						UseMarkup = true,
-						Markup = "<small> ×" + comparison.multipliers[i].ToString("0.00") + "</small>",
-						HasTooltip = true,
-						TooltipText = TextTools.multiplierExplain[i],
-						Angle = -90
-					};
-					multiplier.SetAlignment(1, 0);
-					table2.Attach(multiplier, i + 1, i + 2, 7, 8);
-				}
-			}
-			//Fill in rows, including labels, numbers and multipliers
-			for (uint i = 0; i < 5; i++) {
-				//Row label
-				Label rowLabel = new Label(TextTools.deploymentRows[i]);
-				rowLabel.SetAlignment(1, 0);
-				table2.Attach(rowLabel, 0, 1, i + 2, i + 3);
-				//Numbers
-				for (uint j = 1; j <= 8; j++) {
-					Label numberLabel = new Label(comparison.values[2][i, j].ToString("F0"));
-					numberLabel.SetAlignment(1, 1);
-					table2.Attach(numberLabel, j + 1, j + 2, i + 2, i + 3);
-				}
-				if (i < 4) {
-					//Row multiplier
-					Label multiplier = new Label {
-						UseMarkup = true,
-						Markup = "<small>  ×" + ((i == 3) ? " fix" : comparison.metamultipliers[i].ToString("0.00")) + "</small>",
-						HasTooltip = true,
-						TooltipText = TextTools.metamultiplierExplain[i]
-					};
-					multiplier.SetAlignment(0, 0);
-					table2.Attach(multiplier, 10, 11, i + 2, i + 3);
-				}
-			}
 		}
-	}
 
+	}
+	*/
 }

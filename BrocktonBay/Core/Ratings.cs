@@ -34,55 +34,55 @@ namespace Parahumans.Core {
 	}
 
 	public struct RatingsProfile : IRated {
-		
+
 		public Func<Context, RatingsProfile> ratings { get { return This; } }
 		public RatingsProfile This (Context context) => this;
 
 		public float[,] values;
-		public float strength;
-		public float stealth;
-		public float insight;
+		public float[] bonuses;
 
-		public RatingsProfile(float[,] values) {
+		public RatingsProfile (float[,] values) {
 			this.values = values;
-			strength = stealth = insight = 0; // So C# allows us to call a this. function
-			EvaluateStats();
+			bonuses = new float[3];
 		}
 
-		public RatingsProfile(Context context, params IEnumerable<IRated>[] ratedLists) {
+		public RatingsProfile (Context context, params IEnumerable<IRated>[] ratedss) {
 			values = new float[5, 9];
-			foreach (IEnumerable<IRated> ratedList in ratedLists) {
-				foreach (IRated rated in ratedList) {
+			bonuses = new float[3];
+			foreach (IEnumerable<IRated> rateds in ratedss) {
+				List<RatingsProfile> profiles = new List<IRated>(rateds).ConvertAll((input) => input.ratings(context));
+				foreach (RatingsProfile profile in profiles) {
 					for (int i = 0; i < 4; i++) {
-						for (int j = 0; j <=8; j++) {
-							values[i, j] += rated.ratings(context).values[i, j];
-							values[4, j] += rated.ratings(context).values[i, j];
+						for (int j = 0; j <= 8; j++) {
+							values[i, j] += profile.values[i, j];
+							values[4, j] += profile.values[i, j];
 						}
 					}
-				}
-			}
-			strength = stealth = insight = 0; // So C# allows us to call a this. function
-			EvaluateStats();
-		}
-
-		public RatingsProfile(Context context, params IRated[] rateds) {
-			values = new float[5, 9];
-			foreach (IRated rated in rateds) {
-				for (int i = 0; i < 5; i++) {
-					for (int j = 0; j <= 8; j++) {
-						values[i, j] += rated.ratings(context).values[i, j];
-						values[4, j] += rated.ratings(context).values[i, j];
+					for (int i = 0; i < 3; i++) {
+						bonuses[i] += profile.bonuses[i];
 					}
 				}
 			}
-			strength = stealth = insight = 0; // So C# allows us to call a this. function
-			EvaluateStats();
 		}
+		// This is a horrible mess, but essentially it converts each IEnumerable<IRated> into a RatingsProfile using
+		// the constructor below, hence replacing IEnumerable<IRated>[] with a RatingsProfile[].
+		// As RatingsProfile is IRated, we can pass the created RatingsProfile[] into the constructor blow again.
 
-		public void EvaluateStats() {
-			strength = values[4, 1] + values[4, 2] + values[4, 3] / 2 + values[4, 4] / 2;
-			stealth = values[4, 5] + values[4, 6];
-			insight = values[4, 7] + values[4, 8];
+		public RatingsProfile (Context context, params IRated[] rateds) {
+			List<RatingsProfile> profiles = new List<IRated>(rateds).ConvertAll((input) => input.ratings(context));
+			values = new float[5, 9];
+			bonuses = new float[3];
+			foreach (RatingsProfile profile in profiles) {
+				for (int i = 0; i < 4; i++) {
+					for (int j = 0; j <= 8; j++) {
+						values[i, j] += profile.values[i, j];
+						values[4, j] += profile.values[i, j];
+					}
+				}
+				for (int i = 0; i < 3; i++) {
+					bonuses[i] += profile.bonuses[i];
+				}
+			}
 		}
 
 	}

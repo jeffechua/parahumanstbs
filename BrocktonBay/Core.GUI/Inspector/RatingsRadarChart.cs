@@ -7,23 +7,21 @@ namespace Parahumans.Core {
 
 	public class RatingsRadarChart : Gtk.Image {
 
-		PropertyInfo property;
 		RatingsProfile profile;
+		float[] multipliers;
+		float[] metamultipliers;
 		Context context;
 
 		int currentSize;
 		Pixmap color;
 		Pixmap mask;
 
-		public RatingsRadarChart (PropertyInfo property, object obj, Context context, object arg) {
-			this.property = property;
+		public RatingsRadarChart (Context context, RatingsProfile profile, float[] multipliers = null, float[] metamultipliers = null) {
 			this.context = context;
-			profile = ((Func<Context, RatingsProfile>)property.GetValue(obj))(context);
-			if (context.vertical) {
-				SetSizeRequest(0, 0);
-			} else {
-				SetSizeRequest(0, 0);
-			}
+			this.profile = profile;
+			this.multipliers = multipliers;
+			this.metamultipliers = metamultipliers;
+			SetSizeRequest(0, 0);
 			SizeAllocated += DrawChart;
 		}
 
@@ -52,11 +50,11 @@ namespace Parahumans.Core {
 			Gdk.GC grey = new Gdk.GC(color) { RgbFgColor = new Color(125, 125, 125) };       // for the axis markings
 			Gdk.GC darkGrey = new Gdk.GC(color) { RgbFgColor = new Color(100, 100, 100) };   // for the axis labels
 			Gdk.GC[] wrapperColors = {
-					new Gdk.GC(color) { RgbFgColor = new Gdk.Color(170, 140, 0) }, //Regular
-					new Gdk.GC(color) { RgbFgColor = new Color(0, 150, 0) },       //Master
-					new Gdk.GC(color) { RgbFgColor = new Color(0, 0, 200) },       //Tinker
-					new Gdk.GC(color) { RgbFgColor = new Color(0, 0, 0) },         //Breaker and transparent
-				};
+				new Gdk.GC(color) { RgbFgColor = new Gdk.Color(170, 140, 0) }, //Regular
+				new Gdk.GC(color) { RgbFgColor = new Color(0, 150, 0) },       //Master
+				new Gdk.GC(color) { RgbFgColor = new Color(0, 0, 200) },       //Tinker
+				new Gdk.GC(color) { RgbFgColor = new Color(0, 0, 0) },         //Breaker and transparent
+			};
 
 			color.DrawRectangle(white, true, new Rectangle(0, 0, size, size));
 			mask.DrawRectangle(invisible, true, new Rectangle(0, 0, size, size));
@@ -93,15 +91,19 @@ namespace Parahumans.Core {
 			for (int i = 0; i < 8; i++)
 				if (magnitudes[3, i] > greatestMagnitude)
 					greatestMagnitude = magnitudes[3, i];
-
+			if (greatestMagnitude < 0.01) return;
 
 			//Determing text radius and preload labels;
 			Pango.Layout[] labels = new Pango.Layout[8];
 			IntVector2[] labelSizes = new IntVector2[8];
 			for (int i = 0; i < 8; i++) {
 				//Label
-				labels[i] = new Pango.Layout(PangoContext);
-				labels[i].SetText(Graphics.classSymbols[reverseIndexMap[i]]);
+				labels[i] = new Pango.Layout(PangoContext) { Alignment = Pango.Alignment.Center };
+				if (multipliers == null) {
+					labels[i].SetText(Graphics.classSymbols[reverseIndexMap[i]]);
+				} else {
+					labels[i].SetMarkup(Graphics.classSymbols[reverseIndexMap[i]] + "\n<small>×" + multipliers[reverseIndexMap[i]].ToString("0.0") + "</small>");
+				}
 				labels[i].GetSize(out int labelWidth, out int labelHeight);
 				labelSizes[i] = new IntVector2(labelWidth, labelHeight) / Pango.Scale.PangoScale;
 				int thisLabelRadius = Math.Max(labelSizes[i].x, labelSizes[i].y);
@@ -179,6 +181,20 @@ namespace Parahumans.Core {
 				mask.DrawLine(visible,
 								vertices[i, 7].x, vertices[i, 7].y,  //Point 7
 								vertices[i, 0].x, vertices[i, 0].y); //Point 0
+			}
+
+			if (metamultipliers != null) {
+				int currentY = size - 5;
+				for (int i = 3; i >= 0; i--) {
+					Pango.Layout label = new Pango.Layout(PangoContext) { Alignment = Pango.Alignment.Center };
+					label.SetMarkup("<small>x" + metamultipliers[i].ToString("0.0") + "</small>");
+					label.GetSize(out int labelWidth, out int labelHeight);
+					labelWidth = (int)(labelWidth / Pango.Scale.PangoScale);
+					labelHeight = (int)(labelHeight / Pango.Scale.PangoScale);
+					currentY -= labelHeight;
+					color.DrawLayout(wrapperColors[i], size - labelWidth - 5, currentY, label);
+					mask.DrawLayout(visible, size - labelWidth - 5, currentY, label);
+				}
 			}
 
 			SetFromPixmap(color, mask);

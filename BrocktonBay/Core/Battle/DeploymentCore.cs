@@ -5,7 +5,7 @@ namespace Parahumans.Core {
 
 	public sealed partial class Deployment : IGUIComplete, IContainer, IRated, IDependable, IAffiliated {
 
-		public string name { get { return ""; }}
+		public string name { get { return ""; } }
 		public Gtk.Widget GetHeader (Context context) => new InspectableBox(new Gtk.Label("Deployment"), this);
 		public Gtk.Widget GetCell (Context context) => new Gtk.Label();
 
@@ -76,7 +76,7 @@ namespace Parahumans.Core {
 
 		public void Reload () {
 			Sort();
-			if (combined_roster.Count == 0){
+			if (combined_roster.Count == 0) {
 				leader = null;
 				return;
 			}
@@ -86,8 +86,11 @@ namespace Parahumans.Core {
 					if (parahuman.reputation > leader.reputation)
 						leader = parahuman;
 			}
-			threat = combined_roster[0].threat;
-			alignment = combined_roster[0].alignment;
+			threat = Threat.C;
+			foreach (Parahuman parahuman in combined_roster)
+				if (parahuman.threat > threat)
+					threat = parahuman.threat;
+			alignment = leader.alignment;
 		}
 
 		public static float GetMultiplier (float x, float from, float to, float rate)

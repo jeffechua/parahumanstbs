@@ -24,7 +24,7 @@ namespace Parahumans.Core {
 		public void Reload () {
 			if (Child != null) Child.Destroy();
 			if (LabelWidget != null) LabelWidget.Destroy();
-			LabelWidget = obj.GetHeader(new Context(MainClass.playerEntity, obj, false, true));
+			LabelWidget = obj.GetHeader(new Context(MainClass.playerAgent, obj, false, true));
 			Add(UIFactory.GenerateHorizontal(obj));
 			ShowAll();
 		}
@@ -125,7 +125,7 @@ namespace Parahumans.Core {
 				DependencyManager.Connect(obj, this);
 				if (Child != null) Child.Destroy();
 				VBox mainbox = new VBox(false, 0);
-				mainbox.PackStart(obj.GetHeader(new Context(MainClass.playerEntity, obj, true, false)), false, false, 10);
+				mainbox.PackStart(obj.GetHeader(new Context(MainClass.playerAgent, obj, true, false)), false, false, 10);
 				mainbox.PackStart(new HSeparator(), false, false, 0);
 				mainbox.PackStart(UIFactory.GenerateVertical(obj), true, true, 5);
 				AddWithViewport(mainbox);

@@ -3,16 +3,18 @@ using Gtk;
 
 namespace Parahumans.Core {
 
-	public class RatingsComparison {
+	public struct EffectiveRatingsProfile {
 
-		public float[][,] values;
+		public RatingsProfile original;
+		public RatingsProfile final;
 		public float[] multipliers;
 		public float[] metamultipliers;
 
-		public RatingsComparison() {
-			values = new float[3][,] { new float[5, 9], new float[5, 9], new float[5, 9] };
-			multipliers = new float[9];
-			metamultipliers = new float[4];
+		public EffectiveRatingsProfile (RatingsProfile original, RatingsProfile final, float[] multipliers, float[] metamultipliers) {
+			this.original = original;
+			this.final = final;
+			this.multipliers = multipliers;
+			this.metamultipliers = metamultipliers;
 		}
 
 	}
@@ -65,76 +67,11 @@ namespace Parahumans.Core {
 
 		public void EvalStage2() {
 
-			//  0   1   2   3   4   5   6   7   8   9   10
-			// BRT BLS SHK SRK MOV SRN THK TRM TNK MSR BRK");
-
-			ratings.multipliers[1] = (GetMultiplier(enemy.ratings.values[1][4, 5], 1, 0.5f, -0.05f) *
-			                          GetMultiplier(enemy.ratings.values[1][4, 4], 1, 0.5f, -0.05f)); //Brute:   Mover -10%, Striker -10%
-			ratings.multipliers[2] = (GetMultiplier(enemy.ratings.values[1][4, 6], 1, 0.5f, -0.05f) *
-			                          GetMultiplier(enemy.ratings.values[1][4, 3], 1, 0.5f, -0.05f)); //Blaster: Stranger -10%, Shaker -10%
-			ratings.multipliers[3] = GetMultiplier(enemy.ratings.values[1][4, 1], 1, 0.5f, -0.05f); //Shaker:   Brute -10%
-			ratings.multipliers[4] = GetMultiplier(enemy.ratings.values[1][4, 2], 1, 0.5f, -0.05f); //Striker:  Blaster -10%
-			ratings.multipliers[5] = 1;                                     //Mover:    NONE
-			ratings.multipliers[6] = 1;                                     //Thinker:  NONE
-			ratings.multipliers[7] = 1;                                     //Stranger: NONE
-			ratings.multipliers[8] = 1;                                     //Trump:    NONE
-
-			ratings.metamultipliers[0] = GetMultiplier(enemy.ratings.values[1][4, 8], 1, 0.5f, -0.05f); //Base:     Trump -10%
-			ratings.metamultipliers[1] = GetMultiplier(enemy.ratings.values[1][4, 4], 1, 0.5f, -0.05f); //Tinker:   Striker -10%
-			ratings.metamultipliers[2] = GetMultiplier(enemy.ratings.values[1][4, 3], 1, 0.5f, -0.05f); //Master:   Shaker -10%
-			ratings.metamultipliers[3] = GetMultiplier(enemy.ratings.values[1][4, 7], 1, 0.5f, -0.05f); //Breaker:  Thinker -10%
-
-			ratings.values[2] = new float[5, 9];
-			for (int i = 0; i < 4; i++) {
-				for (int j = 1; j <= 8; j++) {
-					ratings.values[2][i, j] = ratings.values[1][i, j] * ratings.multipliers[j] * ratings.metamultipliers[i];
-					ratings.values[2][4, j] += ratings.values[2][i, j];
-				}
-			}
-			for (int j = 1; j <= 8; j++) {
-				ratings.values[2][3, j] = ratings.values[1][3, j] * ratings.multipliers[j] * ratings.metamultipliers[3];
-				ratings.values[2][4, j] += ratings.values[2][3, j];
-			}
+			
 
 		}
 
 		public void EvalStage3() {
-
-			strength = new Expression("@0 + @1 + @2 + @3 = @4\n" +
-									  "@4 + @5 + @6 = @7"
-									  , "0", "0", "0", "0", "0.0", "0", "0", "0.0");
-			strength.terms[0].value = ratings.values[2][4, 1]; //Brute
-			strength.terms[1].value = ratings.values[2][4, 2]; //Blaster
-			strength.terms[2].value = ratings.values[2][4, 3]; //Shaker
-			strength.terms[3].value = ratings.values[2][4, 4]; //Striker
-			strength.terms[4].value = strength.terms[0].value + strength.terms[1].value + strength.terms[2].value + strength.terms[3].value;
-			strength.terms[5].value = combined_roster.Count;
-			for (int i = 0; i < teams.Count; i++) strength.terms[6].value += teams[i].spent_XP[0].value;
-			strength.terms[7].value = strength.terms[4].value + strength.terms[5].value + strength.terms[6].value;
-
-			if (authorized_force != Threat.B) {
-				strength.text += "\n[" + (authorized_force == Threat.C ? "caution" : "brutality") + "]  @8 = @9";
-				strength.terms.Add(new FormattedFloat((float)(((int)authorized_force - 1) * 0.1), "+##%;−##%;+0"));
-				strength.terms.Add(new FormattedFloat(strength.terms[7].value * (1 + strength.terms[8].value), "0.0"));
-			}
-
-			mobility = new Expression("@0 + @1 = @2\n" +
-									  "@2 @3 + @4 = @5", "0", "0", "0.0", "+#;−#;+0", "0", "0.0");
-			mobility.terms[0].value = ratings.values[2][4, 5]; //Mover
-			mobility.terms[1].value = ratings.values[2][4, 6]; //Stranger
-			mobility.terms[2].value = mobility.terms[0].value + mobility.terms[1].value;
-			mobility.terms[3].value = 3 - combined_roster.Count;
-			for (int i = 0; i < teams.Count; i++) mobility.terms[4].value += teams[i].spent_XP[1].value;
-			mobility.terms[5].value = mobility.terms[2].value + mobility.terms[3].value + mobility.terms[4].value;
-
-			insight = new Expression("@0 + @1 = @2\n" +
-									 "@2 + @3 + @4 = @5", "0", "0", "0.0", "0", "0", "0.0");
-			insight.terms[0].value = ratings.values[2][4, 7]; //Thinker
-			insight.terms[1].value = ratings.values[2][4, 8]; //Trump
-			insight.terms[2].value = insight.terms[0].value + insight.terms[1].value;
-			insight.terms[3].value = 1;
-			for (int i = 0; i < teams.Count; i++) insight.terms[4].value += teams[i].spent_XP[2].value;
-			insight.terms[5].value = insight.terms[2].value + insight.terms[3].value + insight.terms[4].value;
 
 		}
 

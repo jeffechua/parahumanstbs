@@ -128,7 +128,7 @@ namespace Parahumans.Core {
 			Gravity = Gdk.Gravity.West;
 			TransientFor = (Window)marker.map.Toplevel;
 
-			Context context = new Context(MainClass.playerEntity, territory, true, true);
+			Context context = new Context(MainClass.playerAgent, territory, true, true);
 
 			VBox mainBox = new VBox(false, 2) { BorderWidth = 10 };
 			mainBox.PackStart(new Gtk.Alignment(0.5f, 0, 0, 1) { Child = territory.GetHeader(context) }, false, false, 3);

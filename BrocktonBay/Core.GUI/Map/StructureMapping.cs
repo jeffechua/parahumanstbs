@@ -112,7 +112,7 @@ namespace Parahumans.Core {
 			structure = marker.structure;
 			TransientFor = (Window)marker.map.Toplevel;
 
-			Context context = new Context(MainClass.playerEntity, structure, true, true);
+			Context context = new Context(MainClass.playerAgent, structure, true, true);
 
 			VBox mainBox = new VBox(false, 2) { BorderWidth = 10 };
 			mainBox.PackStart(new Gtk.Alignment(0.5f, 0, 0, 1) { Child = structure.GetHeader(context) }, false, false, 3);
