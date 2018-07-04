@@ -62,7 +62,7 @@ namespace Parahumans.Core {
 		}
 
 		public void Redraw () {
-			markerImage = Graphics.GetIcon(structure.type, Graphics.GetColor(affiliation), markerSize);
+			markerImage = Graphics.GetIcon(structure.type, Graphics.GetColor(affiliation), markerSize, true);
 			if (Child != null) Remove(Child);
 			Add(markerImage);
 		}

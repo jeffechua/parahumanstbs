@@ -6,7 +6,7 @@ using Gtk;
 namespace Parahumans.Core {
 
 	class MainClass {
-		
+
 		public const String savefolder = "/Users/Jefferson/Desktop/Parahumans_Save";
 		public static City city;
 		public static Agent playerAgent;
@@ -33,8 +33,6 @@ namespace Parahumans.Core {
 		static MenuItem saveButton;
 		static MenuItem saveAsButton;
 		static MenuItem closeButton;
-
-		public static int textSize;
 
 		public static void Main (string[] args) {
 
@@ -218,9 +216,8 @@ namespace Parahumans.Core {
 			helpMenu = new Menu();
 			helpButton.Submenu = helpMenu;
 
+			mainWindow.Realized += Graphics.MainWindowInitialized;
 			mainWindow.ShowAll();
-
-			textSize = (int)Math.Round(MainClass.mainWindow.Style.FontDescription.Size / Pango.Scale.PangoScale);
 
 			Application.Run();
 
