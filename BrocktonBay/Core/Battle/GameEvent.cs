@@ -31,14 +31,27 @@ namespace Parahumans.Core {
 		[Displayable(2, typeof(EffectiveRatingsMultiview)), EmphasizedAttribute]
 		public EffectiveRatingsProfile initiator_profile { get { return profiles[0]; } set { profiles[0] = value; } }
 
-		[Displayable(3, typeof(ExpressionField)), TooltipText("β + δ + ½Σ + ½ψ + bonuses\n× force multiplier")]
+
+		[BimorphicDisplayable(3, typeof(TabularContainerField), typeof(LinearContainerField),
+		                      new string[] { "initiator_strength", "initiator_stealth", "initiator_insight" }), EmphasizedIfVertical]
+		public Expression[] initiator_stats {
+			get {
+				return new Expression[] { initiator_strength, initiator_stealth, initiator_insight };
+			}
+			set {
+				initiator_strength = value[0];
+				initiator_stealth = value[1];
+				initiator_insight = value[2];
+			}
+		}
+
+		[Child("Strength"), Displayable(0, typeof(ExpressionField)), TooltipText("β + δ + ½Σ + ½ψ + bonuses\n× force multiplier")]
 		public Expression initiator_strength { get; set; }
-
-		[Displayable(4, typeof(ExpressionField)), TooltipText("μ + φ + bonuses")]
+		[Child("Stealth"), Displayable(0, typeof(ExpressionField)), TooltipText("μ + φ + bonuses")]
 		public Expression initiator_stealth { get; set; }
-
-		[Displayable(5, typeof(ExpressionField)), TooltipText("ξ + Ω + bonuses")]
+		[Child("Insight"), Displayable(0, typeof(ExpressionField)), TooltipText("ξ + Ω + bonuses")]
 		public Expression initiator_insight { get; set; }
+
 
 		/*
 		[Displayable(3, typeof(FractionsBar)), Emphasized, Padded(10, 10)]
@@ -48,16 +61,29 @@ namespace Parahumans.Core {
 		public Fraction[] territory { get; set; }
 		*/
 
-		[Displayable(6, typeof(ExpressionField)), TooltipText("β + δ + ½Σ + ½ψ + bonuses\n× force multiplier")]
+
+		[BimorphicDisplayable(4, typeof(TabularContainerField), typeof(LinearContainerField),
+		                      new string[] { "responder_strength", "responder_stealth", "responder_insight" }), EmphasizedIfVertical]
+		public Expression[] responder_stats {
+			get {
+				return new Expression[] { responder_strength, responder_stealth, responder_insight };
+			}
+			set {
+				responder_strength = value[0];
+				responder_stealth = value[1];
+				responder_insight = value[2];
+			}
+		}
+
+		[Child("Strength"), Displayable(0, typeof(ExpressionField)), TooltipText("β + δ + ½Σ + ½ψ + bonuses\n× force multiplier")]
 		public Expression responder_strength { get; set; }
-
-		[Displayable(7, typeof(ExpressionField)), TooltipText("μ + φ + bonuses")]
+		[Child("Stealth"), Displayable(0, typeof(ExpressionField)), TooltipText("μ + φ + bonuses")]
 		public Expression responder_stealth { get; set; }
-
-		[Displayable(8, typeof(ExpressionField)), TooltipText("ξ + Ω + bonuses")]
+		[Child("Insight"), Displayable(0, typeof(ExpressionField)), TooltipText("ξ + Ω + bonuses")]
 		public Expression responder_insight { get; set; }
 
-		[Displayable(9, typeof(EffectiveRatingsMultiview)), EmphasizedAttribute]
+
+		[Displayable(5, typeof(EffectiveRatingsMultiview)), EmphasizedAttribute]
 		public EffectiveRatingsProfile responder_profile { get { return profiles[1]; } set { profiles[1] = value; } }
 
 		Context context;
@@ -77,15 +103,8 @@ namespace Parahumans.Core {
 			initiator_profile = GetEffectiveProfile(initiators.ratings(context), responders.ratings(context));
 			responder_profile = GetEffectiveProfile(responders.ratings(context), initiators.ratings(context));
 
-			Expression[] initiator_stats = GetStats(0);
-			initiator_strength = initiator_stats[0];
-			initiator_stealth = initiator_stats[1];
-			initiator_insight = initiator_stats[2];
-
-			Expression[] responder_stats = GetStats(1);
-			responder_strength = responder_stats[0];
-			responder_stealth = responder_stats[1];
-			responder_insight = responder_stats[2];
+			initiator_stats = GetStats(0);
+			responder_stats = GetStats(1);
 
 			/*
 			Deployment.Compare(initiators, responders);

@@ -159,12 +159,13 @@ namespace Parahumans.Core {
 	}
 
 	//The graphical implementation of Expression in the UI.
-	public sealed class ExpressionField : Gtk.Alignment {
+	public sealed class ExpressionField : Gtk.Alignment, LabelOverridable {
 
 		PropertyInfo property;
 		object obj;
 		Expression exp;
 		Context context;
+		string title;
 
 		public ExpressionField (PropertyInfo property, object obj, Context context, object arg) : base(0, 0, 1, 1) {
 
@@ -172,6 +173,7 @@ namespace Parahumans.Core {
 			this.obj = obj;
 			exp = (Expression)property.GetValue(obj);
 			this.context = context;
+			title = TextTools.ToReadable(property.Name);
 
 			Label label = new Label();
 			label.UseMarkup = true;
@@ -180,13 +182,13 @@ namespace Parahumans.Core {
 
 			//Multi-line expressions are put in an expander with the label text being the formattedResult of the expression.
 			if (exp.text.Contains("\n")) {
-				Expander expander = new Expander(TextTools.ToReadable(property.Name) + ": " + exp.formattedResult);
-				expander.Activated += OnToggled;
+				Expander expander = new Expander(title + ": " + exp.formattedResult);
+				expander.Activated += (o,a) => ReloadLabel();
 				label.Markup = exp.ToString();
 				expander.Add(new Gtk.Alignment(0, 0, 1, 1) { Child = label, LeftPadding = 10, BottomPadding = 5 });
 				Add(expander);
 			} else {
-				label.Markup = TextTools.ToReadable(property.Name) + ": " + exp.ToString();
+				label.Markup = title + ": " + exp;
 				Add(label);
 			}
 
@@ -198,12 +200,21 @@ namespace Parahumans.Core {
 
 		}
 
+		public void OverrideLabel (string newLabel) {
+			title = newLabel;
+			ReloadLabel();
+		}
+
 		//The formattedResult label is not shown when the expander is expanded. This implements that functionality.
-		public void OnToggled (object obj, EventArgs args) {
-			if (((Expander)obj).Expanded) {
-				((Expander)obj).Label = TextTools.ToReadable(property.Name);
-			} else {
-				((Expander)obj).Label = TextTools.ToReadable(property.Name) + ": " + exp.formattedResult;
+		public void ReloadLabel () {
+			if (Child is Expander) {
+				if (((Expander)Child).Expanded) {
+					((Expander)Child).Label = title;
+				} else {
+					((Expander)Child).Label = title + ": " + exp.formattedResult;
+				}
+			}else {
+				((Label)Child).Markup = title + ": " + exp;
 			}
 		}
 
