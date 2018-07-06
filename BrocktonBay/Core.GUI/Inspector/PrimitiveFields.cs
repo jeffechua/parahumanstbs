@@ -21,8 +21,8 @@ namespace Parahumans.Core {
 		protected override string GetValueAsString () => property.GetValue(obj).ToString();
 	}
 
-	public abstract class TextEditableField : HBox {
-		
+	public abstract class TextEditableField : HBox, LabelOverridable {
+
 		protected PropertyInfo property;
 		protected IGUIComplete obj;
 		protected Menu rightclickMenu;
@@ -34,7 +34,7 @@ namespace Parahumans.Core {
 			this.obj = (IGUIComplete)obj;
 			this.context = context;
 
-			Label label = new Label(TextTools.ToReadable(property.Name) + ": ");
+			Label label = new Label(context.compact ? "" : (TextTools.ToReadable(property.Name) + ": "));
 			PackStart(label, false, false, 0);
 
 			TooltipTextAttribute tooltipText = (TooltipTextAttribute)property.GetCustomAttribute(typeof(TooltipTextAttribute));
@@ -51,7 +51,10 @@ namespace Parahumans.Core {
 				Reload();
 		}
 
-		public void OverrideLabel (string text) => ((Label)Children[0]).Text = text;
+		public void OverrideLabel (string text) {
+			if (!context.compact)
+				((Label)Children[0]).Text = text + ": ";
+		}
 
 		protected abstract string GetValueAsString ();
 		protected abstract void SetValueFromString (string text);

@@ -9,8 +9,8 @@ namespace Parahumans.Core {
 		public String name = "New Team";
 		public int ID = 0;
 		public Alignment alignment = Alignment.Rogue;
-		public int unused_XP = 0;
-		public int[] spent_XP = { 0, 0, 0 };
+		public int unused_xp = 0;
+		public int[] spent_xp = { 0, 0, 0 };
 		public List<int> roster = new List<int>();
 
 		public TeamData () { }
@@ -19,8 +19,8 @@ namespace Parahumans.Core {
 			name = team.name;
 			ID = team.ID;
 			alignment = team.alignment;
-			unused_XP = team.unused_XP;
-			spent_XP = new int[] { team.spent_XP[0].value, team.spent_XP[1].value, team.spent_XP[2].value };
+			unused_xp = team.unused_XP;
+			spent_xp = team.spent_XP;
 			roster = team.roster.ConvertAll((parahuman) => parahuman.ID);
 		}
 
@@ -46,10 +46,27 @@ namespace Parahumans.Core {
 		[Displayable(6, typeof(IntField))]
 		public int unused_XP { get; set; }
 
-		[BimorphicDisplayable(7, typeof(TabularLabeledValuesField<int>), typeof(LinearLabeledValuesField<int>)), EmphasizedIfVertical]
-		public LabeledValue<int>[] spent_XP { get; set; }
+		[BimorphicDisplayable(7, typeof(TabularContainerField), typeof(LinearContainerField),
+		                      new string[] { "strength_XP", "stealth_XP", "insight_XP" }), EmphasizedIfVertical]
+		public int[] spent_XP {
+			get {
+				return new int[] { strength_XP, stealth_XP, insight_XP };
+			}
+			set {
+				strength_XP = value[0];
+				stealth_XP = value[1];
+				insight_XP = value[2];
+			}
+		}
 
-		[Displayable(8, typeof(CellObjectListField<Parahuman>), 3), Emphasized, Padded(0, 5)]
+		[Child("Strength"), Displayable(0, typeof(IntField))]
+		public int strength_XP { get; set; }
+		[Child("Stealth"), Displayable(0, typeof(IntField))]
+		public int stealth_XP { get; set; }
+		[Child("Insight"), Displayable(0, typeof(IntField))]
+		public int insight_XP { get; set; }
+
+		[Displayable(8, typeof(CellObjectListField<Parahuman>), 3), Emphasized]
 		public List<Parahuman> roster { get; set; }
 
 		[Displayable(9, typeof(RatingsMultiviewField), true), Emphasized, VerticalOnly]
@@ -64,12 +81,8 @@ namespace Parahumans.Core {
 			name = data.name;
 			ID = data.ID;
 			alignment = data.alignment;
-			unused_XP = data.unused_XP;
-			spent_XP = new LabeledValue<int>[]{
-				new LabeledValue<int>("Strength", data.spent_XP[0]),
-				new LabeledValue<int>("Mobility", data.spent_XP[1]),
-				new LabeledValue<int>("Insight", data.spent_XP[2])
-			};
+			unused_XP = data.unused_xp;
+			spent_XP = data.spent_xp;
 			roster = data.roster.ConvertAll((parahuman) => MainClass.city.Get<Parahuman>(parahuman));
 			foreach (Parahuman parahuman in roster) {
 				DependencyManager.Connect(parahuman, this);

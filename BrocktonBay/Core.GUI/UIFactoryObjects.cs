@@ -6,12 +6,12 @@ namespace Parahumans.Core {
 	public class DisplayableAttribute : Attribute {
 		public int order;   //The position in which the property is displayed, with lower numbers rendered first and higher numbers shown last.
 		public Type widget; //The widget used to display this attribute.
-		public object argument; //An optional argument that is passed to the initialization of the display widget.
+		public object arg; //An optional argument that is passed to the initialization of the display widget.
 
-		public DisplayableAttribute (int o, Type wgt, object arg = null) {
-			order = o;
-			widget = wgt;
-			argument = arg;
+		public DisplayableAttribute (int order, Type widget, object arg = null) {
+			this.order = order;
+			this.widget = widget;
+			this.arg = arg;
 		}
 
 	}
@@ -22,6 +22,13 @@ namespace Parahumans.Core {
 		public Type widget2;
 		public BimorphicDisplayableAttribute (int o, Type wgt, Type wgt2, object arg = null) : base(o, wgt, arg)
 			=> widget2 = wgt2;
+	}
+
+	// ChildAttribute indicates a Displayable should not be rendered in UIFactory.Generate(), but instead independently
+	// by ContainerFields when those are rendered.
+	public class ChildAttribute : Attribute {
+		public string name;
+		public ChildAttribute (string name) => this.name = name;
 	}
 
 	// "PaddedAttribute" is used with "DisplayableAttribute" when we want to tell the UI system to give a property padding.
@@ -61,4 +68,7 @@ namespace Parahumans.Core {
 	public class ForceVerticalAttribute : Attribute { } //Force "vertical" to always be passed to the generated field.
 	public class ForceHorizontalAttribute : Attribute { } //Force "horizontal" to always be passed to the generated field.
 
+	public interface LabelOverridable {
+		void OverrideLabel (string newLabel);
+	}
 }

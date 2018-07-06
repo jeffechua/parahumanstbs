@@ -5,6 +5,95 @@ using Gtk;
 
 namespace Parahumans.Core {
 
+
+	public sealed class TabularContainerField : Table {
+		List<PropertyInfo> children;
+		Context context;
+
+		public TabularContainerField (PropertyInfo property, object obj, Context context, object arg) : base(1, 1, false) {
+
+			// arg ought to be a string[] containing the names of child properties. Here we turn it into a list and
+			// use ConvertAll() to obtain the list of actual PropertyInfos.
+			children = new List<string>((string[])arg).ConvertAll((input) => obj.GetType().GetProperty(input));
+			this.context = context;
+
+			ColumnSpacing = 5;
+			RowSpacing = 2;
+
+			Label label = new Label(TextTools.ToReadable(property.Name) + ": ");
+
+			TooltipTextAttribute tooltipText = (TooltipTextAttribute)property.GetCustomAttribute(typeof(TooltipTextAttribute));
+			if (tooltipText != null) {
+				label.HasTooltip = true;
+				label.TooltipMarkup = tooltipText.text;
+			}
+
+			Attach(label, 0, 1, 0, (uint)(2 * children.Count - 1), AttachOptions.Shrink, AttachOptions.Fill, 0, 0);
+			Attach(new VSeparator(), 1, 2, 0, (uint)(2 * children.Count - 1), AttachOptions.Shrink, AttachOptions.Fill, 0, 0);
+
+			for (int i = 0; i < children.Count; i++) {
+				DisplayableAttribute displayInfo = (DisplayableAttribute)children[i].GetCustomAttribute(typeof(DisplayableAttribute));
+				ConstructorInfo childConstructor = displayInfo.widget.GetConstructor(UIFactory.constructorSignature);
+				Widget childWidget = (Widget)childConstructor.Invoke(new object[] {
+					children[i],
+					obj,
+					context,
+					displayInfo.arg
+				});
+				if (childWidget is LabelOverridable) {
+					ChildAttribute childAttribute = (ChildAttribute)children[i].GetCustomAttribute(typeof(ChildAttribute));
+					((LabelOverridable)childWidget).OverrideLabel(childAttribute.name);
+				}
+				Attach(childWidget, 2, 3, 2 * (uint)i, 2 * (uint)i + 1);
+				if (i != children.Count - 1) Attach(new HSeparator(), 2, 3, 2 * (uint)i + 1, 2 * (uint)i + 2);
+			}
+
+		}
+
+	}
+
+	public sealed class LinearContainerField : HBox {
+
+		List<PropertyInfo> children;
+		Context context;
+
+		public LinearContainerField (PropertyInfo property, object obj, Context context, object arg) {
+
+			children = new List<string>((string[])arg).ConvertAll((input) => obj.GetType().GetProperty(input));
+			this.context = context;
+
+			Label label = new Label(TextTools.ToReadable(property.Name) + ": ");
+
+			TooltipTextAttribute tooltipText = (TooltipTextAttribute)property.GetCustomAttribute(typeof(TooltipTextAttribute));
+			if (tooltipText != null) {
+				label.HasTooltip = true;
+				label.TooltipMarkup = tooltipText.text;
+			}
+
+			PackStart(label, false, false, 0);
+
+			for (int i = 0; i < children.Count; i++) {
+				DisplayableAttribute displayInfo = (DisplayableAttribute)children[i].GetCustomAttribute(typeof(DisplayableAttribute));
+				ConstructorInfo childConstructor = displayInfo.widget.GetConstructor(UIFactory.constructorSignature);
+				Widget childWidget = (Widget)childConstructor.Invoke(new object[] {
+					children[i],
+					obj,
+					context.butCompact,
+					displayInfo.arg
+				});
+				if (childWidget is LabelOverridable) {
+					ChildAttribute childAttribute = (ChildAttribute)children[i].GetCustomAttribute(typeof(ChildAttribute));
+					((LabelOverridable)childWidget).OverrideLabel(childAttribute.name);
+				}
+				PackStart(childWidget, false, false, 0);
+				if (i != children.Count - 1) PackStart(new Label("/"), false, false, 0);
+			}
+
+		}
+
+	}
+
+
 	// A pair consisting of a string and a float. Two functions:
 	//      - It is used to hold numbers associated with words, e.g. {"Strength", 0} to indicate a strength of 0.
 	//      - It is used to hold numbers and their preferred ToString argument for printing. Mainly used in Expression and ExpressionField.
@@ -120,101 +209,6 @@ namespace Parahumans.Core {
 
 	}
 
-
-	/*  Renders an array of StringFloatPairs in a tabular manner:
-	 *                  | <string 1>: <value 1>
-	 *  <property name> | <string 2>: <value 2>
-	 *                  | <string 3>: <value 3>
-	 */
-	public sealed class TabularLabeledValuesField<T> : Table where T : IConvertible {
-
-		LabeledValue<T>[] pairs;
-		Context context;
-
-		public TabularLabeledValuesField (PropertyInfo property, object obj, Context context, object arg) : base(1, 1, false) {
-
-			pairs = (LabeledValue<T>[])property.GetValue(obj);
-			this.context = context;
-
-			ColumnSpacing = 5;
-			RowSpacing = 2;
-
-			Label label = new Label(TextTools.ToReadable(property.Name) + ": ");
-
-			TooltipTextAttribute tooltipText = (TooltipTextAttribute)property.GetCustomAttribute(typeof(TooltipTextAttribute));
-			if (tooltipText != null) {
-				HasTooltip = true;
-				TooltipMarkup = tooltipText.text;
-			}
-
-			Attach(label, 0, 1, 0, (uint)(2 * pairs.Length - 1), AttachOptions.Shrink, AttachOptions.Fill, 0, 0);
-			Attach(new VSeparator(), 1, 2, 0, (uint)(2 * pairs.Length - 1), AttachOptions.Shrink, AttachOptions.Fill, 0, 0);
-
-			for (uint i = 0; i < pairs.Length; i++) {
-				Attach(new LabeledValuesArrayElementField<T>(property, obj, context, null, (int)i, "G6"), 2, 3, 2 * i, 2 * i + 1);
-				if (i != pairs.Length - 1) Attach(new HSeparator(), 2, 3, 2 * i + 1, 2 * i + 2);
-			}
-
-
-		}
-
-	}
-
-	// Renders an array of StringFloatPairs in a single line.
-	// <property name>: <val1>/<val2>/<val3>
-	// e.g. Spent XP: 0/2/4
-	public sealed class LinearLabeledValuesField<T> : TextEditableField where T : IConvertible {
-
-		LabeledValue<T>[] array;
-
-		public LinearLabeledValuesField (PropertyInfo property, object obj, Context context, object arg) : base(property, obj, context, arg) { }
-
-		protected override string GetValueAsString () {
-			if (array == null) array = (LabeledValue<T>[])property.GetValue(obj);
-			string text = "";
-			for (int i = 0; i < array.Length; i++) {
-				if (i != 0) text += "/";
-				text += array[i].value.ToString();
-			}
-			return text;
-		}
-
-		protected override void SetValueFromString (string text) {
-			string[] fragments = text.Split('/');
-			for (int i = 0; i < fragments.Length && i < array.Length; i++)
-				if (float.TryParse(fragments[i], out float newVal))
-					array[i].value = (T)Convert.ChangeType(newVal, typeof(T));
-		}
-
-	}
-
-	// This inherits from PrimitiveField for the assignment functionality but pretty much doensn't actually use reflection at all.
-	// It intercepts the GetValueAsString and SetValueFromString methods, and instead of piping them to property.GetValue() and property.SetValue() like it's supposed to,
-	// just directly assigns them into the array element that it extracted from the property beforehand.
-	public sealed class LabeledValuesArrayElementField<T> : TextEditableField where T : IConvertible {
-
-		int index;
-		string format;
-		LabeledValue<T> labeledValue;
-
-		//The "true" suppresses Reload() at the end of the base constructor, allowing us to define "target" before Reload()ing manually. Otherwise, GetValueAsString() will fail.
-		public LabeledValuesArrayElementField (PropertyInfo property, object obj, Context context, object arg, int index, string format) : base(property, obj, context, arg, true) {
-			this.index = index;
-			this.format = format;
-			labeledValue = ((LabeledValue<T>[])property.GetValue(obj))[index];
-			OverrideLabel(labeledValue.label + ": ");
-			Reload();
-		}
-
-		protected override string GetValueAsString ()
-			=> labeledValue.value.ToString();
-
-		protected override void SetValueFromString (string text) {
-			if (float.TryParse(text, out float newVal))
-				labeledValue.value = (T)Convert.ChangeType(newVal, typeof(T));
-		}
-
-	}
 
 	//Used in FractionsBar.
 	public struct Fraction {
@@ -355,7 +349,7 @@ namespace Parahumans.Core {
 	public sealed class ActionField : Button {
 		public GameAction action;
 
-		public ActionField (PropertyInfo property, object obj, Context context, object arg) : base(new Gtk.Alignment(0,0,1,1)) {
+		public ActionField (PropertyInfo property, object obj, Context context, object arg) : base(new Gtk.Alignment(0, 0, 1, 1)) {
 			action = (GameAction)property.GetValue(obj);
 			Gtk.Alignment alignment = (Gtk.Alignment)Child;
 			alignment.Add(new Label(action.name));

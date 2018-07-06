@@ -26,7 +26,7 @@ namespace Parahumans.Core {
 			ID = structure.ID;
 			location = structure.location;
 			type = structure.type;
-			buffs = new int[] { structure.buffs[0].value, structure.buffs[1].value, structure.buffs[2].value };
+			buffs = structure.buffs;
 		}
 
 	}
@@ -44,8 +44,25 @@ namespace Parahumans.Core {
 		[Displayable(4, typeof(EnumField<StructureType>))]
 		public StructureType type { get; set; }
 
-		[BimorphicDisplayable(7, typeof(TabularLabeledValuesField<int>), typeof(LinearLabeledValuesField<int>)), EmphasizedIfVertical]
-		public LabeledValue<int>[] buffs { get; set; }
+		[BimorphicDisplayable(5, typeof(TabularContainerField), typeof(LinearContainerField),
+							  new string[] { "strength_buff", "resource_buff", "reputation_buff" }), EmphasizedIfVertical]
+		public int[] buffs {
+			get {
+				return new int[] { strength_buff, resource_buff, reputation_buff };
+			}
+			set {
+				strength_buff = value[0];
+				resource_buff = value[1];
+				reputation_buff = value[2];
+			}
+		}
+
+		[Child("Combat Strength"), Displayable(0, typeof(IntField))]
+		public int strength_buff { get; set; }
+		[Child("Resource Income"), Displayable(0, typeof(IntField))]
+		public int resource_buff { get; set; }
+		[Child("Reputation Income"), Displayable(0, typeof(IntField))]
+		public int reputation_buff { get; set; }
 
 		//[Displayable(7, typeof(ObjectField)), ForceHorizontal, Padded(10, 10, 10, 10), Emphasized]
 		public GameEvent ongoing_event { get; set; }
@@ -60,11 +77,7 @@ namespace Parahumans.Core {
 			ID = data.ID;
 			location = data.location;
 			type = data.type;
-			buffs = new LabeledValue<int>[]{
-				new LabeledValue<int>("Combat Strength", data.buffs[0]),
-				new LabeledValue<int>("Resource income", data.buffs[1]),
-				new LabeledValue<int>("Reputation income", data.buffs[2])
-			};
+			buffs = data.buffs;
 			attack = new GameAction {
 				name = "Attack",
 				description = "Launch an attack on " + name,
@@ -117,7 +130,9 @@ namespace Parahumans.Core {
 		}
 
 		public override Widget GetCell (Context context) {
-			Label label = new Label("Strength + " + buffs[0].value + "\nResources + " + buffs[1].value + "\nReputation + " + buffs[2].value);
+			Label label = new Label("Strength +" + strength_buff + "\n" +
+			                        "Resources +" + resource_buff + "\n" +
+			                        "Reputation +" + reputation_buff);
 			label.Justify = Justification.Left;
 			return new Gtk.Alignment(0, 0, 1, 1) { Child = label, BorderWidth = 10 };
 		}

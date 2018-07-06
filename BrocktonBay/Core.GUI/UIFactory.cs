@@ -7,7 +7,7 @@ namespace Parahumans.Core {
 
 	public static class UIFactory {
 
-		static readonly Type[] constructorSignature = {
+		public static readonly Type[] constructorSignature = {
 			typeof(PropertyInfo),
 			typeof(object),
 			typeof(Context),
@@ -19,18 +19,30 @@ namespace Parahumans.Core {
 		public static VBox GenerateHorizontal (object obj)
 			=> GenerateHorizontal(new Context(MainClass.playerAgent, obj, false, false), obj);
 
+		public static VBox Generate (Context context, object obj) {
+			if (context.vertical) {
+				return GenerateVertical(context, obj);
+			} else {
+				return GenerateHorizontal(context, obj);
+			}
+		}
+
 		public static VBox GenerateVertical (Context context, object obj) {
 
 			context = context.butVertical;
 
 			//Load up all properties
 			List<PropertyInfo> properties = new List<PropertyInfo>(obj.GetType().GetProperties());
+
 			for (int i = 0; i < properties.Count; i++) {
-				if (properties[i].GetCustomAttribute(typeof(DisplayableAttribute)) == null || properties[i].GetValue(obj) == null) {
+				if (!HasAttribute(properties[i], typeof(DisplayableAttribute)) ||
+					HasAttribute(properties[i], typeof(ChildAttribute)) ||
+					properties[i].GetValue(obj) == null) {
 					properties.RemoveAt(i);
 					i--;
 				}
 			}
+
 			properties.Sort((x, y) => ((DisplayableAttribute)x.GetCustomAttribute(typeof(DisplayableAttribute))).order.CompareTo(
 				((DisplayableAttribute)y.GetCustomAttribute(typeof(DisplayableAttribute))).order));
 
@@ -54,10 +66,10 @@ namespace Parahumans.Core {
 					properties[i],
 					obj,
 					forceHorizontal ? context.butHorizontal : context,
-					attr.argument
+					attr.arg
 				});
 
-				//Manage padding
+				//Manage padumentding
 				if (padded != null) {
 					newWidget = new Gtk.Alignment(0, 0, 1, 1) {
 						Child = newWidget,
@@ -103,8 +115,11 @@ namespace Parahumans.Core {
 
 			//Load up all properties
 			List<PropertyInfo> properties = new List<PropertyInfo>(obj.GetType().GetProperties());
+
 			for (int i = 0; i < properties.Count; i++) {
-				if (properties[i].GetValue(obj) == null || properties[i].GetCustomAttribute(typeof(DisplayableAttribute)) == null) {
+				if (!HasAttribute(properties[i], typeof(DisplayableAttribute)) ||
+					HasAttribute(properties[i], typeof(ChildAttribute)) ||
+					properties[i].GetValue(obj) == null) {
 					properties.RemoveAt(i);
 					i--;
 				}
@@ -140,10 +155,10 @@ namespace Parahumans.Core {
 					properties[i],
 					obj,
 					forceVertical?context.butVertical:context,
-					attr.argument
+					attr.arg
 				});
 
-				//Pack into the correct box (emphasisBox/regularBox)
+				//Pack into the correcumentt box (emphasisBox/regularBox)
 				if (emph is EmphasizedIfVerticalAttribute) emph = null;
 				if (emph == null) {
 					if (regularBox.Children.Length > 0) regularBox.PackStart(new VSeparator(), false, false, 5);

@@ -35,7 +35,7 @@ namespace Parahumans.Core {
 			VBox mainBox = new VBox{BorderWidth = 10};
 			mainBox.PackStart(gameEvent.GetHeader(context), false, false, 10);
 			mainBox.PackStart(new HSeparator(), false, false, 0);
-			mainBox.PackStart(UIFactory.GenerateVertical(context, gameEvent), false, false, 5);
+			mainBox.PackStart(UIFactory.Generate(context, gameEvent), false, false, 5);
 			return mainBox;
 		}
 
@@ -43,7 +43,7 @@ namespace Parahumans.Core {
 			VBox mainBox = new VBox { BorderWidth = 10 };
 			mainBox.PackStart(new Gtk.Alignment(0, 0, 1, 1) { Child = new Label(label) }, false, false, 10);
 			mainBox.PackStart(new HSeparator(), false, false, 0);
-			mainBox.PackStart(UIFactory.GenerateVertical(new Context(MainClass.playerAgent, gameEvent), deployment), false, false, 5);
+			mainBox.PackStart(UIFactory.Generate(new Context(MainClass.playerAgent, gameEvent), deployment), false, false, 5);
 			return mainBox;
 		}
 
