@@ -166,6 +166,9 @@ namespace Parahumans.Core {
 		}
 
 		public EffectiveRatingsProfile GetEffectiveProfile (RatingsProfile original, RatingsProfile enemy) {
+			
+			float[,] originalValues = original.values;
+			float[,] enemyValues = enemy.values;
 
 			// Calculate the multipliers. Reference for matching indices:
 			//  1   2   3   4   5   6   7   8   9   10  11
@@ -175,19 +178,19 @@ namespace Parahumans.Core {
 			float[] metamultipliers = new float[5];
 
 			multipliers[0] = 1;                                     //The [0] slot is reserved for the wrapper's cosmetic rating
-			multipliers[1] = Mult(enemy.values[4, 4]) * Mult(enemy.values[4, 5]); //Brute:    Mover -10%, Striker -10%
-			multipliers[2] = Mult(enemy.values[4, 3]) * Mult(enemy.values[4, 6]); //Blaster:  Stranger -10%, Shaker -10%
-			multipliers[3] = Mult(enemy.values[4, 1]);                            //Shaker:   Brute -10%
-			multipliers[4] = Mult(enemy.values[4, 2]);                            //Striker:  Blaster -10%
+			multipliers[1] = Mult(enemyValues[4, 4]) * Mult(enemyValues[4, 5]); //Brute:    Mover -10%, Striker -10%
+			multipliers[2] = Mult(enemyValues[4, 3]) * Mult(enemyValues[4, 6]); //Blaster:  Stranger -10%, Shaker -10%
+			multipliers[3] = Mult(enemyValues[4, 1]);                            //Shaker:   Brute -10%
+			multipliers[4] = Mult(enemyValues[4, 2]);                            //Striker:  Blaster -10%
 			multipliers[5] = 1;                                     //Mover:     NONE
 			multipliers[6] = 1;                                     //Stranger:  NONE
 			multipliers[7] = 1;                                     //Thinker:   NONE
 			multipliers[8] = 1;                                     //Trump:     NONE
 
-			metamultipliers[0] = Mult(enemy.values[4, 8]); //Base:     Trump -10%
-			metamultipliers[1] = Mult(enemy.values[4, 4]); //Tinker:   Striker -10%
-			metamultipliers[2] = Mult(enemy.values[4, 3]); //Master:   Shaker -10%
-			metamultipliers[3] = Mult(enemy.values[4, 7]); //Breaker:  Thinker -10%
+			metamultipliers[0] = Mult(enemyValues[4, 8]); //Base:     Trump -10%
+			metamultipliers[1] = Mult(enemyValues[4, 4]); //Tinker:   Striker -10%
+			metamultipliers[2] = Mult(enemyValues[4, 3]); //Master:   Shaker -10%
+			metamultipliers[3] = Mult(enemyValues[4, 7]); //Breaker:  Thinker -10%
 
 			// Multiply the multipliers
 
@@ -196,10 +199,10 @@ namespace Parahumans.Core {
 			for (int i = 0; i < 4; i++) {
 				for (int j = 0; j < 9; j++) {
 					if (i == 3) {
-						finalValues[i, j] = original.values[i, j] * metamultipliers[i];
+						finalValues[i, j] = originalValues[i, j] * metamultipliers[i];
 						//Breakers are immune to regular multipliers, only vulnerable to its wrapper metamultiplier (Thinker)
 					} else {
-						finalValues[i, j] = original.values[i, j] * multipliers[j] * metamultipliers[i];
+						finalValues[i, j] = originalValues[i, j] * multipliers[j] * metamultipliers[i];
 					}
 				}
 			}

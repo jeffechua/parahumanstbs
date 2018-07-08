@@ -69,11 +69,13 @@ namespace Parahumans.Core {
 				city.AddRange(structureAddresses.ConvertAll(
 					(file) => new Structure(JsonConvert.DeserializeObject<StructureData>(File.ReadAllText(file)))));
 
+
 				Profiler.Log(ref Profiler.structureLoadTime);
 
 				List<string> territoryAddresses = new List<string>(Directory.GetFiles(path + "/Territories"));
 				city.AddRange(territoryAddresses.ConvertAll(
 					(file) => new Territory(JsonConvert.DeserializeObject<TerritoryData>(File.ReadAllText(file)))));
+
 
 				Profiler.Log(ref Profiler.territoryLoadTime);
 

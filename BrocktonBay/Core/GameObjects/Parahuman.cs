@@ -19,7 +19,7 @@ namespace Parahumans.Core {
 		public Threat threat = Threat.C;
 		public Health health = Health.Healthy;
 		public int reputation = 0;
-		public float[,] ratings = new float[5, 9];
+		public int[,] ratings = new int[5, 9];
 
 		public ParahumanData () { }
 
@@ -31,7 +31,7 @@ namespace Parahumans.Core {
 			threat = parahuman.threat;
 			health = parahuman.health;
 			reputation = parahuman.reputation;
-			ratings = parahuman.baseRatings.values;
+			ratings = parahuman.baseRatings.o_vals;
 		}
 
 	}
@@ -134,24 +134,26 @@ namespace Parahumans.Core {
 
 			VBox ratingsBox = new VBox(false, 0) { BorderWidth = 5 };
 
+			float[,] cRatings = ratings(context).values;
+
 			for (int i = 1; i <= 8; i++) {
-				if (ratings(context).values[0, i] > 0) {
-					Label ratingLabel = new Label(TextTools.PrintRating(i, ratings(context).values[0, i]));
+				if (cRatings[0, i] > 0) {
+					Label ratingLabel = new Label(TextTools.PrintRating(i, cRatings[0, i]));
 					ratingLabel.SetAlignment(0, 0);
 					ratingsBox.PackStart(ratingLabel, false, false, 0);
 				}
 			}
 
 			for (int k = 1; k <= 3; k++) {
-				if (ratings(context).values[k, 0] > 0) {
+				if (cRatings[k, 0] > 0) {
 
-					Label ratingLabel = new Label(TextTools.PrintRating(k + 8, ratings(context).values[k, 0], true));
+					Label ratingLabel = new Label(TextTools.PrintRating(k + 8, cRatings[k, 0], true));
 					ratingLabel.SetAlignment(0, 0);
 
 					List<String> subratings = new List<String>();
 					for (int i = 1; i <= 8; i++)
-						if (ratings(context).values[k, i] > 0)
-							subratings.Add(TextTools.PrintRating(i, ratings(context).values[k, i]));
+						if (cRatings[k, i] > 0)
+							subratings.Add(TextTools.PrintRating(i, cRatings[k, i]));
 					ratingLabel.TooltipText = String.Join("\n", subratings);
 
 					ratingsBox.PackStart(ratingLabel, false, false, 0);

@@ -8,12 +8,12 @@ namespace Parahumans.Core {
 
 	public sealed class RatingsListField : ClickableEventBox {
 
-		RatingsProfile profile;
+		float[,] values;
 		public Context context;
 
 		public RatingsListField (PropertyInfo property, object obj, Context context, object arg) {
 
-			profile = ((Func<Context, RatingsProfile>)property.GetValue(obj))(context);
+			values = ((Func<Context, RatingsProfile>)property.GetValue(obj))(context).values;
 			this.context = context;
 
 			Gtk.Alignment alignment = new Gtk.Alignment(0, 0, 1, 0);
@@ -26,25 +26,25 @@ namespace Parahumans.Core {
 				alignment.Add(frame);
 
 				for (int i = 1; i <= 8; i++) {
-					if (profile.values[0, i] > 0) {
-						Label ratingLabel = new Label(TextTools.PrintRating(i, profile.values[0, i]));
+					if (values[0, i] > 0) {
+						Label ratingLabel = new Label(TextTools.PrintRating(i, values[0, i]));
 						ratingLabel.SetAlignment(0, 0);
 						box.PackStart(ratingLabel);
 					}
 				}
 
 				for (int k = 1; k <= 3; k++) {
-					if (profile.values[k, 0] > 0) {
+					if (values[k, 0] > 0) {
 
-						Label wrapperLabel = new Label(TextTools.PrintRating(k + 8, profile.values[k, 0]));
+						Label wrapperLabel = new Label(TextTools.PrintRating(k + 8, values[k, 0]));
 						wrapperLabel.SetAlignment(0, 0);
 
 						VBox ratingBox = new VBox(false, 5) { BorderWidth = 5 };
 						Frame ratingFrame = new Frame { LabelWidget = wrapperLabel, Child = ratingBox };
 
 						for (int i = 1; i <= 8; i++) {
-							if (profile.values[k, i] > 0) {
-								Label ratingLabel = new Label(TextTools.PrintRating(i, profile.values[k, i]));
+							if (values[k, i] > 0) {
+								Label ratingLabel = new Label(TextTools.PrintRating(i, values[k, i]));
 								ratingLabel.SetAlignment(0, 0);
 								ratingBox.PackStart(ratingLabel, false, false, 0);
 							}
@@ -59,25 +59,25 @@ namespace Parahumans.Core {
 				HBox box = new HBox(false, 0) { BorderWidth = 5 };
 				alignment.Add(box);
 				for (int i = 1; i <= 8; i++) {
-					if (profile.values[0, i] > 0) {
+					if (values[0, i] > 0) {
 						Label ratingLabel = new Label((box.Children.Length > 0 ? ", " : "") //Commas to delimit ratings
-													  + TextTools.PrintRating(i, profile.values[0, i]));
+													  + TextTools.PrintRating(i, values[0, i]));
 						ratingLabel.SetAlignment(0, 0);
 						box.PackStart(ratingLabel, false, false, 0);
 					}
 				}
 
 				for (int k = 1; k <= 3; k++) {
-					if (profile.values[k, 0] > 0) {
+					if (values[k, 0] > 0) {
 
 						Label ratingLabel = new Label((box.Children.Length > 0 ? ", " : "") //Commas to delimit ratings
-													  + TextTools.PrintRating(k + 8, profile.values[k, 0], true));
+													  + TextTools.PrintRating(k + 8, values[k, 0], true));
 						ratingLabel.SetAlignment(0, 0);
 
 						List<String> subratings = new List<String>();
 						for (int i = 1; i <= 8; i++)
-							if (profile.values[k, i] > 0)
-								subratings.Add(TextTools.PrintRating(i, profile.values[k, i]));
+							if (values[k, i] > 0)
+								subratings.Add(TextTools.PrintRating(i, values[k, i]));
 						ratingLabel.TooltipText = String.Join("\n", subratings);
 
 						box.PackStart(ratingLabel, false, false, 0);
@@ -114,7 +114,7 @@ namespace Parahumans.Core {
 			VBox mainBox = new VBox();
 
 			editBox = new TextView();
-			editBox.Buffer.Text = TextTools.PrintRatings(parahuman.baseRatings);
+			editBox.Buffer.Text = TextTools.PrintRatings(parahuman.baseRatings.values);
 			mainBox.PackStart(editBox, true, true, 0);
 			editBox.SetBorderWindowSize(TextWindowType.Top, 10);
 
@@ -176,10 +176,9 @@ namespace Parahumans.Core {
 
 	public sealed class RatingsTable : Table {
 
-
 		public RatingsTable (Context context, RatingsProfile profile, float[] multipliers = null, float[] metamultipliers = null) : base(7, 10, false) {
 
-			float[,] ratings = profile.values;
+			float[,] values = profile.values;
 
 			ColumnSpacing = 5;
 			RowSpacing = 5;
@@ -204,7 +203,7 @@ namespace Parahumans.Core {
 				Attach(rowLabel, 0, 1, i + 2, i + 3);
 				//Numbers
 				for (uint j = 1; j <= 8; j++) {
-					Label numberLabel = new Label(ratings[i, j].ToString("0.0"));
+					Label numberLabel = new Label(values[i, j].ToString("0.0"));
 					if (numberLabel.Text == "0.0") numberLabel.Text = "-";
 					numberLabel.SetAlignment(1, 1);
 					Attach(numberLabel, j + 1, j + 2, i + 2, i + 3);
@@ -242,105 +241,5 @@ namespace Parahumans.Core {
 		}
 
 	}
-	/*
-	public sealed class AlteredRatingsTable : Expander {
 
-		public RatingsProfile comparison;
-		public Context context;
-
-		public AlteredRatingsTable (PropertyInfo property, object obj, Context context, object arg) : base(TextTools.ToReadable(property.Name)) {
-
-			comparison = (RatingsProfile)property.GetValue(obj);
-			this.context = context;
-
-			Expanded = (bool)arg;
-
-			Notebook notebook = new Notebook {
-				TabPos = PositionType.Right
-			};
-			Table table0 = new Table(9, 11, false) {
-				ColumnSpacing = 5,
-				RowSpacing = 5,
-				BorderWidth = 10
-			};
-			Table table1 = new Table(9, 11, false) {
-				ColumnSpacing = 5,
-				RowSpacing = 5,
-				BorderWidth = 10
-			};
-			Table table2 = new Table(9, 11, false) {
-				ColumnSpacing = 5,
-				RowSpacing = 5,
-				BorderWidth = 10
-			};
-			notebook.AppendPage(new Gtk.Alignment(0, 0, 0, 0) { Child = table0 }, new Label("Raw"));
-			notebook.AppendPage(new Gtk.Alignment(0, 0, 0, 0) { Child = table1 }, new Label("Mid"));
-			notebook.AppendPage(new Gtk.Alignment(0, 0, 0, 0) { Child = table2 }, new Label("Final"));
-			Add(notebook);
-
-			//Raw ratings table
-			table0.Attach(new HSeparator(), 0, 10, 1, 2);
-			table0.Attach(new VSeparator(), 1, 2, 0, 7);
-			//Column labels and multipliers
-			for (uint i = 1; i <= 8; i++) {
-				Label classLabel = new Label(" " + Graphics.classSymbols[i] + " ") {
-					HasTooltip = true,
-					TooltipText = Enum.GetName(typeof(Classification), i)
-				};
-				table0.Attach(classLabel, i + 1, i + 2, 0, 1);
-			}
-			//Fill in rows, including labels, numbers and multipliers
-			for (uint i = 0; i < 5; i++) {
-				//Row label
-				Label rowLabel = new Label(TextTools.deploymentRows[i]);
-				rowLabel.SetAlignment(1, 0);
-				table0.Attach(rowLabel, 0, 1, i + 2, i + 3);
-				//Numbers
-				for (uint j = 1; j <= 8; j++) {
-					Label numberLabel = new Label(comparison.values[0][i, j].ToString());
-					numberLabel.SetAlignment(1, 1);
-					table0.Attach(numberLabel, j + 1, j + 2, i + 2, i + 3);
-				}
-			}
-
-			//Thought ratings table
-			table1.Attach(new HSeparator(), 0, 10, 1, 2);
-			table1.Attach(new VSeparator(), 1, 2, 0, 7);
-			//Column labels and multipliers
-			for (uint i = 1; i <= 8; i++) {
-				Label classLabel = new Label(" " + Graphics.classSymbols[i] + " ") {
-					HasTooltip = true,
-					TooltipText = Enum.GetName(typeof(Classification), i)
-				};
-				table1.Attach(classLabel, i + 1, i + 2, 0, 1);
-				if (i == 5 || i == 6) {
-					Label deduction = new Label {
-						UseMarkup = true,
-						Markup = "<small> − " + (comparison.values[1][4, i] - comparison.values[0][4, i]).ToString("0.0") + "</small>",
-						HasTooltip = true,
-						TooltipText = "−1 / Thinker lvl between Mover, Stranger",
-						Angle = -90
-					};
-					deduction.SetAlignment(1, 0);
-					table1.Attach(deduction, i + 1, i + 2, 7, 8);
-				}
-			}
-			//Fill in rows, including labels, numbers and multipliers
-			for (uint i = 0; i < 5; i++) {
-				//Row label
-				Label rowLabel = new Label(TextTools.deploymentRows[i]);
-				rowLabel.SetAlignment(1, 0);
-				table1.Attach(rowLabel, 0, 1, i + 2, i + 3);
-				//Numbers
-				for (uint j = 1; j <= 8; j++) {
-					Label numberLabel = new Label(comparison.values[1][i, j].ToString());
-					numberLabel.SetAlignment(1, 1);
-					table1.Attach(numberLabel, j + 1, j + 2, i + 2, i + 3);
-				}
-			}
-
-		}
-
-	}
-	*/
 }

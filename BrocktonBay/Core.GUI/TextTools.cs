@@ -23,30 +23,30 @@ namespace Parahumans.Core {
 			"Nullifies all multipliers"           //Breaker
 		};
 
-		public static String PrintRating (int classification, float number, bool wrapperStar = false) {
-			return Enum.GetName(typeof(Classification), classification)
-					   + ((classification > 7 && wrapperStar) ? "* " : " ")
-					   + number.ToString();
-		}
-
-		public static string PrintRatings (RatingsProfile ratings) {
+		public static string PrintRatings (float[,] values) {
 			string text = "";
 			for (int i = 1; i <= 8; i++) {
-				if (ratings.values[0, i] > 0) {
-					text += "\n" + PrintRating(i, ratings.values[0,i]);
+				if (values[0, i] > 0) {
+					text += "\n" + PrintRating(i, values[0,i]);
 				}
 			}
 			for (int k = 1; k <= 3; k++) {
-				if (ratings.values[k,0] > 0) {
-					text += "\n" + PrintRating(k+8, ratings.values[k,0]);
+				if (values[k,0] > 0) {
+					text += "\n" + PrintRating(k+8, values[k,0]);
 					for (int i = 1; i <= 8; i++) {
-						if (ratings.values[k, i] > 0) {
-							text += "\n\t" + PrintRating(i, ratings.values[k, i]);
+						if (values[k, i] > 0) {
+							text += "\n\t" + PrintRating(i, values[k, i]);
 						}
 					}
 				}
 			}
 			return text.TrimStart('\n');
+		}
+
+		public static String PrintRating (int classification, float number, bool wrapperStar = false) {
+			return Enum.GetName(typeof(Classification), classification)
+					   + ((classification > 7 && wrapperStar) ? "* " : " ")
+				       + (Math.Round(number*10)/10).ToString();
 		}
 
 		public static bool TryParseRatings (string text, out RatingsProfile? ratings) {

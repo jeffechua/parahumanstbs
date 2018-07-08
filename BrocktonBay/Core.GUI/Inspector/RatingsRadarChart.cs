@@ -7,7 +7,7 @@ namespace Parahumans.Core {
 
 	public class RatingsRadarChart : Gtk.Image {
 
-		RatingsProfile profile;
+		float[,] values;
 		float[] multipliers;
 		float[] metamultipliers;
 		Context context;
@@ -18,7 +18,7 @@ namespace Parahumans.Core {
 
 		public RatingsRadarChart (Context context, RatingsProfile profile, float[] multipliers = null, float[] metamultipliers = null) {
 			this.context = context;
-			this.profile = profile;
+			values = profile.values;
 			this.multipliers = multipliers;
 			this.metamultipliers = metamultipliers;
 			SetSizeRequest(0, 0);
@@ -81,10 +81,10 @@ namespace Parahumans.Core {
 
 			for (int i = 1; i <= 8; i++) {
 				int j = indexMap[i];
-				magnitudes[0, j] = profile.values[0, i];
-				magnitudes[1, j] = profile.values[1, i] + magnitudes[0, j];
-				magnitudes[2, j] = profile.values[2, i] + magnitudes[1, j];
-				magnitudes[3, j] = profile.values[4, i]; // = profile.ratings[3, i] + magnitudes[2, j]
+				magnitudes[0, j] = values[0, i];
+				magnitudes[1, j] = values[1, i] + magnitudes[0, j];
+				magnitudes[2, j] = values[2, i] + magnitudes[1, j];
+				magnitudes[3, j] = values[4, i]; // = profile.ratings[3, i] + magnitudes[2, j]
 			}
 
 			float greatestMagnitude = 0;

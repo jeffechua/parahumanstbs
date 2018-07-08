@@ -49,29 +49,72 @@ namespace Parahumans.Core {
 
 	}
 
+	// Ratings have two important and linked numerical arrays: o_vals (original values) and values (scaled values). 
+	// Values are the ones displayed in the UI, and they run on a log scale, with two steps being an order of magnitude.
+	// (Orders of magnitude here scale by x2)
+	// Thus, Brute 6 + Brute 6 = Brute 8, NOT Brute 12.
+	// This is implemented through o_vals, which stores the exponented value of the values. A rating of 0 is 2^11 = 2048.
+	// In accordance with the x2 per 2 steps rule, a rating of 2 is 2^12, 4 is 2^13 and so on.
+	// The "values" array is a property, not a field: the ratings are only "stored" in the integer form of o_vals, with
+	// the scaled values requested as needed via the "values" propery.
+	// This hence explains why zero is 2^11 and not 2^0: the "buffer" is necessary to store ratings with at least *some*
+	// precision in the 0-2 range of the logarithmic scale. If zero is 2^0, then something Brute 0.6 would simply round
+	// to Brute 0.5 when stored and accessed again.
 	public struct RatingsProfile : IRated {
 
 		public Func<Context, RatingsProfile> ratings { get { return This; } }
 		public RatingsProfile This (Context context) => this;
 
-		public float[,] values;
+		const int zero = 2048;
+		static int[,] zeroes {
+			get {
+				int[,] output = new int[5,9];
+				for (int i = 0; i < 5; i++)
+					for (int j = 0; j < 9; j++)
+						output[i, j] = zero;
+				return output;
+			}
+		}
+
+		public int[,] o_vals;
+		public float[,] values {
+			get {
+				float[,] output = new float[5, 9];
+				for (int i = 0; i < 5; i++)
+					for (int j = 0; j < 9; j++)
+						output[i, j] = Logarize(o_vals[i, j]);
+				return output;
+			}
+			set {
+				for (int i = 0; i < 5; i++)
+					for (int j = 0; j < 9; j++)
+						o_vals[i, j] = Empower(value[i, j]);
+			}
+		}
 		public float[] bonuses;
 
-		public RatingsProfile (float[,] values) {
-			this.values = values;
+
+		public RatingsProfile (int[,] o_values) {
+			o_vals = o_values;
 			bonuses = new float[3];
 		}
 
+		public RatingsProfile (float[,] values) {
+			o_vals = new int[5, 9];
+			bonuses = new float[3];
+			this.values = values;
+		}
+
 		public RatingsProfile (Context context, params IEnumerable<IRated>[] ratedss) {
-			values = new float[5, 9];
+			o_vals = zeroes;
 			bonuses = new float[3];
 			foreach (IEnumerable<IRated> rateds in ratedss) {
 				List<RatingsProfile> profiles = new List<IRated>(rateds).ConvertAll((input) => input.ratings(context));
 				foreach (RatingsProfile profile in profiles) {
 					for (int i = 0; i < 4; i++) {
 						for (int j = 0; j <= 8; j++) {
-							values[i, j] += profile.values[i, j];
-							values[4, j] += profile.values[i, j];
+							o_vals[i, j] += profile.o_vals[i, j];
+							o_vals[4, j] += profile.o_vals[i, j];
 						}
 					}
 					for (int i = 0; i < 3; i++) {
@@ -80,19 +123,16 @@ namespace Parahumans.Core {
 				}
 			}
 		}
-		// This is a horrible mess, but essentially it converts each IEnumerable<IRated> into a RatingsProfile using
-		// the constructor below, hence replacing IEnumerable<IRated>[] with a RatingsProfile[].
-		// As RatingsProfile is IRated, we can pass the created RatingsProfile[] into the constructor blow again.
 
 		public RatingsProfile (Context context, params IRated[] rateds) {
 			List<RatingsProfile> profiles = new List<IRated>(rateds).ConvertAll((input) => input.ratings(context));
-			values = new float[5, 9];
+			o_vals = zeroes;
 			bonuses = new float[3];
 			foreach (RatingsProfile profile in profiles) {
 				for (int i = 0; i < 4; i++) {
 					for (int j = 0; j <= 8; j++) {
-						values[i, j] += profile.values[i, j];
-						values[4, j] += profile.values[i, j];
+						o_vals[i, j] += profile.o_vals[i, j];
+						o_vals[4, j] += profile.o_vals[i, j];
 					}
 				}
 				for (int i = 0; i < 3; i++) {
@@ -100,6 +140,12 @@ namespace Parahumans.Core {
 				}
 			}
 		}
+
+		public static int Empower (float number)
+			=> (int)Math.Pow(2, number / 2 + 11);
+
+		public static float Logarize (int number)
+			=> (float)Math.Log(number, 2) * 2 - 22;
 
 	}
 
