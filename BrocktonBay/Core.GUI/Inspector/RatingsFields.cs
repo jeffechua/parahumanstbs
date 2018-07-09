@@ -8,13 +8,11 @@ namespace Parahumans.Core {
 
 	public sealed class RatingsListField : ClickableEventBox {
 
-		float[,] values;
-		public Context context;
-
 		public RatingsListField (PropertyInfo property, object obj, Context context, object arg) {
 
-			values = ((Func<Context, RatingsProfile>)property.GetValue(obj))(context).values;
-			this.context = context;
+			RatingsProfile profile = ((Func<Context, RatingsProfile>)property.GetValue(obj))(context);
+			float[,] values = profile.values;
+			int[,] o_vals = profile.o_vals;
 
 			Gtk.Alignment alignment = new Gtk.Alignment(0, 0, 1, 0);
 			Add(alignment);
@@ -26,7 +24,7 @@ namespace Parahumans.Core {
 				alignment.Add(frame);
 
 				for (int i = 1; i <= 8; i++) {
-					if (values[0, i] > 0) {
+					if (o_vals[0, i] != Ratings.O_NULL) {
 						Label ratingLabel = new Label(TextTools.PrintRating(i, values[0, i]));
 						ratingLabel.SetAlignment(0, 0);
 						box.PackStart(ratingLabel);
@@ -34,7 +32,7 @@ namespace Parahumans.Core {
 				}
 
 				for (int k = 1; k <= 3; k++) {
-					if (values[k, 0] > 0) {
+					if (o_vals[k, 0] != Ratings.O_NULL) {
 
 						Label wrapperLabel = new Label(TextTools.PrintRating(k + 8, values[k, 0]));
 						wrapperLabel.SetAlignment(0, 0);
@@ -43,7 +41,7 @@ namespace Parahumans.Core {
 						Frame ratingFrame = new Frame { LabelWidget = wrapperLabel, Child = ratingBox };
 
 						for (int i = 1; i <= 8; i++) {
-							if (values[k, i] > 0) {
+							if (o_vals[k, i] != Ratings.O_NULL) {
 								Label ratingLabel = new Label(TextTools.PrintRating(i, values[k, i]));
 								ratingLabel.SetAlignment(0, 0);
 								ratingBox.PackStart(ratingLabel, false, false, 0);
@@ -59,7 +57,7 @@ namespace Parahumans.Core {
 				HBox box = new HBox(false, 0) { BorderWidth = 5 };
 				alignment.Add(box);
 				for (int i = 1; i <= 8; i++) {
-					if (values[0, i] > 0) {
+					if (o_vals[0, i] != Ratings.O_NULL) {
 						Label ratingLabel = new Label((box.Children.Length > 0 ? ", " : "") //Commas to delimit ratings
 													  + TextTools.PrintRating(i, values[0, i]));
 						ratingLabel.SetAlignment(0, 0);
@@ -68,7 +66,7 @@ namespace Parahumans.Core {
 				}
 
 				for (int k = 1; k <= 3; k++) {
-					if (values[k, 0] > 0) {
+					if (o_vals[k, 0] != Ratings.O_NULL) {
 
 						Label ratingLabel = new Label((box.Children.Length > 0 ? ", " : "") //Commas to delimit ratings
 													  + TextTools.PrintRating(k + 8, values[k, 0], true));
@@ -76,7 +74,7 @@ namespace Parahumans.Core {
 
 						List<String> subratings = new List<String>();
 						for (int i = 1; i <= 8; i++)
-							if (values[k, i] > 0)
+							if (o_vals[k, i] != Ratings.O_NULL)
 								subratings.Add(TextTools.PrintRating(i, values[k, i]));
 						ratingLabel.TooltipText = String.Join("\n", subratings);
 
@@ -114,7 +112,7 @@ namespace Parahumans.Core {
 			VBox mainBox = new VBox();
 
 			editBox = new TextView();
-			editBox.Buffer.Text = TextTools.PrintRatings(parahuman.baseRatings.values);
+			editBox.Buffer.Text = TextTools.PrintRatings(parahuman.baseRatings.values, parahuman.baseRatings.o_vals);
 			mainBox.PackStart(editBox, true, true, 0);
 			editBox.SetBorderWindowSize(TextWindowType.Top, 10);
 
@@ -179,6 +177,7 @@ namespace Parahumans.Core {
 		public RatingsTable (Context context, RatingsProfile profile, float[] multipliers = null, float[] metamultipliers = null) : base(7, 10, false) {
 
 			float[,] values = profile.values;
+			int[,] o_vals = profile.o_vals;
 
 			ColumnSpacing = 5;
 			RowSpacing = 5;
@@ -203,8 +202,12 @@ namespace Parahumans.Core {
 				Attach(rowLabel, 0, 1, i + 2, i + 3);
 				//Numbers
 				for (uint j = 1; j <= 8; j++) {
-					Label numberLabel = new Label(values[i, j].ToString("0.0"));
-					if (numberLabel.Text == "0.0") numberLabel.Text = "-";
+					Label numberLabel = new Label();
+					if (o_vals[i,j] == Ratings.O_NULL) {
+						numberLabel.Text = "-";
+					} else {
+						numberLabel.Text = values[i, j].ToString("0.0");
+					}
 					numberLabel.SetAlignment(1, 1);
 					Attach(numberLabel, j + 1, j + 2, i + 2, i + 3);
 				}

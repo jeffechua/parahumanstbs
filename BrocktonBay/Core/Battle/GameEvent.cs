@@ -33,7 +33,7 @@ namespace Parahumans.Core {
 
 
 		[BimorphicDisplayable(3, typeof(TabularContainerField), typeof(LinearContainerField),
-		                      new string[] { "initiator_strength", "initiator_stealth", "initiator_insight" }), EmphasizedIfVertical]
+							  new string[] { "initiator_strength", "initiator_stealth", "initiator_insight" }), EmphasizedIfVertical]
 		public Expression[] initiator_stats {
 			get {
 				return new Expression[] { initiator_strength, initiator_stealth, initiator_insight };
@@ -63,7 +63,7 @@ namespace Parahumans.Core {
 
 
 		[BimorphicDisplayable(4, typeof(TabularContainerField), typeof(LinearContainerField),
-		                      new string[] { "responder_strength", "responder_stealth", "responder_insight" }), EmphasizedIfVertical]
+							  new string[] { "responder_strength", "responder_stealth", "responder_insight" }), EmphasizedIfVertical]
 		public Expression[] responder_stats {
 			get {
 				return new Expression[] { responder_strength, responder_stealth, responder_insight };
@@ -145,7 +145,7 @@ namespace Parahumans.Core {
 			};
 
 			RatingsProfile profile = profiles[i].final;
-			float[,] values = profile.values;
+			float[,] values = Ratings.NullToZero(profile.values);
 
 			//Strength
 			float baseStrength = values[4, 1] + values[4, 2] + values[4, 3] / 2 + values[4, 4] / 2;
@@ -166,9 +166,9 @@ namespace Parahumans.Core {
 		}
 
 		public EffectiveRatingsProfile GetEffectiveProfile (RatingsProfile original, RatingsProfile enemy) {
-			
-			float[,] originalValues = original.values;
-			float[,] enemyValues = enemy.values;
+
+			float[,] originalValues = Ratings.NullToZero(original.values);
+			float[,] enemyValues = Ratings.NullToZero(enemy.values);
 
 			// Calculate the multipliers. Reference for matching indices:
 			//  1   2   3   4   5   6   7   8   9   10  11
@@ -194,23 +194,26 @@ namespace Parahumans.Core {
 
 			// Multiply the multipliers
 
-			float[,] finalValues = new float[5, 9];
+			int[,] finalOValues = new int[5, 9];
 
 			for (int i = 0; i < 4; i++) {
 				for (int j = 0; j < 9; j++) {
 					if (i == 3) {
-						finalValues[i, j] = originalValues[i, j] * metamultipliers[i];
+						finalOValues[i, j] = Ratings.Empower(originalValues[i, j] * metamultipliers[i]);
 						//Breakers are immune to regular multipliers, only vulnerable to its wrapper metamultiplier (Thinker)
 					} else {
-						finalValues[i, j] = originalValues[i, j] * multipliers[j] * metamultipliers[i];
+						finalOValues[i, j] = Ratings.Empower(originalValues[i, j] * multipliers[j] * metamultipliers[i]);
 					}
 				}
 			}
 
-			for (int i = 0; i < 9; i++) //The fourth row is the "sum" row.
-				finalValues[4, i] = finalValues[0, i] + finalValues[1, i] + finalValues[2, i] + finalValues[3, i];
+			finalOValues = Ratings.ZeroToNull(finalOValues);
 
-			RatingsProfile final = new RatingsProfile(finalValues);
+			for (int i = 0; i < 9; i++) //The fourth row is the "sum" row.
+				finalOValues[4, i] = finalOValues[0, i] + finalOValues[1, i] + finalOValues[2, i] + finalOValues[3, i];
+			
+
+			RatingsProfile final = new RatingsProfile(finalOValues);
 
 			return new EffectiveRatingsProfile(original, final, multipliers, metamultipliers);
 

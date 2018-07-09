@@ -37,7 +37,7 @@ namespace Parahumans.Core {
 	}
 
 	public sealed class Parahuman : GameObject, IRated, Agent {
-
+		 
 		public override int order { get { return 1; } }
 		public Gdk.Color color { get { return new Gdk.Color(0, 0, 0); } }
 
@@ -134,10 +134,11 @@ namespace Parahumans.Core {
 
 			VBox ratingsBox = new VBox(false, 0) { BorderWidth = 5 };
 
-			float[,] cRatings = ratings(context).values;
+			RatingsProfile profile = ratings(context);
+			float[,] cRatings = profile.values;
 
 			for (int i = 1; i <= 8; i++) {
-				if (cRatings[0, i] > 0) {
+				if (profile.o_vals[0, i] != Ratings.O_NULL) {
 					Label ratingLabel = new Label(TextTools.PrintRating(i, cRatings[0, i]));
 					ratingLabel.SetAlignment(0, 0);
 					ratingsBox.PackStart(ratingLabel, false, false, 0);
@@ -145,14 +146,14 @@ namespace Parahumans.Core {
 			}
 
 			for (int k = 1; k <= 3; k++) {
-				if (cRatings[k, 0] > 0) {
+				if (profile.o_vals[k, 0] != Ratings.O_NULL) {
 
 					Label ratingLabel = new Label(TextTools.PrintRating(k + 8, cRatings[k, 0], true));
 					ratingLabel.SetAlignment(0, 0);
 
 					List<String> subratings = new List<String>();
 					for (int i = 1; i <= 8; i++)
-						if (cRatings[k, i] > 0)
+						if (profile.o_vals[k, i] != Ratings.O_NULL)
 							subratings.Add(TextTools.PrintRating(i, cRatings[k, i]));
 					ratingLabel.TooltipText = String.Join("\n", subratings);
 

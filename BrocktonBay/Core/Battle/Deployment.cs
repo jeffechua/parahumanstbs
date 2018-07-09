@@ -153,8 +153,8 @@ namespace Parahumans.Core {
 		public void Sort () {
 
 			//Sort stuff.
-			teams.Sort((x, y) => y.ID.CompareTo(x.ID));
-			independents.Sort((x, y) => y.ID.CompareTo(x.ID));
+			teams.Sort();
+			independents.Sort();
 
 			//Load stuff into combined_roster
 			CombineRoster();

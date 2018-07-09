@@ -8,6 +8,7 @@ namespace Parahumans.Core {
 	public class RatingsRadarChart : Gtk.Image {
 
 		float[,] values;
+		int[,] o_vals;
 		float[] multipliers;
 		float[] metamultipliers;
 		Context context;
@@ -19,6 +20,7 @@ namespace Parahumans.Core {
 		public RatingsRadarChart (Context context, RatingsProfile profile, float[] multipliers = null, float[] metamultipliers = null) {
 			this.context = context;
 			values = profile.values;
+			o_vals = profile.o_vals;
 			this.multipliers = multipliers;
 			this.metamultipliers = metamultipliers;
 			SetSizeRequest(0, 0);
@@ -53,7 +55,7 @@ namespace Parahumans.Core {
 				new Gdk.GC(color) { RgbFgColor = new Gdk.Color(170, 140, 0) }, //Regular
 				new Gdk.GC(color) { RgbFgColor = new Color(0, 150, 0) },       //Master
 				new Gdk.GC(color) { RgbFgColor = new Color(0, 0, 200) },       //Tinker
-				new Gdk.GC(color) { RgbFgColor = new Color(0, 0, 0) },         //Breaker and transparent
+				new Gdk.GC(color) { RgbFgColor = new Color(0, 0, 0) },         //Breaker
 			};
 
 			color.DrawRectangle(white, true, new Rectangle(0, 0, size, size));
@@ -77,20 +79,23 @@ namespace Parahumans.Core {
 
 			int[] indexMap = { 0, 1, 5, 3, 7, 0, 4, 6, 2 }; //old[0] -> new[1], old[1] -> new[5] etc.
 			int[] reverseIndexMap = { 5, 1, 8, 3, 6, 2, 7, 4 }; //old[0] -> new[1], old[1] -> new[5] etc.
-			float[,] magnitudes = new float[4, 8]; //Magnitudes of the positions of the vertices
+			float[] magnitudes = new float[8]; //Magnitudes of the positions of the vertices
+			float[,] fractions = new float[8, 3]; //Fractional contribution of each wrapper of each rating classification
 
 			for (int i = 1; i <= 8; i++) {
 				int j = indexMap[i];
-				magnitudes[0, j] = values[0, i];
-				magnitudes[1, j] = values[1, i] + magnitudes[0, j];
-				magnitudes[2, j] = values[2, i] + magnitudes[1, j];
-				magnitudes[3, j] = values[4, i]; // = profile.ratings[3, i] + magnitudes[2, j]
+				magnitudes[j] = values[4, i] > 0 ? values[4, i] : 0;
+				if (o_vals[4, i] != 0) {
+					fractions[j, 0] = (float)o_vals[0, i] / o_vals[4, i];
+					fractions[j, 1] = (float)(o_vals[0, i] + o_vals[1, i]) / o_vals[4, i];
+					fractions[j, 2] = (float)(o_vals[0, i] + o_vals[1, i] + o_vals[2, i]) / o_vals[4, i];
+				}
 			}
 
 			float greatestMagnitude = 0;
 			for (int i = 0; i < 8; i++)
-				if (magnitudes[3, i] > greatestMagnitude)
-					greatestMagnitude = magnitudes[3, i];
+				if (magnitudes[i] > greatestMagnitude)
+					greatestMagnitude = magnitudes[i];
 			if (greatestMagnitude < 0.01) return;
 
 			//Determing text radius and preload labels;
@@ -155,9 +160,11 @@ namespace Parahumans.Core {
 
 			//Compute vertices
 			IntVector2[,] vertices = new IntVector2[4, 8];
-			for (int i = 0; i < 4; i++)
-				for (int j = 0; j < 8; j++)
-					vertices[i, j] = directions[j] * (chartRadius / greatestMagnitude) * magnitudes[i, j] + (Vector2)center;
+			for (int i = 0; i < 8; i++) {
+				for (int j = 0; j < 3; j++)
+					vertices[j, i] = directions[i] * (chartRadius / greatestMagnitude) * magnitudes[i] * fractions[i, j] + (Vector2)center;
+				vertices[3, i] = directions[i] * (chartRadius / greatestMagnitude) * magnitudes[i] + (Vector2)center;
+			}
 
 			//Bump vertices by a pixel if they overlap.
 			for (int i = 1; i < 4; i++)

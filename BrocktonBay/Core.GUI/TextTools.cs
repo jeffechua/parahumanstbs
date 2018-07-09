@@ -23,18 +23,18 @@ namespace Parahumans.Core {
 			"Nullifies all multipliers"           //Breaker
 		};
 
-		public static string PrintRatings (float[,] values) {
+		public static string PrintRatings (float[,] values, int[,] o_vals) {
 			string text = "";
 			for (int i = 1; i <= 8; i++) {
-				if (values[0, i] > 0) {
-					text += "\n" + PrintRating(i, values[0,i]);
+				if (o_vals[0, i] != Ratings.O_NULL) {
+					text += "\n" + PrintRating(i, values[0, i]);
 				}
 			}
 			for (int k = 1; k <= 3; k++) {
-				if (values[k,0] > 0) {
-					text += "\n" + PrintRating(k+8, values[k,0]);
+				if (o_vals[k, 0] != Ratings.O_NULL) {
+					text += "\n" + PrintRating(k + 8, values[k, 0]);
 					for (int i = 1; i <= 8; i++) {
-						if (values[k, i] > 0) {
+						if (o_vals[k, i] != Ratings.O_NULL) {
 							text += "\n\t" + PrintRating(i, values[k, i]);
 						}
 					}
@@ -46,35 +46,36 @@ namespace Parahumans.Core {
 		public static String PrintRating (int classification, float number, bool wrapperStar = false) {
 			return Enum.GetName(typeof(Classification), classification)
 					   + ((classification > 7 && wrapperStar) ? "* " : " ")
-				       + (Math.Round(number*10)/10).ToString();
+					   + (Math.Round(number * 10) / 10).ToString();
 		}
 
 		public static bool TryParseRatings (string text, out RatingsProfile? ratings) {
 			ratings = null;
 			int currentWrapper = 0;
-			float[,] values = new float[5, 9];
+			int[,] o_vals = new int[5,9];
 			string[] lines = text.Split('\n');
 			foreach (string line in lines) {
-				if (!TryParseRating(line.Trim(), out Tuple<int, float> clssfNumPair)) return false;
+				if (!TryParseRating(line.Trim(), out Tuple<int, float> rating)) return false;
 
 				if (line[0] == '\t') {
 					// An indented entry makes no sense if we aren't in a wrapper or it's trying to declare a wrapper
-					if (currentWrapper == 0 || clssfNumPair.Item1 > 8) return false;
+					if (currentWrapper == 0 || rating.Item1 > 8) return false;
 					// Everything is fine? According to the currentWrapper, append the entry to the relevant ratings
-					values[currentWrapper, clssfNumPair.Item1] += clssfNumPair.Item2;
-					values[4, clssfNumPair.Item1] += clssfNumPair.Item2;
+					o_vals[currentWrapper, rating.Item1] += Ratings.Empower(rating.Item2);
+					o_vals[4, rating.Item1] += Ratings.Empower(rating.Item2);
 				} else {
 					currentWrapper = 0;
-					if (clssfNumPair.Item1 <= 8) { //If it's a normal entry, append it to the base ratings.
-						values[0, clssfNumPair.Item1] += clssfNumPair.Item2;
-						values[4, clssfNumPair.Item1] += clssfNumPair.Item2;
+					if (rating.Item1 <= 8) { //If it's a normal entry, append it to the base ratings.
+						o_vals[0, rating.Item1] += Ratings.Empower(rating.Item2);
+						o_vals[4, rating.Item1] += Ratings.Empower(rating.Item2);
 					} else { //Otherwise, it's a wrapper, so we "enter" it and log the wrapper metarating.
-						currentWrapper = clssfNumPair.Item1 - 8;
-						values[currentWrapper,0] += clssfNumPair.Item2;
+						currentWrapper = rating.Item1 - 8;
+						o_vals[currentWrapper, 0] += Ratings.Empower(rating.Item2);
 					}
 				}
+
 			}
-			ratings = new RatingsProfile(values);
+			ratings = new RatingsProfile(o_vals);
 			return true;
 		}
 
