@@ -4,25 +4,6 @@ namespace Parahumans.Core {
 
 	public static class TextTools {
 
-		public static readonly string[] deploymentRows = { "Base", "Tinker", "Master", "Breaker", "Total" };
-
-		public static readonly string[] multiplierExplain = {
-			"±10% / Mover lvl\n−10% / Striker lvl",   //Brute
-			"±10% / Stranger lvl\n−10% / Shaker lvl", //Blaster
-			"−10% / Brute lvl",                     //Shaker
-			"−10% / Blaster lvl",                   //Striker
-			"No multiplier",                      //Mover
-			"No multiplier",                      //Stranger
-			"No multiplier",                      //Thinker
-			"No multiplier"                       //Trump
-		};
-		public static readonly string[] metamultiplierExplain = {
-			"−10% / Trump lvl",                      //Base
-			"−10% / Striker lvl",                   //Tinker
-			"−10% / Shaker lvl",                    //Master
-			"Nullifies all multipliers"           //Breaker
-		};
-
 		public static string PrintRatings (float[,] values, int[,] o_vals) {
 			string text = "";
 			for (int i = 1; i <= 8; i++) {

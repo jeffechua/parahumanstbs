@@ -66,7 +66,7 @@ namespace Parahumans.Core {
 
 		//public List<Asset> assets { get; set; }
 
-		[Displayable(9, typeof(RatingsMultiviewField), true), Emphasized, VerticalOnly]
+		[Displayable(9, typeof(RatingsMultiviewField), true), Emphasized, VerticalOnly, Expand]
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
 
 

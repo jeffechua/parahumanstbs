@@ -31,7 +31,7 @@ namespace Parahumans.Core {
 
 			int width = args.Allocation.Width;
 			int height = args.Allocation.Height;
-			int size = context.vertical ? width : height;
+			int size = Math.Min(width, height);
 
 			//If this is true, then we don't need to update.
 			if (size == currentSize) return;

@@ -28,13 +28,13 @@ namespace Parahumans.Core {
 		[Displayable(6, typeof(CellObjectListField<Team>), 2), Emphasized]
 		public List<Team> teams { get; set; }
 
-		[Displayable(7, typeof(CellObjectListField<Parahuman>), 3), Emphasized]
+		[Displayable(7, typeof(CellObjectListField<Parahuman>), 2), Emphasized]
 		public List<Parahuman> independents { get; set; }
 
-		[Displayable(8, typeof(CellObjectListField<Parahuman>), 3), Emphasized]
+		[Displayable(8, typeof(CellObjectListField<Parahuman>), 2), Emphasized]
 		public List<Parahuman> combined_roster { get; set; }
 
-		[Displayable(9, typeof(RatingsMultiviewField), true), Emphasized, VerticalOnly]
+		[Displayable(9, typeof(RatingsMultiviewField), true), Emphasized, VerticalOnly, Expand]
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
 
 

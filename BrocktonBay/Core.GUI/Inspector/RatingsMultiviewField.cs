@@ -5,8 +5,8 @@ using Gdk;
 
 namespace Parahumans.Core {
 
-	public class SquareContainer : Gtk.Alignment {
-		public SquareContainer () : base(0.5f, 0.5f, 1, 1) {
+	public class SquareContainer : Bin {
+		public SquareContainer () {
 			SizeRequested += delegate (object obj, SizeRequestedArgs args) {
 				Requisition childRequisition = Child.SizeRequest();
 				int width = childRequisition.Width;
@@ -15,13 +15,12 @@ namespace Parahumans.Core {
 				Requisition requisition = args.Requisition;
 				requisition.Width = requisition.Height = size;
 				args.Requisition = requisition;
-				if(width>height){
-					Xscale = 0;
-					Yscale = 1;
-				}else {
-					Xscale = 1;
-					Yscale = 0;
-				}
+			};
+			SizeAllocated += delegate (object obj, SizeAllocatedArgs args) {
+				int size = Math.Min(args.Allocation.Width, args.Allocation.Height);
+				int x = (args.Allocation.Width - size) / 2;
+				int y = (args.Allocation.Height - size) / 2;
+				Child.SizeAllocate(new Rectangle(args.Allocation.X + x, args.Allocation.Y + y, size, size));
 			};
 		}
 	}
@@ -34,7 +33,7 @@ namespace Parahumans.Core {
 		string[] labels = { "Table", "Radar Chart" };
 
 		public RatingsMultiviewField (PropertyInfo property, object obj, Context context, object arg) {
-			
+
 			this.context = context;
 			BorderWidth = 5;
 
@@ -80,13 +79,12 @@ namespace Parahumans.Core {
 			RatingsTable table = new RatingsTable(context.butCompact, profile);
 			notebook.AppendPage(radar, null);
 			notebook.AppendPage(new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = table }, null);
-
 		}
 
 	}
 
 	public class EffectiveRatingsMultiview : Frame {
-		
+
 		protected Notebook notebook;
 		protected Context context;
 

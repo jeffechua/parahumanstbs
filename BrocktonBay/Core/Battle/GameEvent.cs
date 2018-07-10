@@ -28,7 +28,7 @@ namespace Parahumans.Core {
 		[Displayable(1, typeof(ObjectField)), ForceHorizontal]
 		public EventLocation location;
 
-		[Displayable(2, typeof(EffectiveRatingsMultiview)), EmphasizedAttribute]
+		[Displayable(2, typeof(EffectiveRatingsMultiview)), EmphasizedAttribute, Expand]
 		public EffectiveRatingsProfile initiator_profile { get { return profiles[0]; } set { profiles[0] = value; } }
 
 
@@ -83,7 +83,7 @@ namespace Parahumans.Core {
 		public Expression responder_insight { get; set; }
 
 
-		[Displayable(5, typeof(EffectiveRatingsMultiview)), EmphasizedAttribute]
+		[Displayable(5, typeof(EffectiveRatingsMultiview)), EmphasizedAttribute, Expand]
 		public EffectiveRatingsProfile responder_profile { get { return profiles[1]; } set { profiles[1] = value; } }
 
 		Context context;
