@@ -21,6 +21,7 @@ namespace Parahumans.Core {
 		public EffectiveRatingsProfile[] profiles;
 
 		public string name { get { return "Event at " + location.name; } }
+		Context context;
 
 		[Displayable(0, typeof(EnumField<GameEventType>))]
 		public GameEventType type;
@@ -28,9 +29,10 @@ namespace Parahumans.Core {
 		[Displayable(1, typeof(ObjectField)), ForceHorizontal]
 		public EventLocation location;
 
+
+
 		[Displayable(2, typeof(EffectiveRatingsMultiview)), EmphasizedAttribute, Expand]
 		public EffectiveRatingsProfile initiator_profile { get { return profiles[0]; } set { profiles[0] = value; } }
-
 
 		[BimorphicDisplayable(3, typeof(TabularContainerField), typeof(LinearContainerField),
 							  new string[] { "initiator_strength", "initiator_stealth", "initiator_insight" }), EmphasizedIfVertical]
@@ -44,7 +46,6 @@ namespace Parahumans.Core {
 				initiator_insight = value[2];
 			}
 		}
-
 		[Child("Strength"), Displayable(0, typeof(ExpressionField)), TooltipText("β + δ + ½Σ + ½ψ + bonuses\n× force multiplier")]
 		public Expression initiator_strength { get; set; }
 		[Child("Stealth"), Displayable(0, typeof(ExpressionField)), TooltipText("μ + φ + bonuses")]
@@ -52,17 +53,20 @@ namespace Parahumans.Core {
 		[Child("Insight"), Displayable(0, typeof(ExpressionField)), TooltipText("ξ + Ω + bonuses")]
 		public Expression initiator_insight { get; set; }
 
+		[Displayable(4, typeof(FractionsBar), false), TooltipText("Injury chance = STR<sub>enemy</sub> / STR<sub>total</sub> / 2"), Emphasized]
+		public Fraction[] initiator_injury { get; set; } //Chance of being injured, per member
+		[Displayable(5, typeof(FractionsBar), false), TooltipText("Captured chance = INS<sub>enemy</sub> / STL<sub>self</sub> / 4"), Emphasized]
+		public Fraction[] initiator_escape { get; set; } //Chance of escaping, per member
 
-		/*
-		[Displayable(3, typeof(FractionsBar)), Emphasized, Padded(10, 10)]
-		public Fraction[] victory { get; set; }
+		[Displayable(6, typeof(Banner)), Emphasized, Padded(25, 25)]
+		public string projected_victor { get; set; }
 
-		[Displayable(4, typeof(FractionsBar)), Emphasized, Padded(10, 10)]
-		public Fraction[] territory { get; set; }
-		*/
+		[Displayable(7, typeof(FractionsBar), false), TooltipText("Injury chance = STR<sub>enemy</sub> / STR<sub>total</sub> / 2"), Emphasized]
+		public Fraction[] responder_injury { get; set; } //Chance of being injured, per member
+		[Displayable(8, typeof(FractionsBar), false), TooltipText("Capture chance = INS<sub>enemy</sub> / STL<sub>self</sub> / 4"), Emphasized]
+		public Fraction[] responder_escape { get; set; } //Chance of capture, per member
 
-
-		[BimorphicDisplayable(4, typeof(TabularContainerField), typeof(LinearContainerField),
+		[BimorphicDisplayable(9, typeof(TabularContainerField), typeof(LinearContainerField),
 							  new string[] { "responder_strength", "responder_stealth", "responder_insight" }), EmphasizedIfVertical]
 		public Expression[] responder_stats {
 			get {
@@ -74,7 +78,6 @@ namespace Parahumans.Core {
 				responder_insight = value[2];
 			}
 		}
-
 		[Child("Strength"), Displayable(0, typeof(ExpressionField)), TooltipText("β + δ + ½Σ + ½ψ + bonuses\n× force multiplier")]
 		public Expression responder_strength { get; set; }
 		[Child("Stealth"), Displayable(0, typeof(ExpressionField)), TooltipText("μ + φ + bonuses")]
@@ -82,11 +85,11 @@ namespace Parahumans.Core {
 		[Child("Insight"), Displayable(0, typeof(ExpressionField)), TooltipText("ξ + Ω + bonuses")]
 		public Expression responder_insight { get; set; }
 
-
-		[Displayable(5, typeof(EffectiveRatingsMultiview)), EmphasizedAttribute, Expand]
+		[Displayable(10, typeof(EffectiveRatingsMultiview)), Emphasized, Expand]
 		public EffectiveRatingsProfile responder_profile { get { return profiles[1]; } set { profiles[1] = value; } }
 
-		Context context;
+
+
 
 		public GameEvent (EventLocation location) {
 			this.location = location;
@@ -100,32 +103,23 @@ namespace Parahumans.Core {
 
 		public void Reload () {
 
-			initiator_profile = GetEffectiveProfile(initiators.ratings(context), responders.ratings(context));
-			responder_profile = GetEffectiveProfile(responders.ratings(context), initiators.ratings(context));
+			initiator_profile = CompareProfiles(initiators.ratings(context), responders.ratings(context));
+			responder_profile = CompareProfiles(responders.ratings(context), initiators.ratings(context));
 
 			initiator_stats = GetStats(0);
 			responder_stats = GetStats(1);
 
-			/*
-			Deployment.Compare(initiators, responders);
+			projected_victor = "Projected Victor:<small><small>\n\n</small></small><big>" +
+							   ((initiator_strength.result >= responder_strength.result) ?
+								"<big>INITIATORS</big>" + (initiators.affiliation == null ? "" : "\n" + initiators.affiliation.name) :
+								"<big>RESPONDERS</big>" + (responders.affiliation == null ? "" : "\n" + responders.affiliation.name))
+							    + "</big>";
 
-			victory = new Fraction[2];
-			victory[0] = new Fraction(initiators.affiliation.name, initiators.strength.result / (initiators.strength.result + responders.strength.result),
-										Graphics.GetColor(initiators.alignment));
-			victory[1] = new Fraction(responders.name, responders.strength.result / (initiators.strength.result + responders.strength.result),
-										Graphics.GetColor(responders.alignment));
-
-			if (victory[0].val > 0.33) {
-				territory = new Fraction[3];
-				territory[0] = new Fraction("Capture", victory[0].val * victory[0].val, new Gdk.Color(0, 200, 0));
-				territory[1] = new Fraction("Raze", victory[0].val - victory[0].val * victory[0].val, new Gdk.Color(200, 0, 0));
-				territory[2] = new Fraction("Safe", victory[1].val, new Gdk.Color(0, 0, 200));
-			} else {
-				territory = new Fraction[2];
-				territory[0] = new Fraction("Raze", victory[0].val, new Gdk.Color(200, 0, 0));
-				territory[1] = new Fraction("Safe", victory[1].val, new Gdk.Color(0, 0, 200));
-			}
-			*/
+			Tuple<Fraction[], Fraction[]> fractions;
+			fractions = CompareStats(initiator_stats, responder_stats, responders.authorized_force);
+			initiator_injury = fractions.Item1; initiator_escape = fractions.Item2;
+			fractions = CompareStats(responder_stats, initiator_stats, initiators.authorized_force);
+			responder_injury = fractions.Item1; responder_escape = fractions.Item2;
 
 		}
 
@@ -165,7 +159,55 @@ namespace Parahumans.Core {
 
 		}
 
-		public EffectiveRatingsProfile GetEffectiveProfile (RatingsProfile original, RatingsProfile enemy) {
+		public Tuple<Fraction[], Fraction[]> CompareStats (Expression[] original, Expression[] enemy, Threat force) {
+			Fraction[] injury = new Fraction[4];
+			float base_chance = enemy[0].result < 0.01 ? 0 : (enemy[0].result / (original[0].result + enemy[0].result) / 2);
+			if (base_chance > 1) base_chance = 1;
+			float injury_chance;
+			float down_chance;
+			float death_chance;
+			float healthy_chance;
+			switch (force) {
+				case Threat.C:
+					death_chance = 0;
+					down_chance = 0;
+					injury_chance = base_chance;
+					healthy_chance = 1 - base_chance;
+					break;
+				case Threat.B:
+					death_chance = 0;
+					down_chance = base_chance * base_chance;
+					injury_chance = base_chance - down_chance;
+					healthy_chance = 1 - base_chance;
+					break;
+				case Threat.A:
+					death_chance = base_chance * base_chance * base_chance;
+					down_chance = base_chance * base_chance - death_chance;
+					injury_chance = base_chance - base_chance * base_chance;
+					healthy_chance = 1 - base_chance;
+					break;
+				default:
+					death_chance = base_chance * base_chance;
+					down_chance = 0;
+					injury_chance = base_chance - death_chance;
+					healthy_chance = 1 - base_chance;
+					break;
+			}
+			injury[0] = new Fraction("Killed", death_chance, Graphics.GetColor(Health.Deceased));
+			injury[1] = new Fraction("Downed", down_chance, Graphics.GetColor(Health.Down));
+			injury[2] = new Fraction("Injured", injury_chance, Graphics.GetColor(Health.Injured));
+			injury[3] = new Fraction("Unharmed", healthy_chance, Graphics.GetColor(Health.Healthy));
+
+			Fraction[] escape = new Fraction[2];
+			float capture_chance = original[1].result < 0.01 ? 1 : enemy[2].result / original[1].result / 4;
+			if (capture_chance > 1) capture_chance = 1;
+			escape[0] = new Fraction("Captured", capture_chance, Graphics.GetColor(Alignment.Villain));
+			escape[1] = new Fraction("Escaped", 1 - capture_chance, Graphics.GetColor(Alignment.Hero));
+
+			return new Tuple<Fraction[], Fraction[]>(injury, escape);
+		}
+
+		public EffectiveRatingsProfile CompareProfiles (RatingsProfile original, RatingsProfile enemy) {
 
 			float[,] originalValues = Ratings.NullToZero(original.values);
 			float[,] enemyValues = Ratings.NullToZero(enemy.values);
@@ -211,7 +253,7 @@ namespace Parahumans.Core {
 
 			for (int i = 0; i < 9; i++) //The fourth row is the "sum" row.
 				finalOValues[4, i] = finalOValues[0, i] + finalOValues[1, i] + finalOValues[2, i] + finalOValues[3, i];
-			
+
 
 			RatingsProfile final = new RatingsProfile(finalOValues);
 

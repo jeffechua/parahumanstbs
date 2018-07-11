@@ -68,50 +68,15 @@ namespace Parahumans.Core {
 			fileMenu = new Menu();
 			MenuItem newGamebutton = new MenuItem("New Game") { Sensitive = false }; //Implement
 			MenuItem openButton = new MenuItem("Open");
-			openButton.Activated += delegate {
-				if (city == null) {
-					IO.SelectOpen();
-				} else {
-					MessageDialog dialog = new MessageDialog(mainWindow, DialogFlags.DestroyWithParent, MessageType.Question, ButtonsType.YesNo, "Save current game?");
-					dialog.Response += delegate (object obj, ResponseArgs response) {
-						if (response.ResponseId == ResponseType.Yes)
-							IO.SelectSave(city);
-						IO.SelectOpen();
-					};
-					dialog.Run();
-					dialog.Destroy();
-				}
-			};
+			openButton.Activated += (o, a) => IO.AskIfSaveBefore(IO.SelectOpen);
 			saveButton = new MenuItem("Save") { Sensitive = false };
-			saveButton.Activated += (o, a) => IO.SelectSave(city);
+			saveButton.Activated += (o, a) => IO.SelectSave();
 			saveAsButton = new MenuItem("Save As") { Sensitive = false };
-			saveAsButton.Activated += (o, a) => IO.SelectSaveAs(city);
+			saveAsButton.Activated += (o, a) => IO.SelectSaveAs();
 			closeButton = new MenuItem("Close") { Sensitive = false };
-			closeButton.Activated += delegate {
-				MessageDialog dialog = new MessageDialog(mainWindow, DialogFlags.DestroyWithParent, MessageType.Question, ButtonsType.YesNo, "Save before closing?");
-				dialog.Response += delegate (object obj, ResponseArgs response) {
-					if (response.ResponseId == ResponseType.Yes)
-						IO.SelectSave(city);
-					Unload();
-				};
-				dialog.Run();
-				dialog.Destroy();
-			};
+			closeButton.Activated += (o, a) => IO.AskIfSaveBefore(Unload);
 			MenuItem quitButton = new MenuItem("Quit");
-			quitButton.Activated += delegate {
-				if (city == null) {
-					Application.Quit();
-				} else {
-					MessageDialog dialog = new MessageDialog(mainWindow, DialogFlags.DestroyWithParent, MessageType.Question, ButtonsType.YesNo, "Save before quitting?");
-					dialog.Response += delegate (object obj, ResponseArgs response) {
-						if (response.ResponseId == ResponseType.Yes)
-							IO.SelectSave(city);
-						Application.Quit();
-					};
-					dialog.Run();
-					dialog.Destroy();
-				}
-			};
+			quitButton.Activated += (o, a) => IO.AskIfSaveBefore(Application.Quit);
 			fileButton.Submenu = fileMenu;
 			fileMenu.Append(newGamebutton);
 			fileMenu.Append(new SeparatorMenuItem());

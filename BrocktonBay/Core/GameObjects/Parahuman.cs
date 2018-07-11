@@ -37,7 +37,7 @@ namespace Parahumans.Core {
 	}
 
 	public sealed class Parahuman : GameObject, IRated, Agent {
-		 
+
 		public override int order { get { return 1; } }
 		public Gdk.Color color { get { return new Gdk.Color(0, 0, 0); } }
 

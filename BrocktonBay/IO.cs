@@ -10,6 +10,21 @@ namespace Parahumans.Core {
 
 		public static string currentSaveFolder;
 
+		public static void AskIfSaveBefore (System.Action action) {
+			if (MainClass.city == null) {
+				action();
+				return;
+			}
+			MessageDialog dialog = new MessageDialog(MainClass.mainWindow, DialogFlags.DestroyWithParent, MessageType.Question, ButtonsType.YesNo, "Save current game?");
+			dialog.Response += delegate (object obj, ResponseArgs response) {
+				if (response.ResponseId == ResponseType.Yes)
+					IO.SelectSave();
+				action();
+			};
+			dialog.Run();
+			dialog.Destroy();
+		}
+
 		public static void SelectOpen () {
 			FileChooserDialog openDialog = new FileChooserDialog("Open save", MainClass.mainWindow, FileChooserAction.SelectFolder, "Cancel", ResponseType.Cancel, "Open", ResponseType.Accept);
 			openDialog.Response += delegate (object obj, ResponseArgs args) {
@@ -22,20 +37,20 @@ namespace Parahumans.Core {
 			openDialog.Destroy();
 		}
 
-		public static void SelectSave (City city) {
-			if (city.saveFolder == "") {
-				SelectSaveAs(city);
+		public static void SelectSave () {
+			if (MainClass.city.saveFolder == "") {
+				SelectSaveAs();
 			} else {
-				SaveAs(city, city.saveFolder);
+				SaveAs(MainClass.city, MainClass.city.saveFolder);
 			}
 		}
 
-		public static void SelectSaveAs (City city) {
+		public static void SelectSaveAs () {
 			FileChooserDialog saveDialog = new FileChooserDialog("Save as", MainClass.mainWindow, FileChooserAction.CreateFolder, "Cancel", ResponseType.Cancel, "Save", ResponseType.Accept);
 			saveDialog.Response += delegate (object obj, ResponseArgs args) {
 				if (args.ResponseId == ResponseType.Accept) {
 					string path = new Uri(saveDialog.Uri).AbsolutePath;
-					SaveAs(city, path);
+					SaveAs(MainClass.city, path);
 					Console.WriteLine(path);
 				}
 			};

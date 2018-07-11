@@ -5,6 +5,14 @@ using Gtk;
 
 namespace Parahumans.Core {
 
+	public sealed class Banner : Label {
+		public Banner (PropertyInfo property, object obj, Context context, object arg) {
+			SetAlignment(0.5f, 0.5f);
+			Justify = Justification.Center;
+			UseMarkup = true;
+			Markup = (string)property.GetValue(obj);
+		}
+	}
 
 	public sealed class TabularContainerField : Table {
 		List<PropertyInfo> children;
@@ -183,7 +191,7 @@ namespace Parahumans.Core {
 			//Multi-line expressions are put in an expander with the label text being the formattedResult of the expression.
 			if (exp.text.Contains("\n")) {
 				Expander expander = new Expander(title + ": " + exp.formattedResult);
-				expander.Activated += (o,a) => ReloadLabel();
+				expander.Activated += (o, a) => ReloadLabel();
 				label.Markup = exp.ToString();
 				expander.Add(new Gtk.Alignment(0, 0, 1, 1) { Child = label, LeftPadding = 10, BottomPadding = 5 });
 				Add(expander);
@@ -213,7 +221,7 @@ namespace Parahumans.Core {
 				} else {
 					((Expander)Child).Label = title + ": " + exp.formattedResult;
 				}
-			}else {
+			} else {
 				((Label)Child).Markup = title + ": " + exp;
 			}
 		}
@@ -248,9 +256,11 @@ namespace Parahumans.Core {
 			fractions = (Fraction[])property.GetValue(obj);
 			this.context = context;
 
-			RowSpacing = 2;
-			Label title = new Label("[ " + TextTools.ToReadable(property.Name) + " ]");
-			Attach(title, 0, 1, 0, 1, AttachOptions.Fill, AttachOptions.Fill, 0, 2);
+			if ((bool)arg != false) {
+				RowSpacing = 2;
+				Label title = new Label("[ " + TextTools.ToReadable(property.Name) + " ]");
+				Attach(title, 0, 1, 0, 1, AttachOptions.Fill, AttachOptions.Fill, 0, 2);
+			}
 
 			TooltipTextAttribute tooltipText = (TooltipTextAttribute)property.GetCustomAttribute(typeof(TooltipTextAttribute));
 			if (tooltipText != null) {
@@ -274,7 +284,7 @@ namespace Parahumans.Core {
 				}
 
 				Frame frame = new Frame();
-				Graphics.SetAllFg(frame, fractions[i].color);
+				Graphics.SetAllBg(frame, fractions[i].color);
 
 				Gtk.Alignment alignment = new Gtk.Alignment(spaceAlloc, 0, fractions[i].val, 1);
 				alignment.Add(frame);

@@ -62,7 +62,7 @@ public partial class MainWindow : DefocusableWindowWithInspector {
 				MessageDialog dialog = new MessageDialog(this, DialogFlags.DestroyWithParent, MessageType.Question, ButtonsType.YesNo, "Save before quitting?");
 				dialog.Response += delegate (object o, ResponseArgs response) {
 					if (response.ResponseId == ResponseType.Yes)
-						IO.SelectSave(MainClass.city);
+						IO.SelectSave();
 					Application.Quit();
 				};
 				dialog.Run();

@@ -24,14 +24,14 @@ namespace Parahumans.Core {
 	public abstract class TextEditableField : HBox, LabelOverridable {
 
 		protected PropertyInfo property;
-		protected IGUIComplete obj;
+		protected IDependable obj;
 		protected Menu rightclickMenu;
 		protected Context context;
 
 		public TextEditableField (PropertyInfo property, object obj, Context context, object arg, bool suppressReload = false) {
 
 			this.property = property;
-			this.obj = (IGUIComplete)obj;
+			this.obj = (IDependable)obj;
 			this.context = context;
 
 			Label label = new Label(context.compact ? "" : (TextTools.ToReadable(property.Name) + ": "));

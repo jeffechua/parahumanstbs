@@ -22,7 +22,7 @@ namespace Parahumans.Core {
 		[Displayable(4, typeof(BasicReadonlyField))]
 		public Threat threat { get; set; }
 
-		[Displayable(5, typeof(BasicReadonlyField))]
+		[Displayable(5, typeof(EnumField<Threat>))]
 		public Threat authorized_force { get; set; }
 
 		[Displayable(6, typeof(CellTabularListField<Team>), 2), Emphasized]
@@ -37,27 +37,6 @@ namespace Parahumans.Core {
 		[Displayable(9, typeof(RatingsMultiviewField), true), Emphasized, VerticalOnly, Expand]
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
 
-
-		/*
-
-		[Displayable(9, typeof(ExpressionField)), TooltipText("β + δ + Σ + ψ\n+ pop. + xp\n+ bonuses")]
-		public Expression strength { get; set; }
-
-		[Displayable(10, typeof(ExpressionField)), TooltipText("μ + φ\n+ (3 - pop) + xp\n+ bonuses")]
-		public Expression mobility { get; set; }
-
-		[Displayable(11, typeof(ExpressionField)), TooltipText("ξ + Ω\n+ 1 + xp\n + bonuses")]
-		public Expression insight { get; set; }
-
-		[Displayable(12, typeof(FractionsBar)), TooltipText("STR<sub>enemy</sub> / STR<sub>total</sub> / 2"), Emphasized]
-		public Fraction[] injury { get; set; } //Chance of being injured, per member
-
-		[Displayable(13, typeof(FractionsBar)), TooltipText("MOB<sub>self</sub> / INS<sub>enemy</sub> / 2"), Emphasized]
-		public Fraction[] escape { get; set; } //Chance of escaping, per member
-
-		public Deployment enemy;
-
-		*/
 
 		public Deployment () : this(new List<Team>(), new List<Parahuman>()) { }
 
