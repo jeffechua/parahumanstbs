@@ -3,6 +3,7 @@ using System.Collections;
 using System.Reflection;
 using System;
 using Gtk;
+using Gdk;
 
 namespace Parahumans.Core {
 
@@ -49,12 +50,14 @@ namespace Parahumans.Core {
 
 	// the absolute value of (int)arg = number of columns in table if used
 	// arg>0 => expander starts expanded, <0 => starts collapsed
-	public abstract class ObjectListField<T> : EventBox where T : IGUIComplete {
+	public abstract class TabularListField<T> : EventBox where T : IGUIComplete {
 
 		protected IContainer parent;
 		protected Context context;
 
-		public ObjectListField (PropertyInfo property, object obj, Context context, object arg) { //obj must be an IContainer.
+		Menu rightclickMenu;
+
+		public TabularListField (PropertyInfo property, object obj, Context context, object arg) { //obj must be an IContainer.
 
 			parent = (IContainer)obj;
 			this.context = context;
@@ -67,7 +70,7 @@ namespace Parahumans.Core {
 			Add(alignment);
 
 			// Creates rightclick menu for listwide management
-			Menu rightclickMenu = new Menu();
+			rightclickMenu = new Menu();
 
 			// "Clear" button
 			MenuItem clearButton = new MenuItem("Clear"); //Clears list
@@ -92,7 +95,7 @@ namespace Parahumans.Core {
 				MenuItem addExistingButton = new MenuItem("Add Existing");
 				rightclickMenu.Append(addExistingButton);
 				addExistingButton.Activated += (o, a) => new SelectorDialog(
-					(Window)Toplevel, "Select new addition to " + TextTools.ToReadable(property.Name),
+					(Gtk.Window)Toplevel, "Select new addition to " + TextTools.ToReadable(property.Name),
 					(tested) => ((IContainer)obj).Accepts(tested) && tested is T,
 					delegate (GameObject returned) {
 						((IContainer)obj).Add(returned);
@@ -109,55 +112,24 @@ namespace Parahumans.Core {
 
 			if (context.vertical) {
 
-				Table table = new Table(0, 0, true) {
-					BorderWidth = (uint)(context.compact?0:10),
-					ColumnSpacing = 10,
-					RowSpacing = 10
-				};
-
-				for (int i = 0; i < list.Count; i++) {
-					uint xpos = (uint)i % (uint)Math.Abs((int)arg); // The x position is given by cell index % row length
-					uint ypos = (uint)i / (uint)Math.Abs((int)arg); // The y position is given by floor(index / row length)
-					table.Attach(GetListElementWidget(list[i]),
-								 xpos, xpos + 1, ypos, ypos + 1,
-								 AttachOptions.Fill, AttachOptions.Fill, 0, 0);
-				}
+				int columns = (int)arg;
+				if (columns < 0) columns *= -1;
+				DynamicTable table = new DynamicTable(list.ConvertAll((element) => GetElementWidget(element)), (uint)columns);
 
 				if (context.compact) {
-					
 					EventBox eventBox = new EventBox { Child = table };
 					alignment.Add(eventBox);
-
-					//Set up right-click menu
-					eventBox.ButtonPressEvent += delegate (object widget, ButtonPressEventArgs args) {
-						if (args.Event.Button == 3) {
-							rightclickMenu.Popup();
-							rightclickMenu.ShowAll();
-						}
-					};
-
-					//Set up drag support
-					MyDragDrop.DestSet(eventBox, typeof(T).ToString());
-					MyDragDrop.DestSetDropAction(eventBox, AttemptDrag);
-
+					eventBox.ButtonPressEvent += ListPressed; //Set up right-click menu
+					MyDragDrop.DestSet(eventBox, typeof(T).ToString()); //Set up
+					MyDragDrop.DestSetDropAction(eventBox, AttemptDrag);//drag support
 				} else {
-					
 					Expander expander = new Expander(TextTools.ToReadable(property.Name));
 					expander.Expanded = (int)arg > 0;
 					expander.Add(table);
 					alignment.Add(expander);
-
-					//Set up right-click menu
-					expander.ButtonPressEvent += delegate (object widget, ButtonPressEventArgs args) {
-						if (args.Event.Button == 3) {
-							rightclickMenu.Popup();
-							rightclickMenu.ShowAll();
-						}
-					};
-
-					//Set up drag support
-					MyDragDrop.DestSet(expander, typeof(T).ToString());
-					MyDragDrop.DestSetDropAction(expander, AttemptDrag);
+					expander.ButtonPressEvent += ListPressed; //Set up right-click menu
+					MyDragDrop.DestSet(expander, typeof(T).ToString()); //Set up
+					MyDragDrop.DestSetDropAction(expander, AttemptDrag);//drag support
 				}
 
 
@@ -172,7 +144,7 @@ namespace Parahumans.Core {
 				};
 				box.PackStart(labelEventBox, false, false, 2);
 				for (int i = 0; i < list.Count; i++)
-					box.PackStart(GetListElementWidget(list[i]), false, false, 0);
+					box.PackStart(GetElementWidget(list[i]), false, false, 0);
 				alignment.Add(box);
 
 				//Set up drag support
@@ -183,6 +155,13 @@ namespace Parahumans.Core {
 
 		}
 
+		void ListPressed (object widget, ButtonPressEventArgs args) {
+			if (args.Event.Button == 3) {
+				rightclickMenu.Popup();
+				rightclickMenu.ShowAll();
+			}
+		}
+
 		void AttemptDrag (object data) {
 			if (parent.Accepts(data)) {
 				parent.Add(data);
@@ -190,17 +169,79 @@ namespace Parahumans.Core {
 			}
 		}
 
-		protected abstract Widget GetListElementWidget (T obj);
+		protected abstract Widget GetElementWidget (T obj);
 
 	}
 
-	public class CellObjectListField<T> : ObjectListField<T> where T : IGUIComplete {
+	public class DynamicTable : Gtk.Alignment {
 
-		public CellObjectListField (PropertyInfo property, object obj, Context context, object arg)
+		protected List<Widget> cells;
+		Table table;
+
+		int cellWidth;
+		int columns;
+		int minColumns;
+
+		const int SPACING = 10;
+
+		public DynamicTable (List<Widget> cells, uint minColumns) : base(0, 0, 0, 0) {
+			table = new Table(1, minColumns, true) {
+				RowSpacing = SPACING,
+				ColumnSpacing = SPACING,
+				BorderWidth = SPACING / 2
+			};
+			Add(table);
+			this.minColumns = (int)minColumns;
+			columns = (int)minColumns;
+			this.cells = cells;
+			Arrange();
+		}
+
+		protected override void OnSizeRequested (ref Requisition requisition) {
+			if (cellWidth == 0) {
+				foreach (Widget cell in cells) {
+					Requisition cellRequisition = cell.SizeRequest();
+					if (cellRequisition.Width > cellWidth) cellWidth = cellRequisition.Width;
+				}
+				cellWidth += SPACING;
+			}
+			base.OnSizeRequested(ref requisition);
+			requisition.Width = minColumns * cellWidth;
+		}
+
+		protected override void OnSizeAllocated (Rectangle allocation) {
+			if (cells.Count == 0) return;
+			int currentColumns = allocation.Width / cellWidth;
+			if (currentColumns < minColumns) currentColumns = 2;
+			if (columns != currentColumns) {
+				columns = currentColumns;
+				Arrange();
+				table.NColumns = (uint)columns;
+				table.NRows = (uint)(cells.Count - 1) / table.NColumns + 1;
+				Toplevel.ShowAll();
+			} else {
+				base.OnSizeAllocated(allocation);
+			}
+		}
+
+		void Arrange () {
+			for (int i = 0; i < cells.Count; i++) {
+				if (cells[i].Parent == table) table.Remove(cells[i]);
+				uint x = (uint)(i % columns);
+				uint y = (uint)(i / columns);
+				table.Attach(cells[i], x, x + 1, y, y + 1);
+			}
+		}
+
+	}
+
+	public class CellTabularListField<T> : TabularListField<T> where T : IGUIComplete {
+
+		public CellTabularListField (PropertyInfo property, object obj, Context context, object arg)
 			: base(property, obj, context, arg) { }
 
-		protected override Widget GetListElementWidget (T obj) {
-			
+		protected override Widget GetElementWidget (T obj) {
+
 			// Set up the actual widget.
 
 			Cell cell;
@@ -211,7 +252,7 @@ namespace Parahumans.Core {
 
 			MenuItem moveButton = new MenuItem("Move");
 			moveButton.Activated += (o, a)
-				=> new SelectorDialog((Window)Toplevel, "Select new parent for " + obj.name,
+				=> new SelectorDialog((Gtk.Window)Toplevel, "Select new parent for " + obj.name,
 									  (tested) => tested.Accepts(obj),
 									  delegate (GameObject returned) {
 										  returned.Add(obj);

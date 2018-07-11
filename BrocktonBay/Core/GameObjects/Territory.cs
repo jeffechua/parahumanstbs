@@ -43,7 +43,7 @@ namespace Parahumans.Core {
 		[Displayable(5, typeof(IntField))]
 		public int reputation { get; set; }
 
-		[Displayable(6, typeof(CellObjectListField<Structure>), 2), Emphasized]
+		[Displayable(6, typeof(CellTabularListField<Structure>), 2), Emphasized]
 		public List<Structure> structures { get; set; }
 
 		//[Displayable(7, typeof(ObjectField)), ForceHorizontal, Padded(10, 10, 10, 10), Emphasized]

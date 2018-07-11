@@ -144,7 +144,7 @@ namespace Parahumans.Core {
 			mainBox.PackStart(new Gtk.Alignment(0, 0, 0, 1) { Child = new Label("Size: " + territory.size) });
 			mainBox.PackStart(new Gtk.Alignment(0, 0, 0, 1) { Child = new Label("Reputation: " + territory.reputation) });
 			mainBox.PackStart(new HSeparator(), false, false, 5);
-			mainBox.PackStart(new CellObjectListField<Structure>(territory.GetType().GetProperty("structures"), territory, context, 2));
+			mainBox.PackStart(new CellTabularListField<Structure>(territory.GetType().GetProperty("structures"), territory, context, 2));
 			Add(mainBox);
 
 			marker.GdkWindow.GetOrigin(out int x, out int y);

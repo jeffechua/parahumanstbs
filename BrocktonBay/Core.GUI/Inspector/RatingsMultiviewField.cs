@@ -6,22 +6,28 @@ using Gdk;
 namespace Parahumans.Core {
 
 	public class SquareContainer : Bin {
-		public SquareContainer () {
-			SizeRequested += delegate (object obj, SizeRequestedArgs args) {
-				Requisition childRequisition = Child.SizeRequest();
-				int width = childRequisition.Width;
-				int height = childRequisition.Height;
-				int size = Math.Max(width, height);
-				Requisition requisition = args.Requisition;
-				requisition.Width = requisition.Height = size;
-				args.Requisition = requisition;
+		protected override void OnSizeRequested (ref Requisition requisition) {
+			Requisition childRequisition = Child.SizeRequest();
+			int width = childRequisition.Width;
+			int height = childRequisition.Height;
+			int size = Math.Max(width, height);
+			requisition = new Requisition {
+				Width = size,
+				Height = size
 			};
-			SizeAllocated += delegate (object obj, SizeAllocatedArgs args) {
-				int size = Math.Min(args.Allocation.Width, args.Allocation.Height);
-				int x = (args.Allocation.Width - size) / 2;
-				int y = (args.Allocation.Height - size) / 2;
-				Child.SizeAllocate(new Rectangle(args.Allocation.X + x, args.Allocation.Y + y, size, size));
-			};
+		}
+		protected override void OnSizeAllocated (Rectangle allocation) {
+			int size, x, y;
+			if (allocation.Width > allocation.Height) {
+				size = allocation.Height;
+				x = (allocation.Width - size) / 2;
+				y = 0;
+			} else {
+				size = allocation.Width;
+				x = 0;
+				y = (allocation.Height - size) / 2;
+			}
+			Child.SizeAllocate(new Rectangle(allocation.X + x, allocation.Y + y, size, size));
 		}
 	}
 

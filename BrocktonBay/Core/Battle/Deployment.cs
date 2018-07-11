@@ -25,13 +25,13 @@ namespace Parahumans.Core {
 		[Displayable(5, typeof(BasicReadonlyField))]
 		public Threat authorized_force { get; set; }
 
-		[Displayable(6, typeof(CellObjectListField<Team>), 2), Emphasized]
+		[Displayable(6, typeof(CellTabularListField<Team>), 2), Emphasized]
 		public List<Team> teams { get; set; }
 
-		[Displayable(7, typeof(CellObjectListField<Parahuman>), 2), Emphasized]
+		[Displayable(7, typeof(CellTabularListField<Parahuman>), 2), Emphasized]
 		public List<Parahuman> independents { get; set; }
 
-		[Displayable(8, typeof(CellObjectListField<Parahuman>), 2), Emphasized]
+		[Displayable(8, typeof(CellTabularListField<Parahuman>), 2), Emphasized]
 		public List<Parahuman> combined_roster { get; set; }
 
 		[Displayable(9, typeof(RatingsMultiviewField), true), Emphasized, VerticalOnly, Expand]
