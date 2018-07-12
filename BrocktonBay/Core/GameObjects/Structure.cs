@@ -35,7 +35,7 @@ namespace Parahumans.Core {
 
 		public override int order { get { return 1; } }
 
-		[Displayable(2, typeof(IntVector2Field))]
+		[Displayable(2, typeof(IntVector2Field)), PlayerInvisible]
 		public IntVector2 location { get; set; }
 
 		[Displayable(3, typeof(ObjectField)), ForceHorizontal]

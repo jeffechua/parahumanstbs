@@ -18,6 +18,8 @@ namespace Parahumans.Core {
 		public void Reload () => gameObjects.Sort();
 
 		public List<GameObject> gameObjects = new List<GameObject>();
+		public Dictionary<Agent, Dictionary<GameObject, InfoState>> intrigue;
+
 		public byte[] mapPngSource = {};
 		public int mapDefaultWidth = 0;
 		public int territorySizeScale = 0;
@@ -46,7 +48,6 @@ namespace Parahumans.Core {
 			}
 			DependencyManager.Flag(this);
 		}
-
 
 	}
 

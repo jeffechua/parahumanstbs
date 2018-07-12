@@ -54,6 +54,7 @@ namespace Parahumans.Core {
 
 		protected IContainer parent;
 		protected Context context;
+		protected bool editable;
 
 		Menu rightclickMenu;
 
@@ -61,6 +62,7 @@ namespace Parahumans.Core {
 
 			parent = (IContainer)obj;
 			this.context = context;
+			editable = UIFactory.CurrentlyEditable(property, obj);
 
 			// Local convenience variable
 			List<T> list = (List<T>)property.GetValue(obj);
@@ -117,19 +119,25 @@ namespace Parahumans.Core {
 				DynamicTable table = new DynamicTable(list.ConvertAll((element) => GetElementWidget(element)), (uint)columns);
 
 				if (context.compact) {
-					EventBox eventBox = new EventBox { Child = table };
-					alignment.Add(eventBox);
-					eventBox.ButtonPressEvent += ListPressed; //Set up right-click menu
-					MyDragDrop.DestSet(eventBox, typeof(T).ToString()); //Set up
-					MyDragDrop.DestSetDropAction(eventBox, AttemptDrag);//drag support
+					if (editable) {
+						EventBox eventBox = new EventBox { Child = table };
+						alignment.Add(eventBox);
+						eventBox.ButtonPressEvent += ListPressed; //Set up right-click menu
+						MyDragDrop.DestSet(eventBox, typeof(T).ToString()); //Set up
+						MyDragDrop.DestSetDropAction(eventBox, AttemptDrag);//drag support
+					} else {
+						alignment.Add(table);
+					}
 				} else {
 					Expander expander = new Expander(TextTools.ToReadable(property.Name));
 					expander.Expanded = (int)arg > 0;
 					expander.Add(table);
 					alignment.Add(expander);
-					expander.ButtonPressEvent += ListPressed; //Set up right-click menu
-					MyDragDrop.DestSet(expander, typeof(T).ToString()); //Set up
-					MyDragDrop.DestSetDropAction(expander, AttemptDrag);//drag support
+					if (editable) {
+						expander.ButtonPressEvent += ListPressed; //Set up right-click menu
+						MyDragDrop.DestSet(expander, typeof(T).ToString()); //Set up
+						MyDragDrop.DestSetDropAction(expander, AttemptDrag);//drag support
+					}
 				}
 
 
@@ -137,19 +145,23 @@ namespace Parahumans.Core {
 
 				HBox box = new HBox(false, 5);
 				Label label = new Label(TextTools.ToReadable(property.Name)) { Angle = 90 };
-				ClickableEventBox labelEventBox = new ClickableEventBox { Child = label };
-				labelEventBox.RightClicked += delegate {
-					rightclickMenu.Popup();
-					rightclickMenu.ShowAll();
-				};
-				box.PackStart(labelEventBox, false, false, 2);
+				if (editable) {
+					ClickableEventBox labelEventBox = new ClickableEventBox { Child = label };
+					labelEventBox.RightClicked += delegate {
+						rightclickMenu.Popup();
+						rightclickMenu.ShowAll();
+					};
+					box.PackStart(labelEventBox, false, false, 2);
+					//Set up drag support
+					MyDragDrop.DestSet(this, typeof(T).ToString());
+					MyDragDrop.DestSetDropAction(this, AttemptDrag);
+				} else {
+					box.PackStart(label, false, false, 2);
+				}
 				for (int i = 0; i < list.Count; i++)
 					box.PackStart(GetElementWidget(list[i]), false, false, 0);
 				alignment.Add(box);
 
-				//Set up drag support
-				MyDragDrop.DestSet(this, typeof(T).ToString());
-				MyDragDrop.DestSetDropAction(this, AttemptDrag);
 
 			}
 
@@ -248,38 +260,42 @@ namespace Parahumans.Core {
 			cell = new Cell(context, obj);
 			InspectableBox cellLabel = (InspectableBox)cell.frame.LabelWidget;
 
-			//Set up menu
+			if (editable) {
 
-			MenuItem moveButton = new MenuItem("Move");
-			moveButton.Activated += (o, a)
-				=> new SelectorDialog((Gtk.Window)Toplevel, "Select new parent for " + obj.name,
-									  (tested) => tested.Accepts(obj),
-									  delegate (GameObject returned) {
-										  returned.Add(obj);
-										  DependencyManager.TriggerAllFlags();
-									  });
+				//Set up menu
 
-			MenuItem removeButton = new MenuItem("Remove");
-			removeButton.Activated += delegate {
-				parent.Remove(obj);
-				DependencyManager.TriggerAllFlags();
-			};
+				MenuItem moveButton = new MenuItem("Move");
+				moveButton.Activated += (o, a)
+					=> new SelectorDialog((Gtk.Window)Toplevel, "Select new parent for " + obj.name,
+										  (tested) => tested.Accepts(obj),
+										  delegate (GameObject returned) {
+											  returned.Add(obj);
+											  DependencyManager.TriggerAllFlags();
+										  });
 
-			cellLabel.rightclickMenu.Append(new SeparatorMenuItem());
-			cellLabel.rightclickMenu.Append(moveButton);
-			cellLabel.rightclickMenu.Append(removeButton);
+				MenuItem removeButton = new MenuItem("Remove");
+				removeButton.Activated += delegate {
+					parent.Remove(obj);
+					DependencyManager.TriggerAllFlags();
+				};
 
-			//Set up drag/drop
+				cellLabel.rightclickMenu.Append(new SeparatorMenuItem());
+				cellLabel.rightclickMenu.Append(moveButton);
+				cellLabel.rightclickMenu.Append(removeButton);
 
-			MyDragDrop.SetFailAction(cellLabel, delegate {
-				parent.Remove(obj);
-				DependencyManager.TriggerAllFlags();
-			});
+				//Set up drag/drop
 
-			MyDragDrop.SetFailAction(cell, delegate {
-				parent.Remove(obj);
-				DependencyManager.TriggerAllFlags();
-			});
+				MyDragDrop.SetFailAction(cellLabel, delegate {
+					parent.Remove(obj);
+					DependencyManager.TriggerAllFlags();
+				});
+
+				MyDragDrop.SetFailAction(cell, delegate {
+					parent.Remove(obj);
+					DependencyManager.TriggerAllFlags();
+				});
+
+			}
 
 			// Rationale for removing only if drag had no target
 			// - If cellObject is dragged from an aggregative list to another aggregative list,

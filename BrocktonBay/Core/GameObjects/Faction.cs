@@ -55,13 +55,13 @@ namespace Parahumans.Core {
 		[Displayable(6, typeof(BasicReadonlyField))]
 		public int reputation { get; set; }
 
-		[Displayable(7, typeof(CellTabularListField<Parahuman>), 3), Emphasized]
+		[Displayable(7, typeof(CellTabularListField<Parahuman>), 3), Emphasized, PlayerEditable(Phase.Organization)]
 		public List<Parahuman> roster { get; set; }
 
-		[Displayable(8, typeof(CellTabularListField<Team>), 2), Emphasized]
+		[Displayable(8, typeof(CellTabularListField<Team>), 2), Emphasized, PlayerEditable(Phase.Organization)]
 		public List<Team> teams { get; set; }
 
-		[Displayable(9, typeof(CellTabularListField<Territory>), 2), Emphasized]
+		[Displayable(9, typeof(CellTabularListField<Territory>), 2), Emphasized, PlayerEditable(Phase.Organization)]
 		public List<Territory> territories { get; set; }
 
 		//public List<Asset> assets { get; set; }

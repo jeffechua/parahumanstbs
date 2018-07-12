@@ -22,16 +22,16 @@ namespace Parahumans.Core {
 		[Displayable(4, typeof(BasicReadonlyField))]
 		public Threat threat { get; set; }
 
-		[Displayable(5, typeof(EnumField<Threat>))]
+		[Displayable(5, typeof(EnumField<Threat>)), PlayerEditable(Phase.All)]
 		public Threat authorized_force { get; set; }
 
-		[Displayable(6, typeof(CellTabularListField<Team>), 2), Emphasized]
+		[Displayable(6, typeof(CellTabularListField<Team>), 2), Emphasized, PlayerEditable(Phase.All)]
 		public List<Team> teams { get; set; }
 
-		[Displayable(7, typeof(CellTabularListField<Parahuman>), 2), Emphasized]
+		[Displayable(7, typeof(CellTabularListField<Parahuman>), 2), Emphasized, PlayerEditable(Phase.All)]
 		public List<Parahuman> independents { get; set; }
 
-		[Displayable(8, typeof(CellTabularListField<Parahuman>), 2), Emphasized]
+		[Displayable(8, typeof(CellTabularListField<Parahuman>), 2), Emphasized, PlayerEditable(Phase.All)]
 		public List<Parahuman> combined_roster { get; set; }
 
 		[Displayable(9, typeof(RatingsMultiviewField), true), Emphasized, VerticalOnly, Expand]

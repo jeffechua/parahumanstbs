@@ -27,12 +27,14 @@ namespace Parahumans.Core {
 		protected IDependable obj;
 		protected Menu rightclickMenu;
 		protected Context context;
+		protected bool editable;
 
 		public TextEditableField (PropertyInfo property, object obj, Context context, object arg, bool suppressReload = false) {
 
 			this.property = property;
 			this.obj = (IDependable)obj;
 			this.context = context;
+			editable = UIFactory.CurrentlyEditable(property, obj);
 
 			Label label = new Label(context.compact ? "" : (TextTools.ToReadable(property.Name) + ": "));
 			PackStart(label, false, false, 0);
@@ -95,13 +97,17 @@ namespace Parahumans.Core {
 			if (Children.Length > 1) Children[1].Destroy();
 			Label val = new Label(GetValueAsString());
 			val.SetAlignment(0, 0.5f);
-			ClickableEventBox eventBox = new ClickableEventBox() { Child = val };
-			eventBox.ButtonPressEvent += LabelClicked;
-			eventBox.RightClicked += delegate {
-				rightclickMenu.Popup();
-				rightclickMenu.ShowAll();
-			};
-			PackStart(eventBox, true, true, 0);
+			if (editable) {
+				ClickableEventBox eventBox = new ClickableEventBox() { Child = val };
+				eventBox.ButtonPressEvent += LabelClicked;
+				eventBox.RightClicked += delegate {
+					rightclickMenu.Popup();
+					rightclickMenu.ShowAll();
+				};
+				PackStart(eventBox, true, true, 0);
+			}else {
+				PackStart(val, true, true, 0);
+			}
 			ShowAll();
 		}
 

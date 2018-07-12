@@ -10,10 +10,29 @@ namespace Parahumans.Core {
 		public const String savefolder = "/Users/Jefferson/Desktop/Parahumans_Save";
 		public static City city;
 		public static Agent playerAgent;
+		public static Phase phase;
 
 		public static MainInterface cityInterface;
 		public static MainWindow mainWindow;
 		public static VBox mainBox;
+		public static DependableShell UIKey; // A "key" connected to all IDependable UI elements. "Turned" (flagged) to induce a reload across the board.
+
+		public static bool omniscient {
+			get {
+				return omniscientToggle.Active;
+			}
+			set {
+				omniscientToggle.Active = value;
+			}
+		}
+		public static bool omnipotent {
+			get {
+				return omnipotentToggle.Active;
+			}
+			set {
+				omnipotentToggle.Active = value;
+			}
+		}
 
 		static MenuBar menuBar;
 		static Menu fileMenu;
@@ -33,8 +52,12 @@ namespace Parahumans.Core {
 		static MenuItem saveButton;
 		static MenuItem saveAsButton;
 		static MenuItem closeButton;
+		static CheckMenuItem omniscientToggle;
+		static CheckMenuItem omnipotentToggle;
 
 		public static void Main (string[] args) {
+
+			UIKey = new DependableShell(0);
 
 			//Inits application
 			Application.Init();
@@ -147,17 +170,18 @@ namespace Parahumans.Core {
 					mainWindow.inspector.Inspect(null);
 				}
 			};
-			CheckMenuItem omniscientToggle = new CheckMenuItem("Omniscient") { Active = true, Sensitive = false }; //Implement
 			viewButton.Submenu = viewMenu;
 			viewMenu.Append(inspectorEnabledButton);
-			viewMenu.Append(new SeparatorMenuItem());
-			viewMenu.Append(omniscientToggle);
 
 			//Tools menu
 			toolsMenu = new Menu();
-			CheckMenuItem cheatsButton = new CheckMenuItem("Cheats"); //Implement
+			omniscientToggle = new CheckMenuItem("Omniscient") { Active = true };
+			omnipotentToggle = new CheckMenuItem("Omnipotent") { Active = true };
+			omniscientToggle.Toggled += (o, a) => RefreshUI();
+			omnipotentToggle.Toggled += (o, a) => RefreshUI();
 			toolsButton.Submenu = toolsMenu;
-			toolsMenu.Append(cheatsButton);
+			toolsMenu.Append(omniscientToggle);
+			toolsMenu.Append(omnipotentToggle);
 
 			//Window menu
 			windowMenu = new Menu();
@@ -217,6 +241,11 @@ namespace Parahumans.Core {
 			saveAsButton.Sensitive = false;
 			closeButton.Sensitive = false;
 			mainWindow.ShowAll();
+		}
+
+		public static void RefreshUI () {
+			DependencyManager.Flag(UIKey);
+			DependencyManager.TriggerAllFlags();
 		}
 
 	}

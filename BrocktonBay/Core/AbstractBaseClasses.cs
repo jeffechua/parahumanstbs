@@ -12,7 +12,7 @@ namespace Parahumans.Core {
 		[Displayable(0, typeof(StringField))]
 		public string name { get; set; } = "";
 
-		[Displayable(1, typeof(IntField))]
+		[Displayable(1, typeof(IntField)), PlayerInvisible]
 		public int ID { get; set; }
 
 		// This is a field and not a Displayable property as parentage is usually displayed in implementation of GetHeader(), so it would be redundant.

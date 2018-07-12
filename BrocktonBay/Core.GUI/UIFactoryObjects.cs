@@ -58,6 +58,26 @@ namespace Parahumans.Core {
 		}
 	}
 
+	public enum Phase {
+		All = -2,
+		None = 0,
+		Organization = 1
+	}
+
+	public class PlayerEditableAttribute : Attribute {
+		public Phase editablePhases;
+		public bool currentlyEditable {
+			get {
+				return editablePhases == Phase.All || editablePhases == MainClass.phase;
+			}
+		}
+		public PlayerEditableAttribute (Phase phases) {
+			editablePhases = phases;
+		}
+	}
+
+	public class PlayerInvisibleAttribute : Attribute { }
+
 	// "EmphasizedAttribute" 'emphasizes' a property in the UI, separating the from other attributes with horizontal separators and adding some padding in cases.
 	// Emphasis does not change the actual contents displayed, only the spacing and placing of the display widget relative to the surroundings.
 	public class ExpandAttribute : Attribute { } //Only really works in a vertical generation, with either no emphasisBoxes or the property being in the last emphasisBox.
@@ -71,4 +91,5 @@ namespace Parahumans.Core {
 	public interface LabelOverridable {
 		void OverrideLabel (string newLabel);
 	}
+
 }

@@ -17,6 +17,7 @@ namespace Parahumans.Core {
 		public Listing (IGUIComplete obj) {
 			this.obj = obj;
 			DependencyManager.Connect(obj, this);
+			DependencyManager.Connect(MainClass.UIKey, this);
 			LabelXalign = 1;
 			Reload();
 		}
@@ -42,28 +43,26 @@ namespace Parahumans.Core {
 
 		public SmartCell (Context context, IGUIComplete obj) : base(context, obj) {
 			DependencyManager.Connect(obj, this);
+			DependencyManager.Connect(MainClass.UIKey, this);
 			Destroyed += (o, a) => DependencyManager.DisconnectAll(this);
 		}
 
 	}
 
-	public class Cell : ClickableEventBox {
+	public class Cell : InspectableBox {
 
 		public Frame frame;
 		public IGUIComplete obj;
 		public Context context;
 
-		public Cell (Context context, IGUIComplete obj) {
+		public Cell (Context context, IGUIComplete obj) : base(obj) {
 
 			//Basic setup
 			this.obj = obj;
 			frame = new Frame();
+
 			Child = frame;
-
-			//Graphical tweak
 			prelight = false;
-
-			//Set up drag and drop
 			MyDragDrop.SourceSet(this, obj, obj.GetType().ToString());
 
 			// "Removing by dragging away to nothing" functionality should be implemented manually when the Cell is created.
@@ -123,6 +122,7 @@ namespace Parahumans.Core {
 				Hide();
 			} else {
 				DependencyManager.Connect(obj, this);
+				DependencyManager.Connect(MainClass.UIKey, this);
 				if (Child != null) Child.Destroy();
 				VBox mainbox = new VBox(false, 0);
 				mainbox.PackStart(obj.GetHeader(new Context(MainClass.playerAgent, obj, true, false)), false, false, 10);

@@ -31,7 +31,7 @@ namespace Parahumans.Core {
 
 		public override int order { get { return 2; } }
 
-		[Displayable(2, typeof(IntVector2Field))]
+		[Displayable(2, typeof(IntVector2Field)), PlayerInvisible]
 		public IntVector2 location { get; set; }
 
 		[Displayable(3, typeof(ObjectField)), ForceHorizontal]
@@ -43,7 +43,7 @@ namespace Parahumans.Core {
 		[Displayable(5, typeof(IntField))]
 		public int reputation { get; set; }
 
-		[Displayable(6, typeof(CellTabularListField<Structure>), 2), Emphasized]
+		[Displayable(6, typeof(CellTabularListField<Structure>), 2), Emphasized, PlayerEditable(Phase.Organization)]
 		public List<Structure> structures { get; set; }
 
 		//[Displayable(7, typeof(ObjectField)), ForceHorizontal, Padded(10, 10, 10, 10), Emphasized]

@@ -36,7 +36,7 @@ namespace Parahumans.Core {
 
 			for (int i = 0; i < properties.Count; i++) {
 				if (!HasAttribute(properties[i], typeof(DisplayableAttribute)) ||
-					HasAttribute(properties[i], typeof(ChildAttribute)) ||
+				    HasAttribute(properties[i], typeof(ChildAttribute)) ||
 					properties[i].GetValue(obj) == null) {
 					properties.RemoveAt(i);
 					i--;
@@ -51,19 +51,21 @@ namespace Parahumans.Core {
 			VBox emphasisBox = null;
 
 			//Draw each property
-			for (int i = 0; i < properties.Count; i++) {
+			foreach (PropertyInfo property in properties) {
+
+				if (!MainClass.omniscient && HasAttribute(property, typeof(PlayerInvisibleAttribute))) continue;
 
 				//Load up attributes
-				DisplayableAttribute attr = (DisplayableAttribute)properties[i].GetCustomAttribute(typeof(DisplayableAttribute));
-				EmphasizedAttribute emphAttribute = (EmphasizedAttribute)properties[i].GetCustomAttribute(typeof(EmphasizedAttribute));
-				PaddedAttribute padded = (PaddedAttribute)properties[i].GetCustomAttribute(typeof(PaddedAttribute));
-				bool expand = HasAttribute(properties[i], typeof(ExpandAttribute));
-				bool forceHorizontal = HasAttribute(properties[i], typeof(ForceHorizontalAttribute));
+				DisplayableAttribute attr = (DisplayableAttribute)property.GetCustomAttribute(typeof(DisplayableAttribute));
+				EmphasizedAttribute emphAttribute = (EmphasizedAttribute)property.GetCustomAttribute(typeof(EmphasizedAttribute));
+				PaddedAttribute padded = (PaddedAttribute)property.GetCustomAttribute(typeof(PaddedAttribute));
+				bool expand = HasAttribute(property, typeof(ExpandAttribute));
+				bool forceHorizontal = HasAttribute(property, typeof(ForceHorizontalAttribute));
 
 				//Construct the widget
 				ConstructorInfo constructor = attr.widget.GetConstructor(constructorSignature);
 				Widget newWidget = (Widget)constructor.Invoke(new object[] {
-					properties[i],
+					property,
 					obj,
 					forceHorizontal ? context.butHorizontal : context,
 					attr.arg
@@ -116,10 +118,10 @@ namespace Parahumans.Core {
 			//Load up all properties
 			List<PropertyInfo> properties = new List<PropertyInfo>(obj.GetType().GetProperties());
 
-			for (int i = 0; i < properties.Count; i++) {
+			for (int i = 0; i < properties.Count; i++){
 				if (!HasAttribute(properties[i], typeof(DisplayableAttribute)) ||
-					HasAttribute(properties[i], typeof(ChildAttribute)) ||
-					properties[i].GetValue(obj) == null) {
+				    HasAttribute(properties[i], typeof(ChildAttribute)) ||
+				    properties[i].GetValue(obj) == null) {
 					properties.RemoveAt(i);
 					i--;
 				}
@@ -132,15 +134,16 @@ namespace Parahumans.Core {
 			HBox regularBox = new HBox(false, 0);
 			VBox emphasisBox = new VBox(false, 2);
 
-			for (int i = 0; i < properties.Count; i++) {
+			foreach (PropertyInfo property in properties) {
 
-				if (properties[i].GetCustomAttribute(typeof(VerticalOnlyAttribute)) != null) continue;
+				if (!MainClass.omniscient && HasAttribute(property, typeof(PlayerInvisibleAttribute))) continue;
+				if (property.GetCustomAttribute(typeof(VerticalOnlyAttribute)) != null) continue;
 
 				//Load attributes
-				DisplayableAttribute attr = (DisplayableAttribute)properties[i].GetCustomAttribute(typeof(DisplayableAttribute));
-				EmphasizedAttribute emph = (EmphasizedAttribute)properties[i].GetCustomAttribute(typeof(EmphasizedAttribute));
-				bool expand = HasAttribute(properties[i], typeof(ExpandAttribute));
-				bool forceVertical = HasAttribute(properties[i], typeof(ForceVerticalAttribute));
+				DisplayableAttribute attr = (DisplayableAttribute)property.GetCustomAttribute(typeof(DisplayableAttribute));
+				EmphasizedAttribute emph = (EmphasizedAttribute)property.GetCustomAttribute(typeof(EmphasizedAttribute));
+				bool expand = HasAttribute(property, typeof(ExpandAttribute));
+				bool forceVertical = HasAttribute(property, typeof(ForceVerticalAttribute));
 
 				//Obtain the correct constructor
 				ConstructorInfo constructor;
@@ -152,7 +155,7 @@ namespace Parahumans.Core {
 
 				//Construct the widget
 				Widget newWidget = (Widget)constructor.Invoke(new object[] {
-					properties[i],
+					property,
 					obj,
 					forceVertical?context.butVertical:context,
 					attr.arg
@@ -180,6 +183,13 @@ namespace Parahumans.Core {
 		public static bool HasAttribute (PropertyInfo property, Type attribute)
 			=> property.GetCustomAttribute(attribute) != null;
 
-	}
+		public static bool CurrentlyEditable (PropertyInfo property, object obj) {
+			if (MainClass.omnipotent) return true;
+			if (obj is IAffiliated && ((IAffiliated)obj).affiliation != MainClass.playerAgent) return false;
+			PlayerEditableAttribute editableAttribute = (PlayerEditableAttribute)property.GetCustomAttribute(typeof(PlayerEditableAttribute));
+			if (editableAttribute == null) return false;
+			return editableAttribute.currentlyEditable;
+		}
 
+	}
 }

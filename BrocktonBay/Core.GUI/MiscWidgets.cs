@@ -11,19 +11,23 @@ namespace Parahumans.Core {
 		public EventHandler<ButtonReleaseEventArgs> Clicked = delegate { };
 		public EventHandler<ButtonPressEventArgs> RightClicked = delegate { };
 		public EventHandler<ButtonPressEventArgs> DoubleClicked = delegate { };
+		public bool active = true;
 		public bool prelight = true;
 		public bool depress = true;
 
 		public ClickableEventBox() {
 			CanFocus = true;
 			EnterNotifyEvent += delegate (object obj, EnterNotifyEventArgs args) {
+				if(!active)return;
 				SetCurrentMouseOver(this);
 			};
 			LeaveNotifyEvent += delegate (object obj, LeaveNotifyEventArgs args) {
+				if (!active) return;
 				if (currentMouseOver == this) SetCurrentMouseOver(null);
 				clickValid = false;
 			};
 			ButtonPressEvent += delegate (object obj, ButtonPressEventArgs args) {
+				if (!active) return;
 				if (depress) State = StateType.Active;
 				if (args.Event.Button == 3) RightClicked(this, args);
 				if (args.Event.Type == Gdk.EventType.TwoButtonPress) DoubleClicked(this, args);
@@ -32,6 +36,7 @@ namespace Parahumans.Core {
 				args.RetVal = true;
 			};
 			ButtonReleaseEvent += delegate (object obj, ButtonReleaseEventArgs args) {
+				if (!active) return;
 				if (prelight) {
 					State = StateType.Prelight;
 				}else {
@@ -80,13 +85,16 @@ namespace Parahumans.Core {
 			inspectButton.Activated += (o, args) => Inspector.InspectInNearestInspector(inspected, this);
 			MenuItem inspectInWindowButton = new MenuItem("Inspect in New Window");
 			inspectInWindowButton.Activated += (o, args) => Inspector.InspectInNewWindow(inspected, (Window)Toplevel);
-			MenuItem deleteButton = new MenuItem("Delete");
-			deleteButton.Activated += (o, args) => DependencyManager.Delete(inspected);
 
 			rightclickMenu.Append(inspectButton);
 			rightclickMenu.Append(inspectInWindowButton);
-			rightclickMenu.Append(new SeparatorMenuItem());
-			rightclickMenu.Append(deleteButton);
+
+			if (MainClass.omnipotent) {
+				MenuItem deleteButton = new MenuItem("Delete");
+				deleteButton.Activated += (o, args) => DependencyManager.Delete(inspected);
+				rightclickMenu.Append(new SeparatorMenuItem());
+				rightclickMenu.Append(deleteButton);
+			}
 
 			//Set up drag support
 			MyDragDrop.SourceSet(this, inspected, inspected.GetType().ToString());

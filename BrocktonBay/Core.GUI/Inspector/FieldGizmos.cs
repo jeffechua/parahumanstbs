@@ -14,6 +14,17 @@ namespace Parahumans.Core {
 		}
 	}
 
+	public sealed class CivilianNameField : TextEditableField {
+		public CivilianNameField (PropertyInfo property, object obj, Context context, object arg) : base(property, obj, context, arg) { }
+		protected override string GetValueAsString () {
+			GameObject parahuman = (GameObject)obj;
+			if (MainClass.city.intrigue[MainClass.playerAgent][parahuman].identity)
+				return property.GetValue(obj).ToString();
+			return "???";
+		}
+		protected override void SetValueFromString (string text) => property.SetValue(obj, text);
+	}
+
 	public sealed class TabularContainerField : Table {
 		List<PropertyInfo> children;
 		Context context;

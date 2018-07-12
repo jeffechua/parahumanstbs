@@ -110,6 +110,16 @@ namespace Parahumans.Core {
 
 				Profiler.Log(ref Profiler.updateTime);
 
+				city.intrigue = new Dictionary<Agent, Dictionary<GameObject, InfoState>>();
+				List<GameObject> agents = city.gameObjects.FindAll((obj) => obj is Agent);
+				for (int i = 0; i < agents.Count; i++) {
+					Dictionary<GameObject, InfoState> empty = new Dictionary<GameObject, InfoState>();
+					foreach(GameObject gameObject in city.gameObjects) {
+						empty.Add(gameObject, new InfoState(false, 0));
+					}
+					city.intrigue.Add((Agent)agents[i], empty);
+				}
+
 				MainClass.Load(city); //Profiler calls inside CityInterface constructor.
 				MainClass.playerAgent = (Agent)city.Get<GameObject>(int.Parse(File.ReadAllText(path + "/player.txt")));
 

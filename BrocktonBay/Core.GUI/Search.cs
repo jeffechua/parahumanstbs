@@ -57,6 +57,7 @@ namespace Parahumans.Core {
 		public Search(Func<GameObject, bool> Filter = null, Action<GameObject> OnClicked = null) {
 
 			DependencyManager.Connect(MainClass.city, this);
+			DependencyManager.Connect(MainClass.UIKey, this);
 			this.Filter = Filter ?? delegate { return true; };
 			this.OnClicked = OnClicked ?? delegate { };
 

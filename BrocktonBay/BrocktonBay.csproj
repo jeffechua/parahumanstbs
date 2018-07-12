@@ -46,7 +46,6 @@
     <Compile Include="Core.GUI\MiscWidgets.cs" />
     <Compile Include="Core.GUI\Inspector\ObjectFields.cs" />
     <Compile Include="Core.GUI\Inspector\PrimitiveFields.cs" />
-    <Compile Include="Core.GUI\Inspector\RatingsFields.cs" />
     <Compile Include="Core.GUI\EventInterface.cs" />
     <Compile Include="Core.GUI\Inspector\FieldGizmos.cs" />
     <Compile Include="Core.GUI\Search.cs" />
@@ -67,7 +66,6 @@
     <Compile Include="Core\GameObjects\Faction.cs" />
     <Compile Include="Core\GameObjects\Parahuman.cs" />
     <Compile Include="Core\GameObjects\Team.cs" />
-    <Compile Include="Core.GUI\Inspector\RatingsRadarChart.cs" />
     <Compile Include="Core\GameObjects\Structure.cs" />
     <Compile Include="Core\GameObjects\Territory.cs" />
     <Compile Include="Profiler.cs" />
@@ -78,7 +76,11 @@
     <Compile Include="Core\Battle\EventLocation.cs" />
     <Compile Include="Core\UtilityObjects.cs" />
     <Compile Include="MyDragDrop.cs" />
-    <Compile Include="Core.GUI\Inspector\RatingsMultiviewField.cs" />
+    <Compile Include="Core\Dossier.cs" />
+    <Compile Include="Core.GUI\Inspector\Ratings\RatingsListField.cs" />
+    <Compile Include="Core.GUI\Inspector\Ratings\RatingsMultiviewField.cs" />
+    <Compile Include="Core.GUI\Inspector\Ratings\RatingsRadarChart.cs" />
+    <Compile Include="Core.GUI\Inspector\Ratings\RatingsTable.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />
@@ -87,6 +89,7 @@
     <Folder Include="Core\Battle\" />
     <Folder Include="Core\GameObjects\" />
     <Folder Include="Core.GUI\Map\" />
+    <Folder Include="Core.GUI\Inspector\Ratings\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

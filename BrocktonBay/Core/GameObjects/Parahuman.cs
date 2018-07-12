@@ -41,7 +41,7 @@ namespace Parahumans.Core {
 		public override int order { get { return 1; } }
 		public Gdk.Color color { get { return new Gdk.Color(0, 0, 0); } }
 
-		[Displayable(2, typeof(StringField))]
+		[Displayable(2, typeof(CivilianNameField)), VerticalOnly]
 		public String civilian_name { get; set; }
 
 		[Displayable(3, typeof(ObjectField)), ForceHorizontal]
