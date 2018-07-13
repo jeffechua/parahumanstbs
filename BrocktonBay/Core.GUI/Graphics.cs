@@ -94,6 +94,7 @@ namespace Parahumans.Core {
 
 			double pixelSize = iconSize;
 			double size = pixelSize * RESOLUTION_FACTOR; //Since 12 across is 0-11; we don't want to draw on 12 and lose pixels.
+
 			Pixmap color = new Pixmap(MainClass.mainWindow.GdkWindow, (int)size, (int)size);
 			Pixmap mask = new Pixmap(MainClass.mainWindow.GdkWindow, (int)size, (int)size);
 
@@ -289,12 +290,10 @@ namespace Parahumans.Core {
 				}
 			}
 
-			Pixmap scaledIconBase = Scale(color, size, size, 0.1);
+			Pixmap scaledColor = Scale(color, size, size, 0.1);
 			Pixmap scaledMask = Scale(mask, size, size, 0.1);
-
-			iconCache.Add(request, new Icon(scaledIconBase, scaledMask));
-			return new Gtk.Image(scaledIconBase, scaledMask);
-
+			iconCache.Add(request, new Icon(scaledColor, scaledMask));
+			return new Gtk.Image(scaledColor, scaledMask);             //This crashes the program
 		}
 
 		public static Gtk.Image GetCircle (Color circleColor, byte alpha, int radius) {
@@ -399,8 +398,8 @@ namespace Parahumans.Core {
 						  (int)(coreCenter - coreRadius), (int)(coreCenter - coreRadius),
 						  (int)(coreRadius * 2), (int)(coreRadius * 2),
 						  0, FULL_CIRCLE);
-
-			return new Gtk.Image(Graphics.Scale(color, w, h, 0.1), Graphics.Scale(mask, w, h, 0.1));
+			
+			return new Gtk.Image(Scale(color, w, h, 0.1), Scale(mask, w, h, 0.1));
 
 		}
 

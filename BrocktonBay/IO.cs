@@ -114,7 +114,7 @@ namespace Parahumans.Core {
 				List<GameObject> agents = city.gameObjects.FindAll((obj) => obj is Agent);
 				for (int i = 0; i < agents.Count; i++) {
 					Dictionary<GameObject, InfoState> empty = new Dictionary<GameObject, InfoState>();
-					foreach(GameObject gameObject in city.gameObjects) {
+					foreach (GameObject gameObject in city.gameObjects) {
 						empty.Add(gameObject, new InfoState(false, 0));
 					}
 					city.intrigue.Add((Agent)agents[i], empty);

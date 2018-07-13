@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrocktonBay", "BrocktonBay\BrocktonBay.csproj", "{13673191-DA09-43E3-919A-46293A2FDDBB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransparencyTest", "TransparencyTest\TransparencyTest.csproj", "{D7836549-2FDE-46D1-A2B6-5F6BEC5E0CDD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -13,6 +15,10 @@ Global
 		{13673191-DA09-43E3-919A-46293A2FDDBB}.Debug|x86.Build.0 = Debug|x86
 		{13673191-DA09-43E3-919A-46293A2FDDBB}.Release|x86.ActiveCfg = Release|x86
 		{13673191-DA09-43E3-919A-46293A2FDDBB}.Release|x86.Build.0 = Release|x86
+		{D7836549-2FDE-46D1-A2B6-5F6BEC5E0CDD}.Debug|x86.ActiveCfg = Debug|x86
+		{D7836549-2FDE-46D1-A2B6-5F6BEC5E0CDD}.Debug|x86.Build.0 = Debug|x86
+		{D7836549-2FDE-46D1-A2B6-5F6BEC5E0CDD}.Release|x86.ActiveCfg = Release|x86
+		{D7836549-2FDE-46D1-A2B6-5F6BEC5E0CDD}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0
