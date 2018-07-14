@@ -18,11 +18,11 @@ namespace Parahumans.Core {
 			PackStart(notebook, true, true, 0);
 			PackStart(inspector, false, false, 0);
 
-			/*/Map tab
+			//Map tab
 			map = new Map(city); //Profiler called inside Map constructor
 			Label mapTabLabel = new Label("Map");
 			notebook.AppendPage(map, mapTabLabel);
-			*/
+
 			Profiler.Log();
 
 			//Search tab

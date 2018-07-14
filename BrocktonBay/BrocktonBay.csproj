@@ -81,6 +81,7 @@
     <Compile Include="Core.GUI\Inspector\Ratings\RatingsMultiviewField.cs" />
     <Compile Include="Core.GUI\Inspector\Ratings\RatingsRadarChart.cs" />
     <Compile Include="Core.GUI\Inspector\Ratings\RatingsTable.cs" />
+    <Compile Include="Core\GameObjects\Mechanic.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />

@@ -22,7 +22,7 @@ namespace Parahumans.Core {
 		public Vector2 scaledPosition;
 
 		public Territory territory;
-		public Agent affiliation;
+		public IAgent affiliation;
 		public IntVector2 location; //We round this to prevent floating point precision errors
 		public int size;
 

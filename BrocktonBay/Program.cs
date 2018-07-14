@@ -9,7 +9,7 @@ namespace Parahumans.Core {
 
 		public const String savefolder = "/Users/Jefferson/Desktop/Parahumans_Save";
 		public static City city;
-		public static Agent playerAgent;
+		public static IAgent playerAgent;
 		public static Phase phase;
 
 		public static MainInterface cityInterface;

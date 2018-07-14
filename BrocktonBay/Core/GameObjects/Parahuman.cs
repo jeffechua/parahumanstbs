@@ -12,7 +12,7 @@ namespace Parahumans.Core {
 	}
 
 	public sealed class ParahumanData {
-		public String name = "New Trigger";
+		public string name = "New Trigger";
 		public int ID = 0;
 		public string civilianName = "";
 		public Alignment alignment = Alignment.Rogue;
@@ -36,7 +36,7 @@ namespace Parahumans.Core {
 
 	}
 
-	public sealed class Parahuman : GameObject, IRated, Agent {
+	public sealed class Parahuman : GameObject, IRated, IAgent {
 
 		public override int order { get { return 1; } }
 		public Gdk.Color color { get { return new Gdk.Color(0, 0, 0); } }
@@ -45,13 +45,13 @@ namespace Parahumans.Core {
 		public String civilian_name { get; set; }
 
 		[Displayable(3, typeof(ObjectField)), ForceHorizontal]
-		public Agent affiliation {
+		public IAgent affiliation {
 			get {
 				if (parent != null) {
 					if (parent.parent != null) {
-						return (Agent)parent.parent;
+						return (IAgent)parent.parent;
 					} else {
-						return (Agent)parent;
+						return (IAgent)parent;
 					}
 				}
 				return this;
@@ -107,8 +107,7 @@ namespace Parahumans.Core {
 			} else {
 
 				VBox headerBox = new VBox(false, 5);
-				Label nameLabel = new Label(name);
-				InspectableBox namebox = new InspectableBox(nameLabel, this);
+				InspectableBox namebox = new InspectableBox(new Label(name), this);
 				Gtk.Alignment align = new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = namebox };
 				align.WidthRequest = 200;
 				headerBox.PackStart(align, false, false, 0);

@@ -12,7 +12,7 @@ namespace Parahumans.Core {
 
 	public struct Context {
 		
-		public Agent requester;
+		public IAgent requester;
 		public object UIContext;
 		public bool vertical;
 		public bool compact;
@@ -22,10 +22,10 @@ namespace Parahumans.Core {
 		public Context butVertical { get { return new Context(requester, UIContext, true, compact); } }
 		public Context butNotCompact { get { return new Context(requester, UIContext, vertical, false); } }
 		public Context butHorizontal { get { return new Context(requester, UIContext, false, compact); } }
-		public Context butRequestedBy (Agent newRequester) => new Context(newRequester, UIContext, vertical, compact);
+		public Context butRequestedBy (IAgent newRequester) => new Context(newRequester, UIContext, vertical, compact);
 		public Context butIn (object newUIContext) => new Context(requester, newUIContext, vertical, compact);
 
-		public Context (Agent requester, object UIContext, bool vertical = true, bool compact = false) {
+		public Context (IAgent requester, object UIContext, bool vertical = true, bool compact = false) {
 			this.requester = requester;
 			this.UIContext = UIContext;
 			this.vertical = vertical;

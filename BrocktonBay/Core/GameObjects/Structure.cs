@@ -39,7 +39,7 @@ namespace Parahumans.Core {
 		public IntVector2 location { get; set; }
 
 		[Displayable(3, typeof(ObjectField)), ForceHorizontal]
-		public Agent affiliation { get { return (parent == null) ? null : (Agent)parent.parent; } }
+		public IAgent affiliation { get { return (parent == null) ? null : (IAgent)parent.parent; } }
 
 		[Displayable(4, typeof(EnumField<StructureType>))]
 		public StructureType type { get; set; }
@@ -106,10 +106,8 @@ namespace Parahumans.Core {
 			} else {
 
 				VBox headerBox = new VBox(false, 5);
-				Label nameLabel = new Label(name);
-				InspectableBox namebox = new InspectableBox(nameLabel, this);
-				Gtk.Alignment align = new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = namebox };
-				align.WidthRequest = 200;
+				InspectableBox namebox = new InspectableBox(new Label(name), this);
+				Gtk.Alignment align = new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = namebox, WidthRequest = 200 };
 				headerBox.PackStart(align, false, false, 0);
 
 				if (parent != null) {

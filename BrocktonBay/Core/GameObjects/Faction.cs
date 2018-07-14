@@ -4,15 +4,8 @@ using Gtk;
 
 namespace Parahumans.Core {
 
-	/*
-	public class Asset : GameObject {
-		public override int order { get { return 0; } }
-		[Displayable(2, typeof(StringField))] public String description;
-	}
-	*/
-
 	public sealed class FactionData {
-		public String name = "New Faction";
+		public string name = "New Faction";
 		public int ID = 0;
 		public Gdk.Color color = new Gdk.Color(0, 0, 0);
 		public Alignment alignment = Alignment.Rogue;
@@ -36,7 +29,7 @@ namespace Parahumans.Core {
 
 	}
 
-	public sealed class Faction : GameObject, IRated, Agent {
+	public sealed class Faction : GameObject, IRated, IAgent {
 
 		public override int order { get { return 3; } }
 
@@ -63,8 +56,6 @@ namespace Parahumans.Core {
 
 		[Displayable(9, typeof(CellTabularListField<Territory>), 2), Emphasized, PlayerEditable(Phase.Organization)]
 		public List<Territory> territories { get; set; }
-
-		//public List<Asset> assets { get; set; }
 
 		[Displayable(9, typeof(RatingsMultiviewField), true), Emphasized, VerticalOnly, Expand]
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
@@ -190,13 +181,10 @@ namespace Parahumans.Core {
 								 false, false, (uint)(Graphics.textSize / 5));
 				return new InspectableBox(header, this);
 			} else { //A dependable wrapper is not necessary as noncompact headers only exist in inspectors of this object, which will reload anyway.
-				VBox headerBox = new VBox(false, 5);
-				Label nameLabel = new Label(name);
-				InspectableBox namebox = new InspectableBox(nameLabel, this);
-				Gtk.Alignment align = new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = namebox };
-				align.WidthRequest = 200;
-				headerBox.PackStart(align, false, false, 0);
-				return headerBox;
+				return new Gtk.Alignment(0.5f, 0.5f, 0, 0) {
+					Child = new InspectableBox(new Label(name), this),
+					WidthRequest = 200
+				};
 			}
 		}
 

@@ -10,7 +10,7 @@ namespace Parahumans.Core {
 	public abstract class GameObject : IGUIComplete, IComparable<GameObject>, IContainer {
 
 		[Displayable(0, typeof(StringField))]
-		public string name { get; set; } = "";
+		public string name { get; set; };
 
 		[Displayable(1, typeof(IntField)), PlayerInvisible]
 		public int ID { get; set; }
@@ -67,10 +67,10 @@ namespace Parahumans.Core {
 	}
 
 	public interface IAffiliated {
-		Agent affiliation { get; }
+		IAgent affiliation { get; }
 	}
 
-	public interface Agent : IGUIComplete {
+	public interface IAgent : IGUIComplete {
 		Gdk.Color color { get; }
 	}
 

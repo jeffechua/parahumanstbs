@@ -21,7 +21,7 @@ namespace Parahumans.Core {
 
 		public Structure structure;
 		public IntVector2 location; //We round this to prevent floating point precision errors
-		public Agent affiliation;
+		public IAgent affiliation;
 		public StructureType type;
 
 		public StructureMarker (Structure structure, Map map) : base(structure) {

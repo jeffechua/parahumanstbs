@@ -35,7 +35,7 @@ namespace Parahumans.Core {
 		public IntVector2 location { get; set; }
 
 		[Displayable(3, typeof(ObjectField)), ForceHorizontal]
-		public Agent affiliation { get { return (Agent)parent; } }
+		public IAgent affiliation { get { return (IAgent)parent; } }
 
 		[Displayable(4, typeof(IntField))]
 		public int size { get; set; }
@@ -90,10 +90,8 @@ namespace Parahumans.Core {
 				return new InspectableBox(header, this);
 			} else {
 				VBox headerBox = new VBox(false, 5);
-				Label nameLabel = new Label(name);
-				InspectableBox namebox = new InspectableBox(nameLabel, this);
-				Gtk.Alignment align = new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = namebox };
-				align.WidthRequest = 200;
+				InspectableBox namebox = new InspectableBox(new Label(name), this);
+				Gtk.Alignment align = new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = namebox, WidthRequest = 200 };
 				headerBox.PackStart(align, false, false, 0);
 				if (parent != null)
 					headerBox.PackStart(new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = Graphics.GetSmartHeader(context.butCompact, parent) });

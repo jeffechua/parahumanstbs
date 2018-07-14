@@ -6,7 +6,7 @@ namespace Parahumans.Core {
 
 	public sealed class TeamData {
 
-		public String name = "New Team";
+		public string name = "New Team";
 		public int ID = 0;
 		public Alignment alignment = Alignment.Rogue;
 		public int unused_xp = 0;
@@ -26,13 +26,13 @@ namespace Parahumans.Core {
 
 	}
 
-	public sealed class Team : GameObject, IRated, Agent {
+	public sealed class Team : GameObject, IRated, IAgent {
 
 		public override int order { get { return 2; } }
 		public Gdk.Color color { get { return new Gdk.Color(0, 0, 0); } }
 
 		[Displayable(2, typeof(ObjectField)), ForceHorizontal]
-		public Agent affiliation { get { return (Agent)(parent ?? this); } }
+		public IAgent affiliation { get { return (IAgent)(parent ?? this); } }
 
 		[Displayable(3, typeof(EnumField<Alignment>))]
 		public Alignment alignment { get; set; }
@@ -119,10 +119,8 @@ namespace Parahumans.Core {
 				return new InspectableBox(frameHeader, this);
 			} else {
 				VBox headerBox = new VBox(false, 5);
-				Label nameLabel = new Label(name);
-				InspectableBox namebox = new InspectableBox(nameLabel, this);
-				Gtk.Alignment align = new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = namebox };
-				align.WidthRequest = 200;
+				InspectableBox namebox = new InspectableBox(new Label(name), this);
+				Gtk.Alignment align = new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = namebox, WidthRequest = 200 };
 				headerBox.PackStart(align, false, false, 0);
 				if (parent != null)
 					headerBox.PackStart(new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = Graphics.GetSmartHeader(context.butCompact, parent) });

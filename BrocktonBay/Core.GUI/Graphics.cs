@@ -48,7 +48,7 @@ namespace Parahumans.Core {
 
 		public static Color GetColor (Health health) => healthColors[(int)health];
 		public static Color GetColor (Alignment alignment) => alignmentColors[2 - (int)alignment];
-		public static Color GetColor (Agent agent) => (agent == null) ? new Color(125, 125, 125) : agent.color;
+		public static Color GetColor (IAgent agent) => (agent == null) ? new Color(125, 125, 125) : agent.color;
 		public static string GetSymbol (Classification clssf) => classSymbols[(int)clssf];
 		public static string GetSymbol (Threat threat) => threatSymbols[(int)threat];
 

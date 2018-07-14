@@ -14,7 +14,7 @@ namespace Parahumans.Core {
 		public Parahuman leader { get; set; }
 
 		[Displayable(2, typeof(ObjectField)), ForceHorizontal]
-		public Agent affiliation { get { return leader == null ? null : leader.affiliation; } }
+		public IAgent affiliation { get { return leader == null ? null : leader.affiliation; } }
 
 		[Displayable(3, typeof(BasicReadonlyField))]
 		public Alignment alignment { get; set; }

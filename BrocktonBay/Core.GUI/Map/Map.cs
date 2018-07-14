@@ -121,19 +121,19 @@ namespace Parahumans.Core {
 		}
 
 		public void Reload () {
-			List<GameObject> unregisteredTerritories = city.gameObjects.FindAll((obj) => obj is Territory);
-			unregisteredTerritories.RemoveAll((territory) => territoryRegister.ContainsKey((Territory)territory));
-			foreach (GameObject obj in unregisteredTerritories) {
-				Territory territory = (Territory)obj;
-				TerritoryMarker marker = new TerritoryMarker(territory, this);
-				territoryRegister.Add(territory, marker);
-			}
 			List<GameObject> unregisteredStructures = city.gameObjects.FindAll((obj) => obj is Structure);
 			unregisteredStructures.RemoveAll((structure) => structureRegister.ContainsKey((Structure)structure));
 			foreach (GameObject obj in unregisteredStructures) {
 				Structure structure = (Structure)obj;
 				StructureMarker marker = new StructureMarker(structure, this);
 				structureRegister.Add(structure, marker);
+			}
+			List<GameObject> unregisteredTerritories = city.gameObjects.FindAll((obj) => obj is Territory);
+			unregisteredTerritories.RemoveAll((territory) => territoryRegister.ContainsKey((Territory)territory));
+			foreach (GameObject obj in unregisteredTerritories) {
+				Territory territory = (Territory)obj;
+				TerritoryMarker marker = new TerritoryMarker(territory, this);
+				territoryRegister.Add(territory, marker);
 			}
 			ShowAll();
 		}
