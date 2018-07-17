@@ -70,6 +70,9 @@ namespace Parahumans.Core {
 		[Displayable(7, typeof(IntField))]
 		public int reputation { get; set; }
 
+		[Displayable(7, typeof(CellTabularListField<Mechanic>), 3), Emphasized]
+		public List<Mechanic> mechanics { get; set; }
+
 		[Displayable(8, typeof(RatingsListField)), Padded(5, 5), EmphasizedIfHorizontal]
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
 
@@ -84,34 +87,38 @@ namespace Parahumans.Core {
 			alignment = data.alignment;
 			threat = data.threat;
 			health = data.health;
+			reputation = data.reputation;
+			mechanics = new List<Mechanic>();
 			baseRatings = new RatingsProfile(data.ratings);
 		}
 
-		public override void Reload () {
-		}
+		public override void Reload () {}
 
 		public RatingsProfile GetRatingsProfile (Context context) {
-			return baseRatings;
+			RatingsProfile ratingsProfile = baseRatings;
+			foreach(Mechanic mechanic in mechanics) {
+				if (mechanic.Known(context)) {
+					if (mechanic.trigger == InvocationTrigger.GetRatings) {
+						ratingsProfile = (RatingsProfile)mechanic.Invoke(context, ratingsProfile);
+					}
+				}
+			}
+			return ratingsProfile;
 		}
 
 		public override Widget GetHeader (Context context) {
-
 			if (context.compact) {
-
 				HBox header = new HBox(false, 0);
 				header.PackStart(new Label(name), false, false, 0);
 				header.PackStart(Graphics.GetIcon(threat, Graphics.GetColor(health), Graphics.textSize),
 								 false, false, (uint)(Graphics.textSize / 5));
 				return new InspectableBox(header, this);
-
 			} else {
-
 				VBox headerBox = new VBox(false, 5);
 				InspectableBox namebox = new InspectableBox(new Label(name), this);
-				Gtk.Alignment align = new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = namebox };
+				Gtk.Alignment align = UIFactory.Align(namebox, 0.5f, 0.5f, 0, 0);
 				align.WidthRequest = 200;
 				headerBox.PackStart(align, false, false, 0);
-
 				if (parent != null) {
 					HBox row2 = new HBox(false, 0);
 					row2.PackStart(new Label(), true, true, 0);
@@ -123,50 +130,76 @@ namespace Parahumans.Core {
 					row2.PackStart(new Label(), true, true, 0);
 					headerBox.PackStart(row2);
 				}
-
 				return headerBox;
-
 			}
 		}
 
-		public override Widget GetCell (Context context) {
-
+		public override Widget GetCellContents (Context context) {
 			VBox ratingsBox = new VBox(false, 0) { BorderWidth = 5 };
-
 			RatingsProfile profile = ratings(context);
 			float[,] cRatings = profile.values;
-
 			for (int i = 1; i <= 8; i++) {
 				if (profile.o_vals[0, i] != Ratings.O_NULL) {
-					Label ratingLabel = new Label(TextTools.PrintRating(i, cRatings[0, i]));
+					Label ratingLabel = new Label(Ratings.PrintRating(i, cRatings[0, i]));
 					ratingLabel.SetAlignment(0, 0);
 					ratingsBox.PackStart(ratingLabel, false, false, 0);
 				}
 			}
-
 			for (int k = 1; k <= 3; k++) {
 				if (profile.o_vals[k, 0] != Ratings.O_NULL) {
-
-					Label ratingLabel = new Label(TextTools.PrintRating(k + 8, cRatings[k, 0], true));
+					Label ratingLabel = new Label(Ratings.PrintRating(k + 8, cRatings[k, 0], true));
 					ratingLabel.SetAlignment(0, 0);
-
 					List<String> subratings = new List<String>();
 					for (int i = 1; i <= 8; i++)
 						if (profile.o_vals[k, i] != Ratings.O_NULL)
-							subratings.Add(TextTools.PrintRating(i, cRatings[k, i]));
+							subratings.Add(Ratings.PrintRating(i, cRatings[k, i]));
 					ratingLabel.TooltipText = String.Join("\n", subratings);
-
 					ratingsBox.PackStart(ratingLabel, false, false, 0);
-
 				}
 			}
-
 			ClickableEventBox clickableEventBox = new ClickableEventBox { BorderWidth = 5 };
 			clickableEventBox.Add(ratingsBox);
-			clickableEventBox.DoubleClicked += (o, a) => new RatingsEditorDialog(this, (Window)clickableEventBox.Toplevel);
-			return clickableEventBox;
-
+			clickableEventBox.DoubleClicked += (o, a) => new TextEditingDialog(
+				"Edit ratings of " + name,
+				(Window)clickableEventBox.Toplevel,
+				() => Ratings.PrintRatings(baseRatings.values, baseRatings.o_vals),
+				delegate (string input) {
+					if (Ratings.TryParseRatings(input, out RatingsProfile? newRatings)) {
+						baseRatings = (RatingsProfile)newRatings;
+						DependencyManager.Flag(this);
+						DependencyManager.TriggerAllFlags();
+						return true;
+					}
+					return false;
+				}
+			);
+			return UIFactory.Align(clickableEventBox, 0, 0, 1f, 0);
 		}
+
+		public override bool Accepts (object obj) => obj is Mechanic;
+		public override bool Contains (object obj) => mechanics.Contains((Mechanic)obj);
+
+		public override void AddRange<T> (List<T> objs) {
+			foreach (object obj in objs) {
+				Mechanic mechanic = (Mechanic)obj;
+				mechanics.Add(mechanic);
+				mechanic.parent = this;
+				DependencyManager.Connect(mechanic, this);
+			}
+			mechanics.Sort((a, b) => a.secrecy.CompareTo(b));
+			DependencyManager.Flag(this);
+		}
+
+		public override void RemoveRange<T> (List<T> objs) {
+			foreach (object obj in objs) {
+				Mechanic mechanic = (Mechanic)obj;
+				mechanics.Remove(mechanic);
+				mechanic.parent = null;
+				DependencyManager.DisconnectAll(mechanic);
+			}
+			DependencyManager.Flag(this);
+		}
+
 	}
 
 }

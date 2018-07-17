@@ -12,21 +12,21 @@ namespace Parahumans.Core {
 
 	public struct Context {
 		
-		public IAgent requester;
+		public IAgent perspective;
 		public object UIContext;
 		public bool vertical;
 		public bool compact;
 
 		//Convenience properties and methods for on-the-go modifications.
-		public Context butCompact { get { return new Context(requester, UIContext, vertical, true); } }
-		public Context butVertical { get { return new Context(requester, UIContext, true, compact); } }
-		public Context butNotCompact { get { return new Context(requester, UIContext, vertical, false); } }
-		public Context butHorizontal { get { return new Context(requester, UIContext, false, compact); } }
+		public Context butCompact { get { return new Context(perspective, UIContext, vertical, true); } }
+		public Context butVertical { get { return new Context(perspective, UIContext, true, compact); } }
+		public Context butNotCompact { get { return new Context(perspective, UIContext, vertical, false); } }
+		public Context butHorizontal { get { return new Context(perspective, UIContext, false, compact); } }
 		public Context butRequestedBy (IAgent newRequester) => new Context(newRequester, UIContext, vertical, compact);
-		public Context butIn (object newUIContext) => new Context(requester, newUIContext, vertical, compact);
+		public Context butIn (object newUIContext) => new Context(perspective, newUIContext, vertical, compact);
 
 		public Context (IAgent requester, object UIContext, bool vertical = true, bool compact = false) {
-			this.requester = requester;
+			this.perspective = requester;
 			this.UIContext = UIContext;
 			this.vertical = vertical;
 			this.compact = compact;

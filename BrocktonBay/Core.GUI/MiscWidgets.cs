@@ -66,6 +66,10 @@ namespace Parahumans.Core {
 		public InspectableBox(IGUIComplete inspected) {
 			
 			this.inspected = inspected;
+			rightclickMenu = new Menu();
+
+			IKnowable knowable = inspected as IKnowable;
+			if (knowable != null && !knowable.Known(new Context(MainClass.playerAgent, this))) return;
 
 			Clicked += delegate (object obj, ButtonReleaseEventArgs args) {
 				if (args.Event.Button == 2 || (args.Event.Type == Gdk.EventType.TwoButtonPress && args.Event.Button == 1)) {
@@ -80,7 +84,6 @@ namespace Parahumans.Core {
 				rightclickMenu.ShowAll();
 			};
 
-			rightclickMenu = new Menu();
 			MenuItem inspectButton = new MenuItem("Inspect");
 			inspectButton.Activated += (o, args) => Inspector.InspectInNearestInspector(inspected, this);
 			MenuItem inspectInWindowButton = new MenuItem("Inspect in New Window");

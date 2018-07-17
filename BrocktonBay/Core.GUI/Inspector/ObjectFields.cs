@@ -34,12 +34,12 @@ namespace Parahumans.Core {
 		public void Reload () {
 			if (Child != null) Child.Destroy();
 			if (context.vertical) {
-				Expander expander = new Expander(TextTools.ToReadable(property.Name) + ": " + obj.name) { Expanded = true };
+				Expander expander = new Expander(UIFactory.ToReadable(property.Name) + ": " + obj.name) { Expanded = true };
 				expander.Add(UIFactory.GenerateVertical(obj));
 				Add(expander);
 			} else {
 				HBox headerBox = new HBox(false, 0);
-				headerBox.PackStart(new Label(TextTools.ToReadable(property.Name) + ": "), false, false, 0);
+				headerBox.PackStart(new Label(UIFactory.ToReadable(property.Name) + ": "), false, false, 0);
 				headerBox.PackStart(obj.GetHeader(context.butCompact), false, false, 0);
 				Add(headerBox);
 			}
@@ -85,9 +85,21 @@ namespace Parahumans.Core {
 			// "Add new" button
 			MenuItem addNewButton = new MenuItem("Add New");
 			addNewButton.Activated += delegate {
-				object newObj = typeof(T).GetConstructor(new Type[] { }).Invoke(new object[] { });
-				((IContainer)obj).Add(newObj);
-				if (newObj is GameObject) MainClass.city.Add((GameObject)newObj);
+				object newElement;
+				ConstructorInfo constructor = typeof(T).GetConstructor(new Type[] { });
+				if (constructor != null) {
+					newElement = constructor.Invoke(new object[0]);
+				} else {
+					MethodInfo method = typeof(T).GetMethod("Create");
+					if (method != null) {
+						newElement = method.Invoke(null, new object[0]);
+						if (newElement == null) return;
+					} else {
+						throw new NotImplementedException();
+					}
+				}
+				((IContainer)obj).Add(newElement);
+				if (newElement is GameObject) MainClass.city.Add((GameObject)newElement);
 				DependencyManager.TriggerAllFlags();
 			};
 			rightclickMenu.Append(addNewButton);
@@ -97,7 +109,7 @@ namespace Parahumans.Core {
 				MenuItem addExistingButton = new MenuItem("Add Existing");
 				rightclickMenu.Append(addExistingButton);
 				addExistingButton.Activated += (o, a) => new SelectorDialog(
-					(Gtk.Window)Toplevel, "Select new addition to " + TextTools.ToReadable(property.Name),
+					(Gtk.Window)Toplevel, "Select new addition to " + UIFactory.ToReadable(property.Name),
 					(tested) => ((IContainer)obj).Accepts(tested) && tested is T,
 					delegate (GameObject returned) {
 						((IContainer)obj).Add(returned);
@@ -129,7 +141,7 @@ namespace Parahumans.Core {
 						alignment.Add(table);
 					}
 				} else {
-					Expander expander = new Expander(TextTools.ToReadable(property.Name));
+					Expander expander = new Expander(UIFactory.ToReadable(property.Name));
 					expander.Expanded = (int)arg > 0;
 					expander.Add(table);
 					alignment.Add(expander);
@@ -144,7 +156,7 @@ namespace Parahumans.Core {
 			} else {
 
 				HBox box = new HBox(false, 5);
-				Label label = new Label(TextTools.ToReadable(property.Name)) { Angle = 90 };
+				Label label = new Label(UIFactory.ToReadable(property.Name)) { Angle = 90 };
 				if (editable) {
 					ClickableEventBox labelEventBox = new ClickableEventBox { Child = label };
 					labelEventBox.RightClicked += delegate {

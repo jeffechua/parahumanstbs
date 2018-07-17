@@ -131,7 +131,7 @@ namespace Parahumans.Core {
 			Context context = new Context(MainClass.playerAgent, territory, true, false);
 
 			VBox mainBox = new VBox(false, 2) { BorderWidth = 10 };
-			mainBox.PackStart(new Gtk.Alignment(0.5f, 0, 0, 1) { Child = territory.GetHeader(context.butCompact) }, false, false, 3);
+			mainBox.PackStart(UIFactory.Align(territory.GetHeader(context.butCompact), 0.5f, 0, 0, 1), false, false, 3);
 			mainBox.PackStart(new HSeparator(), false, false, 5);
 			HBox affiliationBox = new HBox();
 			affiliationBox.PackStart(new Label("Affiliation: "));
@@ -140,9 +140,9 @@ namespace Parahumans.Core {
 			} else {
 				affiliationBox.PackStart(territory.affiliation.GetHeader(context));
 			}
-			mainBox.PackStart(new Gtk.Alignment(0, 0, 0, 1) { Child = affiliationBox });
-			mainBox.PackStart(new Gtk.Alignment(0, 0, 0, 1) { Child = new Label("Size: " + territory.size) });
-			mainBox.PackStart(new Gtk.Alignment(0, 0, 0, 1) { Child = new Label("Reputation: " + territory.reputation) });
+			mainBox.PackStart(UIFactory.Align(affiliationBox, 0, 0, 0, 1));
+			mainBox.PackStart(UIFactory.Align(new Label("Size: " + territory.size), 0, 0, 0, 1));
+			mainBox.PackStart(UIFactory.Align(new Label("Reputation: " + territory.reputation), 0, 0, 0, 1));
 			mainBox.PackStart(new HSeparator(), false, false, 5);
 			mainBox.PackStart(new CellTabularListField<Structure>(territory.GetType().GetProperty("structures"), territory, context, 2));
 			Add(mainBox);

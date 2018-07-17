@@ -84,7 +84,7 @@ namespace Parahumans.Core {
 			RatingsRadarChart radar = new RatingsRadarChart(context.butCompact, profile, null, null);
 			RatingsTable table = new RatingsTable(context.butCompact, profile);
 			notebook.AppendPage(radar, null);
-			notebook.AppendPage(new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = table }, null);
+			notebook.AppendPage(UIFactory.Align(table, 0.5f, 0.5f, 0, 0), null);
 		}
 
 	}
@@ -144,9 +144,9 @@ namespace Parahumans.Core {
 			RatingsRadarChart radar2 = new RatingsRadarChart(context.butCompact, erp.original);
 			RatingsTable table2 = new RatingsTable(context.butCompact, erp.original);
 			notebook.AppendPage(radar1, null);
-			notebook.AppendPage(new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = table1 }, null);
+			notebook.AppendPage(UIFactory.Align(table1, 0.5f, 0.5f, 0, 0), null);
 			notebook.AppendPage(radar2, null);
-			notebook.AppendPage(new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = table2 }, null);
+			notebook.AppendPage(UIFactory.Align(table2, 0.5f, 0.5f, 0, 0), null);
 
 		}
 	}

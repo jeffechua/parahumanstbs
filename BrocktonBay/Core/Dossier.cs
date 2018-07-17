@@ -11,26 +11,26 @@ namespace Parahumans.Core {
 			}
 		}
 
-		int _research;
-		public int research {
+		int _intel;
+		public int intel {
 			get {
-				return MainClass.omniscient ? int.MaxValue : _research;
+				return MainClass.omniscient ? int.MaxValue : _intel;
 			}
 		}
 
 		public InfoState (bool identity, int research) {
 			_identity = identity;
-			_research = research;
+			_intel = research;
 		}
 
 		public static InfoState operator + (InfoState infoState)
-			=> new InfoState(true, infoState._research);
+			=> new InfoState(true, infoState._intel);
 		public static InfoState operator - (InfoState infoState)
-			=> new InfoState(false, infoState._research);
+			=> new InfoState(false, infoState._intel);
 		public static InfoState operator + (InfoState infoState, int increment)
-			=> new InfoState(infoState._identity, infoState._research + increment);
+			=> new InfoState(infoState._identity, infoState._intel + increment);
 		public static InfoState operator ++ (InfoState infoState)
-			=> new InfoState(infoState._identity, infoState._research + 1);
+			=> new InfoState(infoState._identity, infoState._intel + 1);
 
 	}
 

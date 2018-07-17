@@ -59,6 +59,7 @@ namespace Parahumans.Core {
 
 			//Basic setup
 			this.obj = obj;
+			this.context = context;
 			frame = new Frame();
 
 			Child = frame;
@@ -83,7 +84,7 @@ namespace Parahumans.Core {
 			if (frame.Child != null) frame.Child.Destroy();
 			if (frame.LabelWidget != null) frame.LabelWidget.Destroy();
 			frame.LabelWidget = obj.GetHeader(context.butCompact);
-			frame.Add(new Gtk.Alignment(0, 0, 1, 0) { Child = obj.GetCell(context) });
+			frame.Add(obj.GetCellContents(context));
 			ShowAll();
 		}
 

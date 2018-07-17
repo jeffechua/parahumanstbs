@@ -115,7 +115,7 @@ namespace Parahumans.Core {
 			Context context = new Context(MainClass.playerAgent, structure, true, false);
 
 			VBox mainBox = new VBox(false, 2) { BorderWidth = 10 };
-			mainBox.PackStart(new Gtk.Alignment(0.5f, 0, 0, 1) { Child = structure.GetHeader(context) }, false, false, 3);
+			mainBox.PackStart(UIFactory.Align(structure.GetHeader(context), 0.5f, 0, 0, 1), false, false, 3);
 			mainBox.PackStart(new HSeparator(), false, false, 5);
 			HBox affiliationBox = new HBox();
 			affiliationBox.PackStart(new Label("Affiliation: "));
@@ -124,11 +124,11 @@ namespace Parahumans.Core {
 			} else {
 				affiliationBox.PackStart(structure.affiliation.GetHeader(context.butCompact));
 			}
-			mainBox.PackStart(new Gtk.Alignment(0, 0, 0, 1) { Child = affiliationBox });
-			mainBox.PackStart(new Gtk.Alignment(0, 0, 0, 1) { Child = new Label("Type: " + structure.type) });
+			mainBox.PackStart(UIFactory.Align(affiliationBox, 0, 0, 0, 1));
+			mainBox.PackStart(UIFactory.Align(Child = new Label("Type: " + structure.type), 0, 0, 0, 1));
 			mainBox.PackStart(new HSeparator(), false, false, 5);
 			mainBox.PackStart(new TabularContainerField(structure.GetType().GetProperty("buffs"), structure, context,
-														new string[] { "strength_buff", "resource_buff", "reputation_buff" }));
+														new object[] { "strength_buff", "resource_buff", "reputation_buff" }));
 			Add(mainBox);
 
 			marker.GdkWindow.GetOrigin(out int x, out int y);

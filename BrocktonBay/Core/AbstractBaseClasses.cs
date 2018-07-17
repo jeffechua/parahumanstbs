@@ -10,17 +10,29 @@ namespace Parahumans.Core {
 	public abstract class GameObject : IGUIComplete, IComparable<GameObject>, IContainer {
 
 		[Displayable(0, typeof(StringField))]
-		public string name { get; set; };
+		public string name { get; set; }
 
 		[Displayable(1, typeof(IntField)), PlayerInvisible]
 		public int ID { get; set; }
+
+		[Displayable(2, typeof(IntField))] //Only wrt current perspective
+		public int intel {
+			get {
+				return MainClass.city.intrigue[MainClass.playerAgent][this].intel;
+			}
+			set {
+				InfoState currentIntel = MainClass.city.intrigue[MainClass.playerAgent][this];
+				currentIntel = new InfoState(currentIntel.identity, value);
+				MainClass.city.intrigue[MainClass.playerAgent][this] = currentIntel;
+			}
+		}
 
 		// This is a field and not a Displayable property as parentage is usually displayed in implementation of GetHeader(), so it would be redundant.
 		public GameObject parent;
 
 		//IGUIComplete stuff
 		public abstract Widget GetHeader (Context context);
-		public abstract Widget GetCell (Context context);
+		public abstract Widget GetCellContents (Context context);
 
 		//IDependable stuff
 		public abstract int order { get; }
@@ -62,8 +74,12 @@ namespace Parahumans.Core {
 
 		// Gets a approximate square of key information on the object, APART FROM information already in the header
 		// For example, a Parahuman returns a list of its condensed ratings. A Team returns a list of its members.
-		Widget GetCell (Context context);
+		Widget GetCellContents (Context context);
 
+	}
+
+	public interface IKnowable {
+		bool Known (Context context);
 	}
 
 	public interface IAffiliated {

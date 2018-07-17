@@ -8,10 +8,20 @@ namespace Parahumans.Core {
 		public Type widget; //The widget used to display this attribute.
 		public object arg; //An optional argument that is passed to the initialization of the display widget.
 
-		public DisplayableAttribute (int order, Type widget, object arg = null) {
+		public DisplayableAttribute (int order, Type widget, params object[] arg) {
 			this.order = order;
 			this.widget = widget;
-			this.arg = arg;
+			switch(arg.Length) {
+				case 0:
+					this.arg = null;
+					break;
+				case 1:
+					this.arg = arg[0];
+					break;
+				default:
+					this.arg = arg;
+					break;
+			}
 		}
 
 	}
@@ -20,7 +30,7 @@ namespace Parahumans.Core {
 	// "widget" is the vertical display and "widget2" is for the horizontal
 	public class BimorphicDisplayableAttribute : DisplayableAttribute {
 		public Type widget2;
-		public BimorphicDisplayableAttribute (int o, Type wgt, Type wgt2, object arg = null) : base(o, wgt, arg)
+		public BimorphicDisplayableAttribute (int o, Type wgt, Type wgt2, params object[] arg) : base(o, wgt, arg)
 			=> widget2 = wgt2;
 	}
 

@@ -36,7 +36,7 @@ namespace Parahumans.Core {
 
 			for (int i = 0; i < properties.Count; i++) {
 				if (!HasAttribute(properties[i], typeof(DisplayableAttribute)) ||
-				    HasAttribute(properties[i], typeof(ChildAttribute)) ||
+					HasAttribute(properties[i], typeof(ChildAttribute)) ||
 					properties[i].GetValue(obj) == null) {
 					properties.RemoveAt(i);
 					i--;
@@ -118,10 +118,10 @@ namespace Parahumans.Core {
 			//Load up all properties
 			List<PropertyInfo> properties = new List<PropertyInfo>(obj.GetType().GetProperties());
 
-			for (int i = 0; i < properties.Count; i++){
+			for (int i = 0; i < properties.Count; i++) {
 				if (!HasAttribute(properties[i], typeof(DisplayableAttribute)) ||
-				    HasAttribute(properties[i], typeof(ChildAttribute)) ||
-				    properties[i].GetValue(obj) == null) {
+					HasAttribute(properties[i], typeof(ChildAttribute)) ||
+					properties[i].GetValue(obj) == null) {
 					properties.RemoveAt(i);
 					i--;
 				}
@@ -180,6 +180,9 @@ namespace Parahumans.Core {
 
 		}
 
+		public static Gtk.Alignment Align (Widget widget, float xalign, float yalign, float xscale, float yscale)
+			=> new Gtk.Alignment(xalign, yalign, xscale, yscale) { Child = widget };
+
 		public static bool HasAttribute (PropertyInfo property, Type attribute)
 			=> property.GetCustomAttribute(attribute) != null;
 
@@ -189,6 +192,20 @@ namespace Parahumans.Core {
 			PlayerEditableAttribute editableAttribute = (PlayerEditableAttribute)property.GetCustomAttribute(typeof(PlayerEditableAttribute));
 			if (editableAttribute == null) return false;
 			return editableAttribute.currentlyEditable;
+		}
+
+		public static string ToReadable (string str) {
+			string newStr = str[0].ToString().ToUpper();
+			for (int i = 1; i < str.Length; i++) {
+				if (str[i] == '_') {
+					newStr += " ";
+					newStr += str[i + 1].ToString().ToUpper();
+					i++;
+				} else {
+					newStr += str[i];
+				}
+			}
+			return newStr;
 		}
 
 	}

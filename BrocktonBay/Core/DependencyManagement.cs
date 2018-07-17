@@ -35,6 +35,8 @@ namespace Parahumans.Core {
 				flagged[obj.order].Add(obj);
 		}
 
+		// As a general rule, utility methods such as AddRange, RemoveRange should not call TriggerAllFlags: the
+		// first initiating callback/method is responsible for this such as to minimize unnecessary work.
 		public static void TriggerAllFlags () {
 			//Console.WriteLine("Triggering all flags:");
 			for (int i = 0; i < flagged.Count; i++)

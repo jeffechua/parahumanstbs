@@ -45,7 +45,7 @@ namespace Parahumans.Core {
 		public StructureType type { get; set; }
 
 		[BimorphicDisplayable(5, typeof(TabularContainerField), typeof(LinearContainerField),
-							  new string[] { "strength_buff", "resource_buff", "reputation_buff" }), EmphasizedIfVertical]
+		                      "strength_buff", "resource_buff", "reputation_buff" ), EmphasizedIfVertical]
 		public int[] buffs {
 			get {
 				return new int[] { strength_buff, resource_buff, reputation_buff };
@@ -127,12 +127,12 @@ namespace Parahumans.Core {
 			}
 		}
 
-		public override Widget GetCell (Context context) {
+		public override Widget GetCellContents (Context context) {
 			Label label = new Label("Strength +" + strength_buff + "\n" +
 			                        "Resources +" + resource_buff + "\n" +
 			                        "Reputation +" + reputation_buff);
 			label.Justify = Justification.Left;
-			return new Gtk.Alignment(0, 0, 1, 1) { Child = label, BorderWidth = 10 };
+			return new Gtk.Alignment(0, 0, 1, 0) { Child = label, BorderWidth = 10 };
 		}
 
 		public override void Reload () {

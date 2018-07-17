@@ -35,7 +35,7 @@ namespace Parahumans.Core {
 		public EffectiveRatingsProfile initiator_profile { get { return profiles[0]; } set { profiles[0] = value; } }
 
 		[BimorphicDisplayable(3, typeof(TabularContainerField), typeof(LinearContainerField),
-							  new string[] { "initiator_strength", "initiator_stealth", "initiator_insight" }), EmphasizedIfVertical]
+							  "initiator_strength", "initiator_stealth", "initiator_insight"), EmphasizedIfVertical]
 		public Expression[] initiator_stats {
 			get {
 				return new Expression[] { initiator_strength, initiator_stealth, initiator_insight };
@@ -67,7 +67,7 @@ namespace Parahumans.Core {
 		public Fraction[] responder_escape { get; set; } //Chance of capture, per member
 
 		[BimorphicDisplayable(9, typeof(TabularContainerField), typeof(LinearContainerField),
-							  new string[] { "responder_strength", "responder_stealth", "responder_insight" }), EmphasizedIfVertical]
+							  "responder_strength", "responder_stealth", "responder_insight"), EmphasizedIfVertical]
 		public Expression[] responder_stats {
 			get {
 				return new Expression[] { responder_strength, responder_stealth, responder_insight };
@@ -288,13 +288,13 @@ namespace Parahumans.Core {
 				} else {
 					versusBox.PackStart(responders.affiliation.GetHeader(context.butCompact));
 				}
-				headerBox.PackStart(new Gtk.Alignment(0.5f, 0, 0, 0) { Child = versusBox }, false, false, 0);
+				headerBox.PackStart(UIFactory.Align(versusBox, 0.5f, 0, 0, 0), false, false, 0);
 
 				return headerBox;
 			}
 		}
 
-		public Widget GetCell (Context context) {
+		public Widget GetCellContents (Context context) {
 			VBox versusBox = new VBox();
 
 			if (initiators.affiliation == null) {

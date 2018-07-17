@@ -58,10 +58,8 @@
     <Compile Include="Core\Battle\Deployment.cs" />
     <Compile Include="Core\Battle\GameEvent.cs" />
     <Compile Include="Core.GUI\GUICaching.cs" />
-    <Compile Include="PlatformDetection.cs" />
     <Compile Include="IO.cs" />
     <Compile Include="Core.GUI\MainInterface.cs" />
-    <Compile Include="Core.GUI\TextTools.cs" />
     <Compile Include="Core\Ratings.cs" />
     <Compile Include="Core\GameObjects\Faction.cs" />
     <Compile Include="Core\GameObjects\Parahuman.cs" />
@@ -76,12 +74,15 @@
     <Compile Include="Core\Battle\EventLocation.cs" />
     <Compile Include="Core\UtilityObjects.cs" />
     <Compile Include="MyDragDrop.cs" />
+    <Compile Include="PlatformDetection.cs" />
     <Compile Include="Core\Dossier.cs" />
     <Compile Include="Core.GUI\Inspector\Ratings\RatingsListField.cs" />
     <Compile Include="Core.GUI\Inspector\Ratings\RatingsMultiviewField.cs" />
     <Compile Include="Core.GUI\Inspector\Ratings\RatingsRadarChart.cs" />
     <Compile Include="Core.GUI\Inspector\Ratings\RatingsTable.cs" />
-    <Compile Include="Core\GameObjects\Mechanic.cs" />
+    <Compile Include="Core\GameObjects\Mechanics\Mechanic.cs" />
+    <Compile Include="Core\GameObjects\Mechanics\WeaknessMechanic.cs" />
+    <Compile Include="Core.GUI\Inspector\DialogTextEditing.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />
@@ -91,6 +92,7 @@
     <Folder Include="Core\GameObjects\" />
     <Folder Include="Core.GUI\Map\" />
     <Folder Include="Core.GUI\Inspector\Ratings\" />
+    <Folder Include="Core\GameObjects\Mechanics\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

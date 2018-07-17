@@ -188,7 +188,7 @@ namespace Parahumans.Core {
 			}
 		}
 
-		public override Widget GetCell (Context context) {
+		public override Widget GetCellContents (Context context) {
 
 			//Creates the cell contents
 			VBox childrenBox = new VBox(false, 0) { BorderWidth = 3 };
@@ -219,7 +219,7 @@ namespace Parahumans.Core {
 				}
 			});
 
-			return new Gtk.Alignment(0, 0, 1, 1) { Child = eventBox, BorderWidth = 7 };
+			return new Gtk.Alignment(0, 0, 1, 0) { Child = eventBox, BorderWidth = 7 };
 			//For some reason drag/drop highlights include BorderWidth.
 			//The Alignment makes the highlight actually appear at the 3:7 point in the margin.
 		}

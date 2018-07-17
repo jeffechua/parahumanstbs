@@ -10,7 +10,7 @@ namespace Parahumans.Core {
 		public ReadonlyField (PropertyInfo property, object obj, Context context, object arg) {
 			this.property = property;
 			this.obj = obj;
-			Text = TextTools.ToReadable(property.Name) + ": " + GetValueAsString();
+			Text = UIFactory.ToReadable(property.Name) + ": " + GetValueAsString();
 			SetAlignment(0, 0.5f);
 		}
 		protected abstract string GetValueAsString ();
@@ -36,7 +36,7 @@ namespace Parahumans.Core {
 			this.context = context;
 			editable = UIFactory.CurrentlyEditable(property, obj);
 
-			Label label = new Label(context.compact ? "" : (TextTools.ToReadable(property.Name) + ": "));
+			Label label = new Label(context.compact ? "" : (UIFactory.ToReadable(property.Name) + ": "));
 			PackStart(label, false, false, 0);
 
 			TooltipTextAttribute tooltipText = (TooltipTextAttribute)property.GetCustomAttribute(typeof(TooltipTextAttribute));
@@ -47,7 +47,7 @@ namespace Parahumans.Core {
 
 			rightclickMenu = new Menu();
 			MenuItem edit = new MenuItem("Edit");
-			edit.Activated += (a, b) => Open();
+			edit.Activated += Open;
 			rightclickMenu.Append(edit);
 			if (!suppressReload)
 				Reload();
@@ -61,28 +61,22 @@ namespace Parahumans.Core {
 		protected abstract string GetValueAsString ();
 		protected abstract void SetValueFromString (string text);
 
-		void LabelClicked (object label, ButtonPressEventArgs args) {
-			if (args.Event.Type == Gdk.EventType.TwoButtonPress) {
-				Open();
-				args.RetVal = true;
-			}
-		}
-		void EntrySubmitted (object entry, EventArgs args) {
+		void Submit (object entry, EventArgs args) {
 			SetValueFromString(((Entry)entry).Text);
 			DependencyManager.Flag(obj);
 			DependencyManager.TriggerAllFlags();
 		}
 
-		void FocusLost (object widget, EventArgs args) {
+		void Cancel (object widget, EventArgs args) {
 			((Window)Toplevel).Focus = null;
 			Reload();
 		}
 
-		void Open () {
+		void Open (object widget, EventArgs args) {
 			Entry entry = new Entry();
 			entry.SetSizeRequest(Math.Max(Children[1].Allocation.Width, Children[1].SizeRequest().Width + 10), -1);
-			entry.Activated += EntrySubmitted;
-			entry.FocusOutEvent += FocusLost;
+			entry.Activated += Submit;
+			entry.FocusOutEvent += Cancel;
 			entry.Text = GetValueAsString();
 			entry.SelectRegion(0, -1);
 
@@ -99,13 +93,13 @@ namespace Parahumans.Core {
 			val.SetAlignment(0, 0.5f);
 			if (editable) {
 				ClickableEventBox eventBox = new ClickableEventBox() { Child = val };
-				eventBox.ButtonPressEvent += LabelClicked;
+				eventBox.DoubleClicked += Open;
 				eventBox.RightClicked += delegate {
 					rightclickMenu.Popup();
 					rightclickMenu.ShowAll();
 				};
 				PackStart(eventBox, true, true, 0);
-			}else {
+			} else {
 				PackStart(val, true, true, 0);
 			}
 			ShowAll();

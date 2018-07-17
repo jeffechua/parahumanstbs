@@ -30,16 +30,16 @@ namespace Parahumans.Core {
 		Context context;
 
 		public TabularContainerField (PropertyInfo property, object obj, Context context, object arg) : base(1, 1, false) {
-
+			
 			// arg ought to be a string[] containing the names of child properties. Here we turn it into a list and
 			// use ConvertAll() to obtain the list of actual PropertyInfos.
-			children = new List<string>((string[])arg).ConvertAll((input) => obj.GetType().GetProperty(input));
+			children = new List<object>((object[])arg).ConvertAll((input) => obj.GetType().GetProperty((string)input));
 			this.context = context;
 
 			ColumnSpacing = 5;
 			RowSpacing = 2;
 
-			Label label = new Label(TextTools.ToReadable(property.Name) + ": ");
+			Label label = new Label(UIFactory.ToReadable(property.Name) + ": ");
 
 			TooltipTextAttribute tooltipText = (TooltipTextAttribute)property.GetCustomAttribute(typeof(TooltipTextAttribute));
 			if (tooltipText != null) {
@@ -78,10 +78,10 @@ namespace Parahumans.Core {
 
 		public LinearContainerField (PropertyInfo property, object obj, Context context, object arg) {
 
-			children = new List<string>((string[])arg).ConvertAll((input) => obj.GetType().GetProperty(input));
+			children = new List<object>((object[])arg).ConvertAll((input) => obj.GetType().GetProperty((string)input));
 			this.context = context;
 
-			Label label = new Label(TextTools.ToReadable(property.Name) + ": ");
+			Label label = new Label(UIFactory.ToReadable(property.Name) + ": ");
 
 			TooltipTextAttribute tooltipText = (TooltipTextAttribute)property.GetCustomAttribute(typeof(TooltipTextAttribute));
 			if (tooltipText != null) {
@@ -192,7 +192,7 @@ namespace Parahumans.Core {
 			this.obj = obj;
 			exp = (Expression)property.GetValue(obj);
 			this.context = context;
-			title = TextTools.ToReadable(property.Name);
+			title = UIFactory.ToReadable(property.Name);
 
 			Label label = new Label();
 			label.UseMarkup = true;
@@ -269,7 +269,7 @@ namespace Parahumans.Core {
 
 			if ((bool)arg != false) {
 				RowSpacing = 2;
-				Label title = new Label("[ " + TextTools.ToReadable(property.Name) + " ]");
+				Label title = new Label("[ " + UIFactory.ToReadable(property.Name) + " ]");
 				Attach(title, 0, 1, 0, 1, AttachOptions.Fill, AttachOptions.Fill, 0, 2);
 			}
 
@@ -338,7 +338,7 @@ namespace Parahumans.Core {
 			this.obj = (IGUIComplete)obj;
 			this.context = context;
 
-			Label label = new Label(TextTools.ToReadable(property.Name) + ": ");
+			Label label = new Label(UIFactory.ToReadable(property.Name) + ": ");
 			PackStart(label, false, false, 0);
 
 			colorButton = new ClickableEventBox { VisibleWindow = true, BorderWidth = 1 };

@@ -47,7 +47,7 @@ namespace Parahumans.Core {
 		public int unused_XP { get; set; }
 
 		[BimorphicDisplayable(7, typeof(TabularContainerField), typeof(LinearContainerField),
-		                      new string[] { "strength_XP", "stealth_XP", "insight_XP" }), EmphasizedIfVertical]
+		                      "strength_XP", "stealth_XP", "insight_XP"), EmphasizedIfVertical]
 		public int[] spent_XP {
 			get {
 				return new int[] { strength_XP, stealth_XP, insight_XP };
@@ -123,12 +123,12 @@ namespace Parahumans.Core {
 				Gtk.Alignment align = new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = namebox, WidthRequest = 200 };
 				headerBox.PackStart(align, false, false, 0);
 				if (parent != null)
-					headerBox.PackStart(new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = Graphics.GetSmartHeader(context.butCompact, parent) });
+					headerBox.PackStart(UIFactory.Align(Graphics.GetSmartHeader(context.butCompact, parent), 0.5f, 0.5f, 0, 0));
 				return headerBox;
 			}
 		}
 
-		public override Widget GetCell (Context context) {
+		public override Widget GetCellContents (Context context) {
 
 			//Creates the cell contents
 			VBox rosterBox = new VBox(false, 0) { BorderWidth = 3 };
@@ -151,7 +151,7 @@ namespace Parahumans.Core {
 				}
 			});
 
-			return new Gtk.Alignment(0, 0, 1, 1) { Child = eventBox, BorderWidth = 7 };
+			return new Gtk.Alignment(0, 0, 1, 0) { Child = eventBox, BorderWidth = 7 };
 			//For some reason drag/drop highlights include BorderWidth.
 			//The Alignment makes the highlight actually appear at the 3:7 point in the margin.
 		}

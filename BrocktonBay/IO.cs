@@ -120,8 +120,8 @@ namespace Parahumans.Core {
 					city.intrigue.Add((IAgent)agents[i], empty);
 				}
 
-				MainClass.Load(city); //Profiler calls inside CityInterface constructor.
 				MainClass.playerAgent = (IAgent)city.Get<GameObject>(int.Parse(File.ReadAllText(path + "/player.txt")));
+				MainClass.Load(city); //Profiler calls inside CityInterface constructor.
 
 				Profiler.Report();
 
