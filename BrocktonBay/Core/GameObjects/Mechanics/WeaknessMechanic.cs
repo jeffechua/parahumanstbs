@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Gtk;
 
 namespace Parahumans.Core {
-	public class WeaknessMechanic : Mechanic {
+	public sealed class WeaknessMechanic : Mechanic {
 
 		public RatingsProfile difference;
 
@@ -21,13 +21,8 @@ namespace Parahumans.Core {
 		}
 		public override InvocationTrigger trigger { get { return InvocationTrigger.GetRatings; } }
 
-		public WeaknessMechanic (MechanicData data) : base(data) {
-			if (Ratings.TryParseRatings(data.effect, out RatingsProfile? ratings)) {
-				difference = (RatingsProfile)ratings;
-			} else {
-				difference = new RatingsProfile(Ratings.ALL_NULL);
-			}
-		}
+		public WeaknessMechanic (MechanicData data) : base(data)
+			=> effect = data.effect;
 
 		public override object Invoke (Context context, object obj) {
 			if (Known(context)) {

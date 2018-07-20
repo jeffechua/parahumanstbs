@@ -77,7 +77,7 @@ namespace Parahumans.Core {
 			float[,] output = new float[5, 9];
 			for (int i = 0; i < 5; i++)
 				for (int j = 0; j < 9; j++)
-					output[i, j] = ApproxEquals(input[i,j], NULL) ? ZERO : input[i, j];
+					output[i, j] = ApproxEquals(input[i, j], NULL) ? ZERO : input[i, j];
 			return output;
 		}
 		public static int[,] NullToZero (int[,] input) {
@@ -137,26 +137,27 @@ namespace Parahumans.Core {
 			int currentWrapper = 0;
 			int[,] o_vals = new int[5, 9];
 			string[] lines = text.Split('\n');
-			foreach (string line in lines) {
-				if (!TryParseRating(line.Trim(), out Tuple<int, float> rating)) return false;
+			if (!(lines.Length == 1 && lines[0] == "")) {
+				foreach (string line in lines) {
+					if (!TryParseRating(line.Trim(), out Tuple<int, float> rating)) return false;
 
-				if (line[0] == '\t') {
-					// An indented entry makes no sense if we aren't in a wrapper or it's trying to declare a wrapper
-					if (currentWrapper == 0 || rating.Item1 > 8) return false;
-					// Everything is fine? According to the currentWrapper, append the entry to the relevant ratings
-					o_vals[currentWrapper, rating.Item1] += Empower(rating.Item2);
-					o_vals[4, rating.Item1] += Empower(rating.Item2);
-				} else {
-					currentWrapper = 0;
-					if (rating.Item1 <= 8) { //If it's a normal entry, append it to the base ratings.
-						o_vals[0, rating.Item1] += Empower(rating.Item2);
+					if (line[0] == '\t') {
+						// An indented entry makes no sense if we aren't in a wrapper or it's trying to declare a wrapper
+						if (currentWrapper == 0 || rating.Item1 > 8) return false;
+						// Everything is fine? According to the currentWrapper, append the entry to the relevant ratings
+						o_vals[currentWrapper, rating.Item1] += Empower(rating.Item2);
 						o_vals[4, rating.Item1] += Empower(rating.Item2);
-					} else { //Otherwise, it's a wrapper, so we "enter" it and log the wrapper metarating.
-						currentWrapper = rating.Item1 - 8;
-						o_vals[currentWrapper, 0] += Empower(rating.Item2);
+					} else {
+						currentWrapper = 0;
+						if (rating.Item1 <= 8) { //If it's a normal entry, append it to the base ratings.
+							o_vals[0, rating.Item1] += Empower(rating.Item2);
+							o_vals[4, rating.Item1] += Empower(rating.Item2);
+						} else { //Otherwise, it's a wrapper, so we "enter" it and log the wrapper metarating.
+							currentWrapper = rating.Item1 - 8;
+							o_vals[currentWrapper, 0] += Empower(rating.Item2);
+						}
 					}
 				}
-
 			}
 			ratings = new RatingsProfile(o_vals);
 			return true;

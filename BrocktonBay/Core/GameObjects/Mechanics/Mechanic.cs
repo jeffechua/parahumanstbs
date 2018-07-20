@@ -13,8 +13,18 @@ namespace Parahumans.Core {
 		public string name = "New Mechanic";
 		public string type = "";
 		public int secrecy = 0;
-		public string effect = "";
 		public string description = "";
+		public string effect = "";
+		public MechanicData () {}
+		public MechanicData (Mechanic mechanic) {
+			name = mechanic.name;
+			type = mechanic.type;
+			secrecy = mechanic.secrecy;
+			description = mechanic.description;
+			effect = mechanic.effect;
+		}
+		public MechanicData (string type)
+			=> this.type = type;
 	}
 
 	public abstract class Mechanic : IGUIComplete, IKnowable {
@@ -30,11 +40,13 @@ namespace Parahumans.Core {
 		[Displayable(0, typeof(StringField))]
 		public string name { get; set; }
 
+		public string type;
+
 		[Displayable(1, typeof(IntField))]
 		public int secrecy { get; set; }
 
 		[Displayable(2, typeof(StringField))]
-		public string description;
+		public string description { get; set; }
 
 		//Managed by derivative classes
 		[Displayable(3, typeof(DialogTextEditableField)), Emphasized]
@@ -55,7 +67,7 @@ namespace Parahumans.Core {
 			dialog.ShowAll();
 			dialog.Response += delegate (object obj, ResponseArgs args) {
 				if (args.ResponseId == ResponseType.Ok) {
-					newMechanic = Load(new MechanicData { type = comboBox.ActiveText });
+					newMechanic = Load(new MechanicData(comboBox.ActiveText));
 				}
 			};
 			dialog.Run();
@@ -74,7 +86,10 @@ namespace Parahumans.Core {
 
 		public Mechanic (MechanicData data) {
 			name = data.name;
+			type = data.type;
+			secrecy = data.secrecy;
 			description = data.description;
+			//set effect in derived class' constructor
 		}
 
 		public abstract object Invoke (Context context, object obj);

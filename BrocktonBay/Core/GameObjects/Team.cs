@@ -181,7 +181,7 @@ namespace Parahumans.Core {
 				if (parahuman.parent != null) parahuman.parent.Remove(obj);
 				parahuman.parent = this;
 				if (parahuman.knowledge != null)
-					knowledge = knowledge | parahuman.knowledge;
+					affiliation.knowledge = affiliation.knowledge | parahuman.knowledge;
 				parahuman.active = false;
 				roster.Add(parahuman);
 				DependencyManager.Connect(parahuman, this);
@@ -194,7 +194,7 @@ namespace Parahumans.Core {
 			foreach (object obj in objs) {
 				Parahuman parahuman = (Parahuman)obj;
 				parahuman.parent = null;
-				parahuman.knowledge = knowledge.Clone();
+				parahuman.knowledge = affiliation.knowledge.Clone();
 				parahuman.active = true;
 				roster.Remove(parahuman);
 				DependencyManager.Disconnect(parahuman, this);

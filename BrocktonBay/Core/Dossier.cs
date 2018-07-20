@@ -21,7 +21,7 @@ namespace Parahumans.Core {
 			foreach (GameObject obj in dossier.Keys) {
 				if (obj.affiliation == agent) {
 					dossier[obj] = this[obj];
-				} else if(maxUnchosen) {
+				} else if (maxUnchosen) {
 					dossier[obj] = int.MaxValue;
 				}
 			}
@@ -31,14 +31,14 @@ namespace Parahumans.Core {
 		public static Dossier operator | (Dossier a, Dossier b) {
 			Dossier c = new Dossier();
 			foreach (GameObject obj in a.Keys)
-				c.Add(obj, Math.Max(a[obj], b[obj]));
+				c[obj] = Math.Max(a[obj], b[obj]);
 			return c;
 		}
 
 		public static Dossier operator & (Dossier a, Dossier b) {
 			Dossier c = new Dossier();
 			foreach (GameObject obj in a.Keys)
-				c.Add(obj, Math.Min(a[obj], b[obj]));
+				c[obj] = Math.Min(a[obj], b[obj]);
 			return c;
 		}
 

@@ -14,11 +14,11 @@ namespace Parahumans.Core {
 	public sealed class ParahumanData {
 		public string name = "New Trigger";
 		public int ID = 0;
-		public string civilianName = "";
 		public Alignment alignment = Alignment.Rogue;
 		public Threat threat = Threat.C;
 		public Health health = Health.Healthy;
 		public int reputation = 0;
+		public List<MechanicData> mechanics = new List<MechanicData>();
 		public int[,] ratings = new int[5, 9];
 
 		public ParahumanData () { }
@@ -26,11 +26,11 @@ namespace Parahumans.Core {
 		public ParahumanData (Parahuman parahuman) {
 			name = parahuman.name;
 			ID = parahuman.ID;
-			civilianName = null;
 			alignment = parahuman.alignment;
 			threat = parahuman.threat;
 			health = parahuman.health;
 			reputation = parahuman.reputation;
+			mechanics = parahuman.mechanics.ConvertAll((input) => new MechanicData(input));
 			ratings = parahuman.baseRatings.o_vals;
 		}
 
@@ -56,8 +56,6 @@ namespace Parahumans.Core {
 				_active = value;
 			}
 		}
-
-		public String civilian_name { get; set; }
 
 		[Displayable(3, typeof(ObjectField)), ForceHorizontal]
 		public override IAgent affiliation {
@@ -102,7 +100,11 @@ namespace Parahumans.Core {
 			threat = data.threat;
 			health = data.health;
 			reputation = data.reputation;
-			mechanics = new List<Mechanic>();
+			mechanics = data.mechanics.ConvertAll((input) => Mechanic.Load(input));
+			foreach(Mechanic mechanic in mechanics) {
+				DependencyManager.Connect(mechanic, this);
+				mechanic.parent = this;
+			}
 			baseRatings = new RatingsProfile(data.ratings);
 		}
 
