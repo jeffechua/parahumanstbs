@@ -78,7 +78,7 @@ namespace Parahumans.Core {
 		public Phase editablePhases;
 		public bool currentlyEditable {
 			get {
-				return editablePhases == Phase.All || editablePhases == MainClass.phase;
+				return editablePhases == Phase.All || editablePhases == Game.phase;
 			}
 		}
 		public PlayerEditableAttribute (Phase phases) {

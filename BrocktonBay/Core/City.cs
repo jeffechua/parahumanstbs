@@ -18,9 +18,9 @@ namespace Parahumans.Core {
 		public void Reload () => gameObjects.Sort();
 
 		public List<GameObject> gameObjects = new List<GameObject>();
-		public Dictionary<IAgent, Dictionary<GameObject, InfoState>> intrigue;
+		public List<IAgent> activeAgents = new List<IAgent>();
 
-		public byte[] mapPngSource = {};
+		public byte[] mapPngSource = { };
 		public int mapDefaultWidth = 0;
 		public int territorySizeScale = 0;
 
@@ -34,15 +34,25 @@ namespace Parahumans.Core {
 		public void Remove (object obj) => RemoveRange(new List<object> { obj });
 		public void AddRange<T> (List<T> objs) {
 			foreach (object obj in objs) {
-				gameObjects.Add((GameObject)obj);
-				DependencyManager.Connect((IDependable)obj, this);
-				DependencyManager.Flag((IDependable)obj);
+				GameObject newGO = (GameObject)obj;
+				gameObjects.Add(newGO);
+				foreach (IAgent agent in activeAgents)
+					if (agent.knowledge != null)
+						agent.knowledge.Remove(newGO);
+				DependencyManager.Connect(newGO, this);
+				DependencyManager.Flag(newGO);
 			}
 			DependencyManager.Flag(this);
 		}
 		public void RemoveRange<T> (List<T> objs) {
 			foreach (object obj in objs) {
-				gameObjects.Remove((GameObject)obj);
+				GameObject removedGO = (GameObject)obj;
+				gameObjects.Remove(removedGO);
+				foreach (IAgent agent in activeAgents)
+					if (agent.knowledge != null)
+						agent.knowledge.Remove(removedGO);
+				if (removedGO.TryCast(out IAgent tryAgent))
+					activeAgents.Remove(tryAgent);
 				DependencyManager.Disconnect((IDependable)obj, this);
 				DependencyManager.Flag((IDependable)obj);
 			}

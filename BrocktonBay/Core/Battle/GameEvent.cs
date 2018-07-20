@@ -21,7 +21,6 @@ namespace Parahumans.Core {
 		public EffectiveRatingsProfile[] profiles;
 
 		public string name { get { return "Event at " + location.name; } }
-		Context context;
 
 		[Displayable(0, typeof(EnumField<GameEventType>))]
 		public GameEventType type;
@@ -91,9 +90,10 @@ namespace Parahumans.Core {
 
 
 
+		public Dossier apparentKnowledge;
+
 		public GameEvent (EventLocation location) {
 			this.location = location;
-			context = new Context(MainClass.playerAgent, this);
 			deployments = new Deployment[] { new Deployment(), new Deployment() };
 			profiles = new EffectiveRatingsProfile[2];
 			DependencyManager.Connect(initiators, this);
@@ -102,9 +102,10 @@ namespace Parahumans.Core {
 		}
 
 		public void Reload () {
-
-			initiator_profile = CompareProfiles(initiators.ratings(context), responders.ratings(context));
-			responder_profile = CompareProfiles(responders.ratings(context), initiators.ratings(context));
+			RatingsProfile initiator_base_profile = initiators.ratings(new Context(responders.affiliation, initiators));
+			RatingsProfile responder_base_profile = responders.ratings(new Context(initiators.affiliation, responders));
+			initiator_profile = CompareProfiles(initiator_base_profile, responder_base_profile);
+			responder_profile = CompareProfiles(responder_base_profile, initiator_base_profile);
 
 			initiator_stats = GetStats(0);
 			responder_stats = GetStats(1);

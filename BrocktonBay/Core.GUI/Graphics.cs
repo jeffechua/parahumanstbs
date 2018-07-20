@@ -76,13 +76,13 @@ namespace Parahumans.Core {
 		static Gdk.GC black;
 
 		public static void MainWindowInitialized (object obj, EventArgs args) {
-			textSize = (int)Math.Round(MainClass.mainWindow.Style.FontDescription.Size / Pango.Scale.PangoScale);
-			visible = new Gdk.GC(MainClass.mainWindow.GdkWindow) { RgbFgColor = new Color(255, 255, 255) };
-			translucent = new Gdk.GC(MainClass.mainWindow.GdkWindow) { RgbFgColor = new Color(150, 150, 150) };
-			film = new Gdk.GC(MainClass.mainWindow.GdkWindow) { RgbFgColor = new Color(80, 80, 80) };
-			invisible = new Gdk.GC(MainClass.mainWindow.GdkWindow) { RgbFgColor = new Color(0, 0, 0) };
+			textSize = (int)Math.Round(Game.mainWindow.Style.FontDescription.Size / Pango.Scale.PangoScale);
+			visible = new Gdk.GC(Game.mainWindow.GdkWindow) { RgbFgColor = new Color(255, 255, 255) };
+			translucent = new Gdk.GC(Game.mainWindow.GdkWindow) { RgbFgColor = new Color(150, 150, 150) };
+			film = new Gdk.GC(Game.mainWindow.GdkWindow) { RgbFgColor = new Color(80, 80, 80) };
+			invisible = new Gdk.GC(Game.mainWindow.GdkWindow) { RgbFgColor = new Color(0, 0, 0) };
 			black = invisible;
-			MainClass.mainWindow.Realized -= MainWindowInitialized;
+			Game.mainWindow.Realized -= MainWindowInitialized;
 		}
 
 		public static Gtk.Image GetIcon (object iconified, Color iconColor, int iconSize, bool decor = false) {
@@ -95,8 +95,8 @@ namespace Parahumans.Core {
 			double pixelSize = iconSize;
 			double size = pixelSize * RESOLUTION_FACTOR; //Since 12 across is 0-11; we don't want to draw on 12 and lose pixels.
 
-			Pixmap color = new Pixmap(MainClass.mainWindow.GdkWindow, (int)size, (int)size);
-			Pixmap mask = new Pixmap(MainClass.mainWindow.GdkWindow, (int)size, (int)size);
+			Pixmap color = new Pixmap(Game.mainWindow.GdkWindow, (int)size, (int)size);
+			Pixmap mask = new Pixmap(Game.mainWindow.GdkWindow, (int)size, (int)size);
 
 			Gdk.GC colorGC = new Gdk.GC(color) { RgbFgColor = iconColor };
 
@@ -298,8 +298,8 @@ namespace Parahumans.Core {
 
 		public static Gtk.Image GetCircle (Color circleColor, byte alpha, int radius) {
 
-			Pixmap color = new Pixmap(MainClass.mainWindow.GdkWindow, radius * 2, radius * 2);
-			Pixmap mask = new Pixmap(MainClass.mainWindow.GdkWindow, radius * 2, radius * 2);
+			Pixmap color = new Pixmap(Game.mainWindow.GdkWindow, radius * 2, radius * 2);
+			Pixmap mask = new Pixmap(Game.mainWindow.GdkWindow, radius * 2, radius * 2);
 
 			Gdk.GC background = new Gdk.GC(color) { RgbFgColor = circleColor };
 			Gdk.GC visible = new Gdk.GC(mask) { RgbFgColor = new Color(alpha, alpha, alpha) };
@@ -329,8 +329,8 @@ namespace Parahumans.Core {
 			double v = Math.Sqrt(h * h - h * w);
 			double u = r / (h - r);
 
-			Pixmap color = new Pixmap(MainClass.mainWindow.GdkWindow, (int)w, (int)h);
-			Pixmap mask = new Pixmap(MainClass.mainWindow.GdkWindow, (int)w, (int)h);
+			Pixmap color = new Pixmap(Game.mainWindow.GdkWindow, (int)w, (int)h);
+			Pixmap mask = new Pixmap(Game.mainWindow.GdkWindow, (int)w, (int)h);
 
 			Gdk.GC markerShape = new Gdk.GC(color) { RgbFgColor = pinColor };
 
@@ -407,7 +407,7 @@ namespace Parahumans.Core {
 			Gdk.GC visible = new Gdk.GC(pixmap) { RgbFgColor = new Color(255, 255, 255) };
 			double finalWidth = originalWidth * factor;
 			double finalHeight = originalHeight * factor;
-			Pixmap newPixmap = new Pixmap(MainClass.mainWindow.GdkWindow, (int)finalWidth, (int)finalHeight);
+			Pixmap newPixmap = new Pixmap(Game.mainWindow.GdkWindow, (int)finalWidth, (int)finalHeight);
 			Pixbuf.FromDrawable(pixmap, Colormap.System, 0, 0, 0, 0, (int)originalWidth, (int)originalHeight)
 				  .ScaleSimple((int)finalWidth, (int)finalHeight, InterpType.Hyper)
 				  .RenderToDrawable(newPixmap, visible, 0, 0, 0, 0, (int)finalWidth, (int)finalHeight, RgbDither.Max, 0, 0);

@@ -42,14 +42,14 @@ namespace Parahumans.Core {
 		public abstract InvocationTrigger trigger { get; }
 
 		public bool Known (Context context) {
-			return MainClass.city.intrigue[context.perspective][parent].intel >= secrecy;
+			return context.requester.knowledge[parent] >= secrecy;
 		}
 
 		public GameObject parent;
 
 		public static Mechanic Create () {
 			Mechanic newMechanic = null;
-			Dialog dialog = new Dialog("Choose type of mechanic to create", MainClass.mainWindow, DialogFlags.DestroyWithParent, "Cancel", ResponseType.Cancel, "Ok", ResponseType.Ok);
+			Dialog dialog = new Dialog("Choose type of mechanic to create", Game.mainWindow, DialogFlags.DestroyWithParent, "Cancel", ResponseType.Cancel, "Ok", ResponseType.Ok);
 			ComboBox comboBox = new ComboBox(new string[] { "Weakness" });
 			dialog.VBox.PackStart(comboBox, true, true, 0);
 			dialog.ShowAll();
@@ -99,6 +99,7 @@ namespace Parahumans.Core {
 			Image image = new Image(Stock.DialogAuthentication, IconSize.Dnd);
 			table.Attach(UIFactory.Align(number, 0.5f, 0.5f, 0, 0), 0, 1, 0, 1);
 			table.Attach(UIFactory.Align(image, 0.5f, 0.5f, 0, 0), 0, 1, 0, 1);
+			table.BorderWidth = 10;
 			return table;
 		}
 

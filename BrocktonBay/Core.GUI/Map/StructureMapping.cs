@@ -112,7 +112,7 @@ namespace Parahumans.Core {
 			structure = marker.structure;
 			TransientFor = (Window)marker.map.Toplevel;
 
-			Context context = new Context(MainClass.playerAgent, structure, true, false);
+			Context context = new Context(Game.player, structure, true, false);
 
 			VBox mainBox = new VBox(false, 2) { BorderWidth = 10 };
 			mainBox.PackStart(UIFactory.Align(structure.GetHeader(context), 0.5f, 0, 0, 1), false, false, 3);

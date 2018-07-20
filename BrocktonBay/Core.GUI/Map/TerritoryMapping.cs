@@ -71,7 +71,7 @@ namespace Parahumans.Core {
 
 		public void Rezone () {
 			if (zone != null) map.stage.Remove(zone);
-			int radius = (int)(size * MainClass.city.territorySizeScale * map.currentMagnif);
+			int radius = (int)(size * Game.city.territorySizeScale * map.currentMagnif);
 			zone = Graphics.GetCircle(Graphics.GetColor(affiliation), 50, radius);
 			Vector2 zonePosition = scaledPosition - new Vector2(radius, radius);
 			map.stage.Put(zone, (int)zonePosition.x, (int)zonePosition.y);
@@ -80,7 +80,7 @@ namespace Parahumans.Core {
 		public void Repin () {
 			scaledPosition = location * map.currentMagnif;
 			Vector2 stagePosition = scaledPosition - new Vector2(markerWidth / 2, markerHeight);
-			Vector2 zonePosition = scaledPosition - new Vector2(1, 1) * size * MainClass.city.territorySizeScale;
+			Vector2 zonePosition = scaledPosition - new Vector2(1, 1) * size * Game.city.territorySizeScale;
 			map.stage.Move(this, (int)stagePosition.x, (int)stagePosition.y);
 			map.stage.Move(zone, (int)zonePosition.x, (int)zonePosition.y);
 		}
@@ -128,7 +128,7 @@ namespace Parahumans.Core {
 			Gravity = Gdk.Gravity.West;
 			TransientFor = (Window)marker.map.Toplevel;
 
-			Context context = new Context(MainClass.playerAgent, territory, true, false);
+			Context context = new Context(Game.player, territory, true, false);
 
 			VBox mainBox = new VBox(false, 2) { BorderWidth = 10 };
 			mainBox.PackStart(UIFactory.Align(territory.GetHeader(context.butCompact), 0.5f, 0, 0, 1), false, false, 3);

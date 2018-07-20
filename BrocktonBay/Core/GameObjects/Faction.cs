@@ -32,6 +32,23 @@ namespace Parahumans.Core {
 	public sealed class Faction : GameObject, IRated, IAgent {
 
 		public override int order { get { return 3; } }
+		public Dossier knowledge { get; set; }
+		public override IAgent affiliation { get => this; }
+		bool _active;
+		[Displayable(2, typeof(BasicReadonlyField)), PlayerInvisible]
+		public bool active {
+			get => _active;
+			set {
+				if (value) {
+					if (!Game.city.Contains(this)) Game.city.activeAgents.Add(this);
+					if (knowledge == null) knowledge = new Dossier();
+				} else {
+					Game.city.activeAgents.Remove(this);
+					knowledge = null;
+				}
+				_active = value;
+			}
+		}
 
 		[Displayable(2, typeof(ColorField))]
 		public Gdk.Color color { get; set; }
@@ -69,17 +86,17 @@ namespace Parahumans.Core {
 			color = data.color;
 			alignment = data.alignment;
 			resources = data.resources;
-			roster = data.roster.ConvertAll((parahuman) => MainClass.city.Get<Parahuman>(parahuman));
+			roster = data.roster.ConvertAll((parahuman) => Game.city.Get<Parahuman>(parahuman));
 			foreach (Parahuman parahuman in roster) {
 				DependencyManager.Connect(parahuman, this);
 				parahuman.parent = this;
 			}
-			teams = data.teams.ConvertAll((team) => MainClass.city.Get<Team>(team));
+			teams = data.teams.ConvertAll((team) => Game.city.Get<Team>(team));
 			foreach (Team team in teams) {
 				DependencyManager.Connect(team, this);
 				team.parent = this;
 			}
-			territories = data.territories.ConvertAll((territory) => MainClass.city.Get<Territory>(territory));
+			territories = data.territories.ConvertAll((territory) => Game.city.Get<Territory>(territory));
 			foreach (Territory territory in territories) {
 				DependencyManager.Connect(territory, this);
 				territory.parent = this;
@@ -134,20 +151,27 @@ namespace Parahumans.Core {
 		public override void AddRange<T> (List<T> objs) { //It is assumed that the invoker has already checked if we Accept(obj).
 			foreach (object element in objs) {
 				GameObject obj = (GameObject)element;
-				DependencyManager.Connect(obj, this);
 				if (obj.parent != null) obj.parent.Remove(obj);
 				obj.parent = this;
-				if (obj is Team) teams.Add((Team)obj);
-				if (obj is Parahuman) roster.Add((Parahuman)obj);
-				//if (obj is Asset) assets.Add((Asset)obj);
-				if (obj is Territory) territories.Add((Territory)obj);
+				if (obj.TryCast(out Parahuman parahuman)) {
+					roster.Add(parahuman);
+				} else if (obj.TryCast(out Team team)) {
+					teams.Add(team);
+					foreach (Parahuman child in team.roster)
+						DependencyManager.Flag(child); //To notify extended family of changes in leadership
+				} else if (obj.TryCast(out Territory territory)) {
+					territories.Add(territory);
+					foreach (Structure child in territory.structures)
+						DependencyManager.Flag(child); //To notify extended family of changes in leadership
+				}
+				if (obj.TryCast(out IAgent agent)) {
+					if (agent.knowledge != null)
+						knowledge = knowledge | agent.knowledge;
+					agent.active = false;
+				}
+				DependencyManager.Connect(obj, this);
 				DependencyManager.Flag(obj);
-				if (obj is Team)        //To notify extended family of changes in leadership
-					foreach (Parahuman child in ((Team)obj).roster)
-						DependencyManager.Flag(child);
-				if (obj is Territory)   //To notify extended family of changes in leadership
-					foreach (Structure child in ((Territory)obj).structures)
-						DependencyManager.Flag(child);
+
 			}
 			DependencyManager.Flag(this);
 		}
@@ -155,20 +179,24 @@ namespace Parahumans.Core {
 		public override void RemoveRange<T> (List<T> objs) { //It is assumed that the invoker has already checked if we Accept(obj).
 			foreach (object element in objs) {
 				GameObject obj = (GameObject)element;
-				DependencyManager.Disconnect(obj, this);
-				if (obj is Team) teams.Remove((Team)obj);
-				if (obj is Parahuman) roster.Remove((Parahuman)obj);
-				//if (obj is Asset) assets.Remove((Asset)obj);
-				if (obj is Territory) territories.Remove((Territory)obj);
 				obj.parent = null;
-				//Flag all the things
+				if (obj.TryCast(out Parahuman parahuman)) {
+					roster.Remove(parahuman);
+				} else if (obj.TryCast(out Team team)) {
+					teams.Remove(team);
+					foreach (Parahuman child in team.roster)
+						DependencyManager.Flag(child); //To notify extended family of changes in leadership
+				} else if (obj.TryCast(out Territory territory)) {
+					territories.Remove(territory);
+					foreach (Structure child in territory.structures)
+						DependencyManager.Flag(child); //To notify extended family of changes in leadership
+				}
+				if (obj.TryCast(out IAgent agent)) {
+					agent.knowledge = knowledge.Clone();
+					agent.active = false;
+				}
+				DependencyManager.Disconnect(obj, this);
 				DependencyManager.Flag(obj);
-				if (obj is Team)        //To notify extended family of changes in leadership
-					foreach (Parahuman child in ((Team)obj).roster)
-						DependencyManager.Flag(child);
-				if (obj is Territory)   //To notify extended family of changes in leadership
-					foreach (Structure child in ((Territory)obj).structures)
-						DependencyManager.Flag(child);
 			}
 			DependencyManager.Flag(this);
 		}

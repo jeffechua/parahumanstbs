@@ -11,11 +11,11 @@ namespace Parahumans.Core {
 		public static string currentSaveFolder;
 
 		public static void AskIfSaveBefore (System.Action action) {
-			if (MainClass.city == null) {
+			if (Game.city == null) {
 				action();
 				return;
 			}
-			MessageDialog dialog = new MessageDialog(MainClass.mainWindow, DialogFlags.DestroyWithParent, MessageType.Question, ButtonsType.YesNo, "Save current game?");
+			MessageDialog dialog = new MessageDialog(Game.mainWindow, DialogFlags.DestroyWithParent, MessageType.Question, ButtonsType.YesNo, "Save current game?");
 			dialog.Response += delegate (object obj, ResponseArgs response) {
 				if (response.ResponseId == ResponseType.Yes)
 					IO.SelectSave();
@@ -26,7 +26,7 @@ namespace Parahumans.Core {
 		}
 
 		public static void SelectOpen () {
-			FileChooserDialog openDialog = new FileChooserDialog("Open save", MainClass.mainWindow, FileChooserAction.SelectFolder, "Cancel", ResponseType.Cancel, "Open", ResponseType.Accept);
+			FileChooserDialog openDialog = new FileChooserDialog("Open save", Game.mainWindow, FileChooserAction.SelectFolder, "Cancel", ResponseType.Cancel, "Open", ResponseType.Accept);
 			openDialog.Response += delegate (object obj, ResponseArgs args) {
 				if (args.ResponseId == ResponseType.Accept) {
 					string path = new Uri(openDialog.Uri).AbsolutePath;
@@ -38,19 +38,19 @@ namespace Parahumans.Core {
 		}
 
 		public static void SelectSave () {
-			if (MainClass.city.saveFolder == "") {
+			if (Game.city.saveFolder == "") {
 				SelectSaveAs();
 			} else {
-				SaveAs(MainClass.city, MainClass.city.saveFolder);
+				SaveAs(Game.city, Game.city.saveFolder);
 			}
 		}
 
 		public static void SelectSaveAs () {
-			FileChooserDialog saveDialog = new FileChooserDialog("Save as", MainClass.mainWindow, FileChooserAction.CreateFolder, "Cancel", ResponseType.Cancel, "Save", ResponseType.Accept);
+			FileChooserDialog saveDialog = new FileChooserDialog("Save as", Game.mainWindow, FileChooserAction.CreateFolder, "Cancel", ResponseType.Cancel, "Save", ResponseType.Accept);
 			saveDialog.Response += delegate (object obj, ResponseArgs args) {
 				if (args.ResponseId == ResponseType.Accept) {
 					string path = new Uri(saveDialog.Uri).AbsolutePath;
-					SaveAs(MainClass.city, path);
+					SaveAs(Game.city, path);
 					Console.WriteLine(path);
 				}
 			};
@@ -64,7 +64,7 @@ namespace Parahumans.Core {
 
 				City city = new City();
 				city.saveFolder = path;
-				MainClass.city = city;
+				Game.city = city;
 
 				Profiler.Log();
 
@@ -110,25 +110,20 @@ namespace Parahumans.Core {
 
 				Profiler.Log(ref Profiler.updateTime);
 
-				city.intrigue = new Dictionary<IAgent, Dictionary<GameObject, InfoState>>();
-				List<GameObject> agents = city.gameObjects.FindAll((obj) => obj is IAgent);
-				for (int i = 0; i < agents.Count; i++) {
-					Dictionary<GameObject, InfoState> empty = new Dictionary<GameObject, InfoState>();
-					foreach (GameObject gameObject in city.gameObjects) {
-						empty.Add(gameObject, new InfoState(false, 0));
-					}
-					city.intrigue.Add((IAgent)agents[i], empty);
-				}
+				foreach (GameObject obj in city.gameObjects)
+					if (obj.TryCast(out IAgent agent))
+						if (obj.parent == null)
+							agent.active = true;
 
-				MainClass.playerAgent = (IAgent)city.Get<GameObject>(int.Parse(File.ReadAllText(path + "/player.txt")));
-				MainClass.Load(city); //Profiler calls inside CityInterface constructor.
+				Game.player = (IAgent)city.Get<GameObject>(int.Parse(File.ReadAllText(path + "/player.txt")));
+				Game.Load(city); //Profiler calls inside CityInterface constructor.
 
 				Profiler.Report();
 
 			} catch (Exception e) {
 
 				MessageDialog errorMessage =
-					new MessageDialog(MainClass.mainWindow,
+					new MessageDialog(Game.mainWindow,
 									  DialogFlags.DestroyWithParent,
 									  MessageType.Error,
 									  ButtonsType.Close,
@@ -137,7 +132,7 @@ namespace Parahumans.Core {
 				Console.WriteLine(e.StackTrace);
 				errorMessage.Run();
 				errorMessage.Destroy();
-				MainClass.city = null;
+				Game.city = null;
 
 			}
 
@@ -189,7 +184,7 @@ namespace Parahumans.Core {
 			File.WriteAllBytes(destination + "/Map/map.png", city.mapPngSource);
 			File.WriteAllText(destination + "/Map/dimensions.txt", "" + city.mapDefaultWidth);
 			File.WriteAllText(destination + "/Map/scale.txt", "" + city.territorySizeScale);
-			File.WriteAllText(destination + "/player.txt", ((GameObject)MainClass.playerAgent).ID.ToString());
+			File.WriteAllText(destination + "/player.txt", ((GameObject)Game.player).ID.ToString());
 
 			city.saveFolder = destination;
 

@@ -27,7 +27,7 @@ namespace Parahumans.Core {
 
 	}
 
-	public class Territory : GameObject, IContainer, EventLocation, IAffiliated {
+	public class Territory : GameObject, IContainer, EventLocation {
 
 		public override int order { get { return 2; } }
 
@@ -35,7 +35,7 @@ namespace Parahumans.Core {
 		public IntVector2 location { get; set; }
 
 		[Displayable(3, typeof(ObjectField)), ForceHorizontal]
-		public IAgent affiliation { get { return (IAgent)parent; } }
+		public override IAgent affiliation { get { return (IAgent)parent; } }
 
 		[Displayable(4, typeof(IntField))]
 		public int size { get; set; }
@@ -60,7 +60,7 @@ namespace Parahumans.Core {
 			location = data.location;
 			size = data.size;
 			reputation = data.reputation;
-			structures = data.structures.ConvertAll((structure) => MainClass.city.Get<Structure>(structure));
+			structures = data.structures.ConvertAll((structure) => Game.city.Get<Structure>(structure));
 			foreach (Structure structure in structures) {
 				DependencyManager.Connect(structure, this);
 				structure.parent = this;

@@ -56,7 +56,7 @@ public class SecondaryWindow : DefocusableWindowWithInspector {
 public partial class MainWindow : DefocusableWindowWithInspector {
 	public MainWindow () {
 		DeleteEvent += delegate (object obj, DeleteEventArgs args) {
-			if (MainClass.city == null) {
+			if (Game.city == null) {
 				Application.Quit();
 			} else {
 				MessageDialog dialog = new MessageDialog(this, DialogFlags.DestroyWithParent, MessageType.Question, ButtonsType.YesNo, "Save before quitting?");

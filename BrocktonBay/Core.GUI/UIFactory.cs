@@ -15,9 +15,9 @@ namespace Parahumans.Core {
 		};
 
 		public static VBox GenerateVertical (object obj)
-			=> GenerateVertical(new Context(MainClass.playerAgent, obj, true, false), obj);
+			=> GenerateVertical(new Context(Game.player, obj, true, false), obj);
 		public static VBox GenerateHorizontal (object obj)
-			=> GenerateHorizontal(new Context(MainClass.playerAgent, obj, false, false), obj);
+			=> GenerateHorizontal(new Context(Game.player, obj, false, false), obj);
 
 		public static VBox Generate (Context context, object obj) {
 			if (context.vertical) {
@@ -53,7 +53,7 @@ namespace Parahumans.Core {
 			//Draw each property
 			foreach (PropertyInfo property in properties) {
 
-				if (!MainClass.omniscient && HasAttribute(property, typeof(PlayerInvisibleAttribute))) continue;
+				if (!Game.omniscient && HasAttribute(property, typeof(PlayerInvisibleAttribute))) continue;
 
 				//Load up attributes
 				DisplayableAttribute attr = (DisplayableAttribute)property.GetCustomAttribute(typeof(DisplayableAttribute));
@@ -136,7 +136,7 @@ namespace Parahumans.Core {
 
 			foreach (PropertyInfo property in properties) {
 
-				if (!MainClass.omniscient && HasAttribute(property, typeof(PlayerInvisibleAttribute))) continue;
+				if (!Game.omniscient && HasAttribute(property, typeof(PlayerInvisibleAttribute))) continue;
 				if (property.GetCustomAttribute(typeof(VerticalOnlyAttribute)) != null) continue;
 
 				//Load attributes
@@ -187,8 +187,8 @@ namespace Parahumans.Core {
 			=> property.GetCustomAttribute(attribute) != null;
 
 		public static bool CurrentlyEditable (PropertyInfo property, object obj) {
-			if (MainClass.omnipotent) return true;
-			if (obj is IAffiliated && ((IAffiliated)obj).affiliation != MainClass.playerAgent) return false;
+			if (Game.omnipotent) return true;
+			if (obj is IAffiliated && ((IAffiliated)obj).affiliation != Game.player) return false;
 			PlayerEditableAttribute editableAttribute = (PlayerEditableAttribute)property.GetCustomAttribute(typeof(PlayerEditableAttribute));
 			if (editableAttribute == null) return false;
 			return editableAttribute.currentlyEditable;

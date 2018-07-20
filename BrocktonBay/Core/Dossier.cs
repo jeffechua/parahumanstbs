@@ -1,36 +1,46 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Parahumans.Core {
 
-	public struct InfoState {
-		
-		bool _identity;
-		public bool identity {
-			get {
-				return MainClass.omniscient ? true : _identity;
+	public class Dossier : Dictionary<GameObject, int> {
+
+		public Dossier () {
+			foreach (GameObject obj in Game.city.gameObjects)
+				Add(obj, 0);
+		}
+
+		public Dossier (IDictionary<GameObject, int> dictionary) : base(dictionary) { }
+
+		public Dossier Clone () {
+			return new Dossier(this);
+		}
+
+		public Dossier Choose (IAgent agent, bool maxUnchosen) {
+			Dossier dossier = new Dossier();
+			foreach (GameObject obj in dossier.Keys) {
+				if (obj.affiliation == agent) {
+					dossier[obj] = this[obj];
+				} else if(maxUnchosen) {
+					dossier[obj] = int.MaxValue;
+				}
 			}
+			return dossier;
 		}
 
-		int _intel;
-		public int intel {
-			get {
-				return MainClass.omniscient ? int.MaxValue : _intel;
-			}
+		public static Dossier operator | (Dossier a, Dossier b) {
+			Dossier c = new Dossier();
+			foreach (GameObject obj in a.Keys)
+				c.Add(obj, Math.Max(a[obj], b[obj]));
+			return c;
 		}
 
-		public InfoState (bool identity, int research) {
-			_identity = identity;
-			_intel = research;
+		public static Dossier operator & (Dossier a, Dossier b) {
+			Dossier c = new Dossier();
+			foreach (GameObject obj in a.Keys)
+				c.Add(obj, Math.Min(a[obj], b[obj]));
+			return c;
 		}
-
-		public static InfoState operator + (InfoState infoState)
-			=> new InfoState(true, infoState._intel);
-		public static InfoState operator - (InfoState infoState)
-			=> new InfoState(false, infoState._intel);
-		public static InfoState operator + (InfoState infoState, int increment)
-			=> new InfoState(infoState._identity, infoState._intel + increment);
-		public static InfoState operator ++ (InfoState infoState)
-			=> new InfoState(infoState._identity, infoState._intel + 1);
 
 	}
 

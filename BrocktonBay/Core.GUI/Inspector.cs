@@ -17,7 +17,7 @@ namespace Parahumans.Core {
 		public Listing (IGUIComplete obj) {
 			this.obj = obj;
 			DependencyManager.Connect(obj, this);
-			DependencyManager.Connect(MainClass.UIKey, this);
+			DependencyManager.Connect(Game.UIKey, this);
 			LabelXalign = 1;
 			Reload();
 		}
@@ -25,7 +25,7 @@ namespace Parahumans.Core {
 		public void Reload () {
 			if (Child != null) Child.Destroy();
 			if (LabelWidget != null) LabelWidget.Destroy();
-			LabelWidget = obj.GetHeader(new Context(MainClass.playerAgent, obj, false, true));
+			LabelWidget = obj.GetHeader(new Context(Game.player, obj, false, true));
 			Add(UIFactory.GenerateHorizontal(obj));
 			ShowAll();
 		}
@@ -43,7 +43,7 @@ namespace Parahumans.Core {
 
 		public SmartCell (Context context, IGUIComplete obj) : base(context, obj) {
 			DependencyManager.Connect(obj, this);
-			DependencyManager.Connect(MainClass.UIKey, this);
+			DependencyManager.Connect(Game.UIKey, this);
 			Destroyed += (o, a) => DependencyManager.DisconnectAll(this);
 		}
 
@@ -123,10 +123,10 @@ namespace Parahumans.Core {
 				Hide();
 			} else {
 				DependencyManager.Connect(obj, this);
-				DependencyManager.Connect(MainClass.UIKey, this);
+				DependencyManager.Connect(Game.UIKey, this);
 				if (Child != null) Child.Destroy();
 				VBox mainbox = new VBox(false, 0);
-				mainbox.PackStart(obj.GetHeader(new Context(MainClass.playerAgent, obj, true, false)), false, false, 10);
+				mainbox.PackStart(obj.GetHeader(new Context(Game.player, obj, true, false)), false, false, 10);
 				mainbox.PackStart(new HSeparator(), false, false, 0);
 				mainbox.PackStart(UIFactory.GenerateVertical(obj), true, true, 5);
 				AddWithViewport(mainbox);

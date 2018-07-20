@@ -32,7 +32,7 @@ namespace Parahumans.Core {
 
 			Profiler.Log(ref Profiler.searchCreateTime);
 
-			MainClass.mainWindow.inspector = inspector;
+			Game.mainWindow.inspector = inspector;
 
 		}
 	}

@@ -32,7 +32,7 @@ namespace Parahumans.Core {
 		}
 
 		public Widget GenerateEventCenter () {
-			Context context = new Context(MainClass.playerAgent, gameEvent);
+			Context context = new Context(Game.player, gameEvent);
 			VBox mainBox = new VBox { BorderWidth = 10 };
 			mainBox.PackStart(gameEvent.GetHeader(context), false, false, 10);
 			mainBox.PackStart(new HSeparator(), false, false, 0);
@@ -47,7 +47,7 @@ namespace Parahumans.Core {
 			mainBox.PackStart(UIFactory.Align(new Label(label), 0, 0, 1, 1), false, false, 10);
 			mainBox.PackStart(new HSeparator(), false, false, 0);
 			ScrolledWindow scrolledWindow = new ScrolledWindow { HscrollbarPolicy = PolicyType.Never };
-			scrolledWindow.AddWithViewport(UIFactory.Generate(new Context(MainClass.playerAgent, gameEvent), deployment));
+			scrolledWindow.AddWithViewport(UIFactory.Generate(new Context(Game.player, gameEvent), deployment));
 			mainBox.PackStart(scrolledWindow, true, true, 5);
 			return mainBox;
 		}

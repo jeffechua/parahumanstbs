@@ -69,7 +69,7 @@ namespace Parahumans.Core {
 			rightclickMenu = new Menu();
 
 			IKnowable knowable = inspected as IKnowable;
-			if (knowable != null && !knowable.Known(new Context(MainClass.playerAgent, this))) return;
+			if (knowable != null && !knowable.Known(new Context(Game.player, inspected))) return;
 
 			Clicked += delegate (object obj, ButtonReleaseEventArgs args) {
 				if (args.Event.Button == 2 || (args.Event.Type == Gdk.EventType.TwoButtonPress && args.Event.Button == 1)) {
@@ -92,7 +92,7 @@ namespace Parahumans.Core {
 			rightclickMenu.Append(inspectButton);
 			rightclickMenu.Append(inspectInWindowButton);
 
-			if (MainClass.omnipotent) {
+			if (Game.omnipotent) {
 				MenuItem deleteButton = new MenuItem("Delete");
 				deleteButton.Activated += (o, args) => DependencyManager.Delete(inspected);
 				rightclickMenu.Append(new SeparatorMenuItem());

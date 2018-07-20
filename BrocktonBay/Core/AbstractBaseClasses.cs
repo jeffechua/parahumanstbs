@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections;
 using Gtk;
 
 namespace Parahumans.Core {
 
 	// A GameObject is a base class for most objects in the game. This includes players, teams, factions and territories - NOT assets.
 	// GameObjects are assigned IDs mainly used for importing/exporting from/to JSON files, as they allow parent/child relationships to be reduced to primitive expressions.
-	public abstract class GameObject : IGUIComplete, IComparable<GameObject>, IContainer {
+	public abstract class GameObject : IGUIComplete, IComparable<GameObject>, IContainer, IAffiliated {
 
 		[Displayable(0, typeof(StringField))]
 		public string name { get; set; }
@@ -17,18 +16,13 @@ namespace Parahumans.Core {
 
 		[Displayable(2, typeof(IntField))] //Only wrt current perspective
 		public int intel {
-			get {
-				return MainClass.city.intrigue[MainClass.playerAgent][this].intel;
-			}
-			set {
-				InfoState currentIntel = MainClass.city.intrigue[MainClass.playerAgent][this];
-				currentIntel = new InfoState(currentIntel.identity, value);
-				MainClass.city.intrigue[MainClass.playerAgent][this] = currentIntel;
-			}
+			get => Game.player.knowledge[this];
+			set => Game.player.knowledge[this] = value;
 		}
 
 		// This is a field and not a Displayable property as parentage is usually displayed in implementation of GetHeader(), so it would be redundant.
-		public GameObject parent;
+		public virtual GameObject parent { get; set; }
+		public abstract IAgent affiliation { get; }
 
 		//IGUIComplete stuff
 		public abstract Widget GetHeader (Context context);
@@ -60,6 +54,16 @@ namespace Parahumans.Core {
 		public void Disengage () => lastEngaged = currentEngagement - 1;
 		public static void ClearEngagements () => currentEngagement++;
 
+		public bool TryCast<T> (out T output) where T : class {
+			output = this as T;
+			return output != null;
+		}
+
+		public static bool TryCast<T> (object obj, out T output) where T : class {
+			output = obj as T;
+			return output != null;
+		}
+
 	}
 
 	// A GUIComplete is an object that can be fully expressed and manipulated by the modular GUI system employed.
@@ -88,6 +92,8 @@ namespace Parahumans.Core {
 
 	public interface IAgent : IGUIComplete {
 		Gdk.Color color { get; }
+		Dossier knowledge { get; set; }
+		bool active { get; set; }
 	}
 
 	/* 

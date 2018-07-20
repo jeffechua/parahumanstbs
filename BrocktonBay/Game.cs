@@ -5,11 +5,11 @@ using Gtk;
 
 namespace Parahumans.Core {
 
-	class MainClass {
+	class Game {
 
 		public const String savefolder = "/Users/Jefferson/Desktop/Parahumans_Save";
 		public static City city;
-		public static IAgent playerAgent;
+		public static IAgent player;
 		public static Phase phase;
 
 		public static MainInterface cityInterface;
@@ -214,7 +214,7 @@ namespace Parahumans.Core {
 
 		public static void Load (City city) {
 			Unload();
-			MainClass.city = city;
+			Game.city = city;
 			cityInterface = new MainInterface(city);
 			mainBox.PackStart(cityInterface, true, true, 0);
 			editButton.Sensitive = true;

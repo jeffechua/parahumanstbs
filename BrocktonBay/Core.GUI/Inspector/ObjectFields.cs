@@ -99,7 +99,7 @@ namespace Parahumans.Core {
 					}
 				}
 				((IContainer)obj).Add(newElement);
-				if (newElement is GameObject) MainClass.city.Add((GameObject)newElement);
+				if (newElement is GameObject) Game.city.Add((GameObject)newElement);
 				DependencyManager.TriggerAllFlags();
 			};
 			rightclickMenu.Append(addNewButton);

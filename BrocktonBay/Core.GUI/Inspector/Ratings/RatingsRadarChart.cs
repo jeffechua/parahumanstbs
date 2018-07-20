@@ -41,8 +41,8 @@ namespace Parahumans.Core {
 			int chartRadius = size;
 			int labelRadius = 0;
 
-			color = new Pixmap(MainClass.mainWindow.GdkWindow, size, size);
-			mask = new Pixmap(MainClass.mainWindow.GdkWindow, size, size);
+			color = new Pixmap(Game.mainWindow.GdkWindow, size, size);
+			mask = new Pixmap(Game.mainWindow.GdkWindow, size, size);
 
 			Gdk.GC visible = new Gdk.GC(mask) { RgbFgColor = new Color(255, 255, 255) };
 			Gdk.GC invisible = new Gdk.GC(mask) { RgbFgColor = new Color(0, 0, 0) };

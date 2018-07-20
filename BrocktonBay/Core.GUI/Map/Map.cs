@@ -38,7 +38,7 @@ namespace Parahumans.Core {
 
 			this.city = city;
 			DependencyManager.Connect(city, this);
-			DependencyManager.Connect(MainClass.UIKey, this);
+			DependencyManager.Connect(Game.UIKey, this);
 
 			Profiler.Log();
 

@@ -30,9 +30,25 @@ namespace Parahumans.Core {
 
 		public override int order { get { return 2; } }
 		public Gdk.Color color { get { return new Gdk.Color(0, 0, 0); } }
+		public Dossier knowledge { get; set; }
+		bool _active;
+		[Displayable(2, typeof(BasicReadonlyField)), PlayerInvisible]
+		public bool active {
+			get => _active;
+			set {
+				if (value) {
+					if (!Game.city.Contains(this)) Game.city.activeAgents.Add(this);
+					if (knowledge == null) knowledge = new Dossier();
+				} else {
+					Game.city.activeAgents.Remove(this);
+					knowledge = null;
+				}
+				_active = value;
+			}
+		}
 
 		[Displayable(2, typeof(ObjectField)), ForceHorizontal]
-		public IAgent affiliation { get { return (IAgent)(parent ?? this); } }
+		public override IAgent affiliation { get { return (IAgent)(parent ?? this); } }
 
 		[Displayable(3, typeof(EnumField<Alignment>))]
 		public Alignment alignment { get; set; }
@@ -47,7 +63,7 @@ namespace Parahumans.Core {
 		public int unused_XP { get; set; }
 
 		[BimorphicDisplayable(7, typeof(TabularContainerField), typeof(LinearContainerField),
-		                      "strength_XP", "stealth_XP", "insight_XP"), EmphasizedIfVertical]
+							  "strength_XP", "stealth_XP", "insight_XP"), EmphasizedIfVertical]
 		public int[] spent_XP {
 			get {
 				return new int[] { strength_XP, stealth_XP, insight_XP };
@@ -83,7 +99,7 @@ namespace Parahumans.Core {
 			alignment = data.alignment;
 			unused_XP = data.unused_xp;
 			spent_XP = data.spent_xp;
-			roster = data.roster.ConvertAll((parahuman) => MainClass.city.Get<Parahuman>(parahuman));
+			roster = data.roster.ConvertAll((parahuman) => Game.city.Get<Parahuman>(parahuman));
 			foreach (Parahuman parahuman in roster) {
 				DependencyManager.Connect(parahuman, this);
 				parahuman.parent = this;
@@ -160,24 +176,29 @@ namespace Parahumans.Core {
 		public override bool Accepts (object obj) => obj is Parahuman;
 
 		public override void AddRange<T> (List<T> objs) {
-			foreach (object element in objs) {
-				GameObject obj = (GameObject)element;
-				if (obj.parent != null) obj.parent.Remove(obj);
-				obj.parent = this;
-				roster.Add((Parahuman)obj);
-				DependencyManager.Connect(obj, this);
-				DependencyManager.Flag(obj);
+			foreach (object obj in objs) {
+				Parahuman parahuman = (Parahuman)obj;
+				if (parahuman.parent != null) parahuman.parent.Remove(obj);
+				parahuman.parent = this;
+				if (parahuman.knowledge != null)
+					knowledge = knowledge | parahuman.knowledge;
+				parahuman.active = false;
+				roster.Add(parahuman);
+				DependencyManager.Connect(parahuman, this);
+				DependencyManager.Flag(parahuman);
 			}
 			DependencyManager.Flag(this);
 		}
 
 		public override void RemoveRange<T> (List<T> objs) {
-			foreach (object element in objs) {
-				GameObject obj = (GameObject)element;
-				roster.Remove((Parahuman)obj);
-				((Parahuman)obj).parent = null;
-				DependencyManager.Disconnect(obj, this);
-				DependencyManager.Flag(obj);
+			foreach (object obj in objs) {
+				Parahuman parahuman = (Parahuman)obj;
+				parahuman.parent = null;
+				parahuman.knowledge = knowledge.Clone();
+				parahuman.active = true;
+				roster.Remove(parahuman);
+				DependencyManager.Disconnect(parahuman, this);
+				DependencyManager.Flag(parahuman);
 			}
 			DependencyManager.Flag(this);
 		}

@@ -31,7 +31,7 @@ namespace Parahumans.Core {
 
 	}
 
-	public class Structure : GameObject, EventLocation, IAffiliated {
+	public class Structure : GameObject, EventLocation {
 
 		public override int order { get { return 1; } }
 
@@ -39,7 +39,7 @@ namespace Parahumans.Core {
 		public IntVector2 location { get; set; }
 
 		[Displayable(3, typeof(ObjectField)), ForceHorizontal]
-		public IAgent affiliation { get { return (parent == null) ? null : (IAgent)parent.parent; } }
+		public override IAgent affiliation { get { return (parent == null) ? null : (IAgent)parent.parent; } }
 
 		[Displayable(4, typeof(EnumField<StructureType>))]
 		public StructureType type { get; set; }

@@ -30,7 +30,11 @@ namespace Parahumans.Core {
 		}
 
 		public override object Invoke (Context context, object obj) {
-			return (RatingsProfile)obj * difference;
+			if (Known(context)) {
+				return (RatingsProfile)obj * difference;
+			} else {
+				return obj;
+			}
 		}
 
 		public override Widget GetCellContents (Context context) {

@@ -26,7 +26,7 @@ namespace Parahumans.Core {
 		public ParahumanData (Parahuman parahuman) {
 			name = parahuman.name;
 			ID = parahuman.ID;
-			civilianName = parahuman.civilian_name;
+			civilianName = null;
 			alignment = parahuman.alignment;
 			threat = parahuman.threat;
 			health = parahuman.health;
@@ -40,12 +40,27 @@ namespace Parahumans.Core {
 
 		public override int order { get { return 1; } }
 		public Gdk.Color color { get { return new Gdk.Color(0, 0, 0); } }
+		public Dossier knowledge { get; set; }
+		bool _active;
+		[Displayable(2, typeof(BasicReadonlyField)), PlayerInvisible]
+		public bool active {
+			get => _active;
+			set {
+				if (value) {
+					if (!Game.city.Contains(this)) Game.city.activeAgents.Add(this);
+					if (knowledge == null) knowledge = new Dossier();
+				} else {
+					Game.city.activeAgents.Remove(this);
+					knowledge = null;
+				}
+				_active = value;
+			}
+		}
 
-		[Displayable(2, typeof(CivilianNameField)), VerticalOnly]
 		public String civilian_name { get; set; }
 
 		[Displayable(3, typeof(ObjectField)), ForceHorizontal]
-		public IAgent affiliation {
+		public override IAgent affiliation {
 			get {
 				if (parent != null) {
 					if (parent.parent != null) {
@@ -83,7 +98,6 @@ namespace Parahumans.Core {
 		public Parahuman (ParahumanData data) {
 			name = data.name;
 			ID = data.ID;
-			civilian_name = data.civilianName;
 			alignment = data.alignment;
 			threat = data.threat;
 			health = data.health;
@@ -92,15 +106,13 @@ namespace Parahumans.Core {
 			baseRatings = new RatingsProfile(data.ratings);
 		}
 
-		public override void Reload () {}
+		public override void Reload () { }
 
 		public RatingsProfile GetRatingsProfile (Context context) {
 			RatingsProfile ratingsProfile = baseRatings;
-			foreach(Mechanic mechanic in mechanics) {
-				if (mechanic.Known(context)) {
-					if (mechanic.trigger == InvocationTrigger.GetRatings) {
-						ratingsProfile = (RatingsProfile)mechanic.Invoke(context, ratingsProfile);
-					}
+			foreach (Mechanic mechanic in mechanics) {
+				if (mechanic.trigger == InvocationTrigger.GetRatings) {
+					ratingsProfile = (RatingsProfile)mechanic.Invoke(context, ratingsProfile);
 				}
 			}
 			return ratingsProfile;

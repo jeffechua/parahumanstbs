@@ -56,8 +56,8 @@ namespace Parahumans.Core {
 
 		public Search(Func<GameObject, bool> Filter = null, Action<GameObject> OnClicked = null) {
 
-			DependencyManager.Connect(MainClass.city, this);
-			DependencyManager.Connect(MainClass.UIKey, this);
+			DependencyManager.Connect(Game.city, this);
+			DependencyManager.Connect(Game.UIKey, this);
 			this.Filter = Filter ?? delegate { return true; };
 			this.OnClicked = OnClicked ?? delegate { };
 
@@ -69,9 +69,9 @@ namespace Parahumans.Core {
 			resultsWindow = new ScrolledWindow();
 			PackStart(resultsWindow, true, true, 0);
 
-			lister = new CachingLister<GameObject>(MainClass.city.gameObjects, SetupListing);
-			tesselator = new CachingTesselator<GameObject>(MainClass.city.gameObjects, SetupCell, resultsWindow);
-			headerer = new CachingLister<GameObject>(MainClass.city.gameObjects, SetupHeader);
+			lister = new CachingLister<GameObject>(Game.city.gameObjects, SetupListing);
+			tesselator = new CachingTesselator<GameObject>(Game.city.gameObjects, SetupCell, resultsWindow);
+			headerer = new CachingLister<GameObject>(Game.city.gameObjects, SetupHeader);
 
 			//Search
 			searchText = new Entry();
@@ -205,7 +205,7 @@ namespace Parahumans.Core {
 		}
 
 		Widget SetupCell(GameObject obj) {
-			Cell cell = new SmartCell(new Context(MainClass.playerAgent, obj), obj);
+			Cell cell = new SmartCell(new Context(Game.player, obj), obj);
 			cell.BorderWidth = 5;
 			cell.prelight = true;
 			cell.Clicked += (o, a) => OnClicked(obj);
@@ -213,7 +213,7 @@ namespace Parahumans.Core {
 		}
 
 		Widget SetupHeader(GameObject obj) {
-			Widget baseHeader = obj.GetHeader(new Context(MainClass.playerAgent, obj, false, true));
+			Widget baseHeader = obj.GetHeader(new Context(Game.player, obj, false, true));
 			HBox hbox = new HBox();
 			hbox.PackStart(baseHeader, false, false, 5);
 			ClickableEventBox eventbox = new ClickableEventBox { Child = hbox };
@@ -223,7 +223,7 @@ namespace Parahumans.Core {
 
 		public void Reload() {
 
-			List<GameObject> resultsList = MainClass.city.gameObjects.FindAll(SatisfiesFilters);
+			List<GameObject> resultsList = Game.city.gameObjects.FindAll(SatisfiesFilters);
 
 			switch (presentation.Active) {
 				case 0:
