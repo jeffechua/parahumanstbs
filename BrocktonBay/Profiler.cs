@@ -10,6 +10,7 @@ namespace Parahumans.Core {
 		public static double factionLoadTime;
 		public static double structureLoadTime;
 		public static double territoryLoadTime;
+		public static double knowledgeLoadTime;
 		public static double mapDataLoadTime;
 
 		public static double updateTime;
@@ -40,6 +41,7 @@ namespace Parahumans.Core {
 			Console.WriteLine("\t" + "Faction data:" + factionLoadTime + " ms");
 			Console.WriteLine("\t" + "Structure data: " + structureLoadTime + " ms");
 			Console.WriteLine("\t" + "Territory data: " + territoryLoadTime + " ms");
+			Console.WriteLine("\t" + "Knowledge data: " + knowledgeLoadTime + " ms");
 			Console.WriteLine();
 			Console.WriteLine("Object update time: " + updateTime + " ms");
 			Console.WriteLine();

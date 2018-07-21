@@ -40,7 +40,7 @@ namespace Parahumans.Core {
 			get => _active;
 			set {
 				if (value) {
-					if (!Game.city.Contains(this)) Game.city.activeAgents.Add(this);
+					if (!Game.city.activeAgents.Contains(this)) Game.city.activeAgents.Add(this);
 					if (knowledge == null) knowledge = new Dossier();
 				} else {
 					Game.city.activeAgents.Remove(this);

@@ -47,7 +47,7 @@ namespace Parahumans.Core {
 			get => _active;
 			set {
 				if (value) {
-					if (!Game.city.Contains(this)) Game.city.activeAgents.Add(this);
+					if (!Game.city.activeAgents.Contains(this)) Game.city.activeAgents.Add(this);
 					if (knowledge == null) knowledge = new Dossier();
 				} else {
 					Game.city.activeAgents.Remove(this);
@@ -101,7 +101,7 @@ namespace Parahumans.Core {
 			health = data.health;
 			reputation = data.reputation;
 			mechanics = data.mechanics.ConvertAll((input) => Mechanic.Load(input));
-			foreach(Mechanic mechanic in mechanics) {
+			foreach (Mechanic mechanic in mechanics) {
 				DependencyManager.Connect(mechanic, this);
 				mechanic.parent = this;
 			}

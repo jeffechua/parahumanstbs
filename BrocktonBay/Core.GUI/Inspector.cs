@@ -18,16 +18,21 @@ namespace Parahumans.Core {
 			this.obj = obj;
 			DependencyManager.Connect(obj, this);
 			DependencyManager.Connect(Game.UIKey, this);
+			Destroyed += (o, a) => DependencyManager.DisconnectAll(this);
 			LabelXalign = 1;
 			Reload();
 		}
 
 		public void Reload () {
-			if (Child != null) Child.Destroy();
-			if (LabelWidget != null) LabelWidget.Destroy();
-			LabelWidget = obj.GetHeader(new Context(Game.player, obj, false, true));
-			Add(UIFactory.GenerateHorizontal(obj));
-			ShowAll();
+			if (obj.destroyed) {
+				Destroy();
+			} else {
+				if (Child != null) Child.Destroy();
+				if (LabelWidget != null) LabelWidget.Destroy();
+				LabelWidget = obj.GetHeader(new Context(Game.player, obj, false, true));
+				Add(UIFactory.GenerateHorizontal(obj));
+				ShowAll();
+			}
 		}
 
 	}
@@ -81,11 +86,15 @@ namespace Parahumans.Core {
 		}
 
 		public void Reload () {
-			if (frame.Child != null) frame.Child.Destroy();
-			if (frame.LabelWidget != null) frame.LabelWidget.Destroy();
-			frame.LabelWidget = obj.GetHeader(context.butCompact);
-			frame.Add(obj.GetCellContents(context));
-			ShowAll();
+			if (obj.destroyed) {
+				Destroy();
+			} else {
+				if (frame.Child != null) frame.Child.Destroy();
+				if (frame.LabelWidget != null) frame.LabelWidget.Destroy();
+				frame.LabelWidget = obj.GetHeader(context.butCompact);
+				frame.Add(obj.GetCellContents(context));
+				ShowAll();
+			}
 		}
 
 	}

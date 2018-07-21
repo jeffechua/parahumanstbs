@@ -5,7 +5,6 @@ using Gtk;
 namespace Parahumans.Core {
 
 	public sealed class TeamData {
-
 		public string name = "New Team";
 		public int ID = 0;
 		public Alignment alignment = Alignment.Rogue;
@@ -37,7 +36,7 @@ namespace Parahumans.Core {
 			get => _active;
 			set {
 				if (value) {
-					if (!Game.city.Contains(this)) Game.city.activeAgents.Add(this);
+					if (!Game.city.activeAgents.Contains(this)) Game.city.activeAgents.Add(this);
 					if (knowledge == null) knowledge = new Dossier();
 				} else {
 					Game.city.activeAgents.Remove(this);

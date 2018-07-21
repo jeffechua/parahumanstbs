@@ -78,7 +78,10 @@ namespace Parahumans.Core {
 					return ongoing_event == null;
 				}
 			};
+		}
 
+		public override void Reload () {
+			structures.Sort();
 		}
 
 		public override Widget GetHeader (Context context) {
@@ -151,10 +154,6 @@ namespace Parahumans.Core {
 				DependencyManager.Flag(obj);
 			}
 			DependencyManager.Flag(this);
-		}
-
-		public override void Reload () {
-			structures.Sort();
 		}
 
 

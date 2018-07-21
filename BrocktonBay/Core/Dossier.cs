@@ -3,6 +3,19 @@ using System.Collections.Generic;
 
 namespace Parahumans.Core {
 
+	public struct DossierData {
+		public int knowerID;
+		public List<Tuple<int, int>> tuples;
+		public DossierData (Dossier dossier, GameObject knower) {
+			knowerID = knower.ID;
+			tuples = new List<Tuple<int, int>>();
+			Console.WriteLine(dossier.Count);
+			foreach (KeyValuePair<GameObject, int> pair in dossier)
+				tuples.Add(new Tuple<int, int>(pair.Key.ID, pair.Value));
+			Console.WriteLine(tuples.Count);
+		}
+	}
+
 	public class Dossier : Dictionary<GameObject, int> {
 
 		public Dossier () {
@@ -14,6 +27,11 @@ namespace Parahumans.Core {
 
 		public Dossier Clone () {
 			return new Dossier(this);
+		}
+
+		public Dossier (DossierData data) {
+			foreach(Tuple<int,int> tuple in data.tuples)
+				Add(Game.city.Get(tuple.Item1), tuple.Item2); 
 		}
 
 		public Dossier Choose (IAgent agent, bool maxUnchosen) {

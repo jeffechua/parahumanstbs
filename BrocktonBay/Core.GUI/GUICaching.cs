@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using Gtk;
 
+
+// Note that this is kind of a memory leak. Deleted gameObjects will leave a broken cached ObjectWidgetPair
+// that never gets summoned but sits there in memory.
 namespace Parahumans.Core {
 
 	public struct ObjectWidgetPair<T> {

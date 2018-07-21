@@ -91,7 +91,6 @@ namespace Parahumans.Core {
 				city.AddRange(territoryAddresses.ConvertAll(
 					(file) => new Territory(JsonConvert.DeserializeObject<TerritoryData>(File.ReadAllText(file)))));
 
-
 				Profiler.Log(ref Profiler.territoryLoadTime);
 
 				List<string> factionAddresses = new List<string>(Directory.GetFiles(path + "/Factions"));
@@ -99,6 +98,19 @@ namespace Parahumans.Core {
 					(file) => new Faction(JsonConvert.DeserializeObject<FactionData>(File.ReadAllText(file)))));
 
 				Profiler.Log(ref Profiler.factionLoadTime);
+
+				List<DossierData> dossiers = JsonConvert.DeserializeObject<List<DossierData>>(File.ReadAllText(path + "/knowledge.txt"));
+				foreach (DossierData data in dossiers) {
+					IAgent knower = (IAgent)Game.city.Get(data.knowerID);
+					if (knower != null)
+						knower.knowledge = new Dossier(data);
+				}
+				foreach (GameObject obj in city.gameObjects)
+					if (obj.TryCast(out IAgent agent))
+						if (obj.parent == null)
+							agent.active = true;
+
+				Profiler.Log(ref Profiler.knowledgeLoadTime);
 
 				city.mapPngSource = File.ReadAllBytes(path + "/Map/map.png");
 				city.mapDefaultWidth = int.Parse(File.ReadAllText(path + "/Map/dimensions.txt"));
@@ -109,11 +121,6 @@ namespace Parahumans.Core {
 				DependencyManager.TriggerAllFlags();
 
 				Profiler.Log(ref Profiler.updateTime);
-
-				foreach (GameObject obj in city.gameObjects)
-					if (obj.TryCast(out IAgent agent))
-						if (obj.parent == null)
-							agent.active = true;
 
 				Game.player = (IAgent)city.Get<GameObject>(int.Parse(File.ReadAllText(path + "/player.txt")));
 				Game.Load(city); //Profiler calls inside CityInterface constructor.
@@ -180,6 +187,10 @@ namespace Parahumans.Core {
 			List<TerritoryData> territoryData = territories.ConvertAll((territory) => new TerritoryData((Territory)territory));
 			foreach (TerritoryData data in territoryData)
 				File.WriteAllText(destination + "/Territories/" + data.name + data.ID + ".json", JsonConvert.SerializeObject(data));
+
+			List<DossierData> dossierData = Game.city.activeAgents.ConvertAll((agent) => new DossierData(agent.knowledge, (GameObject)agent));
+			Console.WriteLine(Game.city.activeAgents.Count);
+			File.WriteAllText(destination + "/knowledge.txt", JsonConvert.SerializeObject(dossierData));
 
 			File.WriteAllBytes(destination + "/Map/map.png", city.mapPngSource);
 			File.WriteAllText(destination + "/Map/dimensions.txt", "" + city.mapDefaultWidth);

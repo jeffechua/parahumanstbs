@@ -26,6 +26,7 @@ namespace Parahumans.Core {
 
 		public T Get<T> (string name) where T : GameObject => (T)gameObjects.Find(obj => obj is T && obj.name.ToLower() == name.ToLower());
 		public T Get<T> (int ID) where T : GameObject => (T)gameObjects.Find(obj => obj is T && obj.ID == ID);
+		public GameObject Get (int ID) => (GameObject)gameObjects.Find(obj => obj.ID == ID);
 
 		//IContainer members
 		public bool Accepts (object obj) => obj is GameObject;
@@ -38,7 +39,7 @@ namespace Parahumans.Core {
 				gameObjects.Add(newGO);
 				foreach (IAgent agent in activeAgents)
 					if (agent.knowledge != null)
-						agent.knowledge.Remove(newGO);
+						agent.knowledge.Add(newGO, 0);
 				DependencyManager.Connect(newGO, this);
 				DependencyManager.Flag(newGO);
 			}
