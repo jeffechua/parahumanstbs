@@ -39,8 +39,6 @@ namespace Parahumans.Core {
 		const double BLACK_TRIM_WIDTH = 0002;
 		const double RESOLUTION_FACTOR = 10; //The icon is rendered at this times the requested size then scaled down.
 
-		public static readonly string[] classSymbols = { "", "β", "δ", "Σ", "ψ", "μ", "φ", "ξ", "Ω", "Γ", "Λ", "Δ" };
-		public static readonly string[] threatSymbols = { "●", "■", "▲", "☉" };
 		public static readonly Gdk.Color[] healthColors = { new Color(100, 100, 100), new Color(230, 0, 0), new Color(200, 200, 0), new Color(0, 200, 0) };
 		public static readonly Gdk.Color[] alignmentColors = { new Color(0, 100, 230), new Color(170, 140, 0), new Color(100, 150, 0), new Color(0, 0, 0), new Color(150, 0, 175) };
 
@@ -49,8 +47,6 @@ namespace Parahumans.Core {
 		public static Color GetColor (Health health) => healthColors[(int)health];
 		public static Color GetColor (Alignment alignment) => alignmentColors[2 - (int)alignment];
 		public static Color GetColor (IAgent agent) => (agent == null) ? new Color(125, 125, 125) : agent.color;
-		public static string GetSymbol (Classification clssf) => classSymbols[(int)clssf];
-		public static string GetSymbol (Threat threat) => threatSymbols[(int)threat];
 
 		public static void SetAllFg (Widget widget, Gdk.Color color) {
 			widget.ModifyFg(StateType.Normal, color);
@@ -398,7 +394,7 @@ namespace Parahumans.Core {
 						  (int)(coreCenter - coreRadius), (int)(coreCenter - coreRadius),
 						  (int)(coreRadius * 2), (int)(coreRadius * 2),
 						  0, FULL_CIRCLE);
-			
+
 			return new Gtk.Image(Scale(color, w, h, 0.1), Scale(mask, w, h, 0.1));
 
 		}

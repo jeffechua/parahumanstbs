@@ -83,10 +83,10 @@ namespace Parahumans.Core {
 		[Displayable(7, typeof(IntField))]
 		public int reputation { get; set; }
 
-		[Displayable(7, typeof(CellTabularListField<Mechanic>), 3), Emphasized]
+		[Displayable(7, typeof(MechanicCellTabularListField), 3), Emphasized]
 		public List<Mechanic> mechanics { get; set; }
 
-		[Displayable(8, typeof(RatingsListField)), Padded(5, 5), EmphasizedIfHorizontal]
+		[Displayable(8, typeof(RatingsListField), "baseRatings"), Padded(5, 5), EmphasizedIfHorizontal]
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
 
 		public RatingsProfile baseRatings { get; set; }
@@ -149,45 +149,9 @@ namespace Parahumans.Core {
 		}
 
 		public override Widget GetCellContents (Context context) {
-			VBox ratingsBox = new VBox(false, 0) { BorderWidth = 5 };
-			RatingsProfile profile = ratings(context);
-			float[,] cRatings = profile.values;
-			for (int i = 1; i <= 8; i++) {
-				if (profile.o_vals[0, i] != Ratings.O_NULL) {
-					Label ratingLabel = new Label(Ratings.PrintRating(i, cRatings[0, i]));
-					ratingLabel.SetAlignment(0, 0);
-					ratingsBox.PackStart(ratingLabel, false, false, 0);
-				}
-			}
-			for (int k = 1; k <= 3; k++) {
-				if (profile.o_vals[k, 0] != Ratings.O_NULL) {
-					Label ratingLabel = new Label(Ratings.PrintRating(k + 8, cRatings[k, 0], true));
-					ratingLabel.SetAlignment(0, 0);
-					List<String> subratings = new List<String>();
-					for (int i = 1; i <= 8; i++)
-						if (profile.o_vals[k, i] != Ratings.O_NULL)
-							subratings.Add(Ratings.PrintRating(i, cRatings[k, i]));
-					ratingLabel.TooltipText = String.Join("\n", subratings);
-					ratingsBox.PackStart(ratingLabel, false, false, 0);
-				}
-			}
-			ClickableEventBox clickableEventBox = new ClickableEventBox { BorderWidth = 5 };
-			clickableEventBox.Add(ratingsBox);
-			clickableEventBox.DoubleClicked += (o, a) => new TextEditingDialog(
-				"Edit ratings of " + name,
-				(Window)clickableEventBox.Toplevel,
-				() => Ratings.PrintRatings(baseRatings.values, baseRatings.o_vals),
-				delegate (string input) {
-					if (Ratings.TryParseRatings(input, out RatingsProfile? newRatings)) {
-						baseRatings = (RatingsProfile)newRatings;
-						DependencyManager.Flag(this);
-						DependencyManager.TriggerAllFlags();
-						return true;
-					}
-					return false;
-				}
-			);
-			return UIFactory.Align(clickableEventBox, 0, 0, 1f, 0);
+			return new RatingsListField(GetType().GetProperty("ratings"), this, context.butCompact, "baseRatings") {
+				BorderWidth = 5
+			};
 		}
 
 		public override bool Accepts (object obj) => obj is Mechanic;
@@ -200,7 +164,7 @@ namespace Parahumans.Core {
 				mechanic.parent = this;
 				DependencyManager.Connect(mechanic, this);
 			}
-			mechanics.Sort((a, b) => a.secrecy.CompareTo(b));
+			mechanics.Sort((a, b) => a.secrecy.CompareTo(b.secrecy));
 			DependencyManager.Flag(this);
 		}
 

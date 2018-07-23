@@ -105,9 +105,9 @@ namespace Parahumans.Core {
 				//Label
 				labels[i] = new Pango.Layout(PangoContext) { Alignment = Pango.Alignment.Center };
 				if (multipliers == null) {
-					labels[i].SetText(Graphics.classSymbols[reverseIndexMap[i]]);
+					labels[i].SetText(Ratings.symbols[reverseIndexMap[i]]);
 				} else {
-					labels[i].SetMarkup(Graphics.classSymbols[reverseIndexMap[i]] + "\n<small>×" + multipliers[reverseIndexMap[i]].ToString("0.0") + "</small>");
+					labels[i].SetMarkup(Ratings.symbols[reverseIndexMap[i]] + "\n<small>×" + multipliers[reverseIndexMap[i]].ToString("0.0") + "</small>");
 				}
 				labels[i].GetSize(out int labelWidth, out int labelHeight);
 				labelSizes[i] = new IntVector2(labelWidth, labelHeight) / Pango.Scale.PangoScale;
@@ -170,7 +170,7 @@ namespace Parahumans.Core {
 			for (int i = 1; i < 4; i++)
 				for (int j = 0; j < 8; j++)
 					while (IsOverlappingSomething(vertices, i, j))
-						vertices[i, j] += (IntVector2)directions[j];
+						vertices[i, j] -= (IntVector2)directions[j];
 
 			//Draw polygons
 			for (int i = 0; i < 4; i++) {

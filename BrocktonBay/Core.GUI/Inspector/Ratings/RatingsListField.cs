@@ -9,14 +9,15 @@ namespace Parahumans.Core {
 	public sealed class RatingsListField : Gtk.Alignment {
 
 		public RatingsListField (PropertyInfo property, object obj, Context context, object arg) : base(0, 0, 1, 1) {
-			
+
 			RatingsProfile profile = ((Func<Context, RatingsProfile>)property.GetValue(obj))(context);
 			float[,] values = profile.values;
 			int[,] o_vals = profile.o_vals;
 
 			Gtk.Alignment alignment = new Gtk.Alignment(0, 0, 1, 0);
 
-			if (context.vertical) {
+			if (context.vertical && !context.compact) {
+
 				Frame frame = new Frame(UIFactory.ToReadable(property.Name));
 				VBox box = new VBox(false, 4) { BorderWidth = 5 };
 				frame.Add(box);
@@ -24,7 +25,7 @@ namespace Parahumans.Core {
 
 				for (int i = 1; i <= 8; i++) {
 					if (o_vals[0, i] != Ratings.O_NULL) {
-						Label ratingLabel = new Label(Ratings.PrintRating(i, values[0, i]));
+						Label ratingLabel = new Label(Ratings.PrintSingle(i, values[0, i]));
 						ratingLabel.SetAlignment(0, 0);
 						box.PackStart(ratingLabel);
 					}
@@ -33,7 +34,7 @@ namespace Parahumans.Core {
 				for (int k = 1; k <= 3; k++) {
 					if (o_vals[k, 0] != Ratings.O_NULL) {
 
-						Label wrapperLabel = new Label(Ratings.PrintRating(k + 8, values[k, 0]));
+						Label wrapperLabel = new Label(Ratings.PrintSingle(k + 8, values[k, 0]));
 						wrapperLabel.SetAlignment(0, 0);
 
 						VBox ratingBox = new VBox(false, 5) { BorderWidth = 5 };
@@ -41,7 +42,7 @@ namespace Parahumans.Core {
 
 						for (int i = 1; i <= 8; i++) {
 							if (o_vals[k, i] != Ratings.O_NULL) {
-								Label ratingLabel = new Label(Ratings.PrintRating(i, values[k, i]));
+								Label ratingLabel = new Label(Ratings.PrintSingle(i, values[k, i]));
 								ratingLabel.SetAlignment(0, 0);
 								ratingBox.PackStart(ratingLabel, false, false, 0);
 							}
@@ -53,58 +54,68 @@ namespace Parahumans.Core {
 				}
 
 			} else {
-				HBox box = new HBox(false, 0) { BorderWidth = 5 };
+				Box box;
+				if (context.compact) {
+					box = new VBox(false, 0) { BorderWidth = 5 };
+				} else {
+					box = new HBox(false, 0) { BorderWidth = 5 };
+				}
 				alignment.Add(box);
 				for (int i = 1; i <= 8; i++) {
 					if (o_vals[0, i] != Ratings.O_NULL) {
-						Label ratingLabel = new Label((box.Children.Length > 0 ? ", " : "") //Commas to delimit ratings
-													  + Ratings.PrintRating(i, values[0, i]));
+						bool comma = !context.compact && box.Children.Length > 0;
+						Label ratingLabel = new Label((comma ? ", " : "") //Commas to delimit ratings
+													  + Ratings.PrintSingle(i, values[0, i]));
 						ratingLabel.SetAlignment(0, 0);
 						box.PackStart(ratingLabel, false, false, 0);
 					}
 				}
-
 				for (int k = 1; k <= 3; k++) {
 					if (o_vals[k, 0] != Ratings.O_NULL) {
-
-						Label ratingLabel = new Label((box.Children.Length > 0 ? ", " : "") //Commas to delimit ratings
-													  + Ratings.PrintRating(k + 8, values[k, 0], true));
+						bool comma = !context.compact && box.Children.Length > 0;
+						Label ratingLabel = new Label((comma ? ", " : "") //Commas to delimit ratings
+													  + Ratings.PrintSingle(k + 8, values[k, 0], true));
 						ratingLabel.SetAlignment(0, 0);
-
 						List<String> subratings = new List<String>();
 						for (int i = 1; i <= 8; i++)
 							if (o_vals[k, i] != Ratings.O_NULL)
-								subratings.Add(Ratings.PrintRating(i, values[k, i]));
+								subratings.Add(Ratings.PrintSingle(i, values[k, i]));
 						ratingLabel.TooltipText = String.Join("\n", subratings);
-
 						box.PackStart(ratingLabel, false, false, 0);
-
 					}
 				}
-			}
 
+			}
 			if (UIFactory.CurrentlyEditable(property, obj)) {
 				ClickableEventBox clickableEventBox = new ClickableEventBox { Child = alignment };
 				Parahuman parahuman = (Parahuman)obj;
-				clickableEventBox.DoubleClicked += (o, a) => new TextEditingDialog(
-					"Edit ratings of " + parahuman.name,
-					(Window)Toplevel,
-					() => Ratings.PrintRatings(parahuman.baseRatings.values, parahuman.baseRatings.o_vals),
-					delegate (string input) {
-						if (Ratings.TryParseRatings(input, out RatingsProfile? newRatings)) {
-							parahuman.baseRatings = (RatingsProfile)newRatings;
-							DependencyManager.Flag(parahuman);
-							DependencyManager.TriggerAllFlags();
-							return true;
+				clickableEventBox.DoubleClicked += delegate {
+					// The property this is attached to gets the *current ratings*, not the *base ratings*, which are
+					// what we logically want to let the user manipulate. Hence, the optional arg supplied is the name
+					// of the base profile.
+					PropertyInfo baseProfileProperty = obj.GetType().GetProperty((string)arg);
+					TextEditingDialog dialog = new TextEditingDialog(
+						"Edit ratings",
+						(Window)Toplevel,
+						delegate {
+							RatingsProfile baseProfile = (RatingsProfile)baseProfileProperty.GetValue(obj);
+							return Ratings.Print(baseProfile.values, baseProfile.o_vals);
+						},
+						delegate (string input) {
+							if (Ratings.TryParse(input, out RatingsProfile? newRatings)) {
+								baseProfileProperty.SetValue(obj, (RatingsProfile)newRatings);
+								DependencyManager.Flag(parahuman);
+								DependencyManager.TriggerAllFlags();
+								return true;
+							}
+							return false;
 						}
-						return false;
-					}
-				);
+					);
+				};
 				Add(clickableEventBox);
 			} else {
 				Add(alignment);
 			}
-
 		}
 	}
 

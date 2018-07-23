@@ -259,6 +259,26 @@ namespace Parahumans.Core {
 
 	}
 
+	public class MechanicCellTabularListField : CellTabularListField<Mechanic> {
+
+		public MechanicCellTabularListField (PropertyInfo property, object obj, Context context, object arg)
+			: base(property, obj, context, arg) { }
+
+		protected override Widget GetElementWidget (Mechanic obj) {
+			if (!obj.Known(context)) {
+				Table table = new Table(1, 1, true);
+				Label number = new Label { UseMarkup = true, Markup = "<big><b>" + obj.secrecy + "</b></big>" };
+				Gtk.Image image = new Gtk.Image(Stock.DialogAuthentication, IconSize.Dnd);
+				table.Attach(UIFactory.Align(number, 0.5f, 0.5f, 0, 0), 0, 1, 0, 1);
+				table.Attach(UIFactory.Align(image, 0.5f, 0.5f, 0, 0), 0, 1, 0, 1);
+				table.BorderWidth = 10;
+				return new Frame { Child = table, Label = "???" };
+			}
+			return base.GetElementWidget(obj);
+		}
+
+	}
+
 	public class CellTabularListField<T> : TabularListField<T> where T : IGUIComplete {
 
 		public CellTabularListField (PropertyInfo property, object obj, Context context, object arg)

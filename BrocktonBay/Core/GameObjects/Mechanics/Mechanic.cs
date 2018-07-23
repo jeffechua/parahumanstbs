@@ -15,7 +15,7 @@ namespace Parahumans.Core {
 		public int secrecy = 0;
 		public string description = "";
 		public string effect = "";
-		public MechanicData () {}
+		public MechanicData () { }
 		public MechanicData (Mechanic mechanic) {
 			name = mechanic.name;
 			type = mechanic.type;
@@ -27,7 +27,7 @@ namespace Parahumans.Core {
 			=> this.type = type;
 	}
 
-	public abstract class Mechanic : IGUIComplete, IKnowable {
+	public abstract class Mechanic : IGUIComplete {
 
 		//IDependable stuff
 		public int order { get { return 0; } }
@@ -108,14 +108,11 @@ namespace Parahumans.Core {
 				return headerBox;
 			}
 		}
+
 		public virtual Widget GetCellContents (Context context) {
-			Table table = new Table(1, 1, true);
-			Label number = new Label { UseMarkup = true, Markup = "<big><b>" + secrecy + "</b></big>" };
-			Image image = new Image(Stock.DialogAuthentication, IconSize.Dnd);
-			table.Attach(UIFactory.Align(number, 0.5f, 0.5f, 0, 0), 0, 1, 0, 1);
-			table.Attach(UIFactory.Align(image, 0.5f, 0.5f, 0, 0), 0, 1, 0, 1);
-			table.BorderWidth = 10;
-			return table;
+			DialogTextEditableField field = new DialogTextEditableField(GetType().GetProperty("effect"), this, context.butCompact, null);
+			field.BorderWidth = 5;
+			return field;
 		}
 
 	}

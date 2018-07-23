@@ -10,7 +10,6 @@ namespace Parahumans.Core {
 		IDependable obj;
 		Menu rightclickMenu;
 		Context context;
-		HBox topBox;
 		bool editable;
 
 		public DialogTextEditableField (PropertyInfo property, object obj, Context context, object arg) : base(false, 2) {
@@ -20,38 +19,52 @@ namespace Parahumans.Core {
 			this.context = context;
 			editable = UIFactory.CurrentlyEditable(property, obj);
 
-			topBox = new HBox();
-			Label label = new Label(context.compact ? "" : (UIFactory.ToReadable(property.Name) + ": "));
-			topBox.PackStart(label, false, false, 0);
-			PackStart(topBox, false, false, 0);
-
-			TooltipTextAttribute tooltipText = (TooltipTextAttribute)property.GetCustomAttribute(typeof(TooltipTextAttribute));
-			if (tooltipText != null) {
-				label.HasTooltip = true;
-				label.TooltipMarkup = tooltipText.text;
+			if (!context.compact) {
+				Label label = new Label(context.compact ? "" : (UIFactory.ToReadable(property.Name) + ": "));
+				TooltipTextAttribute tooltipText = (TooltipTextAttribute)property.GetCustomAttribute(typeof(TooltipTextAttribute));
+				if (tooltipText != null) {
+					label.HasTooltip = true;
+					label.TooltipMarkup = tooltipText.text;
+				}
+				PackStart(label, false, false, 0);
 			}
 
 			Label val = new Label((string)property.GetValue(obj));
 			if (val.Text == "") val.Text = "-";
 			val.SetAlignment(0, 0);
-			Gtk.Alignment alignment = new Gtk.Alignment(0, 0, 1, 1) { LeftPadding = 10 };
-			if (editable) {
-				ClickableEventBox eventBox = new ClickableEventBox() { Child = val };
-				eventBox.DoubleClicked += OpenDialog;
-				eventBox.RightClicked += delegate {
-					rightclickMenu.Popup();
-					rightclickMenu.ShowAll();
-				};
-				alignment.Add(eventBox);
+			ClickableEventBox eventBox = new ClickableEventBox();
+			eventBox.DoubleClicked += OpenDialog;
+			eventBox.RightClicked += delegate {
+				rightclickMenu.Popup();
+				rightclickMenu.ShowAll();
+			};
+
+			if (context.compact) {
+				Gtk.Alignment alignment = UIFactory.Align(val, 0, 0, 1, 1);
+				alignment.BorderWidth = 5;
+				if (editable) {
+					eventBox.Add(alignment);
+					PackStart(eventBox);
+				} else {
+					PackStart(alignment);
+				}
 			} else {
-				alignment.Add(val);
+				Gtk.Alignment alignment = new Gtk.Alignment(0, 0, 1, 1);
+				if (editable) {
+					eventBox.Add(val);
+					alignment.Add(eventBox);
+				} else {
+					alignment.Add(val);
+				}
+				alignment.LeftPadding = 10;
+				PackStart(alignment, true, true, 0);
 			}
-			PackStart(alignment, true, true, 0);
 
 			rightclickMenu = new Menu();
 			MenuItem edit = new MenuItem("Edit");
 			edit.Activated += OpenDialog;
 			rightclickMenu.Append(edit);
+
 		}
 
 		public void OverrideLabel (string text) {
@@ -66,7 +79,7 @@ namespace Parahumans.Core {
 				() => (string)property.GetValue(obj),
 				delegate (string input) {
 					try {                              // Muahahahaha I'm evil
-						property.SetValue(obj, input); // This is the easiest way though for real
+						property.SetValue(obj, input);
 					} catch (Exception e) {
 						e = e.InnerException;
 						return false;

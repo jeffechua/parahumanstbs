@@ -82,10 +82,6 @@ namespace Parahumans.Core {
 
 	}
 
-	public interface IKnowable {
-		bool Known (Context context);
-	}
-
 	public interface IAffiliated {
 		IAgent affiliation { get; }
 	}

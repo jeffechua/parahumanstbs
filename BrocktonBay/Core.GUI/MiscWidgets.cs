@@ -68,9 +68,6 @@ namespace Parahumans.Core {
 			this.inspected = inspected;
 			rightclickMenu = new Menu();
 
-			IKnowable knowable = inspected as IKnowable;
-			if (knowable != null && !knowable.Known(new Context(Game.player, inspected))) return;
-
 			Clicked += delegate (object obj, ButtonReleaseEventArgs args) {
 				if (args.Event.Button == 2 || (args.Event.Type == Gdk.EventType.TwoButtonPress && args.Event.Button == 1)) {
 					Inspector.InspectInNewWindow(inspected, (Window)Toplevel);

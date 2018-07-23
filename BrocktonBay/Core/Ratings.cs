@@ -32,6 +32,19 @@ namespace Parahumans.Core {
 		Master = 10,
 		Breaker = 11
 	}
+	public enum ClassificationSymbols {
+		β = 1,
+		δ = 2,
+		Σ = 3,
+		ψ = 4,
+		μ = 5,
+		φ = 6,
+		ξ = 7,
+		Ω = 8,
+		Γ = 9,
+		ς = 10,
+		χ = 11
+	}
 
 	public struct EffectiveRatingsProfile {
 
@@ -50,6 +63,9 @@ namespace Parahumans.Core {
 	}
 
 	public static class Ratings {
+
+		public static readonly string[] symbols = { "", "β", "δ", "Σ", "ψ", "μ", "φ", "ξ", "Ω", "Γ", "ς", "χ" };
+
 		public const int NULL = -22;
 		public const int O_NULL = 0;
 		public const int ZERO = 0;
@@ -106,41 +122,50 @@ namespace Parahumans.Core {
 			return Math.Abs(a - b) < 0.01;
 		}
 
-		public static string PrintRatings (float[,] values, int[,] o_vals, bool compact = true) {
+		public static string Print (float[,] values, int[,] o_vals) {
 			string text = "";
-			for (int i = 1; i <= 8; i++) {
-				if (o_vals[0, i] != O_NULL) {
-					text += "\n" + PrintRating(i, values[0, i]);
-				}
-			}
+			for (int i = 1; i <= 8; i++)
+				if (o_vals[0, i] != O_NULL)
+					text += "\n" + PrintSingle(i, values[0, i]);
 			for (int k = 1; k <= 3; k++) {
 				if (o_vals[k, 0] != O_NULL) {
-					text += "\n" + PrintRating(k + 8, values[k, 0]);
-					for (int i = 1; i <= 8; i++) {
-						if (o_vals[k, i] != O_NULL) {
-							text += "\n\t" + PrintRating(i, values[k, i]);
-						}
-					}
+					text += "\n" + PrintSingle(k + 8, values[k, 0]);
+					for (int i = 1; i <= 8; i++)
+						if (o_vals[k, i] != O_NULL)
+							text += "\n\t" + PrintSingle(i, values[k, i]);
 				}
 			}
 			return text.TrimStart('\n');
 		}
 
-		public static String PrintRating (int classification, float number, bool wrapperStar = false) {
+		public static string PrintCompact (float[,] values, int[,] o_vals) {
+			string text = "";
+			for (int i = 1; i <= 8; i++)
+				if (o_vals[0, i] != O_NULL)
+					text += "\n" + PrintSingle(i, values[0, i]);
+			for (int k = 1; k <= 3; k++) {
+				string wrapperName = symbols[k + 8];
+				for (int i = 1; i <= 8; i++)
+					if (o_vals[k, i] != O_NULL)
+						text += "\n" + wrapperName + "/" + PrintSingle(i, values[k, i]);
+			}
+			return text.TrimStart('\n');
+		}
+
+		public static String PrintSingle (int classification, float number, bool wrapperStar = false) {
 			return Enum.GetName(typeof(Classification), classification)
 					   + ((classification > 7 && wrapperStar) ? "* " : " ")
 					   + (Math.Round(number * 10) / 10).ToString();
 		}
 
-		public static bool TryParseRatings (string text, out RatingsProfile? ratings) {
+		public static bool TryParse (string text, out RatingsProfile? ratings) {
 			ratings = null;
 			int currentWrapper = 0;
 			int[,] o_vals = new int[5, 9];
 			string[] lines = text.Split('\n');
 			if (!(lines.Length == 1 && lines[0] == "")) {
 				foreach (string line in lines) {
-					if (!TryParseRating(line.Trim(), out Tuple<int, float> rating)) return false;
-
+					if (!TryParseSingle(line.Trim(), out Tuple<int, float> rating)) return false;
 					if (line[0] == '\t') {
 						// An indented entry makes no sense if we aren't in a wrapper or it's trying to declare a wrapper
 						if (currentWrapper == 0 || rating.Item1 > 8) return false;
@@ -163,7 +188,30 @@ namespace Parahumans.Core {
 			return true;
 		}
 
-		public static bool TryParseRating (string text, out Tuple<int, float> clssfNumPair) {
+		public static bool TryParseCompact (string text, out RatingsProfile? ratings) {
+			ratings = null;
+			int[,] o_vals = new int[5, 9];
+			string[] lines = text.Split('\n');
+			if (!(lines.Length == 1 && lines[0] == "")) {
+				foreach (string line in lines) {
+					if (line.Contains("/")) {
+						string[] parts = line.Split('/');
+						if (!Enum.TryParse(parts[0], true, out ClassificationSymbols wrapper)) return false;
+						if (!TryParseSingle(parts[1], out Tuple<int, float> content)) return false;
+						o_vals[(int)wrapper - 8, content.Item1] += Empower(content.Item2);
+						o_vals[4, content.Item1] += Empower(content.Item2);
+					} else {
+						if (!TryParseSingle(line.Trim(), out Tuple<int, float> rating)) return false;
+						o_vals[0, rating.Item1] += Empower(rating.Item2);
+						o_vals[4, rating.Item1] += Empower(rating.Item2);
+					}
+				}
+			}
+			ratings = new RatingsProfile(o_vals);
+			return true;
+		}
+
+		static bool TryParseSingle (string text, out Tuple<int, float> clssfNumPair) {
 			string[] parts = text.Split(' ');
 			if (!Enum.TryParse(parts[0], true, out Classification type) || !float.TryParse(parts[1], out float num)) {
 				clssfNumPair = null;

@@ -6,7 +6,7 @@ namespace Parahumans.Core {
 	public sealed class RatingsTable : Table {
 
 
-		public static readonly string[] deploymentRows = { " Ξ ", " ʤ ", " ς ", " χ ", "  sum" };
+		public static readonly string[] deploymentRows = { " Ξ ", " Γ ", " ς ", " χ ", "  sum" };
 
 		public static readonly string[] multiplierExplain = {
 			"",
@@ -40,7 +40,7 @@ namespace Parahumans.Core {
 
 			//Row labels and multipliers
 			for (uint i = 1; i <= 8; i++) {
-				Label classLabel = new Label(" " + Graphics.classSymbols[i]) {
+				Label classLabel = new Label(" " + Ratings.symbols[i]) {
 					HasTooltip = true,
 					TooltipText = Enum.GetName(typeof(Classification), i)
 				};
