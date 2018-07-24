@@ -54,7 +54,7 @@ namespace Parahumans.Core {
 		public abstract InvocationTrigger trigger { get; }
 
 		public bool Known (Context context) {
-			return context.requester.knowledge[parent] >= secrecy;
+			return (context.requester == Game.player && Game.omniscient) || context.requester.knowledge[parent] >= secrecy;
 		}
 
 		public GameObject parent;
@@ -62,7 +62,7 @@ namespace Parahumans.Core {
 		public static Mechanic Create () {
 			Mechanic newMechanic = null;
 			Dialog dialog = new Dialog("Choose type of mechanic to create", Game.mainWindow, DialogFlags.DestroyWithParent, "Cancel", ResponseType.Cancel, "Ok", ResponseType.Ok);
-			ComboBox comboBox = new ComboBox(new string[] { "Weakness" });
+			ComboBox comboBox = new ComboBox(new string[] { "Weakness", "TrueForm" });
 			dialog.VBox.PackStart(comboBox, true, true, 0);
 			dialog.ShowAll();
 			dialog.Response += delegate (object obj, ResponseArgs args) {
@@ -79,6 +79,8 @@ namespace Parahumans.Core {
 			switch (data.type) {
 				case "Weakness":
 					return new WeaknessMechanic(data);
+				case "TrueForm":
+					return new TrueFormMechanic(data);
 				default:
 					return null;
 			}

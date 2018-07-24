@@ -88,7 +88,6 @@ namespace Parahumans.Core {
 			}
 			if (UIFactory.CurrentlyEditable(property, obj)) {
 				ClickableEventBox clickableEventBox = new ClickableEventBox { Child = alignment };
-				Parahuman parahuman = (Parahuman)obj;
 				clickableEventBox.DoubleClicked += delegate {
 					// The property this is attached to gets the *current ratings*, not the *base ratings*, which are
 					// what we logically want to let the user manipulate. Hence, the optional arg supplied is the name
@@ -104,8 +103,11 @@ namespace Parahumans.Core {
 						delegate (string input) {
 							if (Ratings.TryParse(input, out RatingsProfile? newRatings)) {
 								baseProfileProperty.SetValue(obj, (RatingsProfile)newRatings);
-								DependencyManager.Flag(parahuman);
-								DependencyManager.TriggerAllFlags();
+								IDependable dependable = obj as IDependable;
+								if (dependable != null) {
+									DependencyManager.Flag(dependable);
+									DependencyManager.TriggerAllFlags();
+								}
 								return true;
 							}
 							return false;

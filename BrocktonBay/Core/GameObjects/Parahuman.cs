@@ -87,7 +87,7 @@ namespace Parahumans.Core {
 		public List<Mechanic> mechanics { get; set; }
 
 		[Displayable(8, typeof(RatingsListField), "baseRatings"), Padded(5, 5), EmphasizedIfHorizontal]
-		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
+		public Func<Context, RatingsProfile> ratings { get => GetRatingsProfile; }
 
 		public RatingsProfile baseRatings { get; set; }
 

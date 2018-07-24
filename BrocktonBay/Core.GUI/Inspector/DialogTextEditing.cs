@@ -21,6 +21,7 @@ namespace Parahumans.Core {
 
 			if (!context.compact) {
 				Label label = new Label(context.compact ? "" : (UIFactory.ToReadable(property.Name) + ": "));
+				label.SetAlignment(0, 1);
 				TooltipTextAttribute tooltipText = (TooltipTextAttribute)property.GetCustomAttribute(typeof(TooltipTextAttribute));
 				if (tooltipText != null) {
 					label.HasTooltip = true;

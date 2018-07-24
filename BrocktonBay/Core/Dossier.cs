@@ -9,10 +9,8 @@ namespace Parahumans.Core {
 		public DossierData (Dossier dossier, GameObject knower) {
 			knowerID = knower.ID;
 			tuples = new List<Tuple<int, int>>();
-			Console.WriteLine(dossier.Count);
 			foreach (KeyValuePair<GameObject, int> pair in dossier)
 				tuples.Add(new Tuple<int, int>(pair.Key.ID, pair.Value));
-			Console.WriteLine(tuples.Count);
 		}
 	}
 

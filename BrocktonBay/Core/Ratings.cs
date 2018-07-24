@@ -262,6 +262,8 @@ namespace Parahumans.Core {
 		}
 		public float[] bonuses;
 
+		public static RatingsProfile Null { get => new RatingsProfile(new int[5, 9]); }
+
 		public RatingsProfile (int[,] o_values) {
 			o_vals = o_values;
 			bonuses = new float[3];
