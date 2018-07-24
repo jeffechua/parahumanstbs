@@ -75,7 +75,7 @@ namespace Parahumans.Core {
 					DependencyManager.TriggerAllFlags();
 				},
 				condition = delegate (Context context) {
-					return ongoing_event == null;
+					return Game.phase == Phase.Action && ongoing_event == null;
 				}
 			};
 		}

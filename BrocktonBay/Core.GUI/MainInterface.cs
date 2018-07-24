@@ -61,16 +61,30 @@ namespace Parahumans.Core {
 		public void Reload () {
 
 			uint spacing = (uint)(Graphics.textSize / 5);
+			Gdk.Color black = new Gdk.Color(0, 0, 0);
 
 			while (textBar.Children.Length > 0) textBar.Children[0].Destroy();
 			while (numbersBar.Children.Length > 0) numbersBar.Children[0].Destroy();
 
 			textBar.PackStart(new Label("Playing as: "), false, false, spacing);
 			textBar.PackStart(Game.player.GetHeader(new Context(Game.player, this, false, true)), false, false, 0);
+			Image nextPhaseArrow = Graphics.GetIcon(DirectionType.Right, black, (int)(Graphics.textSize * 0.75));
+			ClickableEventBox nextPhaseButton = new ClickableEventBox {
+				Child = nextPhaseArrow,
+				BorderWidth = (uint)(Graphics.textSize * 0.25)
+			};
+			nextPhaseButton.Clicked += delegate {
+				if (Game.phase == Phase.Mastermind) {
+					Game.phase = Phase.Action;
+				} else {
+					Game.phase += 1;
+				}
+				Game.RefreshUI();
+			};
+			textBar.PackEnd(nextPhaseButton, false, false, spacing);
 			textBar.PackEnd(new Label(Game.phase + " Phase"), false, false, spacing);
 
 			if (GameObject.TryCast(Game.player, out Faction faction)) {
-				Gdk.Color black = new Gdk.Color(0, 0, 0);
 				numbersBar.PackStart(Graphics.GetIcon(StructureType.Economic, black, Graphics.textSize), false, false, spacing);
 				numbersBar.PackStart(new Label(faction.resources.ToString()), false, false, spacing);
 				numbersBar.PackStart(Graphics.GetIcon(StructureType.Aesthetic, black, Graphics.textSize), false, false, spacing);
