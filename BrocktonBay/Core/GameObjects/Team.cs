@@ -81,7 +81,7 @@ namespace Parahumans.Core {
 		[Child("Insight"), Displayable(0, typeof(IntField))]
 		public int insight_XP { get; set; }
 
-		[Displayable(8, typeof(CellTabularListField<Parahuman>), 3), Emphasized, PlayerEditable(Phase.Organization)]
+		[Displayable(8, typeof(CellTabularListField<Parahuman>), 3), Emphasized, PlayerEditable(Phase.Mastermind)]
 		public List<Parahuman> roster { get; set; }
 
 		[Displayable(9, typeof(RatingsMultiviewField), true), Emphasized, VerticalOnly, Expand]

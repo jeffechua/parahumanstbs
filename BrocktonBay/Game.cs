@@ -5,6 +5,14 @@ using Gtk;
 
 namespace Parahumans.Core {
 
+	public enum Phase {
+		All = -2,
+		None = -1,
+		Action = 0,
+		Response = 1,
+		Mastermind = 2
+	}
+
 	class Game {
 
 		public const String savefolder = "/Users/Jefferson/Desktop/Parahumans_Save";
@@ -55,6 +63,8 @@ namespace Parahumans.Core {
 		static CheckMenuItem omniscientToggle;
 		static CheckMenuItem omnipotentToggle;
 
+		static SeparatorMenuItem SEP { get => new SeparatorMenuItem(); }
+
 		public static void Main (string[] args) {
 
 			UIKey = new DependableShell(0);
@@ -80,12 +90,7 @@ namespace Parahumans.Core {
 			toolsButton = new MenuItem("Tools") { Sensitive = false };  //
 			windowButton = new MenuItem("Window") { Sensitive = false };//
 			helpButton = new MenuItem("Help");
-			menuBar.Append(fileButton);
-			menuBar.Append(editButton);
-			menuBar.Append(viewButton);
-			menuBar.Append(toolsButton);
-			menuBar.Append(windowButton);
-			menuBar.Append(helpButton);
+			AppendMultiple(menuBar, fileButton, editButton, viewButton, toolsButton, windowButton, helpButton);
 
 			//File menu
 			fileMenu = new Menu();
@@ -101,15 +106,7 @@ namespace Parahumans.Core {
 			MenuItem quitButton = new MenuItem("Quit");
 			quitButton.Activated += (o, a) => IO.AskIfSaveBefore(Application.Quit);
 			fileButton.Submenu = fileMenu;
-			fileMenu.Append(newGamebutton);
-			fileMenu.Append(new SeparatorMenuItem());
-			fileMenu.Append(openButton);
-			fileMenu.Append(new SeparatorMenuItem());
-			fileMenu.Append(saveButton);
-			fileMenu.Append(saveAsButton);
-			fileMenu.Append(new SeparatorMenuItem());
-			fileMenu.Append(closeButton);
-			fileMenu.Append(quitButton);
+			AppendMultiple(fileMenu, newGamebutton, SEP, openButton, SEP, saveButton, saveAsButton, SEP, closeButton, quitButton);
 
 			//Edit menu
 			editMenu = new Menu();
@@ -145,19 +142,9 @@ namespace Parahumans.Core {
 			MenuItem importButton = new MenuItem("Import...") { Sensitive = false };//Implement
 			MenuItem editModeButton = new CheckMenuItem("Edit Mode") { Sensitive = false };
 			editButton.Submenu = editMenu;
-			editMenu.Append(undoButton);
-			editMenu.Append(redoButton);
-			editMenu.Append(new SeparatorMenuItem());
-			editMenu.Append(createButton);
+			AppendMultiple(editMenu, undoButton, redoButton, SEP, createButton, importButton, SEP, editModeButton);
 			createButton.Submenu = createMenu;
-			createMenu.Append(createParahumanButton);
-			createMenu.Append(createTeamButton);
-			createMenu.Append(createFactionButton);
-			createMenu.Append(createStructureButton);
-			createMenu.Append(createTerritoryButton);
-			editMenu.Append(importButton);
-			editMenu.Append(new SeparatorMenuItem());
-			editMenu.Append(editModeButton);
+			AppendMultiple(createMenu, createParahumanButton, createTeamButton, createFactionButton, createStructureButton, createTerritoryButton);
 
 			//View menu
 			viewMenu = new Menu();
@@ -171,7 +158,7 @@ namespace Parahumans.Core {
 				}
 			};
 			viewButton.Submenu = viewMenu;
-			viewMenu.Append(inspectorEnabledButton);
+			AppendMultiple(viewMenu, inspectorEnabledButton);
 
 			//Tools menu
 			toolsMenu = new Menu();
@@ -180,8 +167,7 @@ namespace Parahumans.Core {
 			omniscientToggle.Toggled += (o, a) => RefreshUI();
 			omnipotentToggle.Toggled += (o, a) => RefreshUI();
 			toolsButton.Submenu = toolsMenu;
-			toolsMenu.Append(omniscientToggle);
-			toolsMenu.Append(omnipotentToggle);
+			AppendMultiple(toolsMenu, omniscientToggle, omnipotentToggle);
 
 			//Window menu
 			windowMenu = new Menu();
@@ -198,24 +184,29 @@ namespace Parahumans.Core {
 				newWindow.ShowAll();
 			};
 			windowButton.Submenu = windowMenu;
-			windowMenu.Append(newSearchWindowButton);
-			windowMenu.Append(newMapWindowButton);
+			AppendMultiple(windowMenu, newSearchWindowButton, newMapWindowButton);
 
 			//Window menu
 			helpMenu = new Menu();
 			helpButton.Submenu = helpMenu;
 
-			mainWindow.Realized += Graphics.MainWindowInitialized;
+			mainWindow.Realized += Graphics.OnMainWindowInitialized;
 			mainWindow.ShowAll();
 
 			Application.Run();
 
 		}
 
+		static void AppendMultiple (MenuShell menu, params Widget[] widgets) {
+			foreach (Widget widget in widgets)
+				menu.Append(widget);
+		}
+
 		public static void Load (City city) {
 			Unload();
 			Game.city = city;
-			cityInterface = new MainInterface(city);
+			phase = Phase.Action;
+			cityInterface = new MainInterface();
 			mainBox.PackStart(cityInterface, true, true, 0);
 			editButton.Sensitive = true;
 			viewButton.Sensitive = true;

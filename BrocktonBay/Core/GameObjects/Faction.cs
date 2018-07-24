@@ -65,13 +65,13 @@ namespace Parahumans.Core {
 		[Displayable(6, typeof(BasicReadonlyField))]
 		public int reputation { get; set; }
 
-		[Displayable(7, typeof(CellTabularListField<Parahuman>), 3), Emphasized, PlayerEditable(Phase.Organization)]
+		[Displayable(7, typeof(CellTabularListField<Parahuman>), 3), Emphasized, PlayerEditable(Phase.Mastermind)]
 		public List<Parahuman> roster { get; set; }
 
-		[Displayable(8, typeof(CellTabularListField<Team>), 2), Emphasized, PlayerEditable(Phase.Organization)]
+		[Displayable(8, typeof(CellTabularListField<Team>), 2), Emphasized, PlayerEditable(Phase.Mastermind)]
 		public List<Team> teams { get; set; }
 
-		[Displayable(9, typeof(CellTabularListField<Territory>), 2), Emphasized, PlayerEditable(Phase.Organization)]
+		[Displayable(9, typeof(CellTabularListField<Territory>), 2), Emphasized, PlayerEditable(Phase.Mastermind)]
 		public List<Territory> territories { get; set; }
 
 		[Displayable(9, typeof(RatingsMultiviewField), true), Emphasized, VerticalOnly, Expand]

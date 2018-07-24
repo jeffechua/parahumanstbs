@@ -68,12 +68,6 @@ namespace Parahumans.Core {
 		}
 	}
 
-	public enum Phase {
-		All = -2,
-		None = 0,
-		Organization = 1
-	}
-
 	public class PlayerEditableAttribute : Attribute {
 		public Phase editablePhases;
 		public bool currentlyEditable {

@@ -167,10 +167,18 @@ namespace Parahumans.Core {
 			}
 
 			//Bump vertices by a pixel if they overlap.
-			for (int i = 1; i < 4; i++)
-				for (int j = 0; j < 8; j++)
-					while (IsOverlappingSomething(vertices, i, j))
-						vertices[i, j] -= (IntVector2)directions[j];
+			bool changed = true;
+			while (changed) {
+				changed = false;
+				for (int i = 3; i > 1; i--) {
+					for (int j = 0; j < 8; j++) {
+						if (vertices[i, j] == vertices[i - 1, j]) {
+							vertices[i, j] += (IntVector2)directions[j];
+							changed = true;
+						}
+					}
+				}
+			}
 
 			//Draw polygons
 			for (int i = 0; i < 4; i++) {

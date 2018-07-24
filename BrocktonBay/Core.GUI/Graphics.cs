@@ -71,14 +71,14 @@ namespace Parahumans.Core {
 		static Gdk.GC invisible;
 		static Gdk.GC black;
 
-		public static void MainWindowInitialized (object obj, EventArgs args) {
+		public static void OnMainWindowInitialized (object obj, EventArgs args) {
 			textSize = (int)Math.Round(Game.mainWindow.Style.FontDescription.Size / Pango.Scale.PangoScale);
 			visible = new Gdk.GC(Game.mainWindow.GdkWindow) { RgbFgColor = new Color(255, 255, 255) };
 			translucent = new Gdk.GC(Game.mainWindow.GdkWindow) { RgbFgColor = new Color(150, 150, 150) };
 			film = new Gdk.GC(Game.mainWindow.GdkWindow) { RgbFgColor = new Color(80, 80, 80) };
 			invisible = new Gdk.GC(Game.mainWindow.GdkWindow) { RgbFgColor = new Color(0, 0, 0) };
 			black = invisible;
-			Game.mainWindow.Realized -= MainWindowInitialized;
+			Game.mainWindow.Realized -= OnMainWindowInitialized;
 		}
 
 		public static Gtk.Image GetIcon (object iconified, Color iconColor, int iconSize, bool decor = false) {
