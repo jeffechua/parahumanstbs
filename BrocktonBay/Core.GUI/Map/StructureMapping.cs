@@ -125,10 +125,13 @@ namespace Parahumans.Core {
 				affiliationBox.PackStart(structure.affiliation.GetHeader(context.butCompact));
 			}
 			mainBox.PackStart(UIFactory.Align(affiliationBox, 0, 0, 0, 1));
-			mainBox.PackStart(UIFactory.Align(Child = new Label("Type: " + structure.type), 0, 0, 0, 1));
+			mainBox.PackStart(UIFactory.Align(new Label("Type: " + structure.type), 0, 0, 0, 1));
 			mainBox.PackStart(new HSeparator(), false, false, 5);
-			mainBox.PackStart(new TabularContainerField(structure.GetType().GetProperty("buffs"), structure, context,
-														new object[] { "strength_buff", "resource_buff", "reputation_buff" }));
+			mainBox.PackStart(new TabularContainerField(structure.GetType().GetProperty("combat_buffs"), structure, context,
+			                                            new object[] { "strength_buff", "stealth_buff", "insight_buff" }));
+			mainBox.PackStart(new HSeparator(), false, false, 5);
+			mainBox.PackStart(new TabularContainerField(structure.GetType().GetProperty("incomes"), structure, context,
+														new object[] { "resource_income", "reputation_income" }));
 			Add(mainBox);
 
 			marker.GdkWindow.GetOrigin(out int x, out int y);

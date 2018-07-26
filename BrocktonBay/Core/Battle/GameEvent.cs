@@ -102,6 +102,7 @@ namespace Parahumans.Core {
 		}
 
 		public void Reload () {
+
 			RatingsProfile initiator_base_profile = initiators.ratings(new Context(responders.affiliation, initiators));
 			RatingsProfile responder_base_profile = responders.ratings(new Context(initiators.affiliation, responders));
 			initiator_profile = CompareProfiles(initiator_base_profile, responder_base_profile);
@@ -114,7 +115,7 @@ namespace Parahumans.Core {
 							   ((initiator_strength.result >= responder_strength.result) ?
 								"<big>INITIATORS</big>" + (initiators.affiliation == null ? "" : "\n" + initiators.affiliation.name) :
 								"<big>RESPONDERS</big>" + (responders.affiliation == null ? "" : "\n" + responders.affiliation.name))
-							    + "</big>";
+								+ "</big>";
 
 			Tuple<Fraction[], Fraction[]> fractions;
 			fractions = CompareStats(initiator_stats, responder_stats, responders.authorized_force);
@@ -132,19 +133,32 @@ namespace Parahumans.Core {
 							   "@6 × @7 (force) = @8",
 							   "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.00", "0.0"),
 				new Expression("@0 + @1 = @2\n" +
-							   "@2 + @3 = @4",
+				               "@2 + @3 (bonus) = @4",
 							   "0.0", "0.0", "0.0", "0.0", "0.0"),
 				new Expression("@0 + @1 = @2\n" +
-							   "@2 + @3 = @4",
+				               "@2 + @3 (bonus) = @4",
 							   "0.0", "0.0", "0.0", "0.0", "0.0")
 			};
 
 			RatingsProfile profile = profiles[i].final;
 			float[,] values = Ratings.NullToZero(profile.values);
 
+			//Apply buffs
+			if (deployments[i].affiliation != null) {
+				int[] buffs = location.GetCombatBuffs(new Context(deployments[i].affiliation, this));
+				for (int n = 0; n < 3; n++) {
+					if (buffs[n] > 0 && deployments[i].affiliation == location.affiliation) {
+						profile.bonuses[n] += buffs[n];
+					} else if (buffs[n] < 0 && deployments[i].affiliation != location.affiliation) {
+						profile.bonuses[n] -= buffs[n];
+					}
+				}
+			}
+
 			//Strength
 			float baseStrength = values[4, 1] + values[4, 2] + values[4, 3] / 2 + values[4, 4] / 2;
 			float plusBonus = baseStrength + profile.bonuses[0];
+			if (plusBonus < 0) plusBonus = 0;
 			float forceMult = ForceMult(deployments[i].authorized_force);
 			float plusForce = plusBonus * forceMult;
 			expressions[0].SetValues(values[4, 1], values[4, 2], values[4, 3], values[4, 4],

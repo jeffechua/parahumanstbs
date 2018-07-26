@@ -43,13 +43,50 @@ namespace Parahumans.Core {
 		[Displayable(5, typeof(IntField))]
 		public int reputation { get; set; }
 
-		[Displayable(6, typeof(CellTabularListField<Structure>), 2), Emphasized, PlayerEditable(Phase.Mastermind)]
+		[BimorphicDisplayable(6, typeof(TabularContainerField), typeof(LinearContainerField),
+							  "strength_buff", "stealth_buff", "insight_buff"), EmphasizedIfVertical]
+		public int[] combat_buffs {
+			get {
+				return new int[] { strength_buff, stealth_buff, insight_buff };
+			}
+			set {
+				strength_buff = value[0];
+				stealth_buff = value[1];
+				insight_buff = value[2];
+			}
+		}
+
+		[Child("Strength"), Displayable(0, typeof(BasicReadonlyField))]
+		public int strength_buff { get; set; }
+		[Child("Stealth"), Displayable(0, typeof(BasicReadonlyField))]
+		public int stealth_buff { get; set; }
+		[Child("Insight"), Displayable(0, typeof(BasicReadonlyField))]
+		public int insight_buff { get; set; }
+
+		[BimorphicDisplayable(7, typeof(TabularContainerField), typeof(LinearContainerField),
+							  "resource_income", "reputation_income"), EmphasizedIfVertical]
+		public int[] incomes {
+			get {
+				return new int[] { resource_income, reputation_income };
+			}
+			set {
+				resource_income = value[0];
+				reputation_income = value[1];
+			}
+		}
+
+		[Child("Resources"), Displayable(0, typeof(IntField))]
+		public int resource_income { get; set; }
+		[Child("Reputation"), Displayable(0, typeof(IntField))]
+		public int reputation_income { get; set; }
+
+		[Displayable(8, typeof(CellTabularListField<Structure>), 2), Emphasized, PlayerEditable(Phase.Mastermind)]
 		public List<Structure> structures { get; set; }
 
 		//[Displayable(7, typeof(ObjectField)), ForceHorizontal, Padded(10, 10, 10, 10), Emphasized]
 		public GameEvent ongoing_event { get; set; }
 
-		[Displayable(7, typeof(ActionField)), Padded(20, 20, 20, 20), VerticalOnly]
+		[Displayable(9, typeof(ActionField)), Padded(20, 20, 20, 20), VerticalOnly]
 		public GameAction attack { get; set; }
 
 		public Territory () : this(new TerritoryData()) { }
@@ -82,6 +119,20 @@ namespace Parahumans.Core {
 
 		public override void Reload () {
 			structures.Sort();
+			combat_buffs = new int[3];
+			incomes = new int[2];
+			foreach(Structure structure in structures){
+				strength_buff += structure.strength_buff;
+				stealth_buff += structure.stealth_buff;
+				insight_buff += structure.insight_buff;
+				resource_income += structure.resource_income;
+				reputation_income += structure.reputation_income;
+			}
+		}
+
+		public int[] GetCombatBuffs (Context context) {
+			int[] buffs = (int[])combat_buffs.Clone();
+			return buffs;
 		}
 
 		public override Widget GetHeader (Context context) {

@@ -144,6 +144,12 @@ namespace Parahumans.Core {
 			mainBox.PackStart(UIFactory.Align(new Label("Size: " + territory.size), 0, 0, 0, 1));
 			mainBox.PackStart(UIFactory.Align(new Label("Reputation: " + territory.reputation), 0, 0, 0, 1));
 			mainBox.PackStart(new HSeparator(), false, false, 5);
+			mainBox.PackStart(new TabularContainerField(territory.GetType().GetProperty("combat_buffs"), territory, context,
+			                                            new object[] { "strength_buff", "stealth_buff", "insight_buff" }));
+			mainBox.PackStart(new HSeparator(), false, false, 5);
+			mainBox.PackStart(new TabularContainerField(territory.GetType().GetProperty("incomes"), territory, context,
+			                                            new object[] { "resource_income", "reputation_income" }));
+			mainBox.PackStart(new HSeparator(), false, false, 5);
 			mainBox.PackStart(new CellTabularListField<Structure>(territory.GetType().GetProperty("structures"), territory, context, 2));
 			Add(mainBox);
 

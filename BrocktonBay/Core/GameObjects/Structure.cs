@@ -26,7 +26,7 @@ namespace Parahumans.Core {
 			ID = structure.ID;
 			location = structure.location;
 			type = structure.type;
-			buffs = structure.buffs;
+			buffs = structure.combat_buffs;
 		}
 
 	}
@@ -45,24 +45,41 @@ namespace Parahumans.Core {
 		public StructureType type { get; set; }
 
 		[BimorphicDisplayable(5, typeof(TabularContainerField), typeof(LinearContainerField),
-		                      "strength_buff", "resource_buff", "reputation_buff" ), EmphasizedIfVertical]
-		public int[] buffs {
+		                      "strength_buff", "stealth_buff", "insight_buff" ), EmphasizedIfVertical]
+		public int[] combat_buffs {
 			get {
-				return new int[] { strength_buff, resource_buff, reputation_buff };
+				return new int[] { strength_buff, stealth_buff, insight_buff };
 			}
 			set {
 				strength_buff = value[0];
-				resource_buff = value[1];
-				reputation_buff = value[2];
+				stealth_buff = value[1];
+				insight_buff = value[2];
 			}
 		}
 
-		[Child("Combat Strength"), Displayable(0, typeof(IntField))]
+		[Child("Strength"), Displayable(0, typeof(IntField))]
 		public int strength_buff { get; set; }
-		[Child("Resource Income"), Displayable(0, typeof(IntField))]
-		public int resource_buff { get; set; }
-		[Child("Reputation Income"), Displayable(0, typeof(IntField))]
-		public int reputation_buff { get; set; }
+		[Child("Stealth"), Displayable(0, typeof(IntField))]
+		public int stealth_buff { get; set; }
+		[Child("Insight"), Displayable(0, typeof(IntField))]
+		public int insight_buff { get; set; }
+
+		[BimorphicDisplayable(6, typeof(TabularContainerField), typeof(LinearContainerField),
+							  "resource_income", "reputation_income"), EmphasizedIfVertical]
+		public int[] incomes {
+			get {
+				return new int[] { resource_income, reputation_income };
+			}
+			set {
+				resource_income = value[0];
+				reputation_income = value[1];
+			}
+		}
+
+		[Child("Resources"), Displayable(0, typeof(IntField))]
+		public int resource_income { get; set; }
+		[Child("Reputation"), Displayable(0, typeof(IntField))]
+		public int reputation_income { get; set; }
 
 		//[Displayable(7, typeof(ObjectField)), ForceHorizontal, Padded(10, 10, 10, 10), Emphasized]
 		public GameEvent ongoing_event { get; set; }
@@ -77,7 +94,7 @@ namespace Parahumans.Core {
 			ID = data.ID;
 			location = data.location;
 			type = data.type;
-			buffs = data.buffs;
+			combat_buffs = data.buffs;
 			attack = new GameAction {
 				name = "Attack",
 				description = "Launch an attack on " + name,
@@ -91,6 +108,11 @@ namespace Parahumans.Core {
 					return Game.phase == Phase.Action && ongoing_event == null;
 				}
 			};
+		}
+
+		public int[] GetCombatBuffs (Context context) {
+			int[] buffs = (int[])combat_buffs.Clone();
+			return buffs;
 		}
 
 		public override Widget GetHeader (Context context) {
@@ -128,9 +150,9 @@ namespace Parahumans.Core {
 		}
 
 		public override Widget GetCellContents (Context context) {
-			Label label = new Label("Strength +" + strength_buff + "\n" +
-			                        "Resources +" + resource_buff + "\n" +
-			                        "Reputation +" + reputation_buff);
+			Label label = new Label("Strength " + strength_buff.ToString("+#;-#;+0") + "\n" +
+			                        "Resources " + stealth_buff.ToString("+#;-#;+0") + "\n" +
+			                        "Reputation " + insight_buff.ToString("+#;-#;+0"));
 			label.Justify = Justification.Left;
 			return new Gtk.Alignment(0, 0, 1, 0) { Child = label, BorderWidth = 10 };
 		}

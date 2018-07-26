@@ -4,14 +4,22 @@ using Gtk;
 
 namespace Parahumans.Core {
 
-	public abstract class ReadonlyField : Label {
+	public abstract class ReadonlyField : Label, LabelOverridable {
 		protected PropertyInfo property;
 		protected object obj;
+		Context context;
+		string text;
 		public ReadonlyField (PropertyInfo property, object obj, Context context, object arg) {
 			this.property = property;
 			this.obj = obj;
-			Text = UIFactory.ToReadable(property.Name) + ": " + GetValueAsString();
+			this.context = context;
+			text = GetValueAsString();
+			Text = (context.compact ? "" : UIFactory.ToReadable(property.Name) + ": ") + text;
 			SetAlignment(0, 0.5f);
+		}
+		public void OverrideLabel (string newLabel) {
+			if (!context.compact)
+				Text = newLabel + ": " + text;
 		}
 		protected abstract string GetValueAsString ();
 	}
