@@ -240,7 +240,7 @@ namespace Parahumans.Core {
 									 (int)(pupilRadius * 2), (int)(pupilRadius * 2), 0, FULL_CIRCLE);
 			 */
 
-			if (iconified is GameEventType) {
+			if (iconified is IBattleground) {
 				//The background is black this time
 				color.DrawRectangle(black, true, new Rectangle(0, 0, (int)size, (int)size));
 				mask.DrawRectangle(invisible, true, new Rectangle(0, 0, (int)size, (int)size));

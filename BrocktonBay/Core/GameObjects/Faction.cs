@@ -146,7 +146,8 @@ namespace Parahumans.Core {
 			return false;
 		}
 
-		public override bool Accepts (object obj) => obj is Parahuman || obj is Team || /*obj is Asset ||*/ obj is Territory;
+		public override bool Accepts (object obj) => (obj is Parahuman || obj is Team || obj is Territory)
+													 && ((IAffiliated)obj).affiliation == affiliation;
 
 		public override void AddRange<T> (List<T> objs) { //It is assumed that the invoker has already checked if we Accept(obj).
 			foreach (object element in objs) {

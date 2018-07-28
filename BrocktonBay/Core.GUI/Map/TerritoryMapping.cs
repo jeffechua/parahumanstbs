@@ -18,7 +18,7 @@ namespace Parahumans.Core {
 		public Image zone;
 		public Widget line;
 		public Window popup;
-		public ClickableEventBox eventIndicator;
+		public ClickableEventBox alert;
 		public Vector2 scaledPosition;
 
 		public Territory territory;
@@ -60,6 +60,7 @@ namespace Parahumans.Core {
 			};
 
 			DependencyManager.Connect(territory, this);
+			DependencyManager.Connect(Game.UIKey, this);
 
 		}
 
@@ -99,21 +100,15 @@ namespace Parahumans.Core {
 				location = territory.location;
 				Repin();
 			}
-			if (territory.ongoing_event == null && eventIndicator != null) {
-				map.stage.Remove(eventIndicator);
-				eventIndicator.Destroy();
-				eventIndicator = null;
-			} else if (territory.ongoing_event != null && eventIndicator == null) {
-				Image icon = Graphics.GetIcon(territory.ongoing_event.type, new Gdk.Color(230, 0, 0), markerHeight);
-				eventIndicator = new ClickableEventBox { Child = icon };
-				eventIndicator.Clicked += delegate {
-					SecondaryWindow eventWindow = new SecondaryWindow("Event at " + territory.name);
-					eventWindow.SetMainWidget(new EventInterface(territory.ongoing_event));
-					eventWindow.ShowAll();
-				};
-				eventIndicator.VisibleWindow = false;
+			if (territory.attacker != null) {
+				if (alert != null) alert.Destroy();
+				alert = Core.Map.NewAlert(territory);
 				Vector2 pos = scaledPosition - new Vector2(markerHeight / 2, markerHeight * 2 + markerWidth * 1 / 3);
-				map.stage.Put(eventIndicator, (int)pos.x, (int)pos.y);
+				map.stage.Put(alert, (int)pos.x, (int)pos.y);
+			} else if (alert != null) {
+				map.stage.Remove(alert);
+				alert.Destroy();
+				alert = null;
 			}
 		}
 

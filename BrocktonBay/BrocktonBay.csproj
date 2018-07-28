@@ -46,7 +46,7 @@
     <Compile Include="Core.GUI\MiscWidgets.cs" />
     <Compile Include="Core.GUI\Inspector\ObjectFields.cs" />
     <Compile Include="Core.GUI\Inspector\PrimitiveFields.cs" />
-    <Compile Include="Core.GUI\EventInterface.cs" />
+    <Compile Include="Core.GUI\BattleInterface.cs" />
     <Compile Include="Core.GUI\Inspector\FieldGizmos.cs" />
     <Compile Include="Core.GUI\Search.cs" />
     <Compile Include="Core.GUI\Windows.cs" />
@@ -56,7 +56,7 @@
     <Compile Include="Core.GUI\Graphics.cs" />
     <Compile Include="Core.GUI\UIFactory.cs" />
     <Compile Include="Core\Battle\Deployment.cs" />
-    <Compile Include="Core\Battle\GameEvent.cs" />
+    <Compile Include="Core\Battle\Battle.cs" />
     <Compile Include="Core.GUI\GUICaching.cs" />
     <Compile Include="IO.cs" />
     <Compile Include="Core.GUI\MainInterface.cs" />
@@ -71,7 +71,7 @@
     <Compile Include="Core.GUI\Map\Map.cs" />
     <Compile Include="Core.GUI\Map\TerritoryMapping.cs" />
     <Compile Include="Core.GUI\Map\StructureMapping.cs" />
-    <Compile Include="Core\Battle\EventLocation.cs" />
+    <Compile Include="Core\Battle\IBattleground.cs" />
     <Compile Include="Core\UtilityObjects.cs" />
     <Compile Include="MyDragDrop.cs" />
     <Compile Include="PlatformDetection.cs" />

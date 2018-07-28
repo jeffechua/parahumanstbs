@@ -6,27 +6,27 @@ namespace Parahumans.Core {
 	public struct GameAction {
 		public string name;
 		public string description;
-		public Action action;
+		public Action<Context> action;
 		public Func<Context, bool> condition;
 	}
 
 	public struct Context {
 
-		public IAgent requester;
+		public IAgent agent;
 		public object UIContext;
 		public bool vertical;
 		public bool compact;
 
 		//Convenience properties and methods for on-the-go modifications.
-		public Context butCompact { get { return new Context(requester, UIContext, vertical, true); } }
-		public Context butVertical { get { return new Context(requester, UIContext, true, compact); } }
-		public Context butNotCompact { get { return new Context(requester, UIContext, vertical, false); } }
-		public Context butHorizontal { get { return new Context(requester, UIContext, false, compact); } }
+		public Context butCompact { get { return new Context(agent, UIContext, vertical, true); } }
+		public Context butVertical { get { return new Context(agent, UIContext, true, compact); } }
+		public Context butNotCompact { get { return new Context(agent, UIContext, vertical, false); } }
+		public Context butHorizontal { get { return new Context(agent, UIContext, false, compact); } }
 		public Context butRequestedBy (IAgent newRequester) => new Context(newRequester, UIContext, vertical, compact);
-		public Context butKnownBy (Dossier newKnowledge) => new Context(requester, newKnowledge, vertical, compact);
+		public Context butKnownBy (Dossier newKnowledge) => new Context(agent, newKnowledge, vertical, compact);
 
 		public Context (IAgent requester, object UIContext, bool vertical = true, bool compact = false) {
-			this.requester = requester;
+			this.agent = requester;
 			this.UIContext = UIContext;
 			this.vertical = vertical;
 			this.compact = compact;

@@ -16,7 +16,7 @@ namespace Parahumans.Core {
 		public Image markerImage;
 		public Widget line;
 		public Window popup;
-		public ClickableEventBox eventIndicator;
+		public ClickableEventBox alert;
 		public Vector2 scaledPosition;
 
 		public Structure structure;
@@ -57,6 +57,7 @@ namespace Parahumans.Core {
 			};
 
 			DependencyManager.Connect(structure, this);
+			DependencyManager.Connect(Game.UIKey, this);
 			if (structure.parent != null) DependencyManager.Connect(structure.parent, this);
 
 		}
@@ -83,22 +84,15 @@ namespace Parahumans.Core {
 				location = structure.location;
 				Repin();
 			}
-			if (structure.ongoing_event == null && eventIndicator != null) {
-				map.stage.Remove(eventIndicator);
-				eventIndicator.Destroy();
-				eventIndicator = null;
-			} else if (structure.ongoing_event != null && eventIndicator == null) {
-				int iconSize = markerSize * 6 / 5;
-				Image icon = Graphics.GetIcon(structure.ongoing_event.type, new Gdk.Color(230, 120, 0), iconSize);
-				eventIndicator = new ClickableEventBox { Child = icon };
-				eventIndicator.Clicked += delegate {
-					SecondaryWindow eventWindow = new SecondaryWindow("Event at " + structure.name);
-					eventWindow.SetMainWidget(new EventInterface(structure.ongoing_event));
-					eventWindow.ShowAll();
-				};
-				eventIndicator.VisibleWindow = false;
-				Vector2 pos = scaledPosition - new Vector2(iconSize / 2, markerSize * 2);
-				map.stage.Put(eventIndicator, (int)pos.x, (int)pos.y);
+			if (structure.attacker != null) {
+				if (alert != null) alert.Destroy();
+				alert = Core.Map.NewAlert(structure);
+				Vector2 pos = scaledPosition - new Vector2(markerSize * 3 / 5, markerSize * 2);
+				map.stage.Put(alert, (int)pos.x, (int)pos.y);
+			} else if (alert != null) {
+				map.stage.Remove(alert);
+				alert.Destroy();
+				alert = null;
 			}
 		}
 
@@ -128,7 +122,7 @@ namespace Parahumans.Core {
 			mainBox.PackStart(UIFactory.Align(new Label("Type: " + structure.type), 0, 0, 0, 1));
 			mainBox.PackStart(new HSeparator(), false, false, 5);
 			mainBox.PackStart(new TabularContainerField(structure.GetType().GetProperty("combat_buffs"), structure, context,
-			                                            new object[] { "strength_buff", "stealth_buff", "insight_buff" }));
+														new object[] { "strength_buff", "stealth_buff", "insight_buff" }));
 			mainBox.PackStart(new HSeparator(), false, false, 5);
 			mainBox.PackStart(new TabularContainerField(structure.GetType().GetProperty("incomes"), structure, context,
 														new object[] { "resource_income", "reputation_income" }));

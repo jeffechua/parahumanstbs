@@ -19,7 +19,7 @@ namespace Parahumans.Core {
 		Context context;
 
 		public TabularContainerField (PropertyInfo property, object obj, Context context, object arg) : base(1, 1, false) {
-			
+
 			// arg ought to be a string[] containing the names of child properties. Here we turn it into a list and
 			// use ConvertAll() to obtain the list of actual PropertyInfos.
 			children = new List<object>((object[])arg).ConvertAll((input) => obj.GetType().GetProperty((string)input));
@@ -377,7 +377,7 @@ namespace Parahumans.Core {
 			alignment.BorderWidth = 10;
 			TooltipText = action.description;
 			Sensitive = action.condition(context);
-			Clicked += (o, a) => action.action();
+			Clicked += (o, a) => action.action(context);
 		}
 
 	}

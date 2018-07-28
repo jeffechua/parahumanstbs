@@ -311,6 +311,12 @@ namespace Parahumans.Core {
 			}
 		}
 
+		public RatingsProfile Clone () {
+			RatingsProfile profile = new RatingsProfile(o_vals);
+			profile.bonuses = this.bonuses;
+			return profile;
+		}
+
 		public static RatingsProfile operator * (RatingsProfile primary, RatingsProfile secondary) {
 			float[,] values = primary.values;
 			float[,] change = Ratings.NullToZero(secondary.values);

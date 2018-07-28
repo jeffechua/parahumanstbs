@@ -54,7 +54,7 @@ namespace Parahumans.Core {
 		public abstract InvocationTrigger trigger { get; }
 
 		public bool Known (Context context) {
-			return (context.requester == Game.player && Game.omniscient) || context.requester.knowledge[parent] >= secrecy;
+			return (context.agent == Game.player && Game.omniscient) || context.agent.knowledge[parent] >= secrecy;
 		}
 
 		public GameObject parent;

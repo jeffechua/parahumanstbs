@@ -27,9 +27,12 @@ namespace Parahumans.Core {
 
 	}
 
-	public class Territory : GameObject, IContainer, EventLocation {
+	public class Territory : GameObject, IContainer, IBattleground {
 
 		public override int order { get { return 2; } }
+		public Attack attacker { get; set; }
+		public Defense defender { get; set; }
+		public Battle battle { get; set; }
 
 		[Displayable(2, typeof(IntVector2Field)), PlayerInvisible]
 		public IntVector2 location { get; set; }
@@ -83,9 +86,6 @@ namespace Parahumans.Core {
 		[Displayable(8, typeof(CellTabularListField<Structure>), 2), Emphasized, PlayerEditable(Phase.Mastermind)]
 		public List<Structure> structures { get; set; }
 
-		//[Displayable(7, typeof(ObjectField)), ForceHorizontal, Padded(10, 10, 10, 10), Emphasized]
-		public GameEvent ongoing_event { get; set; }
-
 		[Displayable(9, typeof(ActionField)), Padded(20, 20, 20, 20), VerticalOnly]
 		public GameAction attack { get; set; }
 
@@ -105,14 +105,14 @@ namespace Parahumans.Core {
 			attack = new GameAction {
 				name = "Attack",
 				description = "Launch an attack on " + name,
-				action = delegate {
-					ongoing_event = new GameEvent(this);
-					DependencyManager.Connect(ongoing_event, this);
-					DependencyManager.Flag(ongoing_event);
+				action = delegate (Context context) {
+					attacker = new Attack(this, BattleObjective.Raid, context.agent);
+					DependencyManager.Connect(this, attacker);
+					DependencyManager.Flag(this);
 					DependencyManager.TriggerAllFlags();
 				},
 				condition = delegate (Context context) {
-					return Game.phase == Phase.Action && ongoing_event == null;
+					return Game.phase == Phase.Action && attacker == null;
 				}
 			};
 		}
@@ -121,7 +121,7 @@ namespace Parahumans.Core {
 			structures.Sort();
 			combat_buffs = new int[3];
 			incomes = new int[2];
-			foreach(Structure structure in structures){
+			foreach (Structure structure in structures) {
 				strength_buff += structure.strength_buff;
 				stealth_buff += structure.stealth_buff;
 				insight_buff += structure.insight_buff;
@@ -181,7 +181,7 @@ namespace Parahumans.Core {
 			//The Alignment makes the highlight actually appear at the 3:7 point in the margin.
 		}
 
-		public override bool Accepts (object obj) => obj is Structure;
+		public override bool Accepts (object obj) => obj is Structure && ((IAffiliated)obj).affiliation == affiliation;
 		public override bool Contains (object obj) => obj is Structure && structures.Contains((Structure)obj);
 
 		public override void AddRange<T> (List<T> objs) {

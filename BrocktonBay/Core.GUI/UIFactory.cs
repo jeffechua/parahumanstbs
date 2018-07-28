@@ -188,8 +188,8 @@ namespace Parahumans.Core {
 
 		public static bool CurrentlyEditable (PropertyInfo property, object obj) {
 			if (Game.omnipotent) return true;
-			if (Game.phase != Phase.Mastermind) return false;
-			if (obj is IAffiliated && ((IAffiliated)obj).affiliation != Game.player) return false;
+			IAffiliated affiliated = obj as IAffiliated;
+			if (affiliated != null && affiliated.affiliation != null && affiliated.affiliation != Game.player) return false;
 			PlayerEditableAttribute editableAttribute = (PlayerEditableAttribute)property.GetCustomAttribute(typeof(PlayerEditableAttribute));
 			if (editableAttribute == null) return false;
 			return editableAttribute.currentlyEditable;

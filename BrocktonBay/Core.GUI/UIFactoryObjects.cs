@@ -11,7 +11,7 @@ namespace Parahumans.Core {
 		public DisplayableAttribute (int order, Type widget, params object[] arg) {
 			this.order = order;
 			this.widget = widget;
-			switch(arg.Length) {
+			switch (arg.Length) {
 				case 0:
 					this.arg = null;
 					break;
@@ -70,14 +70,8 @@ namespace Parahumans.Core {
 
 	public class PlayerEditableAttribute : Attribute {
 		public Phase editablePhases;
-		public bool currentlyEditable {
-			get {
-				return editablePhases == Phase.All || editablePhases == Game.phase;
-			}
-		}
-		public PlayerEditableAttribute (Phase phases) {
-			editablePhases = phases;
-		}
+		public bool currentlyEditable { get => editablePhases == Phase.All || editablePhases == Game.phase; }
+		public PlayerEditableAttribute (Phase phases) => editablePhases = phases;
 	}
 
 	public class PlayerInvisibleAttribute : Attribute { }

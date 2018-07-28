@@ -4,16 +4,16 @@ using System.Collections.Generic;
 
 namespace Parahumans.Core {
 
-	public class EventInterface : HBox, IDependable {
+	public class BattleInterface : HBox, IDependable {
 
 		public int order { get { return 6; } }
 		public bool destroyed { get; set; }
 		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 
-		public GameEvent gameEvent;
+		public Battle gameEvent;
 
-		public EventInterface (GameEvent gameEvent) {
+		public BattleInterface (Battle gameEvent) {
 			this.gameEvent = gameEvent;
 			DependencyManager.Connect(gameEvent, this);
 			Reload();
@@ -23,11 +23,11 @@ namespace Parahumans.Core {
 			while (Children.Length > 0)
 				Children[0].Destroy();
 
-			PackStart(GenerateDeploymentInterface(gameEvent.initiators, "Initiators"), true, true, 0);
+			PackStart(GenerateDeploymentInterface(gameEvent.attackers, "Initiators"), true, true, 0);
 			PackStart(new VSeparator(), false, false, 0);
 			PackStart(GenerateEventCenter(), true, true, 0);
 			PackStart(new VSeparator(), false, false, 0);
-			PackStart(GenerateDeploymentInterface(gameEvent.responders, "Responders"), true, true, 0);
+			PackStart(GenerateDeploymentInterface(gameEvent.defenders, "Responders"), true, true, 0);
 			ShowAll();
 		}
 

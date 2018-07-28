@@ -26,7 +26,7 @@ namespace Parahumans.Core {
 			=> effect = data.effect;
 
 		public override object Invoke (Context context, object obj) {
-			if (Known(context) && context.requester != parent.affiliation)
+			if (Known(context) && context.agent != parent.affiliation)
 				return (RatingsProfile)obj * difference;
 			return obj;
 		}
@@ -61,7 +61,7 @@ namespace Parahumans.Core {
 			=> effect = data.effect;
 
 		public override object Invoke (Context context, object obj) {
-			if (Known(context) && context.requester != parent.affiliation)
+			if (Known(context) && context.agent != parent.affiliation)
 				return trueform;
 			return obj;
 		}

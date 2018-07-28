@@ -138,6 +138,38 @@ namespace Parahumans.Core {
 			ShowAll();
 		}
 
+		public static ClickableEventBox NewAlert (IBattleground battleground) {
+			Gtk.Image icon;
+			if (battleground is Structure) {
+				icon = Graphics.GetIcon(battleground, new Color(230, 120, 0), StructureMarker.markerSize * 6 / 5);
+			} else { //battleground is Territory
+				icon = Graphics.GetIcon(battleground, new Color(230, 0, 0), TerritoryMarker.markerHeight);
+			}
+			ClickableEventBox alert;
+			switch (Game.phase) {
+				case Phase.Action:
+					alert = new InspectableBox(icon, battleground.attacker);
+					alert.Clicked += (o, a) => Inspector.InspectInNearestInspector(battleground.attacker, alert);
+					break;
+				case Phase.Response:
+					if (battleground.defender == null) battleground.defender = new Defense(battleground, Game.player);
+					alert = new InspectableBox(icon, battleground.defender);
+					alert.Clicked += (o, a) => Inspector.InspectInNearestInspector(battleground.defender, alert);
+					break;
+				default:
+					if (battleground.battle == null) battleground.battle = new Battle(battleground, battleground.attacker, battleground.defender);
+					alert = new ClickableEventBox { Child = icon };
+					alert.Clicked += delegate {
+						SecondaryWindow eventWindow = new SecondaryWindow("Battle at " + battleground.name);
+						eventWindow.SetMainWidget(new BattleInterface(battleground.battle));
+						eventWindow.ShowAll();
+					};
+					break;
+			}
+			alert.VisibleWindow = false;
+			return alert;
+		}
+
 	}
 
 }

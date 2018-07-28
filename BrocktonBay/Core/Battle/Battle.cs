@@ -4,11 +4,14 @@ using System.Collections.Generic;
 
 namespace Parahumans.Core {
 
-	public enum GameEventType {
-		Attack = 0
+	public enum BattleObjective {
+		Raid = 0,
+		Destroy = 1,
+		RaidAndDestroy = 2,
+		Defend = -1,
 	}
 
-	public sealed class GameEvent : IGUIComplete {
+	public sealed class Battle : IGUIComplete {
 
 		public int order { get { return 5; } }
 		public bool destroyed { get; set; }
@@ -16,112 +19,124 @@ namespace Parahumans.Core {
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 
 		public Deployment[] deployments;
-		public Deployment initiators { get { return deployments[0]; } set { deployments[0] = value; } }
-		public Deployment responders { get { return deployments[1]; } set { deployments[1] = value; } }
+		public Deployment attackers { get { return deployments[0]; } set { deployments[0] = value; } }
+		public Deployment defenders { get { return deployments[1]; } set { deployments[1] = value; } }
 		public EffectiveRatingsProfile[] profiles;
 
 		public string name { get { return "Event at " + location.name; } }
 
-		[Displayable(0, typeof(EnumField<GameEventType>))]
-		public GameEventType type;
+		[Displayable(0, typeof(EnumField<BattleObjective>))]
+		public BattleObjective type;
 
 		[Displayable(1, typeof(ObjectField)), ForceHorizontal]
-		public EventLocation location;
+		public IBattleground location;
 
 
 
 		[Displayable(2, typeof(EffectiveRatingsMultiview)), EmphasizedAttribute, Expand]
-		public EffectiveRatingsProfile initiator_profile { get { return profiles[0]; } set { profiles[0] = value; } }
+		public EffectiveRatingsProfile attacker_profile { get { return profiles[0]; } set { profiles[0] = value; } }
 
 		[BimorphicDisplayable(3, typeof(TabularContainerField), typeof(LinearContainerField),
-							  "initiator_strength", "initiator_stealth", "initiator_insight"), EmphasizedIfVertical]
-		public Expression[] initiator_stats {
+							  "attacker_strength", "attacker_stealth", "attacker_insight"), EmphasizedIfVertical]
+		public Expression[] attacker_stats {
 			get {
-				return new Expression[] { initiator_strength, initiator_stealth, initiator_insight };
+				return new Expression[] { attacker_strength, attacker_stealth, attacker_insight };
 			}
 			set {
-				initiator_strength = value[0];
-				initiator_stealth = value[1];
-				initiator_insight = value[2];
+				attacker_strength = value[0];
+				attacker_stealth = value[1];
+				attacker_insight = value[2];
 			}
 		}
 		[Child("Strength"), Displayable(0, typeof(ExpressionField)), TooltipText("β + δ + ½Σ + ½ψ + bonuses\n× force multiplier")]
-		public Expression initiator_strength { get; set; }
+		public Expression attacker_strength { get; set; }
 		[Child("Stealth"), Displayable(0, typeof(ExpressionField)), TooltipText("μ + φ + bonuses")]
-		public Expression initiator_stealth { get; set; }
+		public Expression attacker_stealth { get; set; }
 		[Child("Insight"), Displayable(0, typeof(ExpressionField)), TooltipText("ξ + Ω + bonuses")]
-		public Expression initiator_insight { get; set; }
+		public Expression attacker_insight { get; set; }
 
 		[Displayable(4, typeof(FractionsBar), false), TooltipText("Injury chance = STR<sub>enemy</sub> / STR<sub>total</sub> / 2"), Emphasized]
-		public Fraction[] initiator_injury { get; set; } //Chance of being injured, per member
+		public Fraction[] attacker_injury { get; set; } //Chance of being injured, per member
 		[Displayable(5, typeof(FractionsBar), false), TooltipText("Captured chance = INS<sub>enemy</sub> / STL<sub>self</sub> / 4"), Emphasized]
-		public Fraction[] initiator_escape { get; set; } //Chance of escaping, per member
+		public Fraction[] attacker_escape { get; set; } //Chance of escaping, per member
 
 		[Displayable(6, typeof(Banner)), Emphasized, Padded(25, 25)]
 		public string projected_victor { get; set; }
 
 		[Displayable(7, typeof(FractionsBar), false), TooltipText("Injury chance = STR<sub>enemy</sub> / STR<sub>total</sub> / 2"), Emphasized]
-		public Fraction[] responder_injury { get; set; } //Chance of being injured, per member
+		public Fraction[] defender_injury { get; set; } //Chance of being injured, per member
 		[Displayable(8, typeof(FractionsBar), false), TooltipText("Capture chance = INS<sub>enemy</sub> / STL<sub>self</sub> / 4"), Emphasized]
-		public Fraction[] responder_escape { get; set; } //Chance of capture, per member
+		public Fraction[] defender_escape { get; set; } //Chance of capture, per member
 
 		[BimorphicDisplayable(9, typeof(TabularContainerField), typeof(LinearContainerField),
-							  "responder_strength", "responder_stealth", "responder_insight"), EmphasizedIfVertical]
-		public Expression[] responder_stats {
+							  "defender_strength", "defender_stealth", "defender_insight"), EmphasizedIfVertical]
+		public Expression[] defender_stats {
 			get {
-				return new Expression[] { responder_strength, responder_stealth, responder_insight };
+				return new Expression[] { defender_strength, defender_stealth, defender_insight };
 			}
 			set {
-				responder_strength = value[0];
-				responder_stealth = value[1];
-				responder_insight = value[2];
+				defender_strength = value[0];
+				defender_stealth = value[1];
+				defender_insight = value[2];
 			}
 		}
 		[Child("Strength"), Displayable(0, typeof(ExpressionField)), TooltipText("β + δ + ½Σ + ½ψ + bonuses\n× force multiplier")]
-		public Expression responder_strength { get; set; }
+		public Expression defender_strength { get; set; }
 		[Child("Stealth"), Displayable(0, typeof(ExpressionField)), TooltipText("μ + φ + bonuses")]
-		public Expression responder_stealth { get; set; }
+		public Expression defender_stealth { get; set; }
 		[Child("Insight"), Displayable(0, typeof(ExpressionField)), TooltipText("ξ + Ω + bonuses")]
-		public Expression responder_insight { get; set; }
+		public Expression defender_insight { get; set; }
 
 		[Displayable(10, typeof(EffectiveRatingsMultiview)), Emphasized, Expand]
-		public EffectiveRatingsProfile responder_profile { get { return profiles[1]; } set { profiles[1] = value; } }
+		public EffectiveRatingsProfile defender_profile { get { return profiles[1]; } set { profiles[1] = value; } }
 
 
 
 
 		public Dossier apparentKnowledge;
 
-		public GameEvent (EventLocation location) {
+		public Battle (IBattleground location, Deployment attackers, Deployment defenders) {
 			this.location = location;
-			deployments = new Deployment[] { new Deployment(), new Deployment() };
+			type = attackers.objective;
+			deployments = new Deployment[] { attackers, defenders };
 			profiles = new EffectiveRatingsProfile[2];
-			DependencyManager.Connect(initiators, this);
-			DependencyManager.Connect(responders, this);
+			DependencyManager.Connect(attackers, this);
+			DependencyManager.Connect(defenders, this);
 			Reload();
 		}
 
+		/*
+		public Battle (Battleground location) {
+			this.location = location;
+			deployments = new Deployment[] { new Deployment(), new Deployment() };
+			profiles = new EffectiveRatingsProfile[2];
+			DependencyManager.Connect(attackers, this);
+			DependencyManager.Connect(defenders, this);
+			Reload();
+		}
+		*/
+
 		public void Reload () {
 
-			RatingsProfile initiator_base_profile = initiators.ratings(new Context(responders.affiliation, initiators));
-			RatingsProfile responder_base_profile = responders.ratings(new Context(initiators.affiliation, responders));
-			initiator_profile = CompareProfiles(initiator_base_profile, responder_base_profile);
-			responder_profile = CompareProfiles(responder_base_profile, initiator_base_profile);
+			RatingsProfile attacker_base_profile = attackers.ratings(new Context(defenders.affiliation, attackers));
+			RatingsProfile defender_base_profile = defenders.ratings(new Context(attackers.affiliation, defenders));
+			attacker_profile = CompareProfiles(attacker_base_profile, defender_base_profile);
+			defender_profile = CompareProfiles(defender_base_profile, attacker_base_profile);
 
-			initiator_stats = GetStats(0);
-			responder_stats = GetStats(1);
+			attacker_stats = GetStats(0);
+			defender_stats = GetStats(1);
 
 			projected_victor = "Projected Victor:<small><small>\n\n</small></small><big>" +
-							   ((initiator_strength.result >= responder_strength.result) ?
-								"<big>INITIATORS</big>" + (initiators.affiliation == null ? "" : "\n" + initiators.affiliation.name) :
-								"<big>RESPONDERS</big>" + (responders.affiliation == null ? "" : "\n" + responders.affiliation.name))
+							   ((attacker_strength.result >= defender_strength.result) ?
+								"<big>INITIATORS</big>" + (attackers.affiliation == null ? "" : "\n" + attackers.affiliation.name) :
+								"<big>RESPONDERS</big>" + (defenders.affiliation == null ? "" : "\n" + defenders.affiliation.name))
 								+ "</big>";
 
 			Tuple<Fraction[], Fraction[]> fractions;
-			fractions = CompareStats(initiator_stats, responder_stats, responders.authorized_force);
-			initiator_injury = fractions.Item1; initiator_escape = fractions.Item2;
-			fractions = CompareStats(responder_stats, initiator_stats, initiators.authorized_force);
-			responder_injury = fractions.Item1; responder_escape = fractions.Item2;
+			fractions = CompareStats(attacker_stats, defender_stats, defenders.authorized_force);
+			attacker_injury = fractions.Item1; attacker_escape = fractions.Item2;
+			fractions = CompareStats(defender_stats, attacker_stats, attackers.authorized_force);
+			defender_injury = fractions.Item1; defender_escape = fractions.Item2;
 
 		}
 
@@ -133,27 +148,15 @@ namespace Parahumans.Core {
 							   "@6 × @7 (force) = @8",
 							   "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.00", "0.0"),
 				new Expression("@0 + @1 = @2\n" +
-				               "@2 + @3 (bonus) = @4",
+							   "@2 + @3 (bonus) = @4",
 							   "0.0", "0.0", "0.0", "0.0", "0.0"),
 				new Expression("@0 + @1 = @2\n" +
-				               "@2 + @3 (bonus) = @4",
+							   "@2 + @3 (bonus) = @4",
 							   "0.0", "0.0", "0.0", "0.0", "0.0")
 			};
 
 			RatingsProfile profile = profiles[i].final;
 			float[,] values = Ratings.NullToZero(profile.values);
-
-			//Apply buffs
-			if (deployments[i].affiliation != null) {
-				int[] buffs = location.GetCombatBuffs(new Context(deployments[i].affiliation, this));
-				for (int n = 0; n < 3; n++) {
-					if (buffs[n] > 0 && deployments[i].affiliation == location.affiliation) {
-						profile.bonuses[n] += buffs[n];
-					} else if (buffs[n] < 0 && deployments[i].affiliation != location.affiliation) {
-						profile.bonuses[n] -= buffs[n];
-					}
-				}
-			}
 
 			//Strength
 			float baseStrength = values[4, 1] + values[4, 2] + values[4, 3] / 2 + values[4, 4] / 2;
@@ -235,14 +238,11 @@ namespace Parahumans.Core {
 			float[] metamultipliers = new float[5];
 
 			multipliers[0] = 1;                                     //The [0] slot is reserved for the wrapper's cosmetic rating
-			multipliers[1] = Mult(enemyValues[4, 4]) * Mult(enemyValues[4, 5]); //Brute:    Mover -10%, Striker -10%
-			multipliers[2] = Mult(enemyValues[4, 3]) * Mult(enemyValues[4, 6]); //Blaster:  Stranger -10%, Shaker -10%
-			multipliers[3] = Mult(enemyValues[4, 1]);                            //Shaker:   Brute -10%
-			multipliers[4] = Mult(enemyValues[4, 2]);                            //Striker:  Blaster -10%
-			multipliers[5] = 1;                                     //Mover:     NONE
-			multipliers[6] = 1;                                     //Stranger:  NONE
-			multipliers[7] = 1;                                     //Thinker:   NONE
-			multipliers[8] = 1;                                     //Trump:     NONE
+			multipliers[1] = Mult(enemyValues[4, 4]) * Mult(enemyValues[4, 5]);    //Brute:    Mover -10%, Striker -10%
+			multipliers[2] = Mult(enemyValues[4, 3]) * Mult(enemyValues[4, 6]);    //Blaster:  Stranger -10%, Shaker -10%
+			multipliers[3] = Mult(enemyValues[4, 1]);                              //Shaker:   Brute -10%
+			multipliers[4] = Mult(enemyValues[4, 2]);                              //Striker:  Blaster -10%
+			multipliers[5] = multipliers[6] = multipliers[7] = multipliers[8] = 1; //Mover, Stranger, Thinker, Trump: NONE
 
 			metamultipliers[0] = Mult(enemyValues[4, 8]); //Base:     Trump -10%
 			metamultipliers[1] = Mult(enemyValues[4, 4]); //Tinker:   Striker -10%
@@ -250,27 +250,19 @@ namespace Parahumans.Core {
 			metamultipliers[3] = Mult(enemyValues[4, 7]); //Breaker:  Thinker -10%
 
 			// Multiply the multipliers
-
 			int[,] finalOValues = new int[5, 9];
-
-			for (int i = 0; i < 4; i++) {
-				for (int j = 0; j < 9; j++) {
-					if (i == 3) {
-						finalOValues[i, j] = Ratings.Empower(originalValues[i, j] * metamultipliers[i]);
-						//Breakers are immune to regular multipliers, only vulnerable to its wrapper metamultiplier (Thinker)
-					} else {
-						finalOValues[i, j] = Ratings.Empower(originalValues[i, j] * multipliers[j] * metamultipliers[i]);
-					}
-				}
-			}
+			for (int i = 0; i < 4; i++)
+				for (int j = 0; j < 9; j++)
+					finalOValues[i, j] = Ratings.Empower(originalValues[i, j] * metamultipliers[i] * (i == 3 ? 1 : multipliers[j]));
+			//Breakers are immune to regular multipliers, only vulnerable to its wrapper metamultiplier (Thinker)
 
 			finalOValues = Ratings.ZeroToNull(finalOValues);
 
 			for (int i = 0; i < 9; i++) //The fourth row is the "sum" row.
 				finalOValues[4, i] = finalOValues[0, i] + finalOValues[1, i] + finalOValues[2, i] + finalOValues[3, i];
 
-
-			RatingsProfile final = new RatingsProfile(finalOValues);
+			RatingsProfile final = original.Clone();
+			final.o_vals = finalOValues;
 
 			return new EffectiveRatingsProfile(original, final, multipliers, metamultipliers);
 
@@ -292,16 +284,16 @@ namespace Parahumans.Core {
 				headerBox.PackStart(nameLabel, false, false, 0);
 
 				HBox versusBox = new HBox();
-				if (initiators.affiliation == null) {
+				if (attackers.affiliation == null) {
 					versusBox.PackStart(new Label("Nobody"));
 				} else {
-					versusBox.PackStart(initiators.affiliation.GetHeader(context.butCompact));
+					versusBox.PackStart(attackers.affiliation.GetHeader(context.butCompact));
 				}
 				versusBox.PackStart(new Label(" vs. "), false, false, 5);
-				if (responders.affiliation == null) {
+				if (defenders.affiliation == null) {
 					versusBox.PackStart(new Label("Nobody"));
 				} else {
-					versusBox.PackStart(responders.affiliation.GetHeader(context.butCompact));
+					versusBox.PackStart(defenders.affiliation.GetHeader(context.butCompact));
 				}
 				headerBox.PackStart(UIFactory.Align(versusBox, 0.5f, 0, 0, 0), false, false, 0);
 
@@ -312,16 +304,16 @@ namespace Parahumans.Core {
 		public Widget GetCellContents (Context context) {
 			VBox versusBox = new VBox();
 
-			if (initiators.affiliation == null) {
+			if (attackers.affiliation == null) {
 				versusBox.PackStart(new Label("Nobody"));
 			} else {
-				versusBox.PackStart(initiators.affiliation.GetHeader(context.butCompact));
+				versusBox.PackStart(attackers.affiliation.GetHeader(context.butCompact));
 			}
 			versusBox.PackStart(new Label(" VERSUS "));
-			if (responders.affiliation == null) {
+			if (defenders.affiliation == null) {
 				versusBox.PackStart(new Label("Nobody"));
 			} else {
-				versusBox.PackStart(responders.affiliation.GetHeader(context.butCompact));
+				versusBox.PackStart(defenders.affiliation.GetHeader(context.butCompact));
 			}
 
 			return versusBox;

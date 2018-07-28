@@ -171,8 +171,8 @@ namespace Parahumans.Core {
 			//The Alignment makes the highlight actually appear at the 3:7 point in the margin.
 		}
 
+		public override bool Accepts (object obj) => obj is Parahuman && ((IAffiliated)obj).affiliation == affiliation;
 		public override bool Contains (object obj) => obj is Parahuman && roster.Contains((Parahuman)obj);
-		public override bool Accepts (object obj) => obj is Parahuman;
 
 		public override void AddRange<T> (List<T> objs) {
 			foreach (object obj in objs) {
