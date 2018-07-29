@@ -240,29 +240,82 @@ namespace Parahumans.Core {
 									 (int)(pupilRadius * 2), (int)(pupilRadius * 2), 0, FULL_CIRCLE);
 			 */
 
-			if (iconified is IBattleground) {
+			if (iconified is AlertIconType) {
+				AlertIconType alert = (AlertIconType)iconified;
 				//The background is black this time
+				double margin = BLACK_TRIM_WIDTH * RESOLUTION_FACTOR;
 				color.DrawRectangle(black, true, new Rectangle(0, 0, (int)size, (int)size));
 				mask.DrawRectangle(invisible, true, new Rectangle(0, 0, (int)size, (int)size));
-				//The shaft
-				double width = size / 4.5;
-				double height = width * 3;
-				Vector2 corner = new Vector2(size / 2 - width / 2, 0);
-				double margin = BLACK_TRIM_WIDTH * RESOLUTION_FACTOR;
-				double width2 = width - margin * 2;
-				double height2 = height - margin * 2;
-				Vector2 corner2 = corner + new Vector2(margin, margin);
-				mask.DrawRectangle(visible, true, new Rectangle((int)corner.x, (int)corner.y, (int)width, (int)height));
-				color.DrawRectangle(colorGC, true, new Rectangle((int)corner2.x, (int)corner2.y, (int)width2, (int)height2));
-				//The bulb
-				double diameter = width;
-				double radius = diameter / 2;
-				corner = new Vector2(size / 2 - radius, size - diameter);
-				double diameter2 = diameter - margin * 2;
-				double radius2 = diameter2 / 2;
-				corner2 = corner + new Vector2(margin, margin);
-				mask.DrawArc(visible, true, (int)corner.x, (int)corner.y, (int)diameter, (int)diameter, 0, FULL_CIRCLE);
-				color.DrawArc(colorGC, true, (int)corner2.x, (int)corner2.y, (int)diameter2, (int)diameter2, 0, FULL_CIRCLE);
+				if (alert == AlertIconType.Opposed || alert == AlertIconType.Unopposed) {
+					double bsize = size * 0.15; //The antidiagonal size of the blade (width/sqrt(2))
+					Vector2 A = new Vector2(0, size - bsize);
+					Vector2 B = new Vector2(bsize, size);
+					Vector2 C = new Vector2(size - bsize, 0);
+					Vector2 D = new Vector2(size, bsize);
+					Vector2 E = new Vector2(size, 0);
+					mask.DrawPolygon(visible, true, new Point[] { A, B, D, E, C });
+					Vector2 P = new Vector2(0.05, 0.65) * size;
+					Vector2 Q = new Vector2(0.2, 0.5) * size;
+					Vector2 R = new Vector2(0.35, 0.95) * size;
+					Vector2 S = new Vector2(0.5, 0.8) * size;
+					mask.DrawPolygon(visible, true, new Point[] { P, Q, S, R });
+					double m2 = margin * Math.Sqrt(2);
+					double m3 = m2 - margin;
+					Vector2 A2 = A + new Vector2(m2, 0);
+					Vector2 B2 = B - new Vector2(0, m2);
+					Vector2 C2 = C + new Vector2(m3, margin);
+					Vector2 D2 = D - new Vector2(margin, m3);
+					Vector2 E2 = E - new Vector2(margin, -margin);
+					color.DrawPolygon(colorGC, true, new Point[] { A2, B2, D2, E2, C2 });
+					Vector2 P2 = P + new Vector2(m2, 0);
+					Vector2 Q2 = Q + new Vector2(0, m2);
+					Vector2 R2 = R - new Vector2(0, m2);
+					Vector2 S2 = S - new Vector2(m2, 0);
+					color.DrawPolygon(colorGC, true, new Point[] { P2, Q2, S2, R2 });
+					if (alert == AlertIconType.Opposed) {
+						Vector2 a = new Vector2(size, size - bsize);
+						Vector2 b = new Vector2(size - bsize, size);
+						Vector2 c = new Vector2(bsize, 0);
+						Vector2 d = new Vector2(0, bsize);
+						Vector2 e = new Vector2(0, 0);
+						mask.DrawPolygon(visible, true, new Point[] { a, b, d, e, c });
+						Vector2 p = new Vector2(0.95, 0.65) * size;
+						Vector2 q = new Vector2(0.8, 0.5) * size;
+						Vector2 r = new Vector2(0.65, 0.95) * size;
+						Vector2 s = new Vector2(0.5, 0.8) * size;
+						mask.DrawPolygon(visible, true, new Point[] { p, q, s, r });
+						Vector2 a2 = a - new Vector2(m2, 0);
+						Vector2 b2 = b - new Vector2(0, m2);
+						Vector2 c2 = c + new Vector2(-m3, margin);
+						Vector2 d2 = d - new Vector2(-margin, m3);
+						Vector2 e2 = e + new Vector2(margin, margin);
+						color.DrawPolygon(colorGC, true, new Point[] { a2, b2, d2, e2, c2 });
+						Vector2 p2 = p - new Vector2(m2, 0);
+						Vector2 q2 = q + new Vector2(0, m2);
+						Vector2 r2 = r - new Vector2(0, m2);
+						Vector2 s2 = s + new Vector2(m2, 0);
+						color.DrawPolygon(colorGC, true, new Point[] { p2, q2, s2, r2 });
+					}
+				} else {
+					//The shaft
+					double width = size / 4.5;
+					double height = width * 3;
+					Vector2 corner = new Vector2(size / 2 - width / 2, 0);
+					double width2 = width - margin * 2;
+					double height2 = height - margin * 2;
+					Vector2 corner2 = corner + new Vector2(margin, margin);
+					mask.DrawRectangle(visible, true, new Rectangle((int)corner.x, (int)corner.y, (int)width, (int)height));
+					color.DrawRectangle(colorGC, true, new Rectangle((int)corner2.x, (int)corner2.y, (int)width2, (int)height2));
+					//The bulb
+					double diameter = width;
+					double radius = diameter / 2;
+					corner = new Vector2(size / 2 - radius, size - diameter);
+					double diameter2 = diameter - margin * 2;
+					double radius2 = diameter2 / 2;
+					corner2 = corner + new Vector2(margin, margin);
+					mask.DrawArc(visible, true, (int)corner.x, (int)corner.y, (int)diameter, (int)diameter, 0, FULL_CIRCLE);
+					color.DrawArc(colorGC, true, (int)corner2.x, (int)corner2.y, (int)diameter2, (int)diameter2, 0, FULL_CIRCLE);
+				}
 			}
 
 			if (iconified is DirectionType) {

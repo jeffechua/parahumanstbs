@@ -42,7 +42,7 @@ namespace Parahumans.Core {
 		public Gdk.Color color { get { return new Gdk.Color(0, 0, 0); } }
 		public Dossier knowledge { get; set; }
 		bool _active;
-		[Displayable(2, typeof(BasicReadonlyField)), PlayerInvisible]
+		[Displayable(2, typeof(BasicReadonlyField)), LimitVisibility(Phase.None)]
 		public bool active {
 			get => _active;
 			set {

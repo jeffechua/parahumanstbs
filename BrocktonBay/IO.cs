@@ -19,7 +19,8 @@ namespace Parahumans.Core {
 			dialog.Response += delegate (object obj, ResponseArgs response) {
 				if (response.ResponseId == ResponseType.Yes)
 					IO.SelectSave();
-				action();
+				if (response.ResponseId == ResponseType.No || response.ResponseId == ResponseType.Yes)
+					action();
 			};
 			dialog.Run();
 			dialog.Destroy();

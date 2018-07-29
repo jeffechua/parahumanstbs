@@ -11,7 +11,7 @@ namespace Parahumans.Core {
 		[Displayable(0, typeof(StringField))]
 		public string name { get; set; }
 
-		[Displayable(1, typeof(IntField)), PlayerInvisible]
+		[Displayable(1, typeof(IntField)), LimitVisibility(Phase.None)]
 		public int ID { get; set; }
 
 		[Displayable(2, typeof(IntField))] //Only wrt current perspective

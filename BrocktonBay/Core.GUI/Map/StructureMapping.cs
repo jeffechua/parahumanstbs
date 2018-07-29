@@ -70,8 +70,12 @@ namespace Parahumans.Core {
 
 		public void Repin () {
 			scaledPosition = location * map.currentMagnif;
-			Vector2 stagePosition = scaledPosition - new Vector2(markerSize / 2, markerSize / 2);
-			map.stage.Move(this, (int)stagePosition.x, (int)stagePosition.y);
+			Vector2 markerCoords = scaledPosition - new Vector2(markerSize / 2, markerSize / 2);
+			map.stage.Move(this, (int)markerCoords.x, (int)markerCoords.y);
+			if (alert != null) {
+				Vector2 alertCoords = scaledPosition - new Vector2(markerSize * 3 / 5, markerSize * 2);
+				map.stage.Move(alert, (int)alertCoords.x, (int)alertCoords.y);
+			}
 		}
 
 		public void Reload () {

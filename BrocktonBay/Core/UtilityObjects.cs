@@ -43,6 +43,8 @@ namespace Parahumans.Core {
 		}
 		public static implicit operator Vector2 (IntVector2 v)
 			=> new Vector2(v.x, v.y);
+		public static implicit operator Point (Vector2 v)
+			=> v.ToPoint();
 		public static Vector2 operator + (Vector2 a, Vector2 b)
 			=> new Vector2(a.x + b.x, a.y + b.y);
 		public static Vector2 operator - (Vector2 a, Vector2 b)
@@ -56,7 +58,7 @@ namespace Parahumans.Core {
 		public override string ToString ()
 			=> "(" + x.ToString() + ", " + y.ToString() + ")";
 		public Point ToPoint ()
-		=> new Point((int)Math.Round(x), (int)Math.Round(y));
+			=> new Point((int)Math.Round(x), (int)Math.Round(y));
 	}
 
 	public struct IntVector2 {

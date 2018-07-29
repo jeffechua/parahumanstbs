@@ -84,6 +84,10 @@ namespace Parahumans.Core {
 			Vector2 zonePosition = scaledPosition - new Vector2(1, 1) * size * Game.city.territorySizeScale;
 			map.stage.Move(this, (int)stagePosition.x, (int)stagePosition.y);
 			map.stage.Move(zone, (int)zonePosition.x, (int)zonePosition.y);
+			if (alert != null) {
+				Vector2 alertCoords = scaledPosition - new Vector2(markerHeight / 2, markerHeight * 2 + markerWidth * 1 / 3);
+				map.stage.Move(alert, (int)alertCoords.x, (int)alertCoords.y);
+			}
 		}
 
 		public void Reload () {

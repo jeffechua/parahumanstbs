@@ -34,7 +34,7 @@ namespace Parahumans.Core {
 		public Defense defender { get; set; }
 		public Battle battle { get; set; }
 
-		[Displayable(2, typeof(IntVector2Field)), PlayerInvisible]
+		[Displayable(2, typeof(IntVector2Field)), LimitVisibility(Phase.None)]
 		public IntVector2 location { get; set; }
 
 		[Displayable(3, typeof(ObjectField)), ForceHorizontal]
@@ -86,8 +86,11 @@ namespace Parahumans.Core {
 		[Displayable(8, typeof(CellTabularListField<Structure>), 2), Emphasized, PlayerEditable(Phase.Mastermind)]
 		public List<Structure> structures { get; set; }
 
-		[Displayable(9, typeof(ActionField)), Padded(20, 20, 20, 20), VerticalOnly]
+		[Displayable(9, typeof(ActionField)), Padded(20, 20, 20, 20), VerticalOnly, LimitVisibility(Phase.Action)]
 		public GameAction attack { get; set; }
+
+		[Displayable(10, typeof(ActionField)), Padded(20, 20, 20, 20), VerticalOnly, LimitVisibility(Phase.Response)]
+		public GameAction defend { get; set; }
 
 		public Territory () : this(new TerritoryData()) { }
 
@@ -113,6 +116,19 @@ namespace Parahumans.Core {
 				},
 				condition = delegate (Context context) {
 					return Game.phase == Phase.Action && attacker == null;
+				}
+			};
+			defend = new GameAction {
+				name = "Defend",
+				description = "Mount a defense of " + name,
+				action = delegate (Context context) {
+					defender = new Defense(this, context.agent);
+					DependencyManager.Connect(this, defender);
+					DependencyManager.Flag(this);
+					DependencyManager.TriggerAllFlags();
+				},
+				condition = delegate (Context context) {
+					return Game.phase == Phase.Response && attacker != null && defender == null;
 				}
 			};
 		}

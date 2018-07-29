@@ -5,6 +5,12 @@ using Gdk;
 
 namespace Parahumans.Core {
 
+	public enum AlertIconType {
+		Important = 0,
+		Unopposed = 1,
+		Opposed = 2,
+	}
+
 	public class Map : EventBox, IDependable {
 
 		public int order { get { return 10; } }
@@ -140,31 +146,40 @@ namespace Parahumans.Core {
 
 		public static ClickableEventBox NewAlert (IBattleground battleground) {
 			Gtk.Image icon;
+			AlertIconType alertType;
+			if (battleground.attacker != null && battleground.defender != null) {
+				alertType = AlertIconType.Opposed;
+			} else {
+				alertType = AlertIconType.Unopposed;
+			}
 			if (battleground is Structure) {
-				icon = Graphics.GetIcon(battleground, new Color(230, 120, 0), StructureMarker.markerSize * 6 / 5);
+				icon = Graphics.GetIcon(alertType, new Color(230, 120, 0), StructureMarker.markerSize * 6 / 5);
 			} else { //battleground is Territory
-				icon = Graphics.GetIcon(battleground, new Color(230, 0, 0), TerritoryMarker.markerHeight);
+				icon = Graphics.GetIcon(alertType, new Color(230, 0, 0), TerritoryMarker.markerHeight);
 			}
 			ClickableEventBox alert;
-			switch (Game.phase) {
-				case Phase.Action:
+			if (Game.phase == Phase.Action || (Game.phase == Phase.Response && battleground.defender == null)) {
+				if (battleground.attacker.affiliation == Game.player) {
 					alert = new InspectableBox(icon, battleground.attacker);
-					alert.Clicked += (o, a) => Inspector.InspectInNearestInspector(battleground.attacker, alert);
-					break;
-				case Phase.Response:
-					if (battleground.defender == null) battleground.defender = new Defense(battleground, Game.player);
+				} else {
+					alert = new ClickableEventBox { Child = icon, active = false };
+				}
+			} else if (Game.phase == Phase.Response) {
+				if (battleground.defender.affiliation == Game.player) {
 					alert = new InspectableBox(icon, battleground.defender);
-					alert.Clicked += (o, a) => Inspector.InspectInNearestInspector(battleground.defender, alert);
-					break;
-				default:
-					if (battleground.battle == null) battleground.battle = new Battle(battleground, battleground.attacker, battleground.defender);
-					alert = new ClickableEventBox { Child = icon };
-					alert.Clicked += delegate {
-						SecondaryWindow eventWindow = new SecondaryWindow("Battle at " + battleground.name);
-						eventWindow.SetMainWidget(new BattleInterface(battleground.battle));
-						eventWindow.ShowAll();
-					};
-					break;
+				} else {
+					alert = new ClickableEventBox { Child = icon, active = false };
+				}
+			} else if (Game.phase == Phase.Mastermind) {
+				if (battleground.battle == null) battleground.battle = new Battle(battleground, battleground.attacker, battleground.defender);
+				alert = new ClickableEventBox { Child = icon };
+				alert.Clicked += delegate {
+					SecondaryWindow eventWindow = new SecondaryWindow("Battle at " + battleground.name);
+					eventWindow.SetMainWidget(new BattleInterface(battleground.battle));
+					eventWindow.ShowAll();
+				};
+			}else {
+				throw new Exception("Invalid game phase");
 			}
 			alert.VisibleWindow = false;
 			return alert;

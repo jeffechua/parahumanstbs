@@ -35,7 +35,7 @@ namespace Parahumans.Core {
 		public Dossier knowledge { get; set; }
 		public override IAgent affiliation { get => this; }
 		bool _active;
-		[Displayable(2, typeof(BasicReadonlyField)), PlayerInvisible]
+		[Displayable(2, typeof(BasicReadonlyField)), LimitVisibility(Phase.None)]
 		public bool active {
 			get => _active;
 			set {

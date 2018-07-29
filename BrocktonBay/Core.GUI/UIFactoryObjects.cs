@@ -73,8 +73,11 @@ namespace Parahumans.Core {
 		public bool currentlyEditable { get => editablePhases == Phase.All || editablePhases == Game.phase; }
 		public PlayerEditableAttribute (Phase phases) => editablePhases = phases;
 	}
-
-	public class PlayerInvisibleAttribute : Attribute { }
+	public class LimitVisibilityAttribute : Attribute {
+		public Phase visiblePhases;
+		public bool currentlyVisible { get => visiblePhases == Phase.All || visiblePhases == Game.phase; }
+		public LimitVisibilityAttribute (Phase phases) => visiblePhases = phases;
+	}
 
 	// "EmphasizedAttribute" 'emphasizes' a property in the UI, separating the from other attributes with horizontal separators and adding some padding in cases.
 	// Emphasis does not change the actual contents displayed, only the spacing and placing of the display widget relative to the surroundings.

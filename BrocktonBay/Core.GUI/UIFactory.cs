@@ -53,7 +53,10 @@ namespace Parahumans.Core {
 			//Draw each property
 			foreach (PropertyInfo property in properties) {
 
-				if (!Game.omniscient && HasAttribute(property, typeof(PlayerInvisibleAttribute))) continue;
+				if (!Game.omniscient) {
+					LimitVisibilityAttribute visibility = (LimitVisibilityAttribute)property.GetCustomAttribute(typeof(LimitVisibilityAttribute));
+					if (visibility!=null && !visibility.currentlyVisible) continue;
+				}
 
 				//Load up attributes
 				DisplayableAttribute attr = (DisplayableAttribute)property.GetCustomAttribute(typeof(DisplayableAttribute));
@@ -136,7 +139,10 @@ namespace Parahumans.Core {
 
 			foreach (PropertyInfo property in properties) {
 
-				if (!Game.omniscient && HasAttribute(property, typeof(PlayerInvisibleAttribute))) continue;
+				if (!Game.omniscient) {
+					LimitVisibilityAttribute visibility = (LimitVisibilityAttribute)property.GetCustomAttribute(typeof(LimitVisibilityAttribute));
+					if (visibility!=null && !visibility.currentlyVisible) continue;
+				}
 				if (property.GetCustomAttribute(typeof(VerticalOnlyAttribute)) != null) continue;
 
 				//Load attributes
