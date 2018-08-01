@@ -4,7 +4,7 @@ using Gtk;
 
 namespace Parahumans.Core {
 
-	public sealed class DialogTextEditableField : VBox, LabelOverridable {
+	public sealed class DialogTextEditableField : VBox {
 
 		PropertyInfo property;
 		IDependable obj;
@@ -12,7 +12,7 @@ namespace Parahumans.Core {
 		Context context;
 		bool editable;
 
-		public DialogTextEditableField (PropertyInfo property, object obj, Context context, object arg) : base(false, 2) {
+		public DialogTextEditableField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute) : base(false, 2) {
 
 			this.property = property;
 			this.obj = (IDependable)obj;
@@ -20,12 +20,13 @@ namespace Parahumans.Core {
 			editable = UIFactory.CurrentlyEditable(property, obj);
 
 			if (!context.compact) {
-				Label label = new Label(context.compact ? "" : (UIFactory.ToReadable(property.Name) + ": "));
+				Label label = new Label((attribute.overrideLabel == "" ?
+										 UIFactory.ToReadable(property.Name) :
+				                         attribute.overrideLabel) + ": ");
 				label.SetAlignment(0, 1);
-				TooltipTextAttribute tooltipText = (TooltipTextAttribute)property.GetCustomAttribute(typeof(TooltipTextAttribute));
-				if (tooltipText != null) {
+				if (attribute.tooltipText != null) {
 					label.HasTooltip = true;
-					label.TooltipMarkup = tooltipText.text;
+					label.TooltipMarkup = attribute.tooltipText;
 				}
 				PackStart(label, false, false, 0);
 			}
@@ -66,11 +67,6 @@ namespace Parahumans.Core {
 			edit.Activated += OpenDialog;
 			rightclickMenu.Append(edit);
 
-		}
-
-		public void OverrideLabel (string text) {
-			if (!context.compact)
-				((Label)Children[0]).Text = text + ": ";
 		}
 
 		public void OpenDialog (object widget, EventArgs args) {

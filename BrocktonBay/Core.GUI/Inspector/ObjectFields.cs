@@ -18,7 +18,7 @@ namespace Parahumans.Core {
 		public IGUIComplete obj;
 		public Context context;
 
-		public ObjectField (PropertyInfo property, object obj, Context context, object arg) : base(0, 0, 1, 1) {
+		public ObjectField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute) : base(0, 0, 1, 1) {
 
 			this.property = property;
 			this.obj = (IGUIComplete)property.GetValue(obj);
@@ -58,7 +58,7 @@ namespace Parahumans.Core {
 
 		Menu rightclickMenu;
 
-		public TabularListField (PropertyInfo property, object obj, Context context, object arg) { //obj must be an IContainer.
+		public TabularListField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute) { //obj must be an IContainer.
 
 			parent = (IContainer)obj;
 			this.context = context;
@@ -118,15 +118,14 @@ namespace Parahumans.Core {
 			}
 
 			// Load tooltip (if exists)
-			TooltipTextAttribute tooltipText = (TooltipTextAttribute)property.GetCustomAttribute(typeof(TooltipTextAttribute));
-			if (tooltipText != null) {
+			if (attribute.tooltipText != "") {
 				HasTooltip = true;
-				TooltipMarkup = tooltipText.text;
+				TooltipMarkup = attribute.tooltipText;
 			}
 
 			if (context.vertical) {
 
-				int columns = (int)arg;
+				int columns = (int)attribute.arg;
 				if (columns < 0) columns *= -1;
 				DynamicTable table = new DynamicTable(list.ConvertAll((element) => GetElementWidget(element)), (uint)columns);
 
@@ -142,7 +141,7 @@ namespace Parahumans.Core {
 					}
 				} else {
 					Expander expander = new Expander(UIFactory.ToReadable(property.Name));
-					expander.Expanded = (int)arg > 0;
+					expander.Expanded = (int)attribute.arg > 0;
 					expander.Add(table);
 					alignment.Add(expander);
 					if (editable) {
@@ -261,8 +260,8 @@ namespace Parahumans.Core {
 
 	public class MechanicCellTabularListField : CellTabularListField<Mechanic> {
 
-		public MechanicCellTabularListField (PropertyInfo property, object obj, Context context, object arg)
-			: base(property, obj, context, arg) { }
+		public MechanicCellTabularListField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute)
+			: base(property, obj, context, attribute) { }
 
 		protected override Widget GetElementWidget (Mechanic obj) {
 			if (!obj.Known(context)) {
@@ -281,8 +280,8 @@ namespace Parahumans.Core {
 
 	public class CellTabularListField<T> : TabularListField<T> where T : IGUIComplete {
 
-		public CellTabularListField (PropertyInfo property, object obj, Context context, object arg)
-			: base(property, obj, context, arg) { }
+		public CellTabularListField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute)
+			: base(property, obj, context, attribute) { }
 
 		protected override Widget GetElementWidget (T obj) {
 

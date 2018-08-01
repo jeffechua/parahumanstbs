@@ -6,7 +6,7 @@ using Gtk;
 namespace Parahumans.Core {
 
 	public sealed class Banner : Label {
-		public Banner (PropertyInfo property, object obj, Context context, object arg) {
+		public Banner (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute, object arg) {
 			SetAlignment(0.5f, 0.5f);
 			Justify = Justification.Center;
 			UseMarkup = true;
@@ -15,14 +15,14 @@ namespace Parahumans.Core {
 	}
 
 	public sealed class TabularContainerField : Table {
-		List<PropertyInfo> children;
+		string[] children;
 		Context context;
 
-		public TabularContainerField (PropertyInfo property, object obj, Context context, object arg) : base(1, 1, false) {
+		public TabularContainerField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute) : base(1, 1, false) {
 
 			// arg ought to be a string[] containing the names of child properties. Here we turn it into a list and
 			// use ConvertAll() to obtain the list of actual PropertyInfos.
-			children = new List<object>((object[])arg).ConvertAll((input) => obj.GetType().GetProperty((string)input));
+			children = Array.ConvertAll((object[])attribute.arg, (str) => (string)str);
 			this.context = context;
 
 			ColumnSpacing = 5;
@@ -30,30 +30,18 @@ namespace Parahumans.Core {
 
 			Label label = new Label(UIFactory.ToReadable(property.Name) + ": ");
 
-			TooltipTextAttribute tooltipText = (TooltipTextAttribute)property.GetCustomAttribute(typeof(TooltipTextAttribute));
-			if (tooltipText != null) {
+			if (attribute.tooltipText != "") {
 				label.HasTooltip = true;
-				label.TooltipMarkup = tooltipText.text;
+				label.TooltipMarkup = attribute.tooltipText;
 			}
 
-			Attach(label, 0, 1, 0, (uint)(2 * children.Count - 1), AttachOptions.Shrink, AttachOptions.Fill, 0, 0);
-			Attach(new VSeparator(), 1, 2, 0, (uint)(2 * children.Count - 1), AttachOptions.Shrink, AttachOptions.Fill, 0, 0);
+			Attach(label, 0, 1, 0, (uint)(2 * children.Length - 1), AttachOptions.Shrink, AttachOptions.Fill, 0, 0);
+			Attach(new VSeparator(), 1, 2, 0, (uint)(2 * children.Length - 1), AttachOptions.Shrink, AttachOptions.Fill, 0, 0);
 
-			for (int i = 0; i < children.Count; i++) {
-				DisplayableAttribute displayInfo = (DisplayableAttribute)children[i].GetCustomAttribute(typeof(DisplayableAttribute));
-				ConstructorInfo childConstructor = displayInfo.widget.GetConstructor(UIFactory.constructorSignature);
-				Widget childWidget = (Widget)childConstructor.Invoke(new object[] {
-					children[i],
-					obj,
-					context,
-					displayInfo.arg
-				});
-				if (childWidget is LabelOverridable) {
-					ChildAttribute childAttribute = (ChildAttribute)children[i].GetCustomAttribute(typeof(ChildAttribute));
-					((LabelOverridable)childWidget).OverrideLabel(childAttribute.name);
-				}
+			for (int i = 0; i < children.Length; i++) {
+				Widget childWidget = UIFactory.Fabricate(obj, children[i], context);
 				Attach(childWidget, 2, 3, 2 * (uint)i, 2 * (uint)i + 1);
-				if (i != children.Count - 1) Attach(new HSeparator(), 2, 3, 2 * (uint)i + 1, 2 * (uint)i + 2);
+				if (i != children.Length - 1) Attach(new HSeparator(), 2, 3, 2 * (uint)i + 1, 2 * (uint)i + 2);
 			}
 
 		}
@@ -62,39 +50,26 @@ namespace Parahumans.Core {
 
 	public sealed class LinearContainerField : HBox {
 
-		List<PropertyInfo> children;
+		string[] children;
 		Context context;
 
-		public LinearContainerField (PropertyInfo property, object obj, Context context, object arg) {
-
-			children = new List<object>((object[])arg).ConvertAll((input) => obj.GetType().GetProperty((string)input));
+		public LinearContainerField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute) {
+			children = Array.ConvertAll((object[])attribute.arg, (str) => (string)str);
 			this.context = context;
 
 			Label label = new Label(UIFactory.ToReadable(property.Name) + ": ");
 
-			TooltipTextAttribute tooltipText = (TooltipTextAttribute)property.GetCustomAttribute(typeof(TooltipTextAttribute));
-			if (tooltipText != null) {
+			if (attribute.tooltipText != "") {
 				label.HasTooltip = true;
-				label.TooltipMarkup = tooltipText.text;
+				label.TooltipMarkup = attribute.tooltipText;
 			}
 
 			PackStart(label, false, false, 0);
 
-			for (int i = 0; i < children.Count; i++) {
-				DisplayableAttribute displayInfo = (DisplayableAttribute)children[i].GetCustomAttribute(typeof(DisplayableAttribute));
-				ConstructorInfo childConstructor = displayInfo.widget.GetConstructor(UIFactory.constructorSignature);
-				Widget childWidget = (Widget)childConstructor.Invoke(new object[] {
-					children[i],
-					obj,
-					context.butCompact,
-					displayInfo.arg
-				});
-				if (childWidget is LabelOverridable) {
-					ChildAttribute childAttribute = (ChildAttribute)children[i].GetCustomAttribute(typeof(ChildAttribute));
-					((LabelOverridable)childWidget).OverrideLabel(childAttribute.name);
-				}
+			for (int i = 0; i < children.Length; i++) {
+				Widget childWidget = UIFactory.Fabricate(obj, children[i], context.butCompact);
 				PackStart(childWidget, false, false, 0);
-				if (i != children.Count - 1) PackStart(new Label("/"), false, false, 0);
+				if (i != children.Length - 1) PackStart(new Label("/"), false, false, 0);
 			}
 
 		}
@@ -167,7 +142,7 @@ namespace Parahumans.Core {
 	}
 
 	//The graphical implementation of Expression in the UI.
-	public sealed class ExpressionField : Gtk.Alignment, LabelOverridable {
+	public sealed class ExpressionField : Gtk.Alignment {
 
 		PropertyInfo property;
 		object obj;
@@ -175,13 +150,15 @@ namespace Parahumans.Core {
 		Context context;
 		string title;
 
-		public ExpressionField (PropertyInfo property, object obj, Context context, object arg) : base(0, 0, 1, 1) {
+		public ExpressionField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute) : base(0, 0, 1, 1) {
 
 			this.property = property;
 			this.obj = obj;
 			exp = (Expression)property.GetValue(obj);
 			this.context = context;
-			title = UIFactory.ToReadable(property.Name);
+			title = (attribute.overrideLabel == "" ?
+					 UIFactory.ToReadable(property.Name) :
+					 attribute.overrideLabel) + ": "; ;
 
 			Label label = new Label();
 			label.UseMarkup = true;
@@ -200,17 +177,11 @@ namespace Parahumans.Core {
 				Add(label);
 			}
 
-			TooltipTextAttribute tooltipText = (TooltipTextAttribute)property.GetCustomAttribute(typeof(TooltipTextAttribute));
-			if (tooltipText != null) {
+			if (attribute.tooltipText != "") {
 				HasTooltip = true;
-				TooltipMarkup = tooltipText.text;
+				TooltipMarkup = attribute.tooltipText;
 			}
 
-		}
-
-		public void OverrideLabel (string newLabel) {
-			title = newLabel;
-			ReloadLabel();
 		}
 
 		//The formattedResult label is not shown when the expander is expanded. This implements that functionality.
@@ -251,21 +222,20 @@ namespace Parahumans.Core {
 		public Fraction[] fractions;
 		public Context context;
 
-		public FractionsBar (PropertyInfo property, object obj, Context context, object arg) : base(1, 3, false) {
+		public FractionsBar (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute) : base(1, 3, false) {
 
 			fractions = (Fraction[])property.GetValue(obj);
 			this.context = context;
 
-			if ((bool)arg != false) {
+			if ((bool)attribute.arg != false) {
 				RowSpacing = 2;
 				Label title = new Label("[ " + UIFactory.ToReadable(property.Name) + " ]");
 				Attach(title, 0, 1, 0, 1, AttachOptions.Fill, AttachOptions.Fill, 0, 2);
 			}
 
-			TooltipTextAttribute tooltipText = (TooltipTextAttribute)property.GetCustomAttribute(typeof(TooltipTextAttribute));
-			if (tooltipText != null) {
+			if (attribute.tooltipText != "") {
 				HasTooltip = true;
-				TooltipMarkup = tooltipText.text;
+				TooltipMarkup = attribute.tooltipText;
 			}
 
 			float leftspace = 0;
@@ -321,7 +291,7 @@ namespace Parahumans.Core {
 		object obj;
 		Context context;
 
-		public ColorField (PropertyInfo property, object obj, Context context, object arg) {
+		public ColorField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute) {
 
 			this.property = property;
 			this.obj = (IGUIComplete)obj;
@@ -334,10 +304,9 @@ namespace Parahumans.Core {
 			Graphics.SetAllBg(colorButton, (Gdk.Color)property.GetValue(obj));
 			PackStart(colorButton, false, false, 0);
 
-			TooltipTextAttribute tooltipText = (TooltipTextAttribute)property.GetCustomAttribute(typeof(TooltipTextAttribute));
-			if (tooltipText != null) {
+			if (attribute.tooltipText != "") {
 				HasTooltip = true;
-				TooltipMarkup = tooltipText.text;
+				TooltipMarkup = attribute.tooltipText;
 			}
 
 			colorButton.SetSizeRequest(0, 0);
@@ -370,7 +339,7 @@ namespace Parahumans.Core {
 	public sealed class ActionField : Button {
 		public GameAction action;
 
-		public ActionField (PropertyInfo property, object obj, Context context, object arg) : base(new Gtk.Alignment(0, 0, 1, 1)) {
+		public ActionField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute) : base(new Gtk.Alignment(0, 0, 1, 1)) {
 			action = (GameAction)property.GetValue(obj);
 			Gtk.Alignment alignment = (Gtk.Alignment)Child;
 			alignment.Add(new Label(action.name));

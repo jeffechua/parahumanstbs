@@ -49,7 +49,7 @@ namespace Parahumans.Core {
 		public string description { get; set; }
 
 		//Managed by derivative classes
-		[Displayable(3, typeof(DialogTextEditableField)), Emphasized]
+		[Displayable(3, typeof(DialogTextEditableField), emphasized = true)]
 		public abstract string effect { get; set; }
 		public abstract InvocationTrigger trigger { get; }
 
@@ -112,7 +112,7 @@ namespace Parahumans.Core {
 		}
 
 		public virtual Widget GetCellContents (Context context) {
-			DialogTextEditableField field = new DialogTextEditableField(GetType().GetProperty("effect"), this, context.butCompact, null);
+			DialogTextEditableField field = (DialogTextEditableField)UIFactory.Fabricate(this, "effect", context.butCompact);
 			field.BorderWidth = 5;
 			return field;
 		}

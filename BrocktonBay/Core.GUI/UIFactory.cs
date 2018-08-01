@@ -11,7 +11,7 @@ namespace Parahumans.Core {
 			typeof(PropertyInfo),
 			typeof(object),
 			typeof(Context),
-			typeof(object)
+			typeof(DisplayableAttribute)
 		};
 
 		public static VBox GenerateVertical (object obj)
@@ -33,72 +33,55 @@ namespace Parahumans.Core {
 
 			//Load up all properties
 			List<PropertyInfo> properties = new List<PropertyInfo>(obj.GetType().GetProperties());
-
-			for (int i = 0; i < properties.Count; i++) {
-				if (!HasAttribute(properties[i], typeof(DisplayableAttribute)) ||
-					HasAttribute(properties[i], typeof(ChildAttribute)) ||
-					properties[i].GetValue(obj) == null) {
-					properties.RemoveAt(i);
-					i--;
-				}
-			}
-
-			properties.Sort((x, y) => ((DisplayableAttribute)x.GetCustomAttribute(typeof(DisplayableAttribute))).order.CompareTo(
-				((DisplayableAttribute)y.GetCustomAttribute(typeof(DisplayableAttribute))).order));
+			List<Tuple<PropertyInfo, DisplayableAttribute>> pairs = properties.ConvertAll(
+				(property) => new Tuple<PropertyInfo, DisplayableAttribute>(property, (DisplayableAttribute)property.GetCustomAttribute(typeof(DisplayableAttribute))));
+			pairs.RemoveAll((pair) => pair.Item2 == null || !pair.Item2.generate || pair.Item2.horizontalOnly
+							|| (!Game.omniscient && !pair.Item2.isVisiblePhase));
+			pairs.Sort((x, y) => x.Item2.order.CompareTo(y.Item2.order));
 
 			//Create boxes
 			VBox mainBox = new VBox(false, 0) { BorderWidth = 5 };
 			VBox emphasisBox = null;
 
 			//Draw each property
-			foreach (PropertyInfo property in properties) {
+			foreach (Tuple<PropertyInfo, DisplayableAttribute> pair in pairs) {
 
-				if (!Game.omniscient) {
-					LimitVisibilityAttribute visibility = (LimitVisibilityAttribute)property.GetCustomAttribute(typeof(LimitVisibilityAttribute));
-					if (visibility!=null && !visibility.currentlyVisible) continue;
-				}
-
-				//Load up attributes
-				DisplayableAttribute attr = (DisplayableAttribute)property.GetCustomAttribute(typeof(DisplayableAttribute));
-				EmphasizedAttribute emphAttribute = (EmphasizedAttribute)property.GetCustomAttribute(typeof(EmphasizedAttribute));
-				PaddedAttribute padded = (PaddedAttribute)property.GetCustomAttribute(typeof(PaddedAttribute));
-				bool expand = HasAttribute(property, typeof(ExpandAttribute));
-				bool forceHorizontal = HasAttribute(property, typeof(ForceHorizontalAttribute));
+				PropertyInfo property = pair.Item1;
+				DisplayableAttribute attribute = pair.Item2;
 
 				//Construct the widget
-				ConstructorInfo constructor = attr.widget.GetConstructor(constructorSignature);
+				ConstructorInfo constructor = attribute.widget.GetConstructor(constructorSignature);
 				Widget newWidget = (Widget)constructor.Invoke(new object[] {
-					property,
+					pair.Item1,
 					obj,
-					forceHorizontal ? context.butHorizontal : context,
-					attr.arg
+					attribute.forceHorizontal ? context.butHorizontal : context,
+					attribute
 				});
 
-				//Manage padumentding
-				if (padded != null) {
+				//Manage padding
+				if (attribute.topPadding != 0 || attribute.bottomPadding != 0 || attribute.leftPadding != 0 || attribute.rightPadding != 0) {
 					newWidget = new Gtk.Alignment(0, 0, 1, 1) {
 						Child = newWidget,
-						TopPadding = padded.topPadding,
-						BottomPadding = padded.bottomPadding,
-						LeftPadding = padded.leftPadding,
-						RightPadding = padded.rightPadding
+						TopPadding = attribute.topPadding,
+						BottomPadding = attribute.bottomPadding,
+						LeftPadding = attribute.leftPadding,
+						RightPadding = attribute.rightPadding
 					};
 				}
 
 				//Manage emphasis
-				if (emphAttribute is EmphasizedIfHorizontalAttribute) emphAttribute = null;
-				if (emphAttribute != null) {
+				if (attribute.emphasized || attribute.emphasizedIfVertical) {
 					if (emphasisBox == null)                                     // If no emphasisBox at the moment,
 						emphasisBox = new VBox(false, 5);                        // make one.
 					emphasisBox.PackStart(new HSeparator(), false, false, 0);    // Install a delimiter
-					emphasisBox.PackStart(newWidget, expand, expand, 0);           // Pack the widget into emphasisBox
+					emphasisBox.PackStart(newWidget, attribute.expand, attribute.expand, 0);           // Pack the widget into emphasisBox
 				} else { // and non-emphasis
 					if (emphasisBox != null) {
 						emphasisBox.PackStart(new HSeparator(), false, false, 0); // Finish off the emphasis box
 						mainBox.PackStart(emphasisBox, false, false, 6);          // And pack emphasisBox into mainBox
 						emphasisBox = null;                                       // Null it so we know to create a new one next time
 					}
-					mainBox.PackStart(newWidget, expand, expand, 2);                // Now actually pack the current widget
+					mainBox.PackStart(newWidget, attribute.expand, attribute.expand, 2);                // Now actually pack the current widget
 				}
 
 			}
@@ -120,60 +103,39 @@ namespace Parahumans.Core {
 
 			//Load up all properties
 			List<PropertyInfo> properties = new List<PropertyInfo>(obj.GetType().GetProperties());
-
-			for (int i = 0; i < properties.Count; i++) {
-				if (!HasAttribute(properties[i], typeof(DisplayableAttribute)) ||
-					HasAttribute(properties[i], typeof(ChildAttribute)) ||
-					properties[i].GetValue(obj) == null) {
-					properties.RemoveAt(i);
-					i--;
-				}
-			}
-			properties.Sort((x, y) => ((DisplayableAttribute)x.GetCustomAttribute(typeof(DisplayableAttribute))).order.CompareTo(
-				((DisplayableAttribute)y.GetCustomAttribute(typeof(DisplayableAttribute))).order));
+			List<Tuple<PropertyInfo, DisplayableAttribute>> pairs = properties.ConvertAll(
+				(property) => new Tuple<PropertyInfo, DisplayableAttribute>(property, (DisplayableAttribute)property.GetCustomAttribute(typeof(DisplayableAttribute))));
+			pairs.RemoveAll((pair) => pair.Item2 == null || !pair.Item2.generate || pair.Item2.verticalOnly
+							|| (!Game.omniscient && !pair.Item2.isVisiblePhase));
+			pairs.Sort((x, y) => x.Item2.order.CompareTo(y.Item2.order));
 
 			//Initialize boxes
 			VBox mainBox = new VBox(false, 10) { BorderWidth = 5 };
 			HBox regularBox = new HBox(false, 0);
 			VBox emphasisBox = new VBox(false, 2);
 
-			foreach (PropertyInfo property in properties) {
+			foreach (Tuple<PropertyInfo, DisplayableAttribute> pair in pairs) {
 
-				if (!Game.omniscient) {
-					LimitVisibilityAttribute visibility = (LimitVisibilityAttribute)property.GetCustomAttribute(typeof(LimitVisibilityAttribute));
-					if (visibility!=null && !visibility.currentlyVisible) continue;
-				}
-				if (property.GetCustomAttribute(typeof(VerticalOnlyAttribute)) != null) continue;
-
-				//Load attributes
-				DisplayableAttribute attr = (DisplayableAttribute)property.GetCustomAttribute(typeof(DisplayableAttribute));
-				EmphasizedAttribute emph = (EmphasizedAttribute)property.GetCustomAttribute(typeof(EmphasizedAttribute));
-				bool expand = HasAttribute(property, typeof(ExpandAttribute));
-				bool forceVertical = HasAttribute(property, typeof(ForceVerticalAttribute));
+				PropertyInfo property = pair.Item1;
+				DisplayableAttribute attribute = pair.Item2;
 
 				//Obtain the correct constructor
-				ConstructorInfo constructor;
-				if (attr is BimorphicDisplayableAttribute) {
-					constructor = ((BimorphicDisplayableAttribute)attr).widget2.GetConstructor(constructorSignature);
-				} else {
-					constructor = attr.widget.GetConstructor(constructorSignature);
-				}
+				ConstructorInfo constructor = (attribute.altWidget ?? attribute.widget).GetConstructor(constructorSignature);
 
 				//Construct the widget
 				Widget newWidget = (Widget)constructor.Invoke(new object[] {
 					property,
 					obj,
-					forceVertical?context.butVertical:context,
-					attr.arg
+					attribute.forceVertical?context.butVertical:context,
+					attribute
 				});
 
 				//Pack into the correcumentt box (emphasisBox/regularBox)
-				if (emph is EmphasizedIfVerticalAttribute) emph = null;
-				if (emph == null) {
-					if (regularBox.Children.Length > 0) regularBox.PackStart(new VSeparator(), false, false, 5);
-					regularBox.PackStart(newWidget, expand, expand, 0);
+				if (attribute.emphasized || attribute.emphasizedIfHorizontal) {
+					emphasisBox.PackStart(newWidget, attribute.expand, attribute.expand, 0);
 				} else {
-					emphasisBox.PackStart(newWidget, expand, expand, 0);
+					if (regularBox.Children.Length > 0) regularBox.PackStart(new VSeparator(), false, false, 5);
+					regularBox.PackStart(newWidget, attribute.expand, attribute.expand, 0);
 				}
 
 			}
@@ -186,19 +148,26 @@ namespace Parahumans.Core {
 
 		}
 
+		public static Widget Fabricate (object obj, string propertyName, Context context) {
+			PropertyInfo property = obj.GetType().GetProperty(propertyName);
+			Console.WriteLine(obj.GetType().ToString() + "." + propertyName);
+			DisplayableAttribute attribute = (DisplayableAttribute)property.GetCustomAttribute(typeof(DisplayableAttribute));
+			return (Widget)attribute.widget.GetConstructor(constructorSignature)
+									.Invoke(new object[] { property, obj, context, attribute });
+		}
+
 		public static Gtk.Alignment Align (Widget widget, float xalign, float yalign, float xscale, float yscale)
 			=> new Gtk.Alignment(xalign, yalign, xscale, yscale) { Child = widget };
 
 		public static bool HasAttribute (PropertyInfo property, Type attribute)
 			=> property.GetCustomAttribute(attribute) != null;
 
-		public static bool CurrentlyEditable (PropertyInfo property, object obj) {
+		public static bool CurrentlyEditable (PropertyInfo property, object obj, DisplayableAttribute attribute = null) {
 			if (Game.omnipotent) return true;
 			IAffiliated affiliated = obj as IAffiliated;
 			if (affiliated != null && affiliated.affiliation != null && affiliated.affiliation != Game.player) return false;
-			PlayerEditableAttribute editableAttribute = (PlayerEditableAttribute)property.GetCustomAttribute(typeof(PlayerEditableAttribute));
-			if (editableAttribute == null) return false;
-			return editableAttribute.currentlyEditable;
+			if (attribute == null) attribute = (DisplayableAttribute)property.GetCustomAttribute(typeof(DisplayableAttribute));
+			return attribute.isEditPhase;
 		}
 
 		public static string ToReadable (string str) {

@@ -31,7 +31,7 @@ namespace Parahumans.Core {
 		public Gdk.Color color { get { return new Gdk.Color(0, 0, 0); } }
 		public Dossier knowledge { get; set; }
 		bool _active;
-		[Displayable(2, typeof(BasicReadonlyField)), LimitVisibility(Phase.None)]
+		[Displayable(2, typeof(BasicReadonlyField), visiblePhases = Phase.None)]
 		public bool active {
 			get => _active;
 			set {
@@ -46,7 +46,7 @@ namespace Parahumans.Core {
 			}
 		}
 
-		[Displayable(2, typeof(ObjectField)), ForceHorizontal]
+		[Displayable(2, typeof(ObjectField), forceHorizontal = true)]
 		public override IAgent affiliation { get { return (IAgent)(parent ?? this); } }
 
 		[Displayable(3, typeof(EnumField<Alignment>))]
@@ -61,8 +61,8 @@ namespace Parahumans.Core {
 		[Displayable(6, typeof(IntField))]
 		public int unused_XP { get; set; }
 
-		[BimorphicDisplayable(7, typeof(TabularContainerField), typeof(LinearContainerField),
-							  "strength_XP", "stealth_XP", "insight_XP"), EmphasizedIfVertical]
+		[Displayable(7, typeof(TabularContainerField), "strength_XP", "stealth_XP", "insight_XP",
+					 altWidget = typeof(LinearContainerField), emphasizedIfVertical = true)]
 		public int[] spent_XP {
 			get {
 				return new int[] { strength_XP, stealth_XP, insight_XP };
@@ -74,17 +74,17 @@ namespace Parahumans.Core {
 			}
 		}
 
-		[Child("Strength"), Displayable(0, typeof(IntField))]
+		[ChildDisplayableAttribute("Strength", typeof(IntField))]
 		public int strength_XP { get; set; }
-		[Child("Stealth"), Displayable(0, typeof(IntField))]
+		[ChildDisplayableAttribute("Stealth", typeof(IntField))]
 		public int stealth_XP { get; set; }
-		[Child("Insight"), Displayable(0, typeof(IntField))]
+		[ChildDisplayableAttribute("Insight", typeof(IntField))]
 		public int insight_XP { get; set; }
 
-		[Displayable(8, typeof(CellTabularListField<Parahuman>), 3), Emphasized, PlayerEditable(Phase.Mastermind)]
+		[Displayable(8, typeof(CellTabularListField<Parahuman>), 3, emphasized = true, editablePhases = Phase.Mastermind)]
 		public List<Parahuman> roster { get; set; }
 
-		[Displayable(9, typeof(RatingsMultiviewField), true), Emphasized, VerticalOnly, Expand]
+		[Displayable(9, typeof(RatingsMultiviewField), true, emphasized = true, verticalOnly = true, expand = true)]
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
 
 		//[Displayable(10, typeof(RatingsRadarChart), true), Emphasized, VerticalOnly]

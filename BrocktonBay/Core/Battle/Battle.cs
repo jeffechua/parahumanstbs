@@ -28,16 +28,16 @@ namespace Parahumans.Core {
 		[Displayable(0, typeof(EnumField<BattleObjective>))]
 		public BattleObjective type;
 
-		[Displayable(1, typeof(ObjectField)), ForceHorizontal]
+		[Displayable(1, typeof(ObjectField), forceHorizontal = true)]
 		public IBattleground location;
 
 
 
-		[Displayable(2, typeof(EffectiveRatingsMultiview)), EmphasizedAttribute, Expand]
+		[Displayable(2, typeof(EffectiveRatingsMultiview), emphasized = true, expand = true)]
 		public EffectiveRatingsProfile attacker_profile { get { return profiles[0]; } set { profiles[0] = value; } }
 
-		[BimorphicDisplayable(3, typeof(TabularContainerField), typeof(LinearContainerField),
-							  "attacker_strength", "attacker_stealth", "attacker_insight"), EmphasizedIfVertical]
+		[Displayable(3, typeof(TabularContainerField), "attacker_strength", "attacker_stealth", "attacker_insight",
+					 altWidget = typeof(LinearContainerField), emphasizedIfVertical = true)]
 		public Expression[] attacker_stats {
 			get {
 				return new Expression[] { attacker_strength, attacker_stealth, attacker_insight };
@@ -48,28 +48,28 @@ namespace Parahumans.Core {
 				attacker_insight = value[2];
 			}
 		}
-		[Child("Strength"), Displayable(0, typeof(ExpressionField)), TooltipText("β + δ + ½Σ + ½ψ + bonuses\n× force multiplier")]
+		[ChildDisplayableAttribute("Strength", typeof(ExpressionField), tooltipText = "β + δ + ½Σ + ½ψ + bonuses\n× force multiplier")]
 		public Expression attacker_strength { get; set; }
-		[Child("Stealth"), Displayable(0, typeof(ExpressionField)), TooltipText("μ + φ + bonuses")]
+		[ChildDisplayableAttribute("Stealth", typeof(ExpressionField), tooltipText = "μ + φ + bonuses")]
 		public Expression attacker_stealth { get; set; }
-		[Child("Insight"), Displayable(0, typeof(ExpressionField)), TooltipText("ξ + Ω + bonuses")]
+		[ChildDisplayableAttribute("Insight", typeof(ExpressionField), tooltipText = "ξ + Ω + bonuses")]
 		public Expression attacker_insight { get; set; }
 
-		[Displayable(4, typeof(FractionsBar), false), TooltipText("Injury chance = STR<sub>enemy</sub> / STR<sub>total</sub> / 2"), Emphasized]
+		[Displayable(4, typeof(FractionsBar), false, emphasized = true, tooltipText = "Injury chance = STR<sub>enemy</sub> / STR<sub>total</sub> / 2")]
 		public Fraction[] attacker_injury { get; set; } //Chance of being injured, per member
-		[Displayable(5, typeof(FractionsBar), false), TooltipText("Captured chance = INS<sub>enemy</sub> / STL<sub>self</sub> / 4"), Emphasized]
+		[Displayable(5, typeof(FractionsBar), false, emphasized = true, tooltipText = "Captured chance = INS<sub>enemy</sub> / STL<sub>self</sub> / 4")]
 		public Fraction[] attacker_escape { get; set; } //Chance of escaping, per member
 
-		[Displayable(6, typeof(Banner)), Emphasized, Padded(25, 25)]
+		[Displayable(6, typeof(Banner), emphasized = true, topPadding = 25, bottomPadding = 25)]
 		public string projected_victor { get; set; }
 
-		[Displayable(7, typeof(FractionsBar), false), TooltipText("Injury chance = STR<sub>enemy</sub> / STR<sub>total</sub> / 2"), Emphasized]
+		[Displayable(7, typeof(FractionsBar), false, emphasized = true, tooltipText = "Injury chance = STR<sub>enemy</sub> / STR<sub>total</sub> / 2")]
 		public Fraction[] defender_injury { get; set; } //Chance of being injured, per member
-		[Displayable(8, typeof(FractionsBar), false), TooltipText("Capture chance = INS<sub>enemy</sub> / STL<sub>self</sub> / 4"), Emphasized]
+		[Displayable(8, typeof(FractionsBar), false, emphasized = true, tooltipText = "Capture chance = INS<sub>enemy</sub> / STL<sub>self</sub> / 4")]
 		public Fraction[] defender_escape { get; set; } //Chance of capture, per member
 
-		[BimorphicDisplayable(9, typeof(TabularContainerField), typeof(LinearContainerField),
-							  "defender_strength", "defender_stealth", "defender_insight"), EmphasizedIfVertical]
+		[Displayable(9, typeof(TabularContainerField), "defender_strength", "defender_stealth", "defender_insight",
+					 altWidget = typeof(LinearContainerField), emphasizedIfVertical = true)]
 		public Expression[] defender_stats {
 			get {
 				return new Expression[] { defender_strength, defender_stealth, defender_insight };
@@ -80,14 +80,14 @@ namespace Parahumans.Core {
 				defender_insight = value[2];
 			}
 		}
-		[Child("Strength"), Displayable(0, typeof(ExpressionField)), TooltipText("β + δ + ½Σ + ½ψ + bonuses\n× force multiplier")]
+		[ChildDisplayableAttribute("Strength", typeof(ExpressionField), tooltipText = "β + δ + ½Σ + ½ψ + bonuses\n× force multiplier")]
 		public Expression defender_strength { get; set; }
-		[Child("Stealth"), Displayable(0, typeof(ExpressionField)), TooltipText("μ + φ + bonuses")]
+		[ChildDisplayableAttribute("Stealth", typeof(ExpressionField), tooltipText = "μ + φ + bonuses")]
 		public Expression defender_stealth { get; set; }
-		[Child("Insight"), Displayable(0, typeof(ExpressionField)), TooltipText("ξ + Ω + bonuses")]
+		[ChildDisplayableAttribute("Insight", typeof(ExpressionField), tooltipText = "ξ + Ω + bonuses")]
 		public Expression defender_insight { get; set; }
 
-		[Displayable(10, typeof(EffectiveRatingsMultiview)), Emphasized, Expand]
+		[Displayable(10, typeof(EffectiveRatingsMultiview), emphasized = true, expand = true)]
 		public EffectiveRatingsProfile defender_profile { get { return profiles[1]; } set { profiles[1] = value; } }
 
 

@@ -38,7 +38,7 @@ namespace Parahumans.Core {
 
 		string[] labels = { "Table", "Radar Chart" };
 
-		public RatingsMultiviewField (PropertyInfo property, object obj, Context context, object arg) {
+		public RatingsMultiviewField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute) {
 
 			this.context = context;
 			BorderWidth = 5;
@@ -96,7 +96,7 @@ namespace Parahumans.Core {
 
 		string[] labels = { "Table (final)", "Radar Chart (final)", "Table (original)", "Radar Chart (original)" };
 
-		public EffectiveRatingsMultiview (PropertyInfo property, object obj, Context context, object arg) {
+		public EffectiveRatingsMultiview (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute, object arg) {
 
 			this.context = context;
 			BorderWidth = 5;

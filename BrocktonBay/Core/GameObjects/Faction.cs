@@ -35,7 +35,7 @@ namespace Parahumans.Core {
 		public Dossier knowledge { get; set; }
 		public override IAgent affiliation { get => this; }
 		bool _active;
-		[Displayable(2, typeof(BasicReadonlyField)), LimitVisibility(Phase.None)]
+		[Displayable(2, typeof(BasicReadonlyField), visiblePhases = Phase.None)]
 		public bool active {
 			get => _active;
 			set {
@@ -65,16 +65,16 @@ namespace Parahumans.Core {
 		[Displayable(6, typeof(BasicReadonlyField))]
 		public int reputation { get; set; }
 
-		[Displayable(7, typeof(CellTabularListField<Parahuman>), 3), Emphasized, PlayerEditable(Phase.Mastermind)]
+		[Displayable(7, typeof(CellTabularListField<Parahuman>), 3, emphasized = true, editablePhases = Phase.Mastermind)]
 		public List<Parahuman> roster { get; set; }
 
-		[Displayable(8, typeof(CellTabularListField<Team>), 2), Emphasized, PlayerEditable(Phase.Mastermind)]
+		[Displayable(8, typeof(CellTabularListField<Team>), 2, emphasized = true, editablePhases = Phase.Mastermind)]
 		public List<Team> teams { get; set; }
 
-		[Displayable(9, typeof(CellTabularListField<Territory>), 2), Emphasized, PlayerEditable(Phase.Mastermind)]
+		[Displayable(9, typeof(CellTabularListField<Territory>), 2, emphasized = true, editablePhases = Phase.Mastermind)]
 		public List<Territory> territories { get; set; }
 
-		[Displayable(9, typeof(RatingsMultiviewField), true), Emphasized, VerticalOnly, Expand]
+		[Displayable(9, typeof(RatingsMultiviewField), true, emphasized = true, verticalOnly = true, expand = true)]
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
 
 

@@ -8,7 +8,7 @@ namespace Parahumans.Core {
 
 	public sealed class RatingsListField : Gtk.Alignment {
 
-		public RatingsListField (PropertyInfo property, object obj, Context context, object arg) : base(0, 0, 1, 1) {
+		public RatingsListField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute) : base(0, 0, 1, 1) {
 
 			RatingsProfile profile = ((Func<Context, RatingsProfile>)property.GetValue(obj))(context);
 			float[,] values = profile.values;
@@ -92,7 +92,7 @@ namespace Parahumans.Core {
 					// The property this is attached to gets the *current ratings*, not the *base ratings*, which are
 					// what we logically want to let the user manipulate. Hence, the optional arg supplied is the name
 					// of the base profile.
-					PropertyInfo baseProfileProperty = obj.GetType().GetProperty((string)arg);
+					PropertyInfo baseProfileProperty = obj.GetType().GetProperty((string)attribute.arg);
 					TextEditingDialog dialog = new TextEditingDialog(
 						"Edit ratings",
 						(Window)Toplevel,

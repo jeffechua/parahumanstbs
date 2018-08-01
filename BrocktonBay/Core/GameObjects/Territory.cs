@@ -34,10 +34,10 @@ namespace Parahumans.Core {
 		public Defense defender { get; set; }
 		public Battle battle { get; set; }
 
-		[Displayable(2, typeof(IntVector2Field)), LimitVisibility(Phase.None)]
+		[Displayable(2, typeof(IntVector2Field), visiblePhases = Phase.None)]
 		public IntVector2 location { get; set; }
 
-		[Displayable(3, typeof(ObjectField)), ForceHorizontal]
+		[Displayable(3, typeof(ObjectField), forceHorizontal = true)]
 		public override IAgent affiliation { get { return (IAgent)parent; } }
 
 		[Displayable(4, typeof(IntField))]
@@ -46,8 +46,8 @@ namespace Parahumans.Core {
 		[Displayable(5, typeof(IntField))]
 		public int reputation { get; set; }
 
-		[BimorphicDisplayable(6, typeof(TabularContainerField), typeof(LinearContainerField),
-							  "strength_buff", "stealth_buff", "insight_buff"), EmphasizedIfVertical]
+		[Displayable(6, typeof(TabularContainerField), "strength_buff", "stealth_buff", "insight_buff",
+					 altWidget = typeof(LinearContainerField), emphasizedIfVertical = true)]
 		public int[] combat_buffs {
 			get {
 				return new int[] { strength_buff, stealth_buff, insight_buff };
@@ -59,15 +59,15 @@ namespace Parahumans.Core {
 			}
 		}
 
-		[Child("Strength"), Displayable(0, typeof(BasicReadonlyField))]
+		[ChildDisplayableAttribute("Strength", typeof(BasicReadonlyField))]
 		public int strength_buff { get; set; }
-		[Child("Stealth"), Displayable(0, typeof(BasicReadonlyField))]
+		[ChildDisplayableAttribute("Stealth", typeof(BasicReadonlyField))]
 		public int stealth_buff { get; set; }
-		[Child("Insight"), Displayable(0, typeof(BasicReadonlyField))]
+		[ChildDisplayableAttribute("Insight", typeof(BasicReadonlyField))]
 		public int insight_buff { get; set; }
 
-		[BimorphicDisplayable(7, typeof(TabularContainerField), typeof(LinearContainerField),
-							  "resource_income", "reputation_income"), EmphasizedIfVertical]
+		[Displayable(7, typeof(TabularContainerField), "resource_income", "reputation_income",
+					 altWidget = typeof(LinearContainerField), emphasizedIfVertical = true)]
 		public int[] incomes {
 			get {
 				return new int[] { resource_income, reputation_income };
@@ -78,18 +78,20 @@ namespace Parahumans.Core {
 			}
 		}
 
-		[Child("Resources"), Displayable(0, typeof(IntField))]
+		[ChildDisplayableAttribute("Resources", typeof(IntField))]
 		public int resource_income { get; set; }
-		[Child("Reputation"), Displayable(0, typeof(IntField))]
+		[ChildDisplayableAttribute("Reputation", typeof(IntField))]
 		public int reputation_income { get; set; }
 
-		[Displayable(8, typeof(CellTabularListField<Structure>), 2), Emphasized, PlayerEditable(Phase.Mastermind)]
+		[Displayable(8, typeof(CellTabularListField<Structure>), 2, emphasized = true, editablePhases = Phase.Mastermind)]
 		public List<Structure> structures { get; set; }
 
-		[Displayable(9, typeof(ActionField)), Padded(20, 20, 20, 20), VerticalOnly, LimitVisibility(Phase.Action)]
+		[Displayable(9, typeof(ActionField), verticalOnly = true, visiblePhases = Phase.Action,
+					 topPadding = 20, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
 		public GameAction attack { get; set; }
 
-		[Displayable(10, typeof(ActionField)), Padded(20, 20, 20, 20), VerticalOnly, LimitVisibility(Phase.Response)]
+		[Displayable(10, typeof(ActionField), verticalOnly = true, visiblePhases = Phase.Response,
+					 topPadding = 20, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
 		public GameAction defend { get; set; }
 
 		public Territory () : this(new TerritoryData()) { }

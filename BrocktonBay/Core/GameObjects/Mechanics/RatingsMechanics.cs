@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Reflection;
 using Gtk;
 
 namespace Parahumans.Core {
@@ -36,6 +36,8 @@ namespace Parahumans.Core {
 	public sealed class TrueFormMechanic : Mechanic {
 
 		public RatingsProfile trueform { get; set; }
+
+		[Displayable(0, typeof(RatingsListField), generate = false)]
 		public Func<Context, RatingsProfile> GetTrueForm { get => (context) => trueform; }
 
 		public override string effect {
@@ -69,7 +71,7 @@ namespace Parahumans.Core {
 		public override Widget GetCellContents (Context context) {
 			HBox hBox = new HBox(false, 2) { BorderWidth = 5 };
 			hBox.PackStart(new Label { Angle = 90, Markup = "<small>True Form</small>", UseMarkup = true }, false, false, 0);
-			Widget ratings = new RatingsListField(GetType().GetProperty("GetTrueForm"), this, context.butCompact, "trueform");
+			Widget ratings = UIFactory.Fabricate(this, "GetTrueForm", context.butCompact);
 			hBox.PackStart(ratings, false, false, 0);
 			return hBox;
 		}

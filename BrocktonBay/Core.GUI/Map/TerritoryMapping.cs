@@ -137,19 +137,17 @@ namespace Parahumans.Core {
 			if (territory.affiliation == null) {
 				affiliationBox.PackStart(new Label("None"));
 			} else {
-				affiliationBox.PackStart(territory.affiliation.GetHeader(context));
+				affiliationBox.PackStart(territory.affiliation.GetHeader(context.butCompact));
 			}
 			mainBox.PackStart(UIFactory.Align(affiliationBox, 0, 0, 0, 1));
 			mainBox.PackStart(UIFactory.Align(new Label("Size: " + territory.size), 0, 0, 0, 1));
 			mainBox.PackStart(UIFactory.Align(new Label("Reputation: " + territory.reputation), 0, 0, 0, 1));
 			mainBox.PackStart(new HSeparator(), false, false, 5);
-			mainBox.PackStart(new TabularContainerField(territory.GetType().GetProperty("combat_buffs"), territory, context,
-			                                            new object[] { "strength_buff", "stealth_buff", "insight_buff" }));
+			mainBox.PackStart(UIFactory.Fabricate(territory, "combat_buffs", context));
 			mainBox.PackStart(new HSeparator(), false, false, 5);
-			mainBox.PackStart(new TabularContainerField(territory.GetType().GetProperty("incomes"), territory, context,
-			                                            new object[] { "resource_income", "reputation_income" }));
+			mainBox.PackStart(UIFactory.Fabricate(territory, "incomes", context));
 			mainBox.PackStart(new HSeparator(), false, false, 5);
-			mainBox.PackStart(new CellTabularListField<Structure>(territory.GetType().GetProperty("structures"), territory, context, 2));
+			mainBox.PackStart(UIFactory.Fabricate(territory, "structures", context));
 			Add(mainBox);
 
 			marker.GdkWindow.GetOrigin(out int x, out int y);

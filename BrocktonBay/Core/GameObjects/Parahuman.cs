@@ -42,7 +42,7 @@ namespace Parahumans.Core {
 		public Gdk.Color color { get { return new Gdk.Color(0, 0, 0); } }
 		public Dossier knowledge { get; set; }
 		bool _active;
-		[Displayable(2, typeof(BasicReadonlyField)), LimitVisibility(Phase.None)]
+		[Displayable(2, typeof(BasicReadonlyField), visiblePhases = Phase.None)]
 		public bool active {
 			get => _active;
 			set {
@@ -57,7 +57,7 @@ namespace Parahumans.Core {
 			}
 		}
 
-		[Displayable(3, typeof(ObjectField)), ForceHorizontal]
+		[Displayable(3, typeof(ObjectField), forceHorizontal = true)]
 		public override IAgent affiliation {
 			get {
 				if (parent != null) {
@@ -83,10 +83,10 @@ namespace Parahumans.Core {
 		[Displayable(7, typeof(IntField))]
 		public int reputation { get; set; }
 
-		[Displayable(7, typeof(MechanicCellTabularListField), 3), Emphasized]
+		[Displayable(7, typeof(MechanicCellTabularListField), 3, emphasized = true)]
 		public List<Mechanic> mechanics { get; set; }
 
-		[Displayable(8, typeof(RatingsListField), "baseRatings"), Padded(5, 5), EmphasizedIfHorizontal]
+		[Displayable(8, typeof(RatingsListField), "baseRatings", emphasizedIfHorizontal = true, topPadding = 5, bottomPadding = 5)]
 		public Func<Context, RatingsProfile> ratings { get => GetRatingsProfile; }
 
 		public RatingsProfile baseRatings { get; set; }
@@ -149,9 +149,9 @@ namespace Parahumans.Core {
 		}
 
 		public override Widget GetCellContents (Context context) {
-			return new RatingsListField(GetType().GetProperty("ratings"), this, context.butCompact, "baseRatings") {
-				BorderWidth = 5
-			};
+			RatingsListField field = (RatingsListField)UIFactory.Fabricate(this, "ratings", context.butCompact);
+			field.BorderWidth = 5;
+			return field;
 		}
 
 		public override bool Accepts (object obj) => obj is Mechanic;

@@ -7,22 +7,22 @@ namespace Parahumans.Core {
 
 		public override string name { get => "Attack on " + location.name; }
 
-		[Displayable(1, typeof(ObjectField)), ForceHorizontal]
+		[Displayable(1, typeof(ObjectField), forceHorizontal = true)]
 		public override Parahuman leader { get; set; }
 
-		[Displayable(2, typeof(EnumField<BattleObjective>)), PlayerEditable(Phase.Action)]
+		[Displayable(2, typeof(EnumField<BattleObjective>), editablePhases = Phase.Action)]
 		public override BattleObjective objective { get; set; }
 
-		[Displayable(5, typeof(EnumField<Threat>)), PlayerEditable(Phase.Action)]
+		[Displayable(5, typeof(EnumField<Threat>), editablePhases = Phase.Action)]
 		public override Threat authorized_force { get; set; }
 
-		[Displayable(6, typeof(CellTabularListField<Team>), 2), Emphasized, PlayerEditable(Phase.Action)]
+		[Displayable(6, typeof(CellTabularListField<Team>), 2, emphasized = true, editablePhases = Phase.Action)]
 		public override List<Team> teams { get; set; }
 
-		[Displayable(7, typeof(CellTabularListField<Parahuman>), 2), Emphasized, PlayerEditable(Phase.Action)]
+		[Displayable(7, typeof(CellTabularListField<Parahuman>), 2, emphasized = true, editablePhases = Phase.Action)]
 		public override List<Parahuman> independents { get; set; }
 
-		[Displayable(8, typeof(CellTabularListField<Parahuman>), -2), Emphasized, PlayerEditable(Phase.Action)]
+		[Displayable(8, typeof(CellTabularListField<Parahuman>), -2, emphasized = true, editablePhases = Phase.Action)]
 		public override List<Parahuman> combined_roster { get; set; }
 
 		public Attack (IBattleground location, BattleObjective objective, IAgent affiliation) : this(location, objective, affiliation, new List<Team>(), new List<Parahuman>()) { }
@@ -43,22 +43,22 @@ namespace Parahumans.Core {
 
 		public override string name { get => "Defense of " + location.name; }
 
-		[Displayable(1, typeof(ObjectField)), ForceHorizontal]
+		[Displayable(1, typeof(ObjectField), forceVertical = true)]
 		public override Parahuman leader { get; set; }
 
-		[Displayable(2, typeof(EnumField<BattleObjective>)), PlayerEditable(Phase.Response)]
+		[Displayable(2, typeof(EnumField<BattleObjective>), editablePhases = Phase.Response)]
 		public override BattleObjective objective { get => BattleObjective.Defend; set { } }
 
-		[Displayable(5, typeof(EnumField<Threat>)), PlayerEditable(Phase.Response)]
+		[Displayable(5, typeof(EnumField<Threat>), editablePhases = Phase.Response)]
 		public override Threat authorized_force { get; set; }
 
-		[Displayable(6, typeof(CellTabularListField<Team>), 2), Emphasized, PlayerEditable(Phase.Response)]
+		[Displayable(6, typeof(CellTabularListField<Team>), 2, emphasized = true, editablePhases = Phase.Response)]
 		public override List<Team> teams { get; set; }
 
-		[Displayable(7, typeof(CellTabularListField<Parahuman>), 2), Emphasized, PlayerEditable(Phase.Response)]
+		[Displayable(7, typeof(CellTabularListField<Parahuman>), 2, emphasized = true, editablePhases = Phase.Response)]
 		public override List<Parahuman> independents { get; set; }
 
-		[Displayable(8, typeof(CellTabularListField<Parahuman>), -2), Emphasized, PlayerEditable(Phase.Response)]
+		[Displayable(8, typeof(CellTabularListField<Parahuman>), -2, emphasized = true, editablePhases = Phase.Response)]
 		public override List<Parahuman> combined_roster { get; set; }
 
 		public Defense (IBattleground location, IAgent affiliation) : this(location, affiliation, new List<Team>(), new List<Parahuman>()) { }
@@ -91,13 +91,13 @@ namespace Parahumans.Core {
 		public abstract List<Parahuman> independents { get; set; }
 		public abstract List<Parahuman> combined_roster { get; set; }
 
-		[Displayable(3, typeof(ObjectField)), ForceHorizontal]
+		[Displayable(3, typeof(ObjectField), forceHorizontal = true)]
 		public IAgent affiliation { get; set; }
 		[Displayable(4, typeof(BasicReadonlyField))]
 		public Threat threat { get; set; }
 
-		[BimorphicDisplayable(9, typeof(TabularContainerField), typeof(LinearContainerField),
-							  "strength", "stealth", "insight"), EmphasizedIfVertical]
+		[Displayable(9, typeof(TabularContainerField), "strength", "stealth", "insight",
+					 altWidget = typeof(LinearContainerField), emphasizedIfVertical = true)]
 		public Expression[] base_stats {
 			get {
 				return new Expression[] { strength, stealth, insight };
@@ -108,14 +108,14 @@ namespace Parahumans.Core {
 				insight = value[2];
 			}
 		}
-		[Child("Strength"), Displayable(0, typeof(ExpressionField)), TooltipText("β + δ + ½Σ + ½ψ + bonuses\n× force multiplier")]
+		[ChildDisplayableAttribute("Strength", typeof(ExpressionField), tooltipText = "β + δ + ½Σ + ½ψ + bonuses\n× force multiplier")]
 		public Expression strength { get; set; }
-		[Child("Stealth"), Displayable(0, typeof(ExpressionField)), TooltipText("μ + φ + bonuses")]
+		[ChildDisplayableAttribute("Stealth", typeof(ExpressionField), tooltipText = "μ + φ + bonuses")]
 		public Expression stealth { get; set; }
-		[Child("Insight"), Displayable(0, typeof(ExpressionField)), TooltipText("ξ + Ω + bonuses")]
+		[ChildDisplayableAttribute("Insight", typeof(ExpressionField), tooltipText = "ξ + Ω + bonuses")]
 		public Expression insight { get; set; }
 
-		[Displayable(10, typeof(RatingsMultiviewField), true), Emphasized, VerticalOnly, Expand]
+		[Displayable(10, typeof(RatingsMultiviewField), true, emphasized = true, verticalOnly = true, expand = true)]
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
 
 		public Gtk.Widget GetHeader (Context context) => new Gtk.Label(name);

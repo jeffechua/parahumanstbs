@@ -38,17 +38,17 @@ namespace Parahumans.Core {
 		public Defense defender { get; set; }
 		public Battle battle { get; set; }
 
-		[Displayable(2, typeof(IntVector2Field)), LimitVisibility(Phase.None)]
+		[Displayable(2, typeof(IntVector2Field), visiblePhases = Phase.None)]
 		public IntVector2 location { get; set; }
 
-		[Displayable(3, typeof(ObjectField)), ForceHorizontal]
+		[Displayable(3, typeof(ObjectField), forceHorizontal = true)]
 		public override IAgent affiliation { get { return (parent == null) ? null : (IAgent)parent.parent; } }
 
 		[Displayable(4, typeof(EnumField<StructureType>))]
 		public StructureType type { get; set; }
 
-		[BimorphicDisplayable(5, typeof(TabularContainerField), typeof(LinearContainerField),
-		                      "strength_buff", "stealth_buff", "insight_buff" ), EmphasizedIfVertical]
+		[Displayable(5, typeof(TabularContainerField), "strength_buff", "stealth_buff", "insight_buff",
+					 altWidget = typeof(LinearContainerField), emphasizedIfVertical = true)]
 		public int[] combat_buffs {
 			get {
 				return new int[] { strength_buff, stealth_buff, insight_buff };
@@ -60,15 +60,15 @@ namespace Parahumans.Core {
 			}
 		}
 
-		[Child("Strength"), Displayable(0, typeof(IntField))]
+		[ChildDisplayable("Strength", typeof(IntField))]
 		public int strength_buff { get; set; }
-		[Child("Stealth"), Displayable(0, typeof(IntField))]
+		[ChildDisplayable("Stealth", typeof(IntField))]
 		public int stealth_buff { get; set; }
-		[Child("Insight"), Displayable(0, typeof(IntField))]
+		[ChildDisplayable("Insight", typeof(IntField))]
 		public int insight_buff { get; set; }
 
-		[BimorphicDisplayable(6, typeof(TabularContainerField), typeof(LinearContainerField),
-							  "resource_income", "reputation_income"), EmphasizedIfVertical]
+		[Displayable(6, typeof(TabularContainerField), "resource_income", "reputation_income",
+					 altWidget = typeof(LinearContainerField), emphasizedIfVertical = true)]
 		public int[] incomes {
 			get {
 				return new int[] { resource_income, reputation_income };
@@ -79,18 +79,20 @@ namespace Parahumans.Core {
 			}
 		}
 
-		[Child("Resources"), Displayable(0, typeof(IntField))]
+		[ChildDisplayableAttribute("Resources", typeof(IntField))]
 		public int resource_income { get; set; }
-		[Child("Reputation"), Displayable(0, typeof(IntField))]
+		[ChildDisplayableAttribute("Reputation", typeof(IntField))]
 		public int reputation_income { get; set; }
 
 		//[Displayable(7, typeof(ObjectField)), ForceHorizontal, Padded(10, 10, 10, 10), Emphasized]
 		public Battle ongoing_event { get; set; }
 
-		[Displayable(7, typeof(ActionField)), Padded(20, 20, 20, 20), VerticalOnly, LimitVisibility(Phase.Action)]
+		[Displayable(7, typeof(ActionField), verticalOnly = true, visiblePhases = Phase.Action,
+		             topPadding = 20, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
 		public GameAction attack { get; set; }
 
-		[Displayable(10, typeof(ActionField)), Padded(20, 20, 20, 20), VerticalOnly, LimitVisibility(Phase.Response)]
+		[Displayable(10, typeof(ActionField), verticalOnly = true, visiblePhases = Phase.Response,
+		             topPadding = 20, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
 		public GameAction defend { get; set; }
 
 		public Structure () : this(new StructureData()) { }
@@ -170,8 +172,8 @@ namespace Parahumans.Core {
 
 		public override Widget GetCellContents (Context context) {
 			Label label = new Label("Strength " + strength_buff.ToString("+#;-#;+0") + "\n" +
-			                        "Resources " + stealth_buff.ToString("+#;-#;+0") + "\n" +
-			                        "Reputation " + insight_buff.ToString("+#;-#;+0"));
+									"Resources " + stealth_buff.ToString("+#;-#;+0") + "\n" +
+									"Reputation " + insight_buff.ToString("+#;-#;+0"));
 			label.Justify = Justification.Left;
 			return new Gtk.Alignment(0, 0, 1, 0) { Child = label, BorderWidth = 10 };
 		}

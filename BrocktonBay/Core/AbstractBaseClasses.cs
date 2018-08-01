@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Gtk;
 
 namespace Parahumans.Core {
-
+	
 	// A GameObject is a base class for most objects in the game. This includes players, teams, factions and territories - NOT assets.
 	// GameObjects are assigned IDs mainly used for importing/exporting from/to JSON files, as they allow parent/child relationships to be reduced to primitive expressions.
 	public abstract class GameObject : IGUIComplete, IComparable<GameObject>, IContainer, IAffiliated {
@@ -11,7 +11,7 @@ namespace Parahumans.Core {
 		[Displayable(0, typeof(StringField))]
 		public string name { get; set; }
 
-		[Displayable(1, typeof(IntField)), LimitVisibility(Phase.None)]
+		[Displayable(1, typeof(IntField), visiblePhases = Phase.None)]
 		public int ID { get; set; }
 
 		[Displayable(2, typeof(IntField))] //Only wrt current perspective
