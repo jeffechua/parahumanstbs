@@ -162,6 +162,9 @@ namespace Parahumans.Core {
 		public static bool HasAttribute (PropertyInfo property, Type attribute)
 			=> property.GetCustomAttribute(attribute) != null;
 
+		public static bool CurrentlyEditable (object obj, string property)
+			=> CurrentlyEditable(obj.GetType().GetProperty(property), obj);
+
 		public static bool CurrentlyEditable (PropertyInfo property, object obj, DisplayableAttribute attribute = null) {
 			if (Game.omnipotent) return true;
 			IAffiliated affiliated = obj as IAffiliated;

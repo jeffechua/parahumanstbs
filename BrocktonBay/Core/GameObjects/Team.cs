@@ -145,33 +145,41 @@ namespace Parahumans.Core {
 
 		public override Widget GetCellContents (Context context) {
 
+			bool editable = UIFactory.CurrentlyEditable(this, "roster");
+
 			//Creates the cell contents
 			VBox rosterBox = new VBox(false, 0) { BorderWidth = 3 };
 			foreach (Parahuman parahuman in roster) {
 				InspectableBox header = (InspectableBox)parahuman.GetHeader(context.butCompact);
-				MyDragDrop.SetFailAction(header, delegate {
-					Remove(parahuman);
-					DependencyManager.TriggerAllFlags();
-				});
+				if (editable)
+					MyDragDrop.SetFailAction(header, delegate {
+						Remove(parahuman);
+						DependencyManager.TriggerAllFlags();
+					});
 				rosterBox.PackStart(header, false, false, 0);
 			}
 
-			//Set up dropping
-			EventBox eventBox = new EventBox { Child = rosterBox, VisibleWindow = false };
-			MyDragDrop.DestSet(eventBox, typeof(Parahuman).ToString());
-			MyDragDrop.DestSetDropAction(eventBox, delegate {
-				if (Accepts(MyDragDrop.currentDragged)) {
-					Add(MyDragDrop.currentDragged);
-					DependencyManager.TriggerAllFlags();
-				}
-			});
+			if (editable) {
+				//Set up dropping
+				EventBox eventBox = new EventBox { Child = rosterBox, VisibleWindow = false };
+				MyDragDrop.DestSet(eventBox, "Parahuman");
+				MyDragDrop.DestSetDropAction(eventBox, delegate {
+					if (Accepts(MyDragDrop.currentDragged)) {
+						Add(MyDragDrop.currentDragged);
+						DependencyManager.TriggerAllFlags();
+					}
+				});
+				return new Gtk.Alignment(0, 0, 1, 0) { Child = eventBox, BorderWidth = 7 };
+			} else {
+				rosterBox.BorderWidth += 7;
+				return rosterBox;
+			}
 
-			return new Gtk.Alignment(0, 0, 1, 0) { Child = eventBox, BorderWidth = 7 };
 			//For some reason drag/drop highlights include BorderWidth.
 			//The Alignment makes the highlight actually appear at the 3:7 point in the margin.
 		}
 
-		public override bool Accepts (object obj) => obj is Parahuman && ((IAffiliated)obj).affiliation == affiliation;
+		public override bool Accepts (object obj) => obj is Parahuman && (Game.omnipotent || ((IAffiliated)obj).affiliation == affiliation);
 		public override bool Contains (object obj) => obj is Parahuman && roster.Contains((Parahuman)obj);
 
 		public override void AddRange<T> (List<T> objs) {

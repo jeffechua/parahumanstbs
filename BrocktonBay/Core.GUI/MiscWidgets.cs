@@ -97,7 +97,7 @@ namespace Parahumans.Core {
 			}
 
 			//Set up drag support
-			MyDragDrop.SourceSet(this, inspected, inspected.GetType().ToString());
+			MyDragDrop.SourceSet(this, inspected);
 
 		}
 

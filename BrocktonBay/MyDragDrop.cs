@@ -13,8 +13,19 @@ namespace Parahumans.Core {
 
 		public static object currentDragged;
 
-		public static void SourceSet (Widget widget, object data, params string[] targets) {
-			Drag.SourceSet(widget, Gdk.ModifierType.Button1Mask, new List<string>(targets).ConvertAll(
+		public static void SourceSet (Widget widget, object data) {
+			List<string> targets = new List<string>();
+			targets.Add(data.GetType().Name);
+			if(data is GameObject){
+				targets.Add("GameObject");
+				if(data is IAgent){
+					targets.Add("IAgent");
+					if(((IAgent)data).active){
+						targets.Add("Active IAgent");
+					}
+				}
+			}
+			Drag.SourceSet(widget, Gdk.ModifierType.Button1Mask, targets.ConvertAll(
 				(target) => new TargetEntry(target, TargetFlags.App, 0)
 			).ToArray(), Gdk.DragAction.Move);
 			widget.DragBegin += (o, a) => currentDragged = data;

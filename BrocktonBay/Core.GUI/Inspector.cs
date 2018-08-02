@@ -69,7 +69,7 @@ namespace Parahumans.Core {
 
 			Child = frame;
 			prelight = false;
-			MyDragDrop.SourceSet(this, obj, obj.GetType().ToString());
+			MyDragDrop.SourceSet(this, obj);
 
 			// "Removing by dragging away to nothing" functionality should be implemented manually when the Cell is created.
 			// It should be implemented via MyDragDrop.SourceSetFailAction

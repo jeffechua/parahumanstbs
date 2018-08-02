@@ -146,8 +146,8 @@ namespace Parahumans.Core {
 			return false;
 		}
 
-		public override bool Accepts (object obj) => (obj is Parahuman || obj is Team || obj is Territory)
-													 && ((IAffiliated)obj).affiliation == affiliation;
+		public override bool Accepts (object obj) => (obj is Parahuman || obj is Team || obj is Territory) &&
+													 (Game.omnipotent || ((IAffiliated)obj).affiliation == affiliation);
 
 		public override void AddRange<T> (List<T> objs) { //It is assumed that the invoker has already checked if we Accept(obj).
 			foreach (object element in objs) {
@@ -219,36 +219,45 @@ namespace Parahumans.Core {
 
 		public override Widget GetCellContents (Context context) {
 
+			bool editable = UIFactory.CurrentlyEditable(this, "roster");
+
 			//Creates the cell contents
 			VBox childrenBox = new VBox(false, 0) { BorderWidth = 3 };
 			foreach (Parahuman parahuman in roster) {
 				InspectableBox header = (InspectableBox)parahuman.GetHeader(context.butCompact);
-				header.DragEnd += delegate {
-					Remove(parahuman);
-					DependencyManager.TriggerAllFlags();
-				};
+				if (editable)
+					MyDragDrop.SetFailAction(header, delegate {
+						Remove(parahuman);
+						DependencyManager.TriggerAllFlags();
+					});
 				childrenBox.PackStart(header, false, false, 0);
 			}
 			foreach (Team team in teams) {
 				InspectableBox header = (InspectableBox)team.GetHeader(context.butCompact);
-				header.DragEnd += delegate {
-					Remove(team);
-					DependencyManager.TriggerAllFlags();
-				};
+				if (editable)
+					MyDragDrop.SetFailAction(header, delegate {
+						Remove(team);
+						DependencyManager.TriggerAllFlags();
+					});
 				childrenBox.PackStart(header, false, false, 0);
 			}
 
-			//Set up dropping
-			EventBox eventBox = new EventBox { Child = childrenBox, VisibleWindow = false };
-			MyDragDrop.DestSet(eventBox, typeof(Parahuman).ToString(), typeof(Team).ToString());
-			MyDragDrop.DestSetDropAction(eventBox, delegate {
-				if (Accepts(MyDragDrop.currentDragged)) {
-					Add(MyDragDrop.currentDragged);
-					DependencyManager.TriggerAllFlags();
-				}
-			});
+			if (editable) {
+				//Set up dropping
+				EventBox eventBox = new EventBox { Child = childrenBox, VisibleWindow = false };
+				MyDragDrop.DestSet(eventBox, "Parahuman", "Team");
+				MyDragDrop.DestSetDropAction(eventBox, delegate {
+					if (Accepts(MyDragDrop.currentDragged)) {
+						Add(MyDragDrop.currentDragged);
+						DependencyManager.TriggerAllFlags();
+					}
+				});
+				return new Gtk.Alignment(0, 0, 1, 0) { Child = eventBox, BorderWidth = 7 };
+			}else {
+				childrenBox.BorderWidth += 7;
+				return childrenBox;
+			}
 
-			return new Gtk.Alignment(0, 0, 1, 0) { Child = eventBox, BorderWidth = 7 };
 			//For some reason drag/drop highlights include BorderWidth.
 			//The Alignment makes the highlight actually appear at the 3:7 point in the margin.
 		}

@@ -134,7 +134,7 @@ namespace Parahumans.Core {
 						EventBox eventBox = new EventBox { Child = table };
 						alignment.Add(eventBox);
 						eventBox.ButtonPressEvent += ListPressed; //Set up right-click menu
-						MyDragDrop.DestSet(eventBox, typeof(T).ToString()); //Set up
+						MyDragDrop.DestSet(eventBox, typeof(T).Name); //Set up
 						MyDragDrop.DestSetDropAction(eventBox, AttemptDrag);//drag support
 					} else {
 						alignment.Add(table);
@@ -146,7 +146,7 @@ namespace Parahumans.Core {
 					alignment.Add(expander);
 					if (editable) {
 						expander.ButtonPressEvent += ListPressed; //Set up right-click menu
-						MyDragDrop.DestSet(expander, typeof(T).ToString()); //Set up
+						MyDragDrop.DestSet(expander, typeof(T).Name); //Set up
 						MyDragDrop.DestSetDropAction(expander, AttemptDrag);//drag support
 					}
 				}
@@ -164,7 +164,7 @@ namespace Parahumans.Core {
 					};
 					box.PackStart(labelEventBox, false, false, 2);
 					//Set up drag support
-					MyDragDrop.DestSet(this, typeof(T).ToString());
+					MyDragDrop.DestSet(this, typeof(T).Name);
 					MyDragDrop.DestSetDropAction(this, AttemptDrag);
 				} else {
 					box.PackStart(label, false, false, 2);

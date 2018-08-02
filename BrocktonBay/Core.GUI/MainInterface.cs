@@ -67,7 +67,15 @@ namespace Parahumans.Core {
 			while (numbersBar.Children.Length > 0) numbersBar.Children[0].Destroy();
 
 			textBar.PackStart(new Label("Playing as: "), false, false, spacing);
-			textBar.PackStart(Game.player.GetHeader(new Context(Game.player, this, false, true)), false, false, 0);
+			InspectableBox player = (InspectableBox)Game.player.GetHeader(new Context(Game.player, this, false, true));
+			if (Game.omnipotent) {
+				MyDragDrop.DestSet(player, "Active IAgent");
+				MyDragDrop.DestSetDropAction(player, delegate (object obj) {
+					Game.player = (IAgent)obj;
+					Game.RefreshUI();
+				});
+			}
+			textBar.PackStart(player, false, false, 0);
 			Image nextPhaseArrow = Graphics.GetIcon(DirectionType.Right, black, (int)(Graphics.textSize * 0.75));
 			ClickableEventBox nextPhaseButton = new ClickableEventBox {
 				Child = nextPhaseArrow,
