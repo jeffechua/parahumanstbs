@@ -1,5 +1,5 @@
 ﻿using System;
-namespace Parahumans.Core {
+namespace BrocktonBay {
 	public interface IBattleground {
 		string name { get; }
 		IAgent affiliation { get; }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Gtk;
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	public sealed class TeamData {
 		public string name = "New Team";

@@ -3,8 +3,8 @@ using System.IO;
 using System.Reflection;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using Parahumans.Core;
-using Parahumans.Core.TUI;
+using BrocktonBay;
+using BrocktonBay.TUI;
 
 namespace Parahumans.Editor {
 

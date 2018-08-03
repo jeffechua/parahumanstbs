@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Gtk;
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	public class StructureMarker : InspectableBox, IDependable {
 
@@ -90,7 +90,7 @@ namespace Parahumans.Core {
 			}
 			if (structure.attacker != null) {
 				if (alert != null) alert.Destroy();
-				alert = Core.Map.NewAlert(structure);
+				alert = BrocktonBay.Map.NewAlert(structure);
 				Vector2 pos = scaledPosition - new Vector2(markerSize * 3 / 5, markerSize * 2);
 				map.stage.Put(alert, (int)pos.x, (int)pos.y);
 			} else if (alert != null) {

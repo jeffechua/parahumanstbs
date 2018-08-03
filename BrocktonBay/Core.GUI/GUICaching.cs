@@ -5,7 +5,7 @@ using Gtk;
 
 // Note that this is kind of a memory leak. Deleted gameObjects will leave a broken cached ObjectWidgetPair
 // that never gets summoned but sits there in memory.
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	public struct ObjectWidgetPair<T> {
 		public T obj;

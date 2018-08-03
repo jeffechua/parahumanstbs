@@ -2,7 +2,7 @@
 using Gtk;
 using System.Collections.Generic;
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	public class BattleInterface : HBox, IDependable {
 

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System;
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	public sealed class Attack : Deployment {
 

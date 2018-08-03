@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Gtk;
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	public class SelectorDialog : DefocusableWindow {
 		public SelectorDialog(Window transientFor, string title, Func<GameObject, bool> Filter = null, Action<GameObject> OnClicked = null) {
@@ -136,7 +136,7 @@ namespace Parahumans.Core {
 			PropertyInfo alignment = obj.GetType().GetProperty("alignment");
 			if (alignment != null)
 				for (int i = 0; i < alignments.Children.Length; i++)
-					if (!alignments.elements[i].Active && (Core.Alignment)alignment.GetValue(obj) == (Core.Alignment)alignments.metadata[i])
+					if (!alignments.elements[i].Active && (Alignment)alignment.GetValue(obj) == (Alignment)alignments.metadata[i])
 						return false;
 			PropertyInfo threat = obj.GetType().GetProperty("threat");
 			if (threat != null)

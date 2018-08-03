@@ -2,7 +2,7 @@
 using System.Reflection;
 using Gtk;
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	public sealed class DialogTextEditableField : VBox {
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Gtk;
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	public class MainInterface : VBox, IDependable {
 

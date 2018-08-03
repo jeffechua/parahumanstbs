@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	public struct DossierData {
 		public int knowerID;

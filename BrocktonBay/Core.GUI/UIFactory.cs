@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Gtk;
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	public static class UIFactory {
 
@@ -150,7 +150,6 @@ namespace Parahumans.Core {
 
 		public static Widget Fabricate (object obj, string propertyName, Context context) {
 			PropertyInfo property = obj.GetType().GetProperty(propertyName);
-			Console.WriteLine(obj.GetType().ToString() + "." + propertyName);
 			DisplayableAttribute attribute = (DisplayableAttribute)property.GetCustomAttribute(typeof(DisplayableAttribute));
 			return (Widget)attribute.widget.GetConstructor(constructorSignature)
 									.Invoke(new object[] { property, obj, context, attribute });

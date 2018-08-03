@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Parahumans.Core;
-using Parahumans.Core.TUI;
+using BrocktonBay;
+using BrocktonBay.TUI;
 
 namespace Parahumans.Editor {
 

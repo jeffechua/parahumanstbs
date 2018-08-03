@@ -1,5 +1,5 @@
 ﻿using System;
-namespace Parahumans.Core {
+namespace BrocktonBay {
 	public static class Profiler {
 
 		public static double totalLoadTime { get { return dataLoadTime + updateTime + UICreateTime; } }

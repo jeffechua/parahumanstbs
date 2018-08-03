@@ -4,7 +4,7 @@ using System.IO;
 using Gtk;
 using Newtonsoft.Json;
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	public class City : IContainer, IDependable {
 

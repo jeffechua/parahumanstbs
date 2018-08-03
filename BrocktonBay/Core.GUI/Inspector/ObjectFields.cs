@@ -5,7 +5,7 @@ using System;
 using Gtk;
 using Gdk;
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	public class ObjectField : Gtk.Alignment, IDependable {
 

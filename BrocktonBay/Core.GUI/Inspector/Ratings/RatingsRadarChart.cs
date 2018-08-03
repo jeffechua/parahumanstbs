@@ -3,7 +3,7 @@ using System;
 using Gtk;
 using Gdk;
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	public class RatingsRadarChart : Gtk.Image {
 

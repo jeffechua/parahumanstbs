@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Gtk;
 
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	public enum Phase {
 		All = -2,

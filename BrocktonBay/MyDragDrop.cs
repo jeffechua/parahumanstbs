@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Gtk;
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	// Why don't I use drag-failed? At the time of writing this, gtk-sharp for some reason does not emit the drag-failed
 	// signal when it should. Or maybe I'm just misunderstanding everything. Anyway, there's no other signal that tells

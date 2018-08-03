@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	// "DisplayableAttribute" is used to tag a property to indicate that they can be displayed by the UI and to supply the relevant metadata for displaying them.
 	public class DisplayableAttribute : Attribute {

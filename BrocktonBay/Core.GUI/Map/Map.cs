@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Gtk;
 using Gdk;
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	public enum AlertIconType {
 		Important = 0,

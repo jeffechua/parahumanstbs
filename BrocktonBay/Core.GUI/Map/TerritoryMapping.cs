@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Gtk;
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	public class TerritoryMarker : InspectableBox, IDependable {
 
@@ -106,7 +106,7 @@ namespace Parahumans.Core {
 			}
 			if (territory.attacker != null) {
 				if (alert != null) alert.Destroy();
-				alert = Core.Map.NewAlert(territory);
+				alert = BrocktonBay.Map.NewAlert(territory);
 				Vector2 pos = scaledPosition - new Vector2(markerHeight / 2, markerHeight * 2 + markerWidth * 1 / 3);
 				map.stage.Put(alert, (int)pos.x, (int)pos.y);
 			} else if (alert != null) {

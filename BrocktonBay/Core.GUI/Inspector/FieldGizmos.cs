@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Gtk;
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	public sealed class Banner : Label {
 		public Banner (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute, object arg) {

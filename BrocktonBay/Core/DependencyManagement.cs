@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	public interface IDependable {
 		int order { get; }

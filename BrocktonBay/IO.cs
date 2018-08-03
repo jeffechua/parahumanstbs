@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Gtk;
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	public static class IO {
 

@@ -2,35 +2,38 @@
 using System.IO;
 
 namespace BrocktonBay {
+
+	public enum OS {
+		Windows,
+		Linux,
+		Mac
+	}
+
 	public static class PlatformDetection {
-		public readonly static bool IsWindows;
-		public readonly static bool IsMac;
 
-		static PlatformDetection() {
-			IsWindows = Path.DirectorySeparatorChar == '\\';
-			IsMac = !IsWindows && IsRunningOnMac();
-		}
+		public readonly static OS os;
 
-		//From Managed.Windows.Forms/XplatUI
-		static bool IsRunningOnMac() {
-			IntPtr buf = IntPtr.Zero;
-			try {
-				buf = System.Runtime.InteropServices.Marshal.AllocHGlobal(8192);
-				// This is a hacktastic way of getting sysname from uname ()
-				if (uname(buf) == 0) {
-					string os = System.Runtime.InteropServices.Marshal.PtrToStringAnsi(buf);
-					if (os == "Darwin")
-						return true;
-				}
-			} catch {
-			} finally {
-				if (buf != IntPtr.Zero)
-					System.Runtime.InteropServices.Marshal.FreeHGlobal(buf);
+		static PlatformDetection () {
+			switch (Environment.OSVersion.Platform) {
+				case PlatformID.Unix:
+					// Well, there are chances MacOSX is reported as Unix instead of MacOSX.
+					// Instead of platform check, we'll do a feature checks (Mac specific root folders)
+					if (Directory.Exists("/Applications")
+						& Directory.Exists("/System")
+						& Directory.Exists("/Users")
+						& Directory.Exists("/Volumes"))
+						os = OS.Mac;
+					else
+						os = OS.Linux;
+					break;
+				case PlatformID.MacOSX:
+					os = OS.Mac;
+					break;
+				default:
+					os = OS.Windows;
+					break;
 			}
-			return false;
 		}
 
-		[System.Runtime.InteropServices.DllImport("libc")]
-		static extern int uname(IntPtr buf);
 	}
 }

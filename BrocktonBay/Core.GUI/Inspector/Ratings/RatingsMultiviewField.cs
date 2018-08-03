@@ -3,7 +3,7 @@ using System.Reflection;
 using Gtk;
 using Gdk;
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	public class SquareContainer : Bin {
 		protected override void OnSizeRequested (ref Requisition requisition) {

@@ -1,7 +1,7 @@
 ﻿using System;
 using Gtk;
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	public sealed class RatingsTable : Table {
 

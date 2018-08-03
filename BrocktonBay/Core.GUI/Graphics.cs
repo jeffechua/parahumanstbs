@@ -1,9 +1,11 @@
 ﻿using Gtk;
 using Gdk;
 using System;
+using System.IO;
+using System.Reflection;
 using System.Collections.Generic;
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	public struct IconRequest {
 		readonly string iconified;
@@ -38,6 +40,7 @@ namespace Parahumans.Core {
 		const int FULL_CIRCLE = 23040;
 		const double BLACK_TRIM_WIDTH = 0002;
 		const double RESOLUTION_FACTOR = 10; //The icon is rendered at this times the requested size then scaled down.
+		static Assembly assembly;
 
 		public static readonly Gdk.Color[] healthColors = { new Color(100, 100, 100), new Color(230, 0, 0), new Color(200, 200, 0), new Color(0, 200, 0) };
 		public static readonly Gdk.Color[] alignmentColors = { new Color(0, 100, 230), new Color(170, 140, 0), new Color(100, 150, 0), new Color(0, 0, 0), new Color(150, 0, 175) };
@@ -72,6 +75,7 @@ namespace Parahumans.Core {
 		static Gdk.GC black;
 
 		public static void OnMainWindowInitialized (object obj, EventArgs args) {
+			assembly = Assembly.GetExecutingAssembly();
 			textSize = (int)Math.Round(Game.mainWindow.Style.FontDescription.Size / Pango.Scale.PangoScale);
 			visible = new Gdk.GC(Game.mainWindow.GdkWindow) { RgbFgColor = new Color(255, 255, 255) };
 			translucent = new Gdk.GC(Game.mainWindow.GdkWindow) { RgbFgColor = new Color(150, 150, 150) };
@@ -80,6 +84,8 @@ namespace Parahumans.Core {
 			black = invisible;
 			Game.mainWindow.Realized -= OnMainWindowInitialized;
 		}
+
+		public static Stream GetResource (string path) => assembly.GetManifestResourceStream(path);
 
 		public static Gtk.Image GetIcon (object iconified, Color iconColor, int iconSize, bool decor = false) {
 
@@ -341,8 +347,28 @@ namespace Parahumans.Core {
 
 			Pixmap scaledColor = Scale(color, size, size, 0.1);
 			Pixmap scaledMask = Scale(mask, size, size, 0.1);
+			if (PlatformDetection.os == OS.Linux)
+				scaledMask = Bitmapize(scaledMask, 75);
 			iconCache.Add(request, new Icon(scaledColor, scaledMask));
-			return new Gtk.Image(scaledColor, scaledMask);             //This crashes the program
+			return new Gtk.Image(scaledColor, scaledMask);
+		}
+
+		public static Pixmap Bitmapize (Pixmap pixmap, int threshold) {
+			pixmap.GetSize(out int width, out int height);
+			Gdk.Image image = pixmap.GetImage(0, 0, width, height);
+			Pixmap bitmap = new Pixmap(null, width, height, 1);
+			Gdk.GC bitSetter = new Gdk.GC(bitmap) { Function = Gdk.Function.Set };
+			Gdk.GC bitClearer = new Gdk.GC(bitmap) { Function = Gdk.Function.Clear };
+			for (int x = 0; x < width; x++) {
+				for (int y = 0; y < height; y++) {
+					if (BitConverter.GetBytes(image.GetPixel(x, y))[0] >= threshold) {
+						bitmap.DrawPoint(bitSetter, x, y);
+					} else {
+						bitmap.DrawPoint(bitClearer, x, y);
+					}
+				}
+			}
+			return bitmap;
 		}
 
 		public static Gtk.Image GetCircle (Color circleColor, byte alpha, int radius) {
@@ -358,6 +384,9 @@ namespace Parahumans.Core {
 			mask.DrawRectangle(invisible, true, new Rectangle(0, 0, radius * 2, radius * 2));
 
 			mask.DrawArc(visible, true, 0, 0, radius * 2, radius * 2, 0, FULL_CIRCLE);
+
+			if (PlatformDetection.os == OS.Linux)
+				mask = Bitmapize(mask, 128);
 
 			return new Gtk.Image(color, mask);
 
@@ -448,18 +477,22 @@ namespace Parahumans.Core {
 						  (int)(coreRadius * 2), (int)(coreRadius * 2),
 						  0, FULL_CIRCLE);
 
-			return new Gtk.Image(Scale(color, w, h, 0.1), Scale(mask, w, h, 0.1));
+			Pixmap scaledColor = Scale(color, w, h, 0.1);
+			Pixmap scaledMask = Scale(mask, w, h, 0.1);
+			if (PlatformDetection.os == OS.Linux)
+				scaledMask = Bitmapize(scaledMask, 128);
 
+			return new Gtk.Image(scaledColor, scaledMask);
 		}
 
 		public static Pixmap Scale (Pixmap pixmap, double originalWidth, double originalHeight, double factor) {
-			Gdk.GC visible = new Gdk.GC(pixmap) { RgbFgColor = new Color(255, 255, 255) };
+			Gdk.GC visible = new Gdk.GC(pixmap);
 			double finalWidth = originalWidth * factor;
 			double finalHeight = originalHeight * factor;
-			Pixmap newPixmap = new Pixmap(Game.mainWindow.GdkWindow, (int)finalWidth, (int)finalHeight);
-			Pixbuf.FromDrawable(pixmap, Colormap.System, 0, 0, 0, 0, (int)originalWidth, (int)originalHeight)
-				  .ScaleSimple((int)finalWidth, (int)finalHeight, InterpType.Hyper)
-				  .RenderToDrawable(newPixmap, visible, 0, 0, 0, 0, (int)finalWidth, (int)finalHeight, RgbDither.Max, 0, 0);
+			Pixmap newPixmap = new Pixmap(pixmap, (int)finalWidth, (int)finalHeight);
+			Pixbuf pixbuf = Pixbuf.FromDrawable(pixmap, pixmap.Colormap, 0, 0, 0, 0, (int)originalWidth, (int)originalHeight);
+			Pixbuf scaledPixbuf = pixbuf.ScaleSimple((int)finalWidth, (int)finalHeight, InterpType.Hyper);
+			scaledPixbuf.RenderToDrawable(newPixmap, visible, 0, 0, 0, 0, (int)finalWidth, (int)finalHeight, RgbDither.Max, 0, 0);
 			return newPixmap;
 		}
 

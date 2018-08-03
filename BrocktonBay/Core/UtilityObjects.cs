@@ -1,7 +1,7 @@
 ﻿using System;
 using Gdk;
 
-namespace Parahumans.Core {
+namespace BrocktonBay {
 
 	public struct GameAction {
 		public string name;
