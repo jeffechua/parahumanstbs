@@ -78,7 +78,8 @@ namespace BrocktonBay {
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
 
 
-		public Faction () : this(new FactionData()) { }
+		public Faction () : this(new FactionData())
+			=> active = true;
 
 		public Faction (FactionData data) {
 			name = data.name;
@@ -253,7 +254,7 @@ namespace BrocktonBay {
 					}
 				});
 				return new Gtk.Alignment(0, 0, 1, 0) { Child = eventBox, BorderWidth = 7 };
-			}else {
+			} else {
 				childrenBox.BorderWidth += 7;
 				return childrenBox;
 			}

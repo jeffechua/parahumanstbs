@@ -111,7 +111,7 @@ namespace BrocktonBay {
 				name = "Attack",
 				description = "Launch an attack on " + name,
 				action = delegate (Context context) {
-					attacker = new Attack(this, BattleObjective.Raid, context.agent);
+					attacker = new Attack(this, context.agent);
 					DependencyManager.Connect(this, attacker);
 					DependencyManager.Flag(this);
 					DependencyManager.TriggerAllFlags();

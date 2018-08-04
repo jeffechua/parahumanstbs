@@ -4,13 +4,6 @@ using System.Collections.Generic;
 
 namespace BrocktonBay {
 
-	public enum BattleObjective {
-		Raid = 0,
-		Destroy = 1,
-		RaidAndDestroy = 2,
-		Defend = -1,
-	}
-
 	public sealed class Battle : IGUIComplete {
 
 		public int order { get { return 5; } }
@@ -24,9 +17,6 @@ namespace BrocktonBay {
 		public EffectiveRatingsProfile[] profiles;
 
 		public string name { get { return "Event at " + location.name; } }
-
-		[Displayable(0, typeof(EnumField<BattleObjective>))]
-		public BattleObjective type;
 
 		[Displayable(1, typeof(ObjectField), forceHorizontal = true)]
 		public IBattleground location;
@@ -48,11 +38,11 @@ namespace BrocktonBay {
 				attacker_insight = value[2];
 			}
 		}
-		[ChildDisplayableAttribute("Strength", typeof(ExpressionField), tooltipText = "β + δ + ½Σ + ½ψ + bonuses\n× force multiplier")]
+		[ChildDisplayable("Strength", typeof(ExpressionField), tooltipText = "β + δ + ½Σ + ½ψ + bonuses\n× force multiplier")]
 		public Expression attacker_strength { get; set; }
-		[ChildDisplayableAttribute("Stealth", typeof(ExpressionField), tooltipText = "μ + φ + bonuses")]
+		[ChildDisplayable("Stealth", typeof(ExpressionField), tooltipText = "μ + φ + bonuses")]
 		public Expression attacker_stealth { get; set; }
-		[ChildDisplayableAttribute("Insight", typeof(ExpressionField), tooltipText = "ξ + Ω + bonuses")]
+		[ChildDisplayable("Insight", typeof(ExpressionField), tooltipText = "ξ + Ω + bonuses")]
 		public Expression attacker_insight { get; set; }
 
 		[Displayable(4, typeof(FractionsBar), false, emphasized = true, tooltipText = "Injury chance = STR<sub>enemy</sub> / STR<sub>total</sub> / 2")]
@@ -97,7 +87,6 @@ namespace BrocktonBay {
 
 		public Battle (IBattleground location, Deployment attackers, Deployment defenders) {
 			this.location = location;
-			type = attackers.objective;
 			deployments = new Deployment[] { attackers, defenders };
 			profiles = new EffectiveRatingsProfile[2];
 			DependencyManager.Connect(attackers, this);

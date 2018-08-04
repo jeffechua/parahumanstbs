@@ -24,10 +24,13 @@ namespace BrocktonBay {
 			this.obj = (IGUIComplete)property.GetValue(obj);
 			this.context = context;
 
-			DependencyManager.Connect(this.obj, this);
-			Destroyed += (o, a) => DependencyManager.DisconnectAll(this);
-
-			Reload();
+			if (this.obj != null) {
+				DependencyManager.Connect(this.obj, this);
+				Destroyed += (o, a) => DependencyManager.DisconnectAll(this);
+				Reload();
+			} else {
+				Add(new Label(UIFactory.ToReadable(property.Name) + ": None"));
+			}
 
 		}
 
@@ -71,50 +74,54 @@ namespace BrocktonBay {
 			Gtk.Alignment alignment = new Gtk.Alignment(0, 0, 1, 1) { TopPadding = 3, BottomPadding = 3 };
 			Add(alignment);
 
-			// Creates rightclick menu for listwide management
-			rightclickMenu = new Menu();
+			if (editable) {
 
-			// "Clear" button
-			MenuItem clearButton = new MenuItem("Clear"); //Clears list
-			clearButton.Activated += delegate {
-				((IContainer)obj).RemoveRange(new List<T>(list));
-				DependencyManager.TriggerAllFlags();
-			};
-			rightclickMenu.Append(clearButton);
+				// Creates rightclick menu for listwide management
+				rightclickMenu = new Menu();
 
-			// "Add new" button
-			MenuItem addNewButton = new MenuItem("Add New");
-			addNewButton.Activated += delegate {
-				object newElement;
-				ConstructorInfo constructor = typeof(T).GetConstructor(new Type[] { });
-				if (constructor != null) {
-					newElement = constructor.Invoke(new object[0]);
-				} else {
-					MethodInfo method = typeof(T).GetMethod("Create");
-					if (method != null) {
-						newElement = method.Invoke(null, new object[0]);
-						if (newElement == null) return;
+				// "Clear" button
+				MenuItem clearButton = new MenuItem("Clear"); //Clears list
+				clearButton.Activated += delegate {
+					((IContainer)obj).RemoveRange(new List<T>(list));
+					DependencyManager.TriggerAllFlags();
+				};
+				rightclickMenu.Append(clearButton);
+
+				// "Add new" button
+				MenuItem addNewButton = new MenuItem("Add New");
+				addNewButton.Activated += delegate {
+					object newElement;
+					ConstructorInfo constructor = typeof(T).GetConstructor(new Type[] { });
+					if (constructor != null) {
+						newElement = constructor.Invoke(new object[0]);
 					} else {
-						throw new NotImplementedException();
+						MethodInfo method = typeof(T).GetMethod("Create");
+						if (method != null) {
+							newElement = method.Invoke(null, new object[0]);
+							if (newElement == null) return;
+						} else {
+							throw new NotImplementedException();
+						}
 					}
-				}
-				((IContainer)obj).Add(newElement);
-				if (newElement is GameObject) Game.city.Add((GameObject)newElement);
-				DependencyManager.TriggerAllFlags();
-			};
-			rightclickMenu.Append(addNewButton);
+					((IContainer)obj).Add(newElement);
+					if (newElement is GameObject) Game.city.Add((GameObject)newElement);
+					DependencyManager.TriggerAllFlags();
+				};
+				rightclickMenu.Append(addNewButton);
 
-			// "Add existing" button, but only if it's a list of GameObjects which can be searched from SelectorDialog.
-			if (typeof(T).IsSubclassOf(typeof(GameObject))) {
-				MenuItem addExistingButton = new MenuItem("Add Existing");
-				rightclickMenu.Append(addExistingButton);
-				addExistingButton.Activated += (o, a) => new SelectorDialog(
-					(Gtk.Window)Toplevel, "Select new addition to " + UIFactory.ToReadable(property.Name),
-					(tested) => ((IContainer)obj).Accepts(tested) && tested is T,
-					delegate (GameObject returned) {
-						((IContainer)obj).Add(returned);
-						DependencyManager.TriggerAllFlags();
-					});
+				// "Add existing" button, but only if it's a list of GameObjects which can be searched from SelectorDialog.
+				if (typeof(T).IsSubclassOf(typeof(GameObject))) {
+					MenuItem addExistingButton = new MenuItem("Add Existing");
+					rightclickMenu.Append(addExistingButton);
+					addExistingButton.Activated += (o, a) => new SelectorDialog(
+						(Gtk.Window)Toplevel, "Select new addition to " + UIFactory.ToReadable(property.Name),
+						(tested) => ((IContainer)obj).Accepts(tested) && tested is T,
+						delegate (GameObject returned) {
+							((IContainer)obj).Add(returned);
+							DependencyManager.TriggerAllFlags();
+						});
+				}
+
 			}
 
 			// Load tooltip (if exists)

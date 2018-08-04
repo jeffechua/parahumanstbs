@@ -28,7 +28,7 @@ namespace BrocktonBay {
 	public sealed class Team : GameObject, IRated, IAgent {
 
 		public override int order { get { return 2; } }
-		public Gdk.Color color { get { return new Gdk.Color(0, 0, 0); } }
+		public Gdk.Color color { get { return new Gdk.Color(150, 150, 150); } }
 		public Dossier knowledge { get; set; }
 		bool _active;
 		[Displayable(2, typeof(BasicReadonlyField), visiblePhases = Phase.None)]
@@ -90,7 +90,8 @@ namespace BrocktonBay {
 		//[Displayable(10, typeof(RatingsRadarChart), true), Emphasized, VerticalOnly]
 		//public Func<Context, RatingsProfile> ratings_profile_radar { get { return ratings; } }
 
-		public Team () : this(new TeamData()) { }
+		public Team () : this(new TeamData())
+			=> active = true;
 
 		public Team (TeamData data) {
 			name = data.name;

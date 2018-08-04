@@ -91,7 +91,8 @@ namespace BrocktonBay {
 
 		public RatingsProfile baseRatings { get; set; }
 
-		public Parahuman () : this(new ParahumanData()) { }
+		public Parahuman () : this(new ParahumanData())
+			=> active = true;
 
 		public Parahuman (ParahumanData data) {
 			name = data.name;

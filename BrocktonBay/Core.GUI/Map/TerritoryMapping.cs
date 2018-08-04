@@ -18,7 +18,7 @@ namespace BrocktonBay {
 		public Image zone;
 		public Widget line;
 		public Window popup;
-		public ClickableEventBox alert;
+		public Widget alert;
 		public Vector2 scaledPosition;
 
 		public Territory territory;

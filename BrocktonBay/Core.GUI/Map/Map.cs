@@ -144,45 +144,52 @@ namespace BrocktonBay {
 			ShowAll();
 		}
 
-		public static ClickableEventBox NewAlert (IBattleground battleground) {
-			Gtk.Image icon;
-			AlertIconType alertType;
-			if (battleground.attacker != null && battleground.defender != null) {
-				alertType = AlertIconType.Opposed;
+		public static bool Relevant (IBattleground battleground, IAgent agent)
+			=> battleground.affiliation == agent ||
+					   (battleground.attacker != null && battleground.attacker.affiliation == agent) ||
+					   (battleground.defender != null && battleground.defender.affiliation == agent);
+
+		public static Widget NewAlert (IBattleground battleground) {
+
+			AlertIconType alertType = battleground.defender == null ? AlertIconType.Unopposed : AlertIconType.Opposed;
+			int alertSize = battleground is Structure ? StructureMarker.markerSize * 6 / 5 : TerritoryMarker.markerHeight;
+			Color primaryColor = battleground.attacker.affiliation.color;
+			Color secondaryColor = battleground.defender == null ? primaryColor : battleground.defender.affiliation.color;
+			Color trim;
+			if (Relevant(battleground, Game.player)) {
+				trim = new Color(0, 0, 0);
 			} else {
-				alertType = AlertIconType.Unopposed;
+				trim = new Color(50, 50, 50);
+				primaryColor.Red = (ushort)((primaryColor.Red + 150) / 2);
+				primaryColor.Green = (ushort)((primaryColor.Green + 150) / 2);
+				primaryColor.Blue = (ushort)((primaryColor.Blue + 150) / 2);
+				secondaryColor.Red = (ushort)((secondaryColor.Red + 150) / 2);
+				secondaryColor.Green = (ushort)((secondaryColor.Green + 150) / 2);
+				secondaryColor.Blue = (ushort)((secondaryColor.Blue + 150) / 2);
 			}
-			if (battleground is Structure) {
-				icon = Graphics.GetIcon(alertType, new Color(230, 120, 0), StructureMarker.markerSize * 6 / 5);
-			} else { //battleground is Territory
-				icon = Graphics.GetIcon(alertType, new Color(230, 0, 0), TerritoryMarker.markerHeight);
-			}
-			ClickableEventBox alert;
+
+			Gtk.Image icon = Graphics.GetAlert(alertType, alertSize, primaryColor, secondaryColor, trim);
+
+			if (!Relevant(battleground, Game.player))
+				return icon;
+
 			if (Game.phase == Phase.Action || (Game.phase == Phase.Response && battleground.defender == null)) {
-				if (battleground.attacker.affiliation == Game.player) {
-					alert = new InspectableBox(icon, battleground.attacker);
-				} else {
-					alert = new ClickableEventBox { Child = icon, active = false };
-				}
+				return new InspectableBox(icon, battleground.attacker) { VisibleWindow = false };
 			} else if (Game.phase == Phase.Response) {
-				if (battleground.defender.affiliation == Game.player) {
-					alert = new InspectableBox(icon, battleground.defender);
-				} else {
-					alert = new ClickableEventBox { Child = icon, active = false };
-				}
+				return new InspectableBox(icon, battleground.defender) { VisibleWindow = false };
 			} else if (Game.phase == Phase.Mastermind) {
 				if (battleground.battle == null) battleground.battle = new Battle(battleground, battleground.attacker, battleground.defender);
-				alert = new ClickableEventBox { Child = icon };
+				ClickableEventBox alert = new ClickableEventBox { Child = icon, VisibleWindow = false };
 				alert.Clicked += delegate {
 					SecondaryWindow eventWindow = new SecondaryWindow("Battle at " + battleground.name);
 					eventWindow.SetMainWidget(new BattleInterface(battleground.battle));
 					eventWindow.ShowAll();
 				};
-			}else {
-				throw new Exception("Invalid game phase");
+				return alert;
 			}
-			alert.VisibleWindow = false;
-			return alert;
+
+			throw new Exception("Invalid game phase");
+
 		}
 
 	}

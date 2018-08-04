@@ -10,9 +10,6 @@ namespace BrocktonBay {
 		[Displayable(1, typeof(ObjectField), forceHorizontal = true)]
 		public override Parahuman leader { get; set; }
 
-		[Displayable(2, typeof(EnumField<BattleObjective>), editablePhases = Phase.Action)]
-		public override BattleObjective objective { get; set; }
-
 		[Displayable(5, typeof(EnumField<Threat>), editablePhases = Phase.Action)]
 		public override Threat authorized_force { get; set; }
 
@@ -25,11 +22,10 @@ namespace BrocktonBay {
 		[Displayable(8, typeof(CellTabularListField<Parahuman>), -2, emphasized = true, editablePhases = Phase.Action)]
 		public override List<Parahuman> combined_roster { get; set; }
 
-		public Attack (IBattleground location, BattleObjective objective, IAgent affiliation) : this(location, objective, affiliation, new List<Team>(), new List<Parahuman>()) { }
+		public Attack (IBattleground location, IAgent affiliation) : this(location, affiliation, new List<Team>(), new List<Parahuman>()) { }
 
-		public Attack (IBattleground location, BattleObjective objective, IAgent affiliation, List<Team> teams, List<Parahuman> independents, Parahuman leader = null) {
+		public Attack (IBattleground location, IAgent affiliation, List<Team> teams, List<Parahuman> independents, Parahuman leader = null) {
 			this.location = location;
-			this.objective = objective;
 			this.affiliation = affiliation;
 			this.teams = teams;
 			this.independents = independents;
@@ -45,9 +41,6 @@ namespace BrocktonBay {
 
 		[Displayable(1, typeof(ObjectField), forceVertical = true)]
 		public override Parahuman leader { get; set; }
-
-		[Displayable(2, typeof(EnumField<BattleObjective>), editablePhases = Phase.Response)]
-		public override BattleObjective objective { get => BattleObjective.Defend; set { } }
 
 		[Displayable(5, typeof(EnumField<Threat>), editablePhases = Phase.Response)]
 		public override Threat authorized_force { get; set; }
@@ -85,7 +78,6 @@ namespace BrocktonBay {
 		public IBattleground location;
 
 		public abstract Parahuman leader { get; set; }
-		public abstract BattleObjective objective { get; set; }
 		public abstract Threat authorized_force { get; set; }
 		public abstract List<Team> teams { get; set; }
 		public abstract List<Parahuman> independents { get; set; }
