@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using Gtk;
-
+/*
 namespace BrocktonBay {
 
-	public class TerritoryMarker : InspectableBox, IDependable {
+	public class TerritoryMaer : InspectableBox, IDependable {
 
 		public int order { get { return 3; } }
 		public bool destroyed { get; set; }
@@ -26,13 +26,13 @@ namespace BrocktonBay {
 		public IntVector2 location; //We round this to prevent floating point precision errors
 		public int size;
 
-		public TerritoryMarker (Territory territory, Map map) : base(territory) {
+		public TerritoryMaer (Territory territory, Map map) : base(territory) {
 
 			this.map = map;
 
 			this.territory = territory;
 			affiliation = territory.affiliation;
-			location = territory.location;
+			location = territory.position;
 			size = territory.size;
 
 			map.stage.Put(this, 0, 0);
@@ -100,13 +100,13 @@ namespace BrocktonBay {
 				size = territory.size;
 				Rezone();
 			}
-			if (location != territory.location) {
-				location = territory.location;
+			if (location != territory.position) {
+				location = territory.position;
 				Repin();
 			}
 			if (territory.attacker != null) {
 				if (alert != null) alert.Destroy();
-				alert = BrocktonBay.Map.NewAlert(territory);
+				alert = map.NewAlert(territory);
 				Vector2 pos = scaledPosition - new Vector2(markerHeight / 2, markerHeight * 2 + markerWidth * 1 / 3);
 				map.stage.Put(alert, (int)pos.x, (int)pos.y);
 			} else if (alert != null) {
@@ -161,3 +161,4 @@ namespace BrocktonBay {
 	}
 
 }
+*/

@@ -1,7 +1,7 @@
 ﻿using System;
 namespace BrocktonBay {
-	public interface IBattleground {
-		string name { get; }
+	public interface IBattleground : IGUIComplete {
+		IntVector2 position { get; }
 		IAgent affiliation { get; }
 		Attack attacker { get; set; }
 		Defense defender { get; set; }

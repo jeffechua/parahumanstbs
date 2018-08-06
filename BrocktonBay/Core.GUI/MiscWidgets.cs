@@ -15,10 +15,10 @@ namespace BrocktonBay {
 		public bool prelight = true;
 		public bool depress = true;
 
-		public ClickableEventBox() {
+		public ClickableEventBox () {
 			CanFocus = true;
 			EnterNotifyEvent += delegate (object obj, EnterNotifyEventArgs args) {
-				if(!active)return;
+				if (!active) return;
 				SetCurrentMouseOver(this);
 			};
 			LeaveNotifyEvent += delegate (object obj, LeaveNotifyEventArgs args) {
@@ -39,7 +39,7 @@ namespace BrocktonBay {
 				if (!active) return;
 				if (prelight) {
 					State = StateType.Prelight;
-				}else {
+				} else {
 					State = StateType.Normal;
 				}
 				if (clickValid) Clicked(this, args);
@@ -48,7 +48,7 @@ namespace BrocktonBay {
 			};
 		}
 
-		public static void SetCurrentMouseOver(ClickableEventBox widget) {
+		public static void SetCurrentMouseOver (ClickableEventBox widget) {
 			if (currentMouseOver != null)
 				currentMouseOver.State = StateType.Normal;
 			currentMouseOver = widget;
@@ -62,19 +62,14 @@ namespace BrocktonBay {
 
 		public IGUIComplete inspected;
 		public Menu rightclickMenu;
+		public bool destructible = true;
 
-		public InspectableBox(IGUIComplete inspected) {
-			
+		public InspectableBox (IGUIComplete inspected) {
+
 			this.inspected = inspected;
 			rightclickMenu = new Menu();
 
-			Clicked += delegate (object obj, ButtonReleaseEventArgs args) {
-				if (args.Event.Button == 2 || (args.Event.Type == Gdk.EventType.TwoButtonPress && args.Event.Button == 1)) {
-					Inspector.InspectInNewWindow(inspected, (Window)Toplevel);
-				} else if (args.Event.Button == 1) {
-					Inspector.InspectInNearestInspector(inspected, this);
-				}
-			};
+			Clicked += OnClicked;
 
 			RightClicked += delegate {
 				rightclickMenu.Popup();
@@ -82,16 +77,16 @@ namespace BrocktonBay {
 			};
 
 			MenuItem inspectButton = new MenuItem("Inspect");
-			inspectButton.Activated += (o, args) => Inspector.InspectInNearestInspector(inspected, this);
+			inspectButton.Activated += Inspect;
 			MenuItem inspectInWindowButton = new MenuItem("Inspect in New Window");
-			inspectInWindowButton.Activated += (o, args) => Inspector.InspectInNewWindow(inspected, (Window)Toplevel);
+			inspectInWindowButton.Activated += InspectInNewWindow;
 
 			rightclickMenu.Append(inspectButton);
 			rightclickMenu.Append(inspectInWindowButton);
 
-			if (Game.omnipotent) {
+			if (Game.omnipotent && destructible) {
 				MenuItem deleteButton = new MenuItem("Delete");
-				deleteButton.Activated += (o, args) => DependencyManager.Delete(inspected);
+				deleteButton.Activated += Delete;
 				rightclickMenu.Append(new SeparatorMenuItem());
 				rightclickMenu.Append(deleteButton);
 			}
@@ -101,7 +96,29 @@ namespace BrocktonBay {
 
 		}
 
-		public InspectableBox(Widget child, IGUIComplete inspected) : this(inspected)
+		public void OnClicked (object obj, ButtonReleaseEventArgs args) {
+			if (inspected == null) return;
+			if (args.Event.Button == 2 || (args.Event.Type == Gdk.EventType.TwoButtonPress && args.Event.Button == 1)) {
+				Inspector.InspectInNewWindow(inspected, (Window)Toplevel);
+			} else if (args.Event.Button == 1) {
+				Inspector.InspectInNearestInspector(inspected, this);
+			}
+		}
+
+		public void Inspect (object obj, EventArgs args) {
+			if (inspected == null) return;
+			Inspector.InspectInNearestInspector(inspected, this);
+		}
+		public void InspectInNewWindow (object obj, EventArgs args) {
+			if (inspected == null) return;
+			Inspector.InspectInNewWindow(inspected, (Window)Toplevel);
+		}
+		public void Delete (object obj, EventArgs args) {
+			if (inspected == null) return;
+			DependencyManager.Delete(inspected);
+		}
+
+		public InspectableBox (Widget child, IGUIComplete inspected) : this(inspected)
 			=> Child = child;
 
 	}
@@ -109,7 +126,7 @@ namespace BrocktonBay {
 	public class Checklist : VBox {
 		public object[] metadata;
 		public List<CheckButton> elements;
-		public Checklist(bool def, string[] names, object[] data) {
+		public Checklist (bool def, string[] names, object[] data) {
 			metadata = data;
 			for (int i = 0; i < names.Length; i++) PackStart(new CheckButton(names[i]) { Active = def }, false, false, 0);
 			elements = new List<Widget>(Children).ConvertAll((input) => (CheckButton)input);
@@ -120,7 +137,7 @@ namespace BrocktonBay {
 
 		public ToggleButton toggle;
 
-		public ToggleMenu(ToggleButton toggle) : base(WindowType.Popup) {
+		public ToggleMenu (ToggleButton toggle) : base(WindowType.Popup) {
 			Gravity = Gdk.Gravity.NorthWest;
 			this.toggle = toggle;
 			toggle.Toggled += Toggled;
@@ -128,7 +145,7 @@ namespace BrocktonBay {
 				=> toggle.Active = false;
 		}
 
-		public void Toggled(object obj, EventArgs args) {
+		public void Toggled (object obj, EventArgs args) {
 			if (TransientFor == null) TransientFor = (Window)toggle.Toplevel;
 			if (toggle.Active) {
 				((Window)toggle.Toplevel).GdkWindow.GetOrigin(out int x, out int y);

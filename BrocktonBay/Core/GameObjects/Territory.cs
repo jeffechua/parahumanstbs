@@ -9,7 +9,7 @@ namespace BrocktonBay {
 
 		public string name = "New Territory";
 		public int ID = 0;
-		public IntVector2 location = new IntVector2(0, 0);
+		public IntVector2 position = new IntVector2(0, 0);
 		public int size = 0;
 		public int reputation = 0;
 		public List<int> structures = new List<int>();
@@ -19,7 +19,7 @@ namespace BrocktonBay {
 		public TerritoryData (Territory territory) {
 			name = territory.name;
 			ID = territory.ID;
-			location = territory.location;
+			position = territory.location;
 			size = territory.size;
 			reputation = territory.reputation;
 			structures = territory.structures.ConvertAll((structure) => structure.ID);
@@ -99,7 +99,7 @@ namespace BrocktonBay {
 		public Territory (TerritoryData data) {
 			name = data.name;
 			ID = data.ID;
-			location = data.location;
+			location = data.position;
 			size = data.size;
 			reputation = data.reputation;
 			structures = data.structures.ConvertAll((structure) => Game.city.Get<Structure>(structure));

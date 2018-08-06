@@ -149,7 +149,7 @@ namespace BrocktonBay {
 					   (battleground.attacker != null && battleground.attacker.affiliation == agent) ||
 					   (battleground.defender != null && battleground.defender.affiliation == agent);
 
-		public static Widget NewAlert (IBattleground battleground) {
+		public Widget NewAlert (IBattleground battleground) {
 
 			AlertIconType alertType = battleground.defender == null ? AlertIconType.Unopposed : AlertIconType.Opposed;
 			int alertSize = battleground is Structure ? StructureMarker.markerSize * 6 / 5 : TerritoryMarker.markerHeight;
@@ -174,9 +174,43 @@ namespace BrocktonBay {
 				return icon;
 
 			if (Game.phase == Phase.Action || (Game.phase == Phase.Response && battleground.defender == null)) {
-				return new InspectableBox(icon, battleground.attacker) { VisibleWindow = false };
+				InspectableBox alert = new InspectableBox(icon, battleground.attacker) { VisibleWindow = false };
+				alert.EnterNotifyEvent += delegate {
+					alert.GdkWindow.GetOrigin(out int x, out int y);
+					Gtk.Window popup = GetDeploymentPopup(battleground.attacker);
+					Graphics.SetAllocationTrigger(popup, delegate {
+						popup.Move(x + alert.Allocation.Right + alertSize * 3 / 2,
+								   y + alert.Allocation.Top + alertSize / 2 - popup.Allocation.Height / 4);
+					});
+					alert.ShowAll();
+				};
+				LeaveNotifyEvent += delegate {
+					if (popup != null) {
+						popup.Destroy();
+						popup = null;
+					}
+					map.stage.Remove(line);
+				};
 			} else if (Game.phase == Phase.Response) {
-				return new InspectableBox(icon, battleground.defender) { VisibleWindow = false };
+				InspectableBox alert = new InspectableBox(icon, battleground.defender) { VisibleWindow = false };
+				alert.EnterNotifyEvent += delegate {
+					alert.GdkWindow.GetOrigin(out int x, out int y);
+					Gtk.Window popup = GetDeploymentPopup(battleground.attacker);
+					Graphics.SetAllocationTrigger(popup, delegate {
+						popup.Move(x + alert.Allocation.Right + alertSize * 3 / 2,
+								   y + alert.Allocation.Top + alertSize / 2 - popup.Allocation.Height / 4);
+					});
+					alert.ShowAll();
+				};
+				alert.EnterNotifyEvent += delegate {
+					alert.GdkWindow.GetOrigin(out int x, out int y);
+					Gtk.Window popup = GetDeploymentPopup(battleground.attacker);
+					Graphics.SetAllocationTrigger(popup, delegate {
+						popup.Move(x + alert.Allocation.Right + alertSize * 3 / 2,
+								   y + alert.Allocation.Top + alertSize / 2 - popup.Allocation.Height / 4);
+					});
+					alert.ShowAll();
+				};
 			} else if (Game.phase == Phase.Mastermind) {
 				if (battleground.battle == null) battleground.battle = new Battle(battleground, battleground.attacker, battleground.defender);
 				ClickableEventBox alert = new ClickableEventBox { Child = icon, VisibleWindow = false };
@@ -189,6 +223,56 @@ namespace BrocktonBay {
 			}
 
 			throw new Exception("Invalid game phase");
+
+		}
+
+		public Gtk.Window GetDeploymentPopup (Widget alert, Deployment deployment) {
+
+			Gtk.Window window = new Gtk.Window(Gtk.WindowType.Popup) {
+				Gravity = Gravity.West,
+				TransientFor = (Gtk.Window)Toplevel
+			}
+
+			Context context = new Context(Game.player, deployment, true, false);
+
+			VBox mainBox = new VBox(false, 2) { BorderWidth = 10 };
+
+			Label name = new Label(deployment.name);
+			name.SetAlignment(0.5f, 1);
+			mainBox.PackStart(name, false, false, 3);
+			mainBox.PackStart(new HSeparator(), false, false, 5);
+			HBox affiliationBox = new HBox();
+			affiliationBox.PackStart(new Label("Affiliation: "));
+			if (deployment.affiliation == null) {
+				affiliationBox.PackStart(new Label("None"));
+			} else {
+				affiliationBox.PackStart(deployment.affiliation.GetHeader(context.butCompact));
+			}
+			mainBox.PackStart(UIFactory.Align(affiliationBox, 0, 0, 0, 1));
+			mainBox.PackStart(UIFactory.Align(new Label("Threat: " + deployment.threat), 0, 0, 0, 1));
+			mainBox.PackStart(UIFactory.Align(new Label("Force Employed: " + deployment.force_employed), 0, 0, 0, 1));
+			mainBox.PackStart(new HSeparator(), false, false, 5);
+
+			List<Widget> cells = new List<Widget>();
+			cells.AddRange(deployment.teams.ConvertAll((team) => new Cell(context, team)));
+			cells.AddRange(deployment.independents.ConvertAll((team) => new Cell(context, team)));
+			mainBox.PackStart(new DynamicTable(cells, 2));
+
+			mainBox.PackStart(new HSeparator(), false, false, 5);
+			mainBox.PackStart(UIFactory.Fabricate(deployment, "strength", context));
+			mainBox.PackStart(new HSeparator(), false, false, 5);
+			mainBox.PackStart(UIFactory.Fabricate(deployment, "stealth", context));
+			mainBox.PackStart(new HSeparator(), false, false, 5);
+			mainBox.PackStart(UIFactory.Fabricate(deployment, "insight", context));
+
+			window.Add(mainBox);
+
+			Graphics.SetAllocationTrigger(window, delegate {
+				window.Move(x + marker.Allocation.Right + StructureMarker.markerSize * 3 / 2,
+				            y + marker.Allocation.Top + StructureMarker.markerSize / 2 - window.Allocation.Height / 4);
+			});
+
+			return window
 
 		}
 

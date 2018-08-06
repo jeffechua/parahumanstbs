@@ -122,9 +122,9 @@ namespace BrocktonBay {
 								+ "</big>";
 
 			Tuple<Fraction[], Fraction[]> fractions;
-			fractions = CompareStats(attacker_stats, defender_stats, defenders.authorized_force);
+			fractions = CompareStats(attacker_stats, defender_stats, defenders.force_employed);
 			attacker_injury = fractions.Item1; attacker_escape = fractions.Item2;
-			fractions = CompareStats(defender_stats, attacker_stats, attackers.authorized_force);
+			fractions = CompareStats(defender_stats, attacker_stats, attackers.force_employed);
 			defender_injury = fractions.Item1; defender_escape = fractions.Item2;
 
 		}
@@ -151,7 +151,7 @@ namespace BrocktonBay {
 			float baseStrength = values[4, 1] + values[4, 2] + values[4, 3] / 2 + values[4, 4] / 2;
 			float plusBonus = baseStrength + profile.bonuses[0];
 			if (plusBonus < 0) plusBonus = 0;
-			float forceMult = ForceMult(deployments[i].authorized_force);
+			float forceMult = ForceMult(deployments[i].force_employed);
 			float plusForce = plusBonus * forceMult;
 			expressions[0].SetValues(values[4, 1], values[4, 2], values[4, 3], values[4, 4],
 									 baseStrength, profile.bonuses[0], plusBonus, forceMult, plusForce);

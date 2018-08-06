@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using Gtk;
-
+/*
 namespace BrocktonBay {
 
-	public class StructureMarker : InspectableBox, IDependable {
+	public class StructureMa : InspectableBox, IDependable {
 
 		public int order { get { return 2; } }
 		public bool destroyed { get; set; }
@@ -16,7 +16,7 @@ namespace BrocktonBay {
 		public Image markerImage;
 		public Widget line;
 		public Window popup;
-		public ClickableEventBox alert;
+		public Widget alert;
 		public Vector2 scaledPosition;
 
 		public Structure structure;
@@ -24,12 +24,12 @@ namespace BrocktonBay {
 		public IAgent affiliation;
 		public StructureType type;
 
-		public StructureMarker (Structure structure, Map map) : base(structure) {
+		public StructureMa (Structure structure, Map map) : base(structure) {
 
 			this.map = map;
 
 			this.structure = structure;
-			location = structure.location;
+			location = structure.position;
 			affiliation = structure.affiliation;
 			type = structure.type;
 
@@ -68,15 +68,6 @@ namespace BrocktonBay {
 			Add(markerImage);
 		}
 
-		public void Repin () {
-			scaledPosition = location * map.currentMagnif;
-			Vector2 markerCoords = scaledPosition - new Vector2(markerSize / 2, markerSize / 2);
-			map.stage.Move(this, (int)markerCoords.x, (int)markerCoords.y);
-			if (alert != null) {
-				Vector2 alertCoords = scaledPosition - new Vector2(markerSize * 3 / 5, markerSize * 2);
-				map.stage.Move(alert, (int)alertCoords.x, (int)alertCoords.y);
-			}
-		}
 
 		public void Reload () {
 			if (affiliation != structure.affiliation || type != structure.type) {
@@ -84,13 +75,13 @@ namespace BrocktonBay {
 				type = structure.type;
 				Redraw();
 			}
-			if (location != structure.location) {
-				location = structure.location;
+			if (location != structure.position) {
+				location = structure.position;
 				Repin();
 			}
 			if (structure.attacker != null) {
 				if (alert != null) alert.Destroy();
-				alert = BrocktonBay.Map.NewAlert(structure);
+				alert = map.NewAlert(structure);
 				Vector2 pos = scaledPosition - new Vector2(markerSize * 3 / 5, markerSize * 2);
 				map.stage.Put(alert, (int)pos.x, (int)pos.y);
 			} else if (alert != null) {
@@ -141,3 +132,4 @@ namespace BrocktonBay {
 	}
 
 }
+*/
