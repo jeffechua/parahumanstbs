@@ -442,7 +442,7 @@ namespace BrocktonBay {
 				case Phase.Response:
 					return defended ? GenerateDeploymentPopup(battleground.attacker) : null;
 				case Phase.Mastermind:
-					return GenerateBattlePopup(battleground.battle);
+					return null;
 				default:
 					throw new Exception("Invalid game phase");
 			}
@@ -517,20 +517,16 @@ namespace BrocktonBay {
 			mainBox.PackStart(name, false, false, 3);
 			mainBox.PackStart(new HSeparator(), false, false, 5);
 			mainBox.PackStart(UIFactory.Fabricate(battle, "victor", context));
+			mainBox.PackStart(new HSeparator(), false, false, 7);
 
-			Table casualties = new Table(9, 5, false);
+			Table casualties = new Table(9, 3, false) { ColumnSpacing = 5, RowSpacing = 5 };
 			casualties.Attach(new VSeparator(), 1, 2, 0, 9);
-			casualties.Attach(new VSeparator(), 3, 4, 0, 9);
-			casualties.Attach(new HSeparator(), 0, 5, 1, 2);
-			casualties.Attach(new HSeparator(), 0, 5, 3, 4);
-			casualties.Attach(new HSeparator(), 0, 5, 5, 6);
-			casualties.Attach(new HSeparator(), 0, 5, 7, 8);
-			casualties.Attach(new Label("Attackers"), 2, 3, 0, 1);
-			casualties.Attach(new Label("Defenders"), 4, 5, 0, 1);
-			casualties.Attach(new Label("Injuries") { Angle = -90 }, 0, 1, 2, 3);
-			casualties.Attach(new Label("Downed") { Angle = -90 }, 0, 1, 4, 5);
-			casualties.Attach(new Label("Deaths") { Angle = -90 }, 0, 1, 6, 7);
-			casualties.Attach(new Label("Captures") { Angle = -90 }, 0, 1, 8, 9);
+			casualties.Attach(new HSeparator(), 0, 3, 1, 2);
+			casualties.Attach(new HSeparator(), 0, 3, 3, 4);
+			casualties.Attach(new HSeparator(), 0, 3, 5, 6);
+			casualties.Attach(new HSeparator(), 0, 3, 7, 8);
+			casualties.Attach(new Label("Attackers"), 0, 1, 0, 1);
+			casualties.Attach(new Label("Defenders"), 2, 3, 0, 1);
 
 			List<Parahuman> aInjuries = battle.attackers.combined_roster.FindAll((p) => p.health == Health.Injured);
 			List<Parahuman> dInjuries = battle.defenders.combined_roster.FindAll((p) => p.health == Health.Injured);
@@ -541,14 +537,14 @@ namespace BrocktonBay {
 			List<Parahuman> aCaptures = battle.attackers.combined_roster.FindAll((p) => p.health == Health.Captured);
 			List<Parahuman> dCaptures = battle.defenders.combined_roster.FindAll((p) => p.health == Health.Captured);
 
-			foreach (Parahuman p in aInjuries) casualties.Attach(p.GetHeader(context.butCompact), 2, 3, 2, 3);
-			foreach (Parahuman p in dInjuries) casualties.Attach(p.GetHeader(context.butCompact), 4, 5, 2, 3);
-			foreach (Parahuman p in aDowned) casualties.Attach(p.GetHeader(context.butCompact), 2, 3, 4, 5);
-			foreach (Parahuman p in dDowned) casualties.Attach(p.GetHeader(context.butCompact), 4, 5, 4, 5);
-			foreach (Parahuman p in aDeaths) casualties.Attach(p.GetHeader(context.butCompact), 2, 3, 6, 7);
-			foreach (Parahuman p in dDeaths) casualties.Attach(p.GetHeader(context.butCompact), 4, 5, 6, 7);
-			foreach (Parahuman p in aCaptures) casualties.Attach(p.GetHeader(context.butCompact), 2, 3, 8, 9);
-			foreach (Parahuman p in dCaptures) casualties.Attach(p.GetHeader(context.butCompact), 4, 5, 8, 9);
+			foreach (Parahuman p in aInjuries) casualties.Attach(p.GetHeader(context.butCompact), 0, 1, 2, 3);
+			foreach (Parahuman p in dInjuries) casualties.Attach(p.GetHeader(context.butCompact), 2, 3, 2, 3);
+			foreach (Parahuman p in aDowned) casualties.Attach(p.GetHeader(context.butCompact), 0, 1, 4, 5);
+			foreach (Parahuman p in dDowned) casualties.Attach(p.GetHeader(context.butCompact), 2, 3, 4, 5);
+			foreach (Parahuman p in aDeaths) casualties.Attach(p.GetHeader(context.butCompact), 0, 1, 6, 7);
+			foreach (Parahuman p in dDeaths) casualties.Attach(p.GetHeader(context.butCompact), 2, 3, 6, 7);
+			foreach (Parahuman p in aCaptures) casualties.Attach(p.GetHeader(context.butCompact), 0, 1, 8, 9);
+			foreach (Parahuman p in dCaptures) casualties.Attach(p.GetHeader(context.butCompact), 2, 3, 8, 9);
 
 			mainBox.PackStart(casualties);
 			popup.Add(mainBox);

@@ -16,7 +16,7 @@ namespace BrocktonBay {
 		public Deployment defenders { get { return deployments[1]; } set { deployments[1] = value; } }
 		public EffectiveRatingsProfile[] profiles;
 
-		public string name { get { return "Event at " + location.name; } }
+		public string name { get { return "Battle at " + location.name; } }
 
 		[Displayable(1, typeof(ObjectField), forceHorizontal = true)]
 		public IBattleground location;

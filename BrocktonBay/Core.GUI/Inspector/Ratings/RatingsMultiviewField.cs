@@ -96,7 +96,7 @@ namespace BrocktonBay {
 
 		string[] labels = { "Table (final)", "Radar Chart (final)", "Table (original)", "Radar Chart (original)" };
 
-		public EffectiveRatingsMultiview (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute, object arg) {
+		public EffectiveRatingsMultiview (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute) {
 
 			this.context = context;
 			BorderWidth = 5;

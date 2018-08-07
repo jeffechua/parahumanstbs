@@ -6,7 +6,7 @@ using Gtk;
 namespace BrocktonBay {
 
 	public sealed class Banner : Label {
-		public Banner (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute, object arg) {
+		public Banner (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute) {
 			SetAlignment(0.5f, 0.5f);
 			Justify = Justification.Center;
 			UseMarkup = true;
