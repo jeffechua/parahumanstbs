@@ -16,10 +16,9 @@ namespace BrocktonBay {
 		public static double updateTime;
 
 		public static double UICreateTime { get { return mapCreateTime + searchCreateTime; } }
-		public static double mapCreateTime { get { return mapBackgroundCreateTime + mapTerritoriesPlaceTime + mapStructuresPlaceTime + mapBehaviourAssignTime; } }
+		public static double mapCreateTime { get { return mapBackgroundCreateTime + mapMarkersPlaceTime + mapBehaviourAssignTime; } }
 		public static double mapBackgroundCreateTime;
-		public static double mapTerritoriesPlaceTime;
-		public static double mapStructuresPlaceTime;
+		public static double mapMarkersPlaceTime;
 		public static double mapBehaviourAssignTime;
 		public static double searchCreateTime;
 
@@ -48,9 +47,8 @@ namespace BrocktonBay {
 			Console.WriteLine("UI create time: " + UICreateTime + " ms");
 			Console.WriteLine("\t" + "Map creation: " + mapCreateTime + " ms");
 			Console.WriteLine("\t" + "\t" + "Map background: " + mapBackgroundCreateTime + " ms");
-			Console.WriteLine("\t" + "\t" + "Map territories: " + mapTerritoriesPlaceTime + " ms");
-			Console.WriteLine("\t" + "\t" + "Map structures: " + mapStructuresPlaceTime + " ms");
 			Console.WriteLine("\t" + "\t" + "Map behaviour: " + mapBehaviourAssignTime + " ms");
+			Console.WriteLine("\t" + "\t" + "Map markers: " + mapMarkersPlaceTime + " ms");
 			Console.WriteLine("\t" + "Search interface: " + searchCreateTime + " ms");
 		}
 

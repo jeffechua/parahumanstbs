@@ -84,7 +84,7 @@
     <Compile Include="Core\GameObjects\Mechanics\RatingsMechanics.cs" />
     <Compile Include="Core.GUI\Inspector\DialogTextEditing.cs" />
     <Compile Include="MapAlert.cs" />
-    <Compile Include="MapMarkers.cs" />
+    <Compile Include="Core.GUI\Map\MapMarkers.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />

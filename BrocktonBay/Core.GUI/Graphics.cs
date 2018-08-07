@@ -512,7 +512,7 @@ namespace BrocktonBay {
 			return newPixmap;
 		}
 
-		public static void SetAllocationTrigger (Widget widget, System.Action action) {
+		public static void SetAllocTrigger (Widget widget, System.Action action) {
 			SizeAllocatedHandler handler = null;
 			handler = delegate {
 				widget.SizeAllocated -= handler;

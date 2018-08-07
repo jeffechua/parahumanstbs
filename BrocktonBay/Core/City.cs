@@ -40,6 +40,8 @@ namespace BrocktonBay {
 				foreach (IAgent agent in activeAgents)
 					if (agent.knowledge != null)
 						agent.knowledge.Add(newGO, 0);
+				if (GameObject.TryCast(obj, out MapMarked mapMarked))
+					Map.Register(mapMarked);
 				DependencyManager.Connect(newGO, this);
 				DependencyManager.Flag(newGO);
 			}
@@ -54,6 +56,8 @@ namespace BrocktonBay {
 						agent.knowledge.Remove(removedGO);
 				if (removedGO.TryCast(out IAgent tryAgent))
 					activeAgents.Remove(tryAgent);
+				if (GameObject.TryCast(obj, out MapMarked mapMarked))
+					Map.Deregister(mapMarked);
 				DependencyManager.Disconnect((IDependable)obj, this);
 				DependencyManager.Flag((IDependable)obj);
 			}

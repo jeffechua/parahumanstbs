@@ -11,12 +11,26 @@ namespace BrocktonBay {
 		Opposed = 2,
 	}
 
-	public class Map : EventBox, IDependable {
+	public partial class Map {
 
-		public int order { get { return 10; } }
-		public bool destroyed { get; set; }
-		public List<IDependable> triggers { get; set; } = new List<IDependable>();
-		public List<IDependable> listeners { get; set; } = new List<IDependable>();
+		static List<Map> maps = new List<Map>();
+		static List<MapMarked> markeds = new List<MapMarked>();
+
+		public static void Register (MapMarked marked) {
+			foreach (Map map in maps)
+				map.markers.Add(marked, marked.GetMarkers(map));
+			markeds.Add(marked);
+		}
+
+		public static void Deregister (MapMarked marked) {
+			foreach (Map map in maps)
+				map.markers.Remove(marked);
+			markeds.Remove(marked);
+		}
+
+	}
+
+	public partial class Map : EventBox {
 
 		public City city;
 
@@ -26,8 +40,7 @@ namespace BrocktonBay {
 		VScale zoomScale;
 		Gdk.Pixbuf baseMap;
 
-		Dictionary<Territory, TerritoryMarker> territoryRegister;
-		Dictionary<Structure, StructureMarker> structureRegister;
+		Dictionary<MapMarked, IMapMarker[]> markers;
 
 		public Vector2 currentDrag;
 		public Vector2 currentPan;
@@ -42,9 +55,10 @@ namespace BrocktonBay {
 
 		public Map (City city) {
 
+			maps.Add(this);
+			Destroyed += (o, a) => maps.Remove(this);
+
 			this.city = city;
-			DependencyManager.Connect(city, this);
-			DependencyManager.Connect(Game.UIKey, this);
 
 			Profiler.Log();
 
@@ -63,12 +77,6 @@ namespace BrocktonBay {
 			stage.Put(mapImage, 0, 0);
 
 			Profiler.Log(ref Profiler.mapBackgroundCreateTime);
-
-			//Register territories
-			territoryRegister = new Dictionary<Territory, TerritoryMarker>();
-			structureRegister = new Dictionary<Structure, StructureMarker>();
-
-			Profiler.Log(ref Profiler.mapStructuresPlaceTime);
 
 			//Panning and zooming functionality
 
@@ -99,9 +107,17 @@ namespace BrocktonBay {
 			};
 
 			SetSizeRequest(0, 0);
-			Graphics.SetAllocationTrigger(this, delegate { Zoom(); Reload(); });
+			Graphics.SetAllocTrigger(this, delegate { Zoom(); });
 
 			Profiler.Log(ref Profiler.mapBehaviourAssignTime);
+
+			//Register territories
+			markers = new Dictionary<MapMarked, IMapMarker[]>();
+			foreach (MapMarked marked in markeds)
+				markers.Add(marked, marked.GetMarkers(this));
+
+			Profiler.Log(ref Profiler.mapMarkersPlaceTime);
+
 		}
 
 		public void Zoom () {
@@ -114,18 +130,28 @@ namespace BrocktonBay {
 			positioner.Move(stage, (int)currentPan.x, (int)currentPan.y);
 			currentMagnif = newMagnif;
 
-			//Repin the markers
-			foreach (KeyValuePair<Territory, TerritoryMarker> pair in territoryRegister) {
-				pair.Value.Repin();
-				pair.Value.Rezone();
+			//Repin (and Redraw if necessary) the markers
+
+			Profiler.Log();
+
+			List<IMapMarker> sortedMarkers = new List<IMapMarker>();
+			foreach (KeyValuePair<MapMarked, IMapMarker[]> markerSet in markers)
+				foreach (IMapMarker marker in markerSet.Value)
+					sortedMarkers.Add(marker);
+			sortedMarkers.Sort((x, y) => x.layer.CompareTo(y.layer));
+			foreach (IMapMarker marker in sortedMarkers) {
+				marker.Repin();
+				if (marker.magnifRedraw)
+					marker.Redraw();
 			}
-			foreach (KeyValuePair<Structure, StructureMarker> pair in structureRegister)
-				pair.Value.Repin();
 
 			ShowAll();
 
+			Profiler.WriteLog();
+
 		}
 
+		/*
 		public void Reload () {
 			List<GameObject> unregisteredStructures = city.gameObjects.FindAll((obj) => obj is Structure);
 			unregisteredStructures.RemoveAll((structure) => structureRegister.ContainsKey((Structure)structure));
@@ -143,11 +169,6 @@ namespace BrocktonBay {
 			}
 			ShowAll();
 		}
-
-		public static bool Relevant (IBattleground battleground, IAgent agent)
-			=> battleground.affiliation == agent ||
-					   (battleground.attacker != null && battleground.attacker.affiliation == agent) ||
-					   (battleground.defender != null && battleground.defender.affiliation == agent);
 
 		public Widget NewAlert (IBattleground battleground) {
 
@@ -275,6 +296,7 @@ namespace BrocktonBay {
 			return window
 
 		}
+*/
 
 	}
 

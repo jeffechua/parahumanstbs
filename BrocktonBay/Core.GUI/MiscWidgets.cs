@@ -62,11 +62,17 @@ namespace BrocktonBay {
 
 		public IGUIComplete inspected;
 		public Menu rightclickMenu;
-		public bool destructible = true;
+		public bool destructible;
+		public bool draggable;
 
-		public InspectableBox (IGUIComplete inspected) {
+		public InspectableBox (Widget child, IGUIComplete inspected, bool destructible = true, bool draggable = true) : this(inspected, destructible, draggable)
+			=> Child = child;
+
+		public InspectableBox (IGUIComplete inspected, bool destructible = true, bool draggable = true) {
 
 			this.inspected = inspected;
+			this.destructible = destructible;
+			this.draggable = draggable;
 			rightclickMenu = new Menu();
 
 			Clicked += OnClicked;
@@ -92,7 +98,8 @@ namespace BrocktonBay {
 			}
 
 			//Set up drag support
-			MyDragDrop.SourceSet(this, inspected);
+			if (draggable)
+				MyDragDrop.SourceSet(this, inspected);
 
 		}
 
@@ -117,9 +124,6 @@ namespace BrocktonBay {
 			if (inspected == null) return;
 			DependencyManager.Delete(inspected);
 		}
-
-		public InspectableBox (Widget child, IGUIComplete inspected) : this(inspected)
-			=> Child = child;
 
 	}
 

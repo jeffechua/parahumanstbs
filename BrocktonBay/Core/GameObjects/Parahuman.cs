@@ -5,6 +5,7 @@ using Gtk;
 namespace BrocktonBay {
 
 	public enum Health {
+		Captured = -1,
 		Deceased = 0,
 		Down = 1,
 		Injured = 2,

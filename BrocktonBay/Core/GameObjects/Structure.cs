@@ -15,7 +15,7 @@ namespace BrocktonBay {
 
 		public string name = "New Landmark";
 		public int ID = 0;
-		public IntVector2 location = new IntVector2(0, 0);
+		public IntVector2 position = new IntVector2(0, 0);
 		public StructureType type;
 		public int[] buffs = { 0, 0, 0 };
 
@@ -24,14 +24,14 @@ namespace BrocktonBay {
 		public StructureData (Structure structure) {
 			name = structure.name;
 			ID = structure.ID;
-			location = structure.location;
+			position = structure.position;
 			type = structure.type;
 			buffs = structure.combat_buffs;
 		}
 
 	}
 
-	public class Structure : GameObject, IBattleground {
+	public class Structure : GameObject, IBattleground, MapMarked {
 
 		public override int order { get { return 1; } }
 		public Attack attacker { get; set; }
@@ -39,7 +39,7 @@ namespace BrocktonBay {
 		public Battle battle { get; set; }
 
 		[Displayable(2, typeof(IntVector2Field), visiblePhases = Phase.None)]
-		public IntVector2 location { get; set; }
+		public IntVector2 position { get; set; }
 
 		[Displayable(3, typeof(ObjectField), forceHorizontal = true)]
 		public override IAgent affiliation { get { return (parent == null) ? null : (IAgent)parent.parent; } }
@@ -88,11 +88,11 @@ namespace BrocktonBay {
 		public Battle ongoing_event { get; set; }
 
 		[Displayable(7, typeof(ActionField), verticalOnly = true, visiblePhases = Phase.Action,
-		             topPadding = 20, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
+					 topPadding = 20, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
 		public GameAction attack { get; set; }
 
 		[Displayable(10, typeof(ActionField), verticalOnly = true, visiblePhases = Phase.Response,
-		             topPadding = 20, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
+					 topPadding = 20, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
 		public GameAction defend { get; set; }
 
 		public Structure () : this(new StructureData()) { }
@@ -100,7 +100,7 @@ namespace BrocktonBay {
 		public Structure (StructureData data) {
 			name = data.name;
 			ID = data.ID;
-			location = data.location;
+			position = data.position;
 			type = data.type;
 			combat_buffs = data.buffs;
 			attack = new GameAction {
@@ -134,6 +134,9 @@ namespace BrocktonBay {
 		public int[] GetCombatBuffs (Context context) {
 			int[] buffs = (int[])combat_buffs.Clone();
 			return buffs;
+		}
+
+		public override void Reload () {
 		}
 
 		public override Widget GetHeader (Context context) {
@@ -178,7 +181,11 @@ namespace BrocktonBay {
 			return new Gtk.Alignment(0, 0, 1, 0) { Child = label, BorderWidth = 10 };
 		}
 
-		public override void Reload () {
+		public IMapMarker[] GetMarkers (Map map) {
+			return new IMapMarker[]{
+				new StructureMarker(this, map),
+				new BattleAlertMarker(this, map)
+			};
 		}
 
 	}

@@ -28,8 +28,8 @@ namespace BrocktonBay {
 		}
 
 		public Dossier (DossierData data) {
-			foreach(Tuple<int,int> tuple in data.tuples)
-				Add(Game.city.Get(tuple.Item1), tuple.Item2); 
+			foreach (Tuple<int, int> tuple in data.tuples)
+				Add(Game.city.Get(tuple.Item1), tuple.Item2);
 		}
 
 		public Dossier Choose (IAgent agent, bool maxUnchosen) {

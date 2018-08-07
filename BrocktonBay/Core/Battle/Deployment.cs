@@ -11,7 +11,7 @@ namespace BrocktonBay {
 		public override Parahuman leader { get; set; }
 
 		[Displayable(5, typeof(EnumField<Threat>), editablePhases = Phase.Action)]
-		public override Threat authorized_force { get; set; }
+		public override Threat force_employed { get; set; }
 
 		[Displayable(6, typeof(CellTabularListField<Team>), 2, emphasized = true, editablePhases = Phase.Action)]
 		public override List<Team> teams { get; set; }
@@ -39,11 +39,11 @@ namespace BrocktonBay {
 
 		public override string name { get => "Defense of " + location.name; }
 
-		[Displayable(1, typeof(ObjectField), forceVertical = true)]
+		[Displayable(1, typeof(ObjectField), forceHorizontal = true)]
 		public override Parahuman leader { get; set; }
 
 		[Displayable(5, typeof(EnumField<Threat>), editablePhases = Phase.Response)]
-		public override Threat authorized_force { get; set; }
+		public override Threat force_employed { get; set; }
 
 		[Displayable(6, typeof(CellTabularListField<Team>), 2, emphasized = true, editablePhases = Phase.Response)]
 		public override List<Team> teams { get; set; }
@@ -78,7 +78,7 @@ namespace BrocktonBay {
 		public IBattleground location;
 
 		public abstract Parahuman leader { get; set; }
-		public abstract Threat authorized_force { get; set; }
+		public abstract Threat force_employed { get; set; }
 		public abstract List<Team> teams { get; set; }
 		public abstract List<Parahuman> independents { get; set; }
 		public abstract List<Parahuman> combined_roster { get; set; }
@@ -118,10 +118,12 @@ namespace BrocktonBay {
 			if (affiliation != null) {
 				int[] buffs = location.GetCombatBuffs(new Context(affiliation, this));
 				for (int n = 0; n < 3; n++) {
-					if (affiliation == location.affiliation) {
-						profile.bonuses[n] += buffs[n];
+					if (this is Attack) { //Negative bonus equals buff for attackers
+						if (buffs[n] < 0) //Positive bonus equals buff for defenders
+							profile.bonuses[n] -= buffs[n];
 					} else {
-						profile.bonuses[n] -= buffs[n];
+						if (buffs[n] > 0)
+							profile.bonuses[n] += buffs[n];
 					}
 				}
 			}
@@ -165,7 +167,7 @@ namespace BrocktonBay {
 			float baseStrength = values[4, 1] + values[4, 2] + values[4, 3] / 2 + values[4, 4] / 2;
 			float plusBonus = baseStrength + profile.bonuses[0];
 			if (plusBonus < 0) plusBonus = 0;
-			float forceMult = Battle.ForceMult(authorized_force);
+			float forceMult = Battle.ForceMult(force_employed);
 			float plusForce = plusBonus * forceMult;
 			strength.SetValues(values[4, 1], values[4, 2], values[4, 3], values[4, 4],
 									baseStrength, profile.bonuses[0], plusBonus, forceMult, plusForce);

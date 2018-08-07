@@ -19,7 +19,7 @@ namespace BrocktonBay {
 		public TerritoryData (Territory territory) {
 			name = territory.name;
 			ID = territory.ID;
-			position = territory.location;
+			position = territory.position;
 			size = territory.size;
 			reputation = territory.reputation;
 			structures = territory.structures.ConvertAll((structure) => structure.ID);
@@ -27,7 +27,7 @@ namespace BrocktonBay {
 
 	}
 
-	public class Territory : GameObject, IContainer, IBattleground {
+	public class Territory : GameObject, IContainer, IBattleground, MapMarked {
 
 		public override int order { get { return 2; } }
 		public Attack attacker { get; set; }
@@ -35,7 +35,7 @@ namespace BrocktonBay {
 		public Battle battle { get; set; }
 
 		[Displayable(2, typeof(IntVector2Field), visiblePhases = Phase.None)]
-		public IntVector2 location { get; set; }
+		public IntVector2 position { get; set; }
 
 		[Displayable(3, typeof(ObjectField), forceHorizontal = true)]
 		public override IAgent affiliation { get { return (IAgent)parent; } }
@@ -99,7 +99,7 @@ namespace BrocktonBay {
 		public Territory (TerritoryData data) {
 			name = data.name;
 			ID = data.ID;
-			location = data.position;
+			position = data.position;
 			size = data.size;
 			reputation = data.reputation;
 			structures = data.structures.ConvertAll((structure) => Game.city.Get<Structure>(structure));
@@ -233,6 +233,13 @@ namespace BrocktonBay {
 			DependencyManager.Flag(this);
 		}
 
+		public IMapMarker[] GetMarkers (Map map) {
+			return new IMapMarker[]{
+				new TerritoryZoneMarker(this, map),
+				new TerritoryMarker(this, map),
+				new BattleAlertMarker(this, map)
+			};
+		}
 
 	}
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Gtk;
 using Gdk;
 
+/*
 namespace BrocktonBay {
 	public class MapAlert : ClickableEventBox {
 
@@ -93,3 +94,4 @@ namespace BrocktonBay {
 		}
 	}
 }
+*/

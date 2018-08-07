@@ -51,7 +51,7 @@ namespace BrocktonBay {
 		public Fraction[] attacker_escape { get; set; } //Chance of escaping, per member
 
 		[Displayable(6, typeof(Banner), emphasized = true, topPadding = 25, bottomPadding = 25)]
-		public string projected_victor { get; set; }
+		public string victor { get; set; }
 
 		[Displayable(7, typeof(FractionsBar), false, emphasized = true, tooltipText = "Injury chance = STR<sub>enemy</sub> / STR<sub>total</sub> / 2")]
 		public Fraction[] defender_injury { get; set; } //Chance of being injured, per member
@@ -115,10 +115,10 @@ namespace BrocktonBay {
 			attacker_stats = GetStats(0);
 			defender_stats = GetStats(1);
 
-			projected_victor = "Projected Victor:<small><small>\n\n</small></small><big>" +
+			victor = "Battle Victor:<small><small>\n\n</small></small><big>" +
 							   ((attacker_strength.result >= defender_strength.result) ?
-								"<big>INITIATORS</big>" + (attackers.affiliation == null ? "" : "\n" + attackers.affiliation.name) :
-								"<big>RESPONDERS</big>" + (defenders.affiliation == null ? "" : "\n" + defenders.affiliation.name))
+								"<big>ATTACKERS</big>" + (attackers.affiliation == null ? "" : "\n" + attackers.affiliation.name) :
+								"<big>DEFENDERS</big>" + (defenders.affiliation == null ? "" : "\n" + defenders.affiliation.name))
 								+ "</big>";
 
 			Tuple<Fraction[], Fraction[]> fractions;
