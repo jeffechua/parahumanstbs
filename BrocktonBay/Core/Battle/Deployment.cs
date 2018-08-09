@@ -147,36 +147,31 @@ namespace BrocktonBay {
 				if (parahuman.threat > threat)
 					threat = parahuman.threat;
 
-			base_stats = new Expression[]{
-				new Expression("@0 + @1 + ½(@2) + ½(@3) = @4\n" +
-							   "@4 + @5 (bonus) = @6\n" +
-							   "@6 × @7 (force) = @8",
-							   "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.00", "0.0"),
-				new Expression("@0 + @1 = @2\n" +
-							   "@2 + @3 (bonus) = @4",
-							   "0.0", "0.0", "0.0", "0.0", "0.0"),
-				new Expression("@0 + @1 = @2\n" +
-							   "@2 + @3 (bonus) = @4",
-							   "0.0", "0.0", "0.0", "0.0", "0.0")
-			};
+			base_stats = ratings(new Context(affiliation, this)).GetStats(force_employed);
 
-			RatingsProfile profile = ratings(new Context(affiliation, this));
-			float[,] values = Ratings.NullToZero(profile.values);
+		}
 
-			//Strength
-			float baseStrength = values[4, 1] + values[4, 2] + values[4, 3] / 2 + values[4, 4] / 2;
-			float plusBonus = baseStrength + profile.bonuses[0];
-			if (plusBonus < 0) plusBonus = 0;
-			float forceMult = Battle.ForceMult(force_employed);
-			float plusForce = plusBonus * forceMult;
-			strength.SetValues(values[4, 1], values[4, 2], values[4, 3], values[4, 4],
-									baseStrength, profile.bonuses[0], plusBonus, forceMult, plusForce);
-			//Stealth
-			stealth.SetValues(values[4, 5], values[4, 6], values[4, 5] + values[4, 6],
-									 profile.bonuses[1], values[4, 5] + values[4, 6] + profile.bonuses[1]);
-			//Insight
-			insight.SetValues(values[4, 7], values[4, 8], values[4, 7] + values[4, 8],
-									 profile.bonuses[2], values[4, 7] + values[4, 8] + profile.bonuses[2]);
+		public void Apply (Fraction[] injury, Fraction[] escape) {
+			float deathThresh = injury[0].val;
+			float downThresh = injury[1].val + deathThresh;
+			float injureThresh = injury[2].val + deathThresh;
+			foreach (Parahuman parahuman in combined_roster) {
+				float roll = Game.randomFloat;
+				if (roll <= deathThresh) {
+					parahuman.health = Health.Deceased;
+				} else if (roll < downThresh) {
+					parahuman.health = Health.Down;
+				} else if (roll < injureThresh) {
+					parahuman.health = Health.Injured;
+				}
+			}
+			if (escape.Length > 1) {
+				foreach (Parahuman parahuman in combined_roster) {
+					float roll = Game.randomFloat;
+					if (roll < escape[0].val)
+						parahuman.health = Health.Captured;
+				}
+			}
 		}
 
 		public static float GetMultiplier (float x, float from, float to, float rate)

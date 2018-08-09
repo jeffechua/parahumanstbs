@@ -15,6 +15,9 @@ namespace BrocktonBay {
 
 	class Game {
 
+		static Random random = new Random();
+		public static float randomFloat { get => (float)random.NextDouble(); }
+
 		public const String savefolder = "/Users/Jefferson/Desktop/Parahumans_Save";
 		public static City city;
 		public static IAgent player;

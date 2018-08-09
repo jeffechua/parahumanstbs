@@ -323,14 +323,50 @@ namespace BrocktonBay {
 			for (int i = 0; i < 4; i++) {
 				for (int j = 0; j < 9; j++) {
 					if (Math.Abs(change[i, j]) > 0.01) {
-						if (values[i, j] == Ratings.NULL) values[i, j] = Ratings.ZERO;
-						if (values[4, j] == Ratings.NULL) values[4, j] = Ratings.ZERO;
+						if (Ratings.ApproxEquals(values[i, j], Ratings.NULL)) values[i, j] = Ratings.ZERO;
+						if (Ratings.ApproxEquals(values[4, j], Ratings.NULL)) values[4, j] = Ratings.ZERO;
 						values[i, j] += change[i, j];
 						values[4, j] += change[i, j];
 					}
 				}
 			}
 			return new RatingsProfile(values);
+		}
+
+		public Expression[] GetStats (Threat force_employed) {
+
+			Expression[] stats = {
+				new Expression("@0 + @1 + ½(@2) + ½(@3) = @4\n" +
+							   "@4 + @5 (bonus) = @6\n" +
+							   "@6 × @7 (force) = @8",
+							   "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.00", "0.0"),
+				new Expression("@0 + @1 = @2\n" +
+							   "@2 + @3 (bonus) = @4",
+							   "0.0", "0.0", "0.0", "0.0", "0.0"),
+				new Expression("@0 + @1 = @2\n" +
+							   "@2 + @3 (bonus) = @4",
+							   "0.0", "0.0", "0.0", "0.0", "0.0")
+			};
+
+			float[,] zValues = Ratings.NullToZero(values);
+
+			//Strength
+			float baseStrength = zValues[4, 1] + zValues[4, 2] + zValues[4, 3] / 2 + zValues[4, 4] / 2;
+			float plusBonus = baseStrength + bonuses[0];
+			if (plusBonus < 0) plusBonus = 0;
+			float forceMult = Battle.ForceMult(force_employed);
+			float plusForce = plusBonus * forceMult;
+			stats[0].SetValues(zValues[4, 1], zValues[4, 2], zValues[4, 3], zValues[4, 4],
+									baseStrength, bonuses[0], plusBonus, forceMult, plusForce);
+			//Stealth
+			stats[1].SetValues(zValues[4, 5], zValues[4, 6], zValues[4, 5] + zValues[4, 6],
+									 bonuses[1], zValues[4, 5] + zValues[4, 6] + profile.bonuses[1]);
+			//Insight
+			stats[2].SetValues(zValues[4, 7], zValues[4, 8], zValues[4, 7] + zValues[4, 8],
+									 bonuses[2], zValues[4, 7] + zValues[4, 8] + profile.bonuses[2]);
+
+			return stats;
+
 		}
 
 	}

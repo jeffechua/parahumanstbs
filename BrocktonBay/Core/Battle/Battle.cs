@@ -10,6 +10,7 @@ namespace BrocktonBay {
 		public bool destroyed { get; set; }
 		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
+		public void Reload () { }
 
 		public Deployment[] deployments;
 		public Deployment attackers { get { return deployments[0]; } set { deployments[0] = value; } }
@@ -51,7 +52,8 @@ namespace BrocktonBay {
 		public Fraction[] attacker_escape { get; set; } //Chance of escaping, per member
 
 		[Displayable(6, typeof(Banner), emphasized = true, topPadding = 25, bottomPadding = 25)]
-		public string victor { get; set; }
+		public string victor_display { get; set; }
+		public Deployment victor;
 
 		[Displayable(7, typeof(FractionsBar), false, emphasized = true, tooltipText = "Injury chance = STR<sub>enemy</sub> / STR<sub>total</sub> / 2")]
 		public Fraction[] defender_injury { get; set; } //Chance of being injured, per member
@@ -88,38 +90,29 @@ namespace BrocktonBay {
 		public Battle (IBattleground location, Deployment attackers, Deployment defenders) {
 			this.location = location;
 			deployments = new Deployment[] { attackers, defenders };
-			profiles = new EffectiveRatingsProfile[2];
-			DependencyManager.Connect(attackers, this);
-			DependencyManager.Connect(defenders, this);
-			Reload();
+			if (defenders != null) {
+				profiles = new EffectiveRatingsProfile[2];
+				Evaluate();
+			} else {
+				victor = attackers;
+			}
 		}
 
-		/*
-		public Battle (Battleground location) {
-			this.location = location;
-			deployments = new Deployment[] { new Deployment(), new Deployment() };
-			profiles = new EffectiveRatingsProfile[2];
-			DependencyManager.Connect(attackers, this);
-			DependencyManager.Connect(defenders, this);
-			Reload();
-		}
-		*/
-
-		public void Reload () {
+		public void Evaluate () {
 
 			RatingsProfile attacker_base_profile = attackers.ratings(new Context(defenders.affiliation, attackers));
 			RatingsProfile defender_base_profile = defenders.ratings(new Context(attackers.affiliation, defenders));
 			attacker_profile = CompareProfiles(attacker_base_profile, defender_base_profile);
 			defender_profile = CompareProfiles(defender_base_profile, attacker_base_profile);
 
-			attacker_stats = GetStats(0);
-			defender_stats = GetStats(1);
+			attacker_stats = attacker_profile.final.GetStats(attackers.force_employed);
+			defender_stats = defender_profile.final.GetStats(defenders.force_employed);
 
-			victor = "Battle Victor:<small><small>\n\n</small></small><big>" +
-							   ((attacker_strength.result >= defender_strength.result) ?
-								"<big>ATTACKERS</big>" + (attackers.affiliation == null ? "" : "\n" + attackers.affiliation.name) :
-								"<big>DEFENDERS</big>" + (defenders.affiliation == null ? "" : "\n" + defenders.affiliation.name))
-								+ "</big>";
+			victor = (attacker_strength.result >= defender_strength.result) ? attackers : defenders;
+
+			victor_display = "Battle Victor:<small><small>\n\n</small></small><big><big>" +
+							 (victor == attackers ? "ATTACKERS" : "DEFENDERS") + victor.affiliation.name
+							 + "</big></big>";
 
 			Tuple<Fraction[], Fraction[]> fractions;
 			fractions = CompareStats(attacker_stats, defender_stats, defenders.force_employed);
@@ -127,46 +120,13 @@ namespace BrocktonBay {
 			fractions = CompareStats(defender_stats, attacker_stats, attackers.force_employed);
 			defender_injury = fractions.Item1; defender_escape = fractions.Item2;
 
-		}
-
-		public Expression[] GetStats (int i) {
-
-			Expression[] expressions = {
-				new Expression("@0 + @1 + ½(@2) + ½(@3) = @4\n" +
-							   "@4 + @5 (bonus) = @6\n" +
-							   "@6 × @7 (force) = @8",
-							   "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.00", "0.0"),
-				new Expression("@0 + @1 = @2\n" +
-							   "@2 + @3 (bonus) = @4",
-							   "0.0", "0.0", "0.0", "0.0", "0.0"),
-				new Expression("@0 + @1 = @2\n" +
-							   "@2 + @3 (bonus) = @4",
-							   "0.0", "0.0", "0.0", "0.0", "0.0")
-			};
-
-			RatingsProfile profile = profiles[i].final;
-			float[,] values = Ratings.NullToZero(profile.values);
-
-			//Strength
-			float baseStrength = values[4, 1] + values[4, 2] + values[4, 3] / 2 + values[4, 4] / 2;
-			float plusBonus = baseStrength + profile.bonuses[0];
-			if (plusBonus < 0) plusBonus = 0;
-			float forceMult = ForceMult(deployments[i].force_employed);
-			float plusForce = plusBonus * forceMult;
-			expressions[0].SetValues(values[4, 1], values[4, 2], values[4, 3], values[4, 4],
-									 baseStrength, profile.bonuses[0], plusBonus, forceMult, plusForce);
-			//Stealth
-			expressions[1].SetValues(values[4, 5], values[4, 6], values[4, 5] + values[4, 6],
-									 profile.bonuses[1], values[4, 5] + values[4, 6] + profile.bonuses[1]);
-			//Insight
-			expressions[2].SetValues(values[4, 7], values[4, 8], values[4, 7] + values[4, 8],
-									 profile.bonuses[2], values[4, 7] + values[4, 8] + profile.bonuses[2]);
-
-			return expressions;
+			attackers.Apply(attacker_injury, attacker_escape);
+			defenders.Apply(defender_injury, defender_escape);
 
 		}
 
 		public Tuple<Fraction[], Fraction[]> CompareStats (Expression[] original, Expression[] enemy, Threat force) {
+
 			Fraction[] injury = new Fraction[4];
 			float base_chance = enemy[0].result < 0.01 ? 0 : (enemy[0].result / (original[0].result + enemy[0].result) / 2);
 			if (base_chance > 1) base_chance = 1;
@@ -205,11 +165,17 @@ namespace BrocktonBay {
 			injury[2] = new Fraction("Injured", injury_chance, Graphics.GetColor(Health.Injured));
 			injury[3] = new Fraction("Unharmed", healthy_chance, Graphics.GetColor(Health.Healthy));
 
-			Fraction[] escape = new Fraction[2];
-			float capture_chance = original[1].result < 0.01 ? 1 : enemy[2].result / original[1].result / 4;
-			if (capture_chance > 1) capture_chance = 1;
-			escape[0] = new Fraction("Captured", capture_chance, Graphics.GetColor(Alignment.Villain));
-			escape[1] = new Fraction("Escaped", 1 - capture_chance, Graphics.GetColor(Alignment.Hero));
+
+			Fraction[] escape;
+			if (original[0].result > enemy[0].result) {
+				escape = new Fraction[2];
+				float capture_chance = original[1].result < 0.01 ? 1 : enemy[2].result / original[1].result / 4;
+				if (capture_chance > 1) capture_chance = 1;
+				escape[0] = new Fraction("Captured", capture_chance, Graphics.GetColor(Alignment.Villain));
+				escape[1] = new Fraction("Escaped", 1 - capture_chance, Graphics.GetColor(Alignment.Hero));
+			} else {
+				escape = new Fraction[] { new Fraction("N/A", 1, new Gdk.Color(100, 100, 100)) };
+			}
 
 			return new Tuple<Fraction[], Fraction[]>(injury, escape);
 		}

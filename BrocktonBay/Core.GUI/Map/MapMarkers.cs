@@ -516,7 +516,7 @@ namespace BrocktonBay {
 			name.SetAlignment(0.5f, 1);
 			mainBox.PackStart(name, false, false, 3);
 			mainBox.PackStart(new HSeparator(), false, false, 5);
-			mainBox.PackStart(UIFactory.Fabricate(battle, "victor", context));
+			mainBox.PackStart(UIFactory.Fabricate(battle, "victor_display", context));
 			mainBox.PackStart(new HSeparator(), false, false, 7);
 
 			Table casualties = new Table(9, 3, false) { ColumnSpacing = 5, RowSpacing = 5 };
