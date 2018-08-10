@@ -5,11 +5,11 @@ using Gtk;
 namespace BrocktonBay {
 
 	public enum Health {
-		Captured = -1,
 		Deceased = 0,
 		Down = 1,
 		Injured = 2,
-		Healthy = 3
+		Healthy = 3,
+		Captured = 4
 	}
 
 	public sealed class ParahumanData {
@@ -125,9 +125,17 @@ namespace BrocktonBay {
 		public override Widget GetHeader (Context context) {
 			if (context.compact) {
 				HBox header = new HBox(false, 0);
-				header.PackStart(new Label(name), false, false, 0);
+				Label nameLabel = new Label(name);
+				header.PackStart(new Label(health == Health.Deceased ? "<s>" + name + "</s>" : name), false, false, 0);
 				header.PackStart(Graphics.GetIcon(threat, Graphics.GetColor(health), Graphics.textSize),
 								 false, false, (uint)(Graphics.textSize / 5));
+				if (health == Health.Deceased) {
+					nameLabel.UseMarkup = true;
+					nameLabel.Text = "<s>" + name + "</s>";
+				} else if (health == Health.Captured) {
+					header.State = StateType.Insensitive;
+					return new InspectableBox(header, this, true, false);
+				}
 				return new InspectableBox(header, this);
 			} else {
 				VBox headerBox = new VBox(false, 5);

@@ -42,7 +42,7 @@ namespace BrocktonBay {
 		const double RESOLUTION_FACTOR = 10; //The icon is rendered at this times the requested size then scaled down.
 		static Assembly assembly;
 
-		public static readonly Gdk.Color[] healthColors = { new Color(100, 100, 100), new Color(230, 0, 0), new Color(200, 200, 0), new Color(0, 200, 0) };
+		public static readonly Gdk.Color[] healthColors = { new Color(50, 50, 50), new Color(230, 0, 0), new Color(200, 200, 0), new Color(0, 200, 0), new Color(150, 150, 150) };
 		public static readonly Gdk.Color[] alignmentColors = { new Color(0, 100, 230), new Color(170, 140, 0), new Color(100, 150, 0), new Color(0, 0, 0), new Color(150, 0, 175) };
 
 		public static Dictionary<IconRequest, Icon> iconCache = new Dictionary<IconRequest, Icon>();
@@ -76,13 +76,13 @@ namespace BrocktonBay {
 
 		public static void OnMainWindowInitialized (object obj, EventArgs args) {
 			assembly = Assembly.GetExecutingAssembly();
-			textSize = (int)Math.Round(Game.mainWindow.Style.FontDescription.Size / Pango.Scale.PangoScale);
-			visible = new Gdk.GC(Game.mainWindow.GdkWindow) { RgbFgColor = new Color(255, 255, 255) };
-			translucent = new Gdk.GC(Game.mainWindow.GdkWindow) { RgbFgColor = new Color(150, 150, 150) };
-			film = new Gdk.GC(Game.mainWindow.GdkWindow) { RgbFgColor = new Color(80, 80, 80) };
-			invisible = new Gdk.GC(Game.mainWindow.GdkWindow) { RgbFgColor = new Color(0, 0, 0) };
+			textSize = (int)Math.Round(MainWindow.main.Style.FontDescription.Size / Pango.Scale.PangoScale);
+			visible = new Gdk.GC(MainWindow.main.GdkWindow) { RgbFgColor = new Color(255, 255, 255) };
+			translucent = new Gdk.GC(MainWindow.main.GdkWindow) { RgbFgColor = new Color(150, 150, 150) };
+			film = new Gdk.GC(MainWindow.main.GdkWindow) { RgbFgColor = new Color(80, 80, 80) };
+			invisible = new Gdk.GC(MainWindow.main.GdkWindow) { RgbFgColor = new Color(0, 0, 0) };
 			black = invisible;
-			Game.mainWindow.Realized -= OnMainWindowInitialized;
+			MainWindow.main.Realized -= OnMainWindowInitialized;
 		}
 
 		public static Stream GetResource (string path) => assembly.GetManifestResourceStream(path);
@@ -97,8 +97,8 @@ namespace BrocktonBay {
 			double pixelSize = iconSize;
 			double size = pixelSize * RESOLUTION_FACTOR; //Since 12 across is 0-11; we don't want to draw on 12 and lose pixels.
 
-			Pixmap color = new Pixmap(Game.mainWindow.GdkWindow, (int)size, (int)size);
-			Pixmap mask = new Pixmap(Game.mainWindow.GdkWindow, (int)size, (int)size);
+			Pixmap color = new Pixmap(MainWindow.main.GdkWindow, (int)size, (int)size);
+			Pixmap mask = new Pixmap(MainWindow.main.GdkWindow, (int)size, (int)size);
 
 			Gdk.GC colorGC = new Gdk.GC(color) { RgbFgColor = iconColor };
 
@@ -282,8 +282,8 @@ namespace BrocktonBay {
 			double size = pixelSize * RESOLUTION_FACTOR; //Since 12 across is 0-11; we don't want to draw on 12 and lose pixels.
 			double margin = BLACK_TRIM_WIDTH * RESOLUTION_FACTOR;
 
-			Pixmap color = new Pixmap(Game.mainWindow.GdkWindow, (int)size, (int)size);
-			Pixmap mask = new Pixmap(Game.mainWindow.GdkWindow, (int)size, (int)size);
+			Pixmap color = new Pixmap(MainWindow.main.GdkWindow, (int)size, (int)size);
+			Pixmap mask = new Pixmap(MainWindow.main.GdkWindow, (int)size, (int)size);
 			color.DrawRectangle(new Gdk.GC(color) { RgbFgColor = trim }, true, new Rectangle(0, 0, (int)size, (int)size));
 			mask.DrawRectangle(invisible, true, new Rectangle(0, 0, (int)size, (int)size));
 
@@ -389,8 +389,8 @@ namespace BrocktonBay {
 
 		public static Gtk.Image GetCircle (Color circleColor, byte alpha, int radius) {
 
-			Pixmap color = new Pixmap(Game.mainWindow.GdkWindow, radius * 2, radius * 2);
-			Pixmap mask = new Pixmap(Game.mainWindow.GdkWindow, radius * 2, radius * 2);
+			Pixmap color = new Pixmap(MainWindow.main.GdkWindow, radius * 2, radius * 2);
+			Pixmap mask = new Pixmap(MainWindow.main.GdkWindow, radius * 2, radius * 2);
 
 			Gdk.GC background = new Gdk.GC(color) { RgbFgColor = circleColor };
 			Gdk.GC visible = new Gdk.GC(mask) { RgbFgColor = new Color(alpha, alpha, alpha) };
@@ -423,8 +423,8 @@ namespace BrocktonBay {
 			double v = Math.Sqrt(h * h - h * w);
 			double u = r / (h - r);
 
-			Pixmap color = new Pixmap(Game.mainWindow.GdkWindow, (int)w, (int)h);
-			Pixmap mask = new Pixmap(Game.mainWindow.GdkWindow, (int)w, (int)h);
+			Pixmap color = new Pixmap(MainWindow.main.GdkWindow, (int)w, (int)h);
+			Pixmap mask = new Pixmap(MainWindow.main.GdkWindow, (int)w, (int)h);
 
 			Gdk.GC markerShape = new Gdk.GC(color) { RgbFgColor = pinColor };
 

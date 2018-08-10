@@ -39,7 +39,7 @@ namespace BrocktonBay {
 			mainBox.PackStart(inspector, false, false, 0);
 
 			//Map tab
-			map = new Map(Game.city); //Profiler called inside Map constructor
+			map = new Map(); //Profiler called inside Map constructor
 			Label mapTabLabel = new Label("Map");
 			notebook.AppendPage(map, mapTabLabel);
 
@@ -52,7 +52,7 @@ namespace BrocktonBay {
 
 			Profiler.Log(ref Profiler.searchCreateTime);
 
-			Game.mainWindow.inspector = inspector;
+			MainWindow.main.inspector = inspector;
 
 			Reload();
 

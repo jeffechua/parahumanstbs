@@ -30,6 +30,7 @@ namespace BrocktonBay {
 		public uint bottomPadding = 0;
 		public uint leftPadding = 0;
 		public uint rightPadding = 0;
+		public bool fillSides = true;
 
 		public string tooltipText = "";
 		public string overrideLabel = "";

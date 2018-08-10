@@ -15,7 +15,7 @@ namespace BrocktonBay {
 				action();
 				return;
 			}
-			MessageDialog dialog = new MessageDialog(Game.mainWindow, DialogFlags.DestroyWithParent, MessageType.Question, ButtonsType.YesNo, "Save current game?");
+			MessageDialog dialog = new MessageDialog(MainWindow.main, DialogFlags.DestroyWithParent, MessageType.Question, ButtonsType.YesNo, "Save current game?");
 			dialog.Response += delegate (object obj, ResponseArgs response) {
 				if (response.ResponseId == ResponseType.Yes)
 					IO.SelectSave();
@@ -27,7 +27,7 @@ namespace BrocktonBay {
 		}
 
 		public static void SelectOpen () {
-			FileChooserDialog openDialog = new FileChooserDialog("Open save", Game.mainWindow, FileChooserAction.SelectFolder, "Cancel", ResponseType.Cancel, "Open", ResponseType.Accept);
+			FileChooserDialog openDialog = new FileChooserDialog("Open save", MainWindow.main, FileChooserAction.SelectFolder, "Cancel", ResponseType.Cancel, "Open", ResponseType.Accept);
 			openDialog.Response += delegate (object obj, ResponseArgs args) {
 				if (args.ResponseId == ResponseType.Accept) {
 					string path = new Uri(openDialog.Uri).AbsolutePath;
@@ -47,7 +47,7 @@ namespace BrocktonBay {
 		}
 
 		public static void SelectSaveAs () {
-			FileChooserDialog saveDialog = new FileChooserDialog("Save as", Game.mainWindow, FileChooserAction.CreateFolder, "Cancel", ResponseType.Cancel, "Save", ResponseType.Accept);
+			FileChooserDialog saveDialog = new FileChooserDialog("Save as", MainWindow.main, FileChooserAction.CreateFolder, "Cancel", ResponseType.Cancel, "Save", ResponseType.Accept);
 			saveDialog.Response += delegate (object obj, ResponseArgs args) {
 				if (args.ResponseId == ResponseType.Accept) {
 					string path = new Uri(saveDialog.Uri).AbsolutePath;
@@ -61,9 +61,10 @@ namespace BrocktonBay {
 
 		public static void Open (string path) {
 
+			City city = new City();
+
 			try {
 
-				City city = new City();
 				city.saveFolder = path;
 				Game.city = city;
 
@@ -124,14 +125,11 @@ namespace BrocktonBay {
 				Profiler.Log(ref Profiler.updateTime);
 
 				Game.player = (IAgent)city.Get<GameObject>(int.Parse(File.ReadAllText(path + "/player.txt")));
-				Game.Load(city); //Profiler calls inside CityInterface constructor.
-
-				Profiler.Report();
 
 			} catch (Exception e) {
 
 				MessageDialog errorMessage =
-					new MessageDialog(Game.mainWindow,
+					new MessageDialog(MainWindow.main,
 									  DialogFlags.DestroyWithParent,
 									  MessageType.Error,
 									  ButtonsType.Close,
@@ -140,9 +138,12 @@ namespace BrocktonBay {
 				Console.WriteLine(e.StackTrace);
 				errorMessage.Run();
 				errorMessage.Destroy();
-				Game.city = null;
+				return;
 
 			}
+
+			Game.Load(city); //Profiler does stuff inside CityInterface constructor.
+			Profiler.Report();
 
 		}
 

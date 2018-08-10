@@ -50,7 +50,6 @@
     <Compile Include="Core.GUI\Inspector\FieldGizmos.cs" />
     <Compile Include="Core.GUI\Search.cs" />
     <Compile Include="Core.GUI\Windows.cs" />
-    <Compile Include="gtk-gui\MainWindow.cs" />
     <Compile Include="Core\AbstractBaseClasses.cs" />
     <Compile Include="Core\DependencyManagement.cs" />
     <Compile Include="Core.GUI\Graphics.cs" />
@@ -67,10 +66,8 @@
     <Compile Include="Core\GameObjects\Structure.cs" />
     <Compile Include="Core\GameObjects\Territory.cs" />
     <Compile Include="Profiler.cs" />
-    <Compile Include="Core.GUI\UIFactoryObjects.cs" />
+    <Compile Include="Core.GUI\DisplayableAttribute.cs" />
     <Compile Include="Core.GUI\Map\Map.cs" />
-    <Compile Include="Core.GUI\Map\TerritoryMapping.cs" />
-    <Compile Include="Core.GUI\Map\StructureMapping.cs" />
     <Compile Include="Core\Battle\IBattleground.cs" />
     <Compile Include="Core\UtilityObjects.cs" />
     <Compile Include="MyDragDrop.cs" />
@@ -85,6 +82,7 @@
     <Compile Include="Core.GUI\Inspector\DialogTextEditing.cs" />
     <Compile Include="MapAlert.cs" />
     <Compile Include="Core.GUI\Map\MapMarkers.cs" />
+    <Compile Include="gtk-gui\MainWindow.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />

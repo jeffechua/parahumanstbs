@@ -22,6 +22,9 @@ namespace BrocktonBay {
 		[Displayable(8, typeof(CellTabularListField<Parahuman>), -2, emphasized = true, editablePhases = Phase.Action)]
 		public override List<Parahuman> combined_roster { get; set; }
 
+		[Displayable(99, typeof(ActionField), 5, fillSides = false, visiblePhases = Phase.Action)]
+		public GameAction cancel { get; set; }
+
 		public Attack (IBattleground location, IAgent affiliation) : this(location, affiliation, new List<Team>(), new List<Parahuman>()) { }
 
 		public Attack (IBattleground location, IAgent affiliation, List<Team> teams, List<Parahuman> independents, Parahuman leader = null) {
@@ -30,6 +33,17 @@ namespace BrocktonBay {
 			this.teams = teams;
 			this.independents = independents;
 			this.leader = leader;
+			cancel = new GameAction {
+				name = "Cancel attack",
+				description = "Cancel this attack.",
+				action = delegate {
+					location.attacker = null;
+					DependencyManager.Delete(this);
+					DependencyManager.Flag(location);
+					DependencyManager.TriggerAllFlags();
+				},
+				condition = (context) => Game.player == affiliation
+			};
 			Reload();
 		}
 
@@ -54,6 +68,9 @@ namespace BrocktonBay {
 		[Displayable(8, typeof(CellTabularListField<Parahuman>), -2, emphasized = true, editablePhases = Phase.Response)]
 		public override List<Parahuman> combined_roster { get; set; }
 
+		[Displayable(99, typeof(ActionField), 5, fillSides = false, visiblePhases = Phase.Response)]
+		public GameAction cancel { get; set; }
+
 		public Defense (IBattleground location, IAgent affiliation) : this(location, affiliation, new List<Team>(), new List<Parahuman>()) { }
 
 		public Defense (IBattleground location, IAgent affiliation, List<Team> teams, List<Parahuman> independents, Parahuman leader = null) {
@@ -62,6 +79,17 @@ namespace BrocktonBay {
 			this.teams = teams;
 			this.independents = independents;
 			this.leader = leader;
+			cancel = new GameAction {
+				name = "Cancel defense",
+				description = "Cancel this defense.",
+				action = delegate {
+					location.defender = null;
+					DependencyManager.Delete(this);
+					DependencyManager.Flag(location);
+					DependencyManager.TriggerAllFlags();
+				},
+				condition = (context) => Game.player == affiliation
+			};
 			Reload();
 		}
 

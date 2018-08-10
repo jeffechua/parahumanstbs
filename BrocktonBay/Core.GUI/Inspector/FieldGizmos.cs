@@ -343,7 +343,7 @@ namespace BrocktonBay {
 			action = (GameAction)property.GetValue(obj);
 			Gtk.Alignment alignment = (Gtk.Alignment)Child;
 			alignment.Add(new Label(action.name));
-			alignment.BorderWidth = 10;
+			alignment.BorderWidth = attribute.arg == null ? 10 : (uint)(int)attribute.arg;
 			TooltipText = action.description;
 			Sensitive = action.condition(context);
 			Clicked += (o, a) => action.action(context);

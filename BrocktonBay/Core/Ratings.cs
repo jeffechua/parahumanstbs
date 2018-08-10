@@ -360,10 +360,10 @@ namespace BrocktonBay {
 									baseStrength, bonuses[0], plusBonus, forceMult, plusForce);
 			//Stealth
 			stats[1].SetValues(zValues[4, 5], zValues[4, 6], zValues[4, 5] + zValues[4, 6],
-									 bonuses[1], zValues[4, 5] + zValues[4, 6] + profile.bonuses[1]);
+									 bonuses[1], zValues[4, 5] + zValues[4, 6] + bonuses[1]);
 			//Insight
 			stats[2].SetValues(zValues[4, 7], zValues[4, 8], zValues[4, 7] + zValues[4, 8],
-									 bonuses[2], zValues[4, 7] + zValues[4, 8] + profile.bonuses[2]);
+									 bonuses[2], zValues[4, 7] + zValues[4, 8] + bonuses[2]);
 
 			return stats;
 

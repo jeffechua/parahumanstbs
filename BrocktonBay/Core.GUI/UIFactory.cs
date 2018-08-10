@@ -69,6 +69,8 @@ namespace BrocktonBay {
 					};
 				}
 
+				if (!attribute.fillSides) newWidget = Align(newWidget, 0.5f, 0, 0, 1);
+
 				//Manage emphasis
 				if (attribute.emphasized || attribute.emphasizedIfVertical) {
 					if (emphasisBox == null)                                     // If no emphasisBox at the moment,
@@ -129,6 +131,8 @@ namespace BrocktonBay {
 					attribute.forceVertical?context.butVertical:context,
 					attribute
 				});
+
+				if (!attribute.fillSides) newWidget = Align(newWidget, 0, 0.5f, 1, 0);
 
 				//Pack into the correcumentt box (emphasisBox/regularBox)
 				if (attribute.emphasized || attribute.emphasizedIfHorizontal) {

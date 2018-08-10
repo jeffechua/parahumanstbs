@@ -61,7 +61,7 @@ namespace BrocktonBay {
 
 		public static Mechanic Create () {
 			Mechanic newMechanic = null;
-			Dialog dialog = new Dialog("Choose type of mechanic to create", Game.mainWindow, DialogFlags.DestroyWithParent, "Cancel", ResponseType.Cancel, "Ok", ResponseType.Ok);
+			Dialog dialog = new Dialog("Choose type of mechanic to create", MainWindow.main, DialogFlags.DestroyWithParent, "Cancel", ResponseType.Cancel, "Ok", ResponseType.Ok);
 			ComboBox comboBox = new ComboBox(new string[] { "Weakness", "TrueForm" });
 			dialog.VBox.PackStart(comboBox, true, true, 0);
 			dialog.ShowAll();
