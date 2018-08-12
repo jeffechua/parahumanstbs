@@ -42,7 +42,7 @@ namespace BrocktonBay {
 				} else {
 					State = StateType.Normal;
 				}
-				if (clickValid) Clicked(this, args);
+				if (clickValid && args.Event.Button == 1) Clicked(this, args);
 				clickValid = false;
 				args.RetVal = true;
 			};

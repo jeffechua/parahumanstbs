@@ -67,7 +67,7 @@ namespace BrocktonBay {
 
 		Container shell;
 		Fixed contents;
-		int width;
+		int height;
 
 		public CachingTesselator (List<T> population, Func<T, Widget> Generator, Container shell) {
 			this.population = population;
@@ -97,25 +97,25 @@ namespace BrocktonBay {
 		}
 
 		public void Render (bool force = true) {
+			
+			if (height == shell.Allocation.Height && !force) return;
 
-			if (width == shell.Allocation.Width && !force) return;
-
-			width = shell.Allocation.Width - 10; //A ScrolledWindow bevel counts into its width. As we don't have max_content_width in gtk+2, the 10pt buffer is used instead. Otherwise, horizontal overflow and a resulting horizontal scrollbar may pop up in certain caes.
-			int x = 0;
+			height = shell.Allocation.Height - 10; //A ScrolledWindow bevel counts into its width. As we don't have max_content_width in gtk+2, the 10pt buffer is used instead. Otherwise, horizontal overflow and a resulting horizontal scrollbar may pop up in certain caes.
 			int y = 0;
-			int rowHeight = 0;
+			int x = 0;
+			int rowWidth = 0;
 
 			foreach (ObjectWidgetPair<T> pair in cache) {
 				if (sample.Contains(pair.obj)) {
 					Requisition size = pair.widget.SizeRequest();
-					if (x + size.Width > width) {
-						x = 0;
-						y += rowHeight;
-						rowHeight = 0;
+					if (y + size.Height > height) {
+						y = 0;
+						x += rowWidth;
+						rowWidth = 0;
 					}
 					contents.Move(pair.widget, x, y);
-					x += size.Width;
-					if (size.Height > rowHeight) rowHeight = size.Height;
+					y += size.Height;
+					if (size.Width > rowWidth) rowWidth = size.Width;
 					pair.widget.ShowAll();
 				} else {
 					pair.widget.HideAll();

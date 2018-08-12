@@ -126,15 +126,23 @@ namespace BrocktonBay {
 			if (context.compact) {
 				HBox header = new HBox(false, 0);
 				Label nameLabel = new Label(name);
-				header.PackStart(new Label(health == Health.Deceased ? "<s>" + name + "</s>" : name), false, false, 0);
-				header.PackStart(Graphics.GetIcon(threat, Graphics.GetColor(health), Graphics.textSize),
+				header.PackStart(nameLabel, false, false, 0);
+				header.PackStart(Graphics.GetIcon(threat, Graphics.GetColor(alignment), Graphics.textSize),
 								 false, false, (uint)(Graphics.textSize / 5));
-				if (health == Health.Deceased) {
-					nameLabel.UseMarkup = true;
-					nameLabel.Text = "<s>" + name + "</s>";
-				} else if (health == Health.Captured) {
-					header.State = StateType.Insensitive;
-					return new InspectableBox(header, this, true, false);
+				switch (health) {
+					case Health.Injured:
+						Graphics.SetAllFg(nameLabel, Graphics.GetColor(Health.Injured));
+						break;
+					case Health.Down:
+						Graphics.SetAllFg(nameLabel, Graphics.GetColor(Health.Down));
+						break;
+					case Health.Deceased:
+						nameLabel.UseMarkup = true;
+						nameLabel.Markup = "<s>" + name + "</s>";
+						break;
+					case Health.Captured:
+						header.State = StateType.Insensitive;
+						return new InspectableBox(header, this, true, false);
 				}
 				return new InspectableBox(header, this);
 			} else {

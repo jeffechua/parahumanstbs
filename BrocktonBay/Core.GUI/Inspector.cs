@@ -66,7 +66,6 @@ namespace BrocktonBay {
 			this.obj = obj;
 			this.context = context;
 			frame = new Frame();
-
 			Child = frame;
 			prelight = false;
 			MyDragDrop.SourceSet(this, obj);

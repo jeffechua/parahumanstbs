@@ -53,8 +53,8 @@ namespace BrocktonBay {
 			Gdk.GC darkGrey = new Gdk.GC(color) { RgbFgColor = new Color(100, 100, 100) };   // for the axis labels
 			Gdk.GC[] wrapperColors = {
 				new Gdk.GC(color) { RgbFgColor = new Gdk.Color(170, 140, 0) }, //Regular
-				new Gdk.GC(color) { RgbFgColor = new Color(0, 150, 0) },       //Master
 				new Gdk.GC(color) { RgbFgColor = new Color(0, 0, 200) },       //Tinker
+				new Gdk.GC(color) { RgbFgColor = new Color(0, 150, 0) },       //Master
 				new Gdk.GC(color) { RgbFgColor = new Color(0, 0, 0) },         //Breaker
 			};
 

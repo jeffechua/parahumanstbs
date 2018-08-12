@@ -110,7 +110,7 @@ namespace BrocktonBay {
 
 			victor = (attacker_strength.result >= defender_strength.result) ? attackers : defenders;
 
-			victor_display = "Battle Victor:<small><small>\n\n</small></small><big><big>" +
+			victor_display = "Battle Victor:<small><small>\n\n</small></small>\n<big><big>" +
 							 (victor == attackers ? "ATTACKERS" : "DEFENDERS") + victor.affiliation.name
 							 + "</big></big>";
 
@@ -167,7 +167,7 @@ namespace BrocktonBay {
 
 
 			Fraction[] escape;
-			if (original[0].result > enemy[0].result) {
+			if (original[0].result < enemy[0].result) {
 				escape = new Fraction[2];
 				float capture_chance = original[1].result < 0.01 ? 1 : enemy[2].result / original[1].result / 4;
 				if (capture_chance > 1) capture_chance = 1;

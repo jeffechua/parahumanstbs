@@ -42,7 +42,7 @@ namespace BrocktonBay {
 		const double RESOLUTION_FACTOR = 10; //The icon is rendered at this times the requested size then scaled down.
 		static Assembly assembly;
 
-		public static readonly Gdk.Color[] healthColors = { new Color(50, 50, 50), new Color(230, 0, 0), new Color(200, 200, 0), new Color(0, 200, 0), new Color(150, 150, 150) };
+		public static readonly Gdk.Color[] healthColors = { new Color(50, 50, 50), new Color(210, 0, 0), new Color(200, 100, 0), new Color(0, 200, 0), new Color(150, 150, 150) };
 		public static readonly Gdk.Color[] alignmentColors = { new Color(0, 100, 230), new Color(170, 140, 0), new Color(100, 150, 0), new Color(0, 0, 0), new Color(150, 0, 175) };
 
 		public static Dictionary<IconRequest, Icon> iconCache = new Dictionary<IconRequest, Icon>();

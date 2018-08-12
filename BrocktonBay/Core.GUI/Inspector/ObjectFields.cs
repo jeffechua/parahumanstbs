@@ -29,7 +29,9 @@ namespace BrocktonBay {
 				Destroyed += (o, a) => DependencyManager.DisconnectAll(this);
 				Reload();
 			} else {
-				Add(new Label(UIFactory.ToReadable(property.Name) + ": None"));
+				Label label = new Label(UIFactory.ToReadable(property.Name) + ": None");
+				label.SetAlignment(0, 0);
+				Add(label);
 			}
 
 		}

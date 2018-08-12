@@ -45,9 +45,25 @@ namespace BrocktonBay {
 
 			Profiler.Log();
 
+			//My agents
+			Label agentsLabel = new Label("My agents");
+			Search agents = new Search((obj) => (obj is Team || obj is Parahuman) && ((IAffiliated)obj).affiliation==Game.player,
+			                           (obj) => Inspector.InspectInNearestInspector(obj, this));
+			agents.typesButton.State = StateType.Insensitive;
+			agents.toplevelOnlyButton.State = StateType.Insensitive;
+			notebook.AppendPage(agents, agentsLabel);
+
+			//My domain
+			Label domainLabel = new Label("My domain");
+			Search domain = new Search((obj) => (obj is Territory || obj is Structure) && ((IAffiliated)obj).affiliation == Game.player,
+									   (obj) => Inspector.InspectInNearestInspector(obj, this));
+			domain.typesButton.State = StateType.Insensitive;
+			domain.toplevelOnlyButton.State = StateType.Insensitive;
+			notebook.AppendPage(domain, domainLabel);
+
 			//Search tab
-			Search search = new Search(null, (obj) => Inspector.InspectInNearestInspector(obj, this));
 			Label searchLabel = new Label("Search");
+			Search search = new Search(null, (obj) => Inspector.InspectInNearestInspector(obj, this));
 			notebook.AppendPage(search, searchLabel);
 
 			Profiler.Log(ref Profiler.searchCreateTime);

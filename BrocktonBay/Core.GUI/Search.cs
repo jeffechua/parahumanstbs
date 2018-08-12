@@ -33,15 +33,16 @@ namespace BrocktonBay {
 		Toolbar searchBar;
 		Entry searchText;
 
-		ToggleButton typesButton;
+		public ToggleButton typesButton;
 		ToggleMenu typesMenu;
-		Checklist types;
+		public Checklist types;
 
+		public ToggleButton traitsButton;
 		ToggleMenu traitsMenu;
-		Checklist alignments;
-		Checklist threats;
+		public Checklist alignments;
+		public Checklist threats;
 
-		CheckButton toplevelOnlyButton;
+		public CheckButton toplevelOnlyButton;
 
 		ComboBox presentation;
 
@@ -98,7 +99,7 @@ namespace BrocktonBay {
 			searchBar.Insert(new SeparatorToolItem(), -1);
 
 			//Traits
-			ToggleButton traitsButton = new ToggleButton("More Filters");
+			traitsButton = new ToggleButton("More Filters");
 			traitsMenu = new ToggleMenu(traitsButton);
 			traitsMenu.Hidden += (o, a) => Reload();
 			HBox columns = new HBox(false, 5) { BorderWidth = 2 };
