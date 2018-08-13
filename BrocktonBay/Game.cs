@@ -103,6 +103,7 @@ namespace BrocktonBay {
 					} else {
 						turn = 0;
 						UpdateTurnOrder();
+						GameObject.ClearEngagements();
 						phase = Phase.Action;
 					}
 					break;

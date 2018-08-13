@@ -206,7 +206,7 @@ namespace BrocktonBay {
 		}
 
 		Widget SetupCell(GameObject obj) {
-			Cell cell = new SmartCell(new Context(Game.player, obj), obj);
+			SmartCell cell = new SmartCell(new Context(Game.player, obj), obj);
 			cell.BorderWidth = 5;
 			cell.prelight = true;
 			cell.Clicked += (o, a) => OnClicked(obj);

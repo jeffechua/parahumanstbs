@@ -298,7 +298,6 @@ namespace BrocktonBay {
 
 			Cell cell;
 			cell = new Cell(context, obj);
-			InspectableBox cellLabel = (InspectableBox)cell.frame.LabelWidget;
 
 			if (editable) {
 
@@ -319,16 +318,11 @@ namespace BrocktonBay {
 					DependencyManager.TriggerAllFlags();
 				};
 
-				cellLabel.rightclickMenu.Append(new SeparatorMenuItem());
-				cellLabel.rightclickMenu.Append(moveButton);
-				cellLabel.rightclickMenu.Append(removeButton);
+				cell.rightclickMenu.Append(new SeparatorMenuItem());
+				cell.rightclickMenu.Append(moveButton);
+				cell.rightclickMenu.Append(removeButton);
 
 				//Set up drag/drop
-
-				MyDragDrop.SetFailAction(cellLabel, delegate {
-					parent.Remove(obj);
-					DependencyManager.TriggerAllFlags();
-				});
 
 				MyDragDrop.SetFailAction(cell, delegate {
 					parent.Remove(obj);

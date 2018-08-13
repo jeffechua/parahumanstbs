@@ -110,8 +110,8 @@ namespace BrocktonBay {
 
 			victor = (attacker_strength.result >= defender_strength.result) ? attackers : defenders;
 
-			victor_display = "Battle Victor:<small><small>\n\n</small></small>\n<big><big>" +
-							 (victor == attackers ? "ATTACKERS" : "DEFENDERS") + victor.affiliation.name
+			victor_display = "Battle Victor:<small><small>\n\n</small></small><big><big>" +
+							 (victor == attackers ? "ATTACKERS" : "DEFENDERS") + "\n" + victor.affiliation.name
 							 + "</big></big>";
 
 			Tuple<Fraction[], Fraction[]> fractions;

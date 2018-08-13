@@ -80,7 +80,6 @@
     <Compile Include="Core\GameObjects\Mechanics\Mechanic.cs" />
     <Compile Include="Core\GameObjects\Mechanics\RatingsMechanics.cs" />
     <Compile Include="Core.GUI\Inspector\DialogTextEditing.cs" />
-    <Compile Include="MapAlert.cs" />
     <Compile Include="Core.GUI\Map\MapMarkers.cs" />
     <Compile Include="gtk-gui\MainWindow.cs" />
     <Compile Include="Agency.cs" />

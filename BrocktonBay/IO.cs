@@ -18,7 +18,7 @@ namespace BrocktonBay {
 			MessageDialog dialog = new MessageDialog(MainWindow.main, DialogFlags.DestroyWithParent, MessageType.Question, ButtonsType.YesNo, "Save current game?");
 			dialog.Response += delegate (object obj, ResponseArgs response) {
 				if (response.ResponseId == ResponseType.Yes)
-					IO.SelectSave();
+					SelectSave();
 				if (response.ResponseId == ResponseType.No || response.ResponseId == ResponseType.Yes)
 					action();
 			};

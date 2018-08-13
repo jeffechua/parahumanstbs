@@ -521,7 +521,16 @@ namespace BrocktonBay {
 			widget.SizeAllocated += handler;
 		}
 
-		public static void SetAllocationTrigger<T1, T2> (Widget widget, System.Action<T1, T2> action, T1 arg1, T2 arg2) {
+		public static void SetExposeTrigger (Widget widget, System.Action action) {
+			ExposeEventHandler handler = null;
+			handler = delegate {
+				widget.ExposeEvent -= handler;
+				action();
+			};
+			widget.ExposeEvent += handler;
+		}
+
+		public static void SetAllocTrigger<T1, T2> (Widget widget, System.Action<T1, T2> action, T1 arg1, T2 arg2) {
 			SizeAllocatedHandler handler = null;
 			handler = delegate {
 				widget.SizeAllocated -= handler;

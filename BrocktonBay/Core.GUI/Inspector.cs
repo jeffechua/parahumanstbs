@@ -19,6 +19,7 @@ namespace BrocktonBay {
 			DependencyManager.Connect(obj, this);
 			DependencyManager.Connect(Game.UIKey, this);
 			Destroyed += (o, a) => DependencyManager.DisconnectAll(this);
+			SetSizeRequest(1, 300);
 			LabelXalign = 1;
 			Reload();
 		}
@@ -27,11 +28,15 @@ namespace BrocktonBay {
 			if (obj.destroyed) {
 				Destroy();
 			} else {
-				if (Child != null) Child.Destroy();
-				if (LabelWidget != null) LabelWidget.Destroy();
-				LabelWidget = obj.GetHeader(new Context(Game.player, obj, false, true));
-				Add(UIFactory.GenerateHorizontal(obj));
-				ShowAll();
+				HideAll();
+				Graphics.SetExposeTrigger(this, delegate {
+					SetSizeRequest(-1, -1);
+					if (Child != null) Child.Destroy();
+					if (LabelWidget != null) LabelWidget.Destroy();
+					Add(UIFactory.GenerateHorizontal(obj));
+					LabelWidget = obj.GetHeader(new Context(Game.player, obj, false, true));
+					ShowAll();
+				});
 			}
 		}
 
@@ -39,17 +44,45 @@ namespace BrocktonBay {
 
 	// In fact, the Reload() requirement of IDependable is already fulfilled in Cell. There, it is not triggered by
 	// DependencyManager when flagged, but instead called once in the constructor to initialize the Cell.
-	public class SmartCell : Cell, IDependable {
+	public class SmartCell : InspectableBox, IDependable {
 
 		public int order { get { return obj == null ? 0 : obj.order + 1; } }
 		public bool destroyed { get; set; }
 		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 
-		public SmartCell (Context context, IGUIComplete obj) : base(context, obj) {
+		public Frame frame;
+		public IGUIComplete obj;
+		public Context context;
+
+		public SmartCell (Context context, IGUIComplete obj) : base(obj) {
+			//Basic setup
+			this.obj = obj;
+			this.context = context;
+			frame = new Frame();
+			Child = frame;
+			prelight = false;
+			MyDragDrop.SourceSet(this, obj);
+			// "Removing by dragging away to nothing" functionality should be... [see Cell comment]
 			DependencyManager.Connect(obj, this);
 			DependencyManager.Connect(Game.UIKey, this);
 			Destroyed += (o, a) => DependencyManager.DisconnectAll(this);
+			Reload();
+		}
+
+		public void Reload () {
+			if (obj.destroyed) {
+				Destroy();
+			} else {
+				HideAll();
+				Graphics.SetExposeTrigger(this, delegate {
+					if (frame.Child != null) frame.Child.Destroy();
+					if (frame.LabelWidget != null) frame.LabelWidget.Destroy();
+					frame.Add(obj.GetCellContents(context));
+					frame.LabelWidget = obj.GetHeader(context.butCompact);
+					ShowAll();
+				});
+			}
 		}
 
 	}
@@ -61,7 +94,6 @@ namespace BrocktonBay {
 		public Context context;
 
 		public Cell (Context context, IGUIComplete obj) : base(obj) {
-
 			//Basic setup
 			this.obj = obj;
 			this.context = context;
@@ -69,7 +101,6 @@ namespace BrocktonBay {
 			Child = frame;
 			prelight = false;
 			MyDragDrop.SourceSet(this, obj);
-
 			// "Removing by dragging away to nothing" functionality should be implemented manually when the Cell is created.
 			// It should be implemented via MyDragDrop.SourceSetFailAction
 			// The object should generally be removed from the parent list ONLY in this case.
@@ -79,21 +110,9 @@ namespace BrocktonBay {
 			// - If cellObject is dragged from an associative list to an aggregative list or vice versa,
 			//   We reasonably assume that user doesn't want it removed from the first list since the concept of "moving" doesn't apply in this context.
 			// - Only if the user has dragged cellObject from any list to *nothing* can it be assumed that they need it manually removed by us.
-
-			Reload();
-
-		}
-
-		public void Reload () {
-			if (obj.destroyed) {
-				Destroy();
-			} else {
-				if (frame.Child != null) frame.Child.Destroy();
-				if (frame.LabelWidget != null) frame.LabelWidget.Destroy();
-				frame.LabelWidget = obj.GetHeader(context.butCompact);
-				frame.Add(obj.GetCellContents(context));
-				ShowAll();
-			}
+			frame.Add(obj.GetCellContents(context));
+			frame.LabelWidget = obj.GetHeader(context.butCompact);
+			ShowAll();
 		}
 
 	}
