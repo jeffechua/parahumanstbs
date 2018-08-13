@@ -36,7 +36,7 @@ namespace BrocktonBay {
 			List<Tuple<PropertyInfo, DisplayableAttribute>> pairs = properties.ConvertAll(
 				(property) => new Tuple<PropertyInfo, DisplayableAttribute>(property, (DisplayableAttribute)property.GetCustomAttribute(typeof(DisplayableAttribute))));
 			pairs.RemoveAll((pair) => pair.Item2 == null || !pair.Item2.generate || pair.Item2.horizontalOnly
-							|| (!Game.omniscient && !pair.Item2.isVisiblePhase));
+							|| (!Game.omniscient && (pair.Item2.visiblePhases & Game.phase) == Phase.None));
 			pairs.Sort((x, y) => x.Item2.order.CompareTo(y.Item2.order));
 
 			//Create boxes
@@ -108,7 +108,7 @@ namespace BrocktonBay {
 			List<Tuple<PropertyInfo, DisplayableAttribute>> pairs = properties.ConvertAll(
 				(property) => new Tuple<PropertyInfo, DisplayableAttribute>(property, (DisplayableAttribute)property.GetCustomAttribute(typeof(DisplayableAttribute))));
 			pairs.RemoveAll((pair) => pair.Item2 == null || !pair.Item2.generate || pair.Item2.verticalOnly
-							|| (!Game.omniscient && !pair.Item2.isVisiblePhase));
+							|| (!Game.omniscient && (pair.Item2.visiblePhases & Game.phase) == Phase.None));
 			pairs.Sort((x, y) => x.Item2.order.CompareTo(y.Item2.order));
 
 			//Initialize boxes
@@ -173,7 +173,7 @@ namespace BrocktonBay {
 			IAffiliated affiliated = obj as IAffiliated;
 			if (affiliated != null && affiliated.affiliation != null && affiliated.affiliation != Game.player) return false;
 			if (attribute == null) attribute = (DisplayableAttribute)property.GetCustomAttribute(typeof(DisplayableAttribute));
-			return attribute.isEditPhase;
+			return (attribute.editablePhases & Game.phase) == Game.phase;
 		}
 
 		public static string ToReadable (string str) {

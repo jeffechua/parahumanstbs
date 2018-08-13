@@ -83,6 +83,7 @@
     <Compile Include="MapAlert.cs" />
     <Compile Include="Core.GUI\Map\MapMarkers.cs" />
     <Compile Include="gtk-gui\MainWindow.cs" />
+    <Compile Include="Agency.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />

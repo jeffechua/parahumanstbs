@@ -25,7 +25,7 @@ namespace BrocktonBay {
 
 	}
 
-	public sealed class Team : GameObject, IRated, IAgent {
+	public sealed partial class Team : GameObject, IRated, IAgent {
 
 		public override int order { get { return 2; } }
 		public Gdk.Color color { get { return new Gdk.Color(150, 150, 150); } }

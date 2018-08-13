@@ -164,7 +164,7 @@ namespace BrocktonBay {
 		public override int order { get { return 2; } }
 
 		Structure structure;
-		IAgent shownAffiliation;
+		Gdk.Color shownColor;
 		StructureType shownType;
 		IntVector2 shownPosition;
 
@@ -184,13 +184,13 @@ namespace BrocktonBay {
 
 		public override void Redraw () {
 			if (Child != null) Remove(Child);
-			Add(Graphics.GetIcon(structure.type, Graphics.GetColor(structure.affiliation), markerSize, true));
+			Add(Graphics.GetIcon(structure.type, shownColor, markerSize, true));
 			ShowAll();
 		}
 
 		public override void Reload () {
-			if (structure.affiliation != shownAffiliation || structure.type != shownType) {
-				shownAffiliation = structure.affiliation;
+			if (!structure.affiliation.color.Equal(shownColor) || structure.type != shownType) {
+				shownColor = structure.affiliation.color;
 				shownType = structure.type;
 				Redraw();
 			}
@@ -231,7 +231,7 @@ namespace BrocktonBay {
 		public override int order { get { return 3; } }
 
 		Territory territory;
-		IAgent shownAffiliation;
+		Gdk.Color shownColor;
 		IntVector2 shownPosition;
 
 		public override int layer { get => 2; }
@@ -250,13 +250,13 @@ namespace BrocktonBay {
 
 		public override void Redraw () {
 			if (Child != null) Remove(Child);
-			Add(Graphics.GetLocationPin(Graphics.GetColor(territory.affiliation), markerWidth, markerHeight));
+			Add(Graphics.GetLocationPin(shownColor, markerWidth, markerHeight));
 			ShowAll();
 		}
 
 		public override void Reload () {
-			if (territory.affiliation != shownAffiliation) {
-				shownAffiliation = territory.affiliation;
+			if (!territory.affiliation.color.Equal(shownColor)) {
+				shownColor = territory.affiliation.color;
 				Redraw();
 			}
 			if (territory.position != shownPosition) {
@@ -297,7 +297,7 @@ namespace BrocktonBay {
 		public override int order { get { return 3; } }
 
 		Territory territory;
-		IAgent shownAffiliation;
+		Gdk.Color shownColor;
 		int shownSize;
 		IntVector2 shownPosition;
 
@@ -317,13 +317,13 @@ namespace BrocktonBay {
 
 		public override void Redraw () {
 			if (Child != null) Remove(Child);
-			Add(Graphics.GetCircle(Graphics.GetColor(shownAffiliation), 50, radius));
+			Add(Graphics.GetCircle(shownColor, 30, radius));
 			ShowAll();
 		}
 
 		public override void Reload () {
-			if (territory.affiliation != shownAffiliation || territory.size != shownSize) {
-				shownAffiliation = territory.affiliation;
+			if (!territory.affiliation.color.Equal(shownColor) || territory.size != shownSize) {
+				shownColor = territory.affiliation.color;
 				shownSize = territory.size;
 				shownPosition = territory.position;
 				Redraw();
@@ -441,10 +441,8 @@ namespace BrocktonBay {
 					return null;
 				case Phase.Response:
 					return defended ? GenerateDeploymentPopup(battleground.attacker) : null;
-				case Phase.Mastermind:
-					return null;
 				default:
-					throw new Exception("Invalid game phase");
+					return null;
 			}
 		}
 
@@ -457,10 +455,8 @@ namespace BrocktonBay {
 					return GenerateDeploymentPopup(defended ?
 												   (Deployment)battleground.defender :
 												   (Deployment)battleground.attacker);
-				case Phase.Mastermind:
-					return GenerateBattlePopup(battleground.battle);
 				default:
-					throw new Exception("Invalid game phase");
+					return GenerateBattlePopup(battleground.battle);
 			}
 		}
 

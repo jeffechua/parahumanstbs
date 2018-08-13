@@ -47,8 +47,8 @@ namespace BrocktonBay {
 
 			//My agents
 			Label agentsLabel = new Label("My agents");
-			Search agents = new Search((obj) => (obj is Team || obj is Parahuman) && ((IAffiliated)obj).affiliation==Game.player,
-			                           (obj) => Inspector.InspectInNearestInspector(obj, this));
+			Search agents = new Search((obj) => (obj is Team || obj is Parahuman) && ((IAffiliated)obj).affiliation == Game.player,
+									   (obj) => Inspector.InspectInNearestInspector(obj, this));
 			agents.typesButton.State = StateType.Insensitive;
 			agents.toplevelOnlyButton.State = StateType.Insensitive;
 			notebook.AppendPage(agents, agentsLabel);
@@ -69,6 +69,8 @@ namespace BrocktonBay {
 			Profiler.Log(ref Profiler.searchCreateTime);
 
 			MainWindow.main.inspector = inspector;
+
+			DestroyEvent += (o, a) => DependencyManager.Delete(this);
 
 			Reload();
 
@@ -95,16 +97,10 @@ namespace BrocktonBay {
 			Image nextPhaseArrow = Graphics.GetIcon(DirectionType.Right, black, (int)(Graphics.textSize * 0.75));
 			ClickableEventBox nextPhaseButton = new ClickableEventBox {
 				Child = nextPhaseArrow,
-				BorderWidth = (uint)(Graphics.textSize * 0.25)
+				BorderWidth = (uint)(Graphics.textSize * 0.25),
+				Sensitive = Game.CanNext()
 			};
-			nextPhaseButton.Clicked += delegate {
-				if (Game.phase == Phase.Mastermind) {
-					Game.phase = Phase.Action;
-				} else {
-					Game.phase += 1;
-				}
-				Game.RefreshUI();
-			};
+			nextPhaseButton.Clicked += (o, a) => Game.Next();
 			textBar.PackEnd(nextPhaseButton, false, false, spacing);
 			textBar.PackEnd(new Label(Game.phase + " Phase"), false, false, spacing);
 
@@ -113,27 +109,32 @@ namespace BrocktonBay {
 				numbersBar.PackStart(new Label(faction.resources.ToString()), false, false, spacing);
 				numbersBar.PackStart(Graphics.GetIcon(StructureType.Aesthetic, black, Graphics.textSize), false, false, spacing);
 				numbersBar.PackStart(new Label(faction.reputation.ToString()), false, false, spacing);
-				foreach (Parahuman parahuman in faction.roster)
-					numbersBar.PackEnd(GetParahumanIcon(parahuman), false, false, spacing);
-				foreach (Team team in faction.teams)
-					foreach (Parahuman parahuman in team.roster)
-						numbersBar.PackEnd(GetParahumanIcon(parahuman), false, false, spacing);
-			} else if (GameObject.TryCast(Game.player, out Team team)) {
-				foreach (Parahuman parahuman in team.roster)
-					numbersBar.PackEnd(GetParahumanIcon(parahuman), false, false, spacing);
-			} else if (GameObject.TryCast(Game.player, out Parahuman parahuman)) {
-				numbersBar.PackEnd(GetParahumanIcon(parahuman), false, false, spacing);
 			}
+
+			for (int i = Game.turnOrder.Count - 1; i >= 0; i--) {
+				InspectableBox icon = GetAgentIcon(Game.turnOrder[i]);
+				if (i == Game.turn) {
+					numbersBar.PackEnd(new Frame { Child = icon }, false, false, 0);
+				} else {
+					numbersBar.PackEnd(icon, false, false, 0);
+				}
+			}
+
 			ShowAll();
 
 		}
 
-		Image GetParahumanIcon (Parahuman parahuman) {
-			Image icon = Graphics.GetIcon(parahuman.threat, Graphics.GetColor(parahuman.health), Graphics.textSize);
-			icon.HasTooltip = true;
-			icon.TooltipText = parahuman.name;
-			return icon;
+		InspectableBox GetAgentIcon (IAgent agent) {
+			Image icon = Graphics.GetIcon(agent.threat, Graphics.GetColor(agent), Graphics.textSize);
+			InspectableBox inspectable = new InspectableBox(icon, agent) {
+				HasTooltip = true,
+				TooltipText = agent.name,
+				VisibleWindow = false
+			};
+			return inspectable;
 		}
 
 	}
+
+
 }

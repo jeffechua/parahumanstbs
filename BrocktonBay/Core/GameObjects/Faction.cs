@@ -29,7 +29,7 @@ namespace BrocktonBay {
 
 	}
 
-	public sealed class Faction : GameObject, IRated, IAgent {
+	public sealed partial class Faction : GameObject, IRated, IAgent {
 
 		public override int order { get { return 3; } }
 		public Dossier knowledge { get; set; }

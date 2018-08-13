@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Gtk;
 
 namespace BrocktonBay {
-	
+
 	// A GameObject is a base class for most objects in the game. This includes players, teams, factions and territories - NOT assets.
 	// GameObjects are assigned IDs mainly used for importing/exporting from/to JSON files, as they allow parent/child relationships to be reduced to primitive expressions.
 	public abstract class GameObject : IGUIComplete, IComparable<GameObject>, IContainer, IAffiliated {
@@ -84,12 +84,6 @@ namespace BrocktonBay {
 
 	public interface IAffiliated {
 		IAgent affiliation { get; }
-	}
-
-	public interface IAgent : IGUIComplete {
-		Gdk.Color color { get; }
-		Dossier knowledge { get; set; }
-		bool active { get; set; }
 	}
 
 	/* 

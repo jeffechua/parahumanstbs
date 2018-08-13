@@ -21,10 +21,8 @@ namespace BrocktonBay {
 		public bool forceVertical = false;
 		public bool forceHorizontal = false;
 
-		public Phase editablePhases = Phase.None;
+		public Phase editablePhases = 0;
 		public Phase visiblePhases = Phase.All;
-		public bool isEditPhase { get => editablePhases == Phase.All || editablePhases == Game.phase; }
-		public bool isVisiblePhase { get => visiblePhases == Phase.All || visiblePhases == Game.phase; }
 
 		public uint topPadding = 0;
 		public uint bottomPadding = 0;
