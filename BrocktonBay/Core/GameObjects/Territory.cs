@@ -13,6 +13,7 @@ namespace BrocktonBay {
 		public int size = 0;
 		public int reputation = 0;
 		public List<int> structures = new List<int>();
+		public List<MechanicData> mechanics = new List<MechanicData>();
 
 		public TerritoryData () { }
 
@@ -23,6 +24,7 @@ namespace BrocktonBay {
 			size = territory.size;
 			reputation = territory.reputation;
 			structures = territory.structures.ConvertAll((structure) => structure.ID);
+			mechanics = territory.mechanics.ConvertAll((input) => new MechanicData(input));
 		}
 
 	}
@@ -86,11 +88,15 @@ namespace BrocktonBay {
 		[Displayable(8, typeof(CellTabularListField<Structure>), 2, emphasized = true, editablePhases = Phase.Mastermind)]
 		public List<Structure> structures { get; set; }
 
-		[Displayable(9, typeof(ActionField), verticalOnly = true, visiblePhases = Phase.Action,
+		[Displayable(9, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]
+		public override List<Mechanic> mechanics { get; set; }
+
+
+		[Displayable(10, typeof(ActionField), verticalOnly = true, visiblePhases = Phase.Action,
 					 topPadding = 20, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
 		public GameAction attack { get; set; }
 
-		[Displayable(10, typeof(ActionField), verticalOnly = true, visiblePhases = Phase.Response,
+		[Displayable(11, typeof(ActionField), verticalOnly = true, visiblePhases = Phase.Response,
 					 topPadding = 20, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
 		public GameAction defend { get; set; }
 
@@ -107,11 +113,17 @@ namespace BrocktonBay {
 				DependencyManager.Connect(structure, this);
 				structure.parent = this;
 			}
+			mechanics = data.mechanics.ConvertAll((input) => Mechanic.Load(input));
+			foreach (Mechanic mechanic in mechanics) {
+				DependencyManager.Connect(mechanic, this);
+				mechanic.parent = this;
+			}
 			attack = new GameAction {
 				name = "Attack",
 				description = "Launch an attack on " + name,
 				action = delegate (Context context) {
 					attacker = new Attack(this, context.agent);
+					Game.city.activeBattlegrounds.Add(this);
 					DependencyManager.Connect(this, attacker);
 					DependencyManager.Flag(this);
 					DependencyManager.TriggerAllFlags();
@@ -140,11 +152,13 @@ namespace BrocktonBay {
 			combat_buffs = new int[3];
 			incomes = new int[2];
 			foreach (Structure structure in structures) {
-				strength_buff += structure.strength_buff;
-				stealth_buff += structure.stealth_buff;
-				insight_buff += structure.insight_buff;
-				resource_income += structure.resource_income;
-				reputation_income += structure.reputation_income;
+				if (structure.rebuild_time > 0) {
+					strength_buff += structure.strength_buff;
+					stealth_buff += structure.stealth_buff;
+					insight_buff += structure.insight_buff;
+					resource_income += structure.resource_income;
+					reputation_income += structure.reputation_income;
+				}
 			}
 		}
 

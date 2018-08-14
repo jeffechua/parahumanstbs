@@ -38,6 +38,7 @@ namespace BrocktonBay {
 				description = "Cancel this attack.",
 				action = delegate {
 					location.attacker = null;
+					Game.city.activeBattlegrounds.Remove(location);
 					DependencyManager.Delete(this);
 					DependencyManager.Flag(location);
 					DependencyManager.TriggerAllFlags();

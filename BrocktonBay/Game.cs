@@ -11,8 +11,28 @@ namespace BrocktonBay {
 		Response = 1 << 1,
 		Resolution = 1 << 2,
 		Mastermind = 1 << 3,
+		Event = 1 << 4,
 		All = int.MaxValue,
 		None = 0
+	}
+
+	public struct EventLog {
+		string text;
+		IGUIComplete[] elements;
+		public EventLog (string text, params IGUIComplete[] elements) {
+			this.text = text;
+			this.elements = elements;
+		}
+		public HBox Print () {
+			HBox box = new HBox();
+			string[] fragments = text.Split('@');
+			for (int i = 0; i < fragments.Length; i++) {
+				box.PackStart(new Label(fragments[i]), false, false, 0);
+				if (i != fragments.Length - 1)
+					box.PackStart(elements[i].GetHeader(new Context(Game.player, box, true, true)), false, false, 0);
+			}
+			return box;
+		}
 	}
 
 	class Game {
@@ -25,6 +45,8 @@ namespace BrocktonBay {
 		public static Phase phase = Phase.Action;
 		public static int turn;
 		public static List<IAgent> turnOrder;
+
+		public static List<EventLog> eventLogs = new List<EventLog>();
 
 		public static DependableShell UIKey; // A "key" connected to all IDependable UI elements. "Turned" (flagged) to induce a reload across the board.
 
@@ -89,7 +111,8 @@ namespace BrocktonBay {
 							turnOrder[turn].TakeResponsePhase();
 					} else {
 						turn = 0;
-						phase = Phase.Mastermind;
+						phase = Phase.Resolution;
+						ResolutionPhase();
 					}
 					break;
 				case Phase.Resolution:
@@ -104,13 +127,53 @@ namespace BrocktonBay {
 						turn = 0;
 						UpdateTurnOrder();
 						GameObject.ClearEngagements();
-						phase = Phase.Action;
+						phase = Phase.Event;
+						EventPhase();
 					}
+					break;
+				case Phase.Event:
+					phase = Phase.Action;
 					break;
 				default:
 					throw new Exception("Invalid current game phase.");
 			}
 			RefreshUI();
+		}
+
+		static void ResolutionPhase () {
+			foreach (IBattleground battleground in city.activeBattlegrounds)
+				battleground.battle = new Battle(battleground, battleground.attacker, battleground.defender);
+		}
+
+		static void EventPhase () {
+			foreach (IBattleground battleground in city.activeBattlegrounds) {
+				battleground.battle = null;
+				battleground.attacker = null;
+				battleground.defender = null;
+			}
+			foreach (GameObject obj in city.gameObjects) {
+				foreach (Mechanic mechanic in obj.mechanics)
+					if (mechanic.trigger == InvocationTrigger.EventPhase)
+						mechanic.Invoke();
+				if (obj.TryCast(out Faction faction)) {
+					foreach (Territory territory in faction.territories) {
+						faction.resources += territory.resource_income;
+						faction.reputation += territory.reputation_income;
+					}
+				} else if (obj.TryCast(out Parahuman parahuman)) {
+					if(parahuman.health == Health.Deceased){
+						DependencyManager.Delete(parahuman);
+					}else if ((int)parahuman.health < 3) {
+						parahuman.health++;
+					}
+				} else if (obj.TryCast(out Structure structure)) {
+					if (structure.rebuild_time != null) {
+						structure.rebuild_time--;
+						if (structure.rebuild_time == 0)
+							structure.rebuild_time = null;
+					}
+				}
+			}
 		}
 
 		static void UpdateTurnOrder () {

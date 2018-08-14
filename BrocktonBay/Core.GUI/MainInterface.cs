@@ -111,12 +111,14 @@ namespace BrocktonBay {
 				numbersBar.PackStart(new Label(faction.reputation.ToString()), false, false, spacing);
 			}
 
-			for (int i = Game.turnOrder.Count - 1; i >= 0; i--) {
-				InspectableBox icon = GetAgentIcon(Game.turnOrder[i]);
-				if (i == Game.turn) {
-					numbersBar.PackEnd(new Frame { Child = icon }, false, false, 0);
-				} else {
-					numbersBar.PackEnd(icon, false, false, 0);
+			if ((Game.phase & (Phase.Resolution | Phase.Event)) == Phase.None) {
+				for (int i = Game.turnOrder.Count - 1; i >= 0; i--) {
+					InspectableBox icon = GetAgentIcon(Game.turnOrder[i]);
+					if (i == Game.turn) {
+						numbersBar.PackEnd(new Frame { Child = icon }, false, false, 0);
+					} else {
+						numbersBar.PackEnd(icon, false, false, 0);
+					}
 				}
 			}
 

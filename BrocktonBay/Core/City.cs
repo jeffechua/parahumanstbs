@@ -19,6 +19,7 @@ namespace BrocktonBay {
 
 		public List<GameObject> gameObjects = new List<GameObject>();
 		public List<IAgent> activeAgents = new List<IAgent>();
+		public List<IBattleground> activeBattlegrounds = new List<IBattleground>();
 
 		public byte[] mapPngSource = { };
 		public int mapDefaultWidth = 0;

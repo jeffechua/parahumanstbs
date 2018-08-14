@@ -13,6 +13,7 @@ namespace BrocktonBay {
 		public List<int> roster = new List<int>();
 		public List<int> teams = new List<int>();
 		public List<int> territories = new List<int>();
+		public List<MechanicData> mechanics = new List<MechanicData>();
 
 		public FactionData () { }
 
@@ -25,6 +26,7 @@ namespace BrocktonBay {
 			roster = faction.roster.ConvertAll((parahuman) => parahuman.ID);
 			teams = faction.teams.ConvertAll((team) => team.ID);
 			territories = faction.territories.ConvertAll((territory) => territory.ID);
+			mechanics = faction.mechanics.ConvertAll((input) => new MechanicData(input));
 		}
 
 	}
@@ -74,7 +76,10 @@ namespace BrocktonBay {
 		[Displayable(9, typeof(CellTabularListField<Territory>), 2, emphasized = true, editablePhases = Phase.Mastermind)]
 		public List<Territory> territories { get; set; }
 
-		[Displayable(9, typeof(RatingsMultiviewField), true, emphasized = true, verticalOnly = true, expand = true)]
+		[Displayable(10, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]
+		public override List<Mechanic> mechanics { get; set; }
+
+		[Displayable(11, typeof(RatingsMultiviewField), true, emphasized = true, verticalOnly = true, expand = true)]
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
 
 
@@ -101,6 +106,11 @@ namespace BrocktonBay {
 			foreach (Territory territory in territories) {
 				DependencyManager.Connect(territory, this);
 				territory.parent = this;
+			}
+			mechanics = data.mechanics.ConvertAll((input) => Mechanic.Load(input));
+			foreach (Mechanic mechanic in mechanics) {
+				DependencyManager.Connect(mechanic, this);
+				mechanic.parent = this;
 			}
 			teams.Sort();
 			roster.Sort();

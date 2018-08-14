@@ -18,6 +18,7 @@ namespace BrocktonBay {
 		public IntVector2 position = new IntVector2(0, 0);
 		public StructureType type;
 		public int[] buffs = { 0, 0, 0 };
+		public List<MechanicData> mechanics = new List<MechanicData>();
 
 		public StructureData () { }
 
@@ -27,11 +28,12 @@ namespace BrocktonBay {
 			position = structure.position;
 			type = structure.type;
 			buffs = structure.combat_buffs;
+			mechanics = structure.mechanics.ConvertAll((input) => new MechanicData(input));
 		}
 
 	}
 
-	public class Structure : GameObject, IBattleground, MapMarked {
+	public sealed class Structure : GameObject, IBattleground, MapMarked {
 
 		public override int order { get { return 1; } }
 		public Attack attacker { get; set; }
@@ -43,6 +45,9 @@ namespace BrocktonBay {
 
 		[Displayable(3, typeof(ObjectField), forceHorizontal = true)]
 		public override IAgent affiliation { get { return (parent == null) ? null : (IAgent)parent.parent; } }
+
+		[Displayable(3, typeof(IntField))]
+		public int? rebuild_time;
 
 		[Displayable(4, typeof(EnumField<StructureType>))]
 		public StructureType type { get; set; }
@@ -79,19 +84,22 @@ namespace BrocktonBay {
 			}
 		}
 
-		[ChildDisplayableAttribute("Resources", typeof(IntField))]
+		[ChildDisplayable("Resources", typeof(IntField))]
 		public int resource_income { get; set; }
-		[ChildDisplayableAttribute("Reputation", typeof(IntField))]
+		[ChildDisplayable("Reputation", typeof(IntField))]
 		public int reputation_income { get; set; }
 
 		//[Displayable(7, typeof(ObjectField)), ForceHorizontal, Padded(10, 10, 10, 10), Emphasized]
 		public Battle ongoing_event { get; set; }
 
-		[Displayable(7, typeof(ActionField), verticalOnly = true, visiblePhases = Phase.Action,
+		[Displayable(7, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]
+		public override List<Mechanic> mechanics { get; set; }
+
+		[Displayable(8, typeof(ActionField), verticalOnly = true, visiblePhases = Phase.Action,
 					 topPadding = 20, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
 		public GameAction attack { get; set; }
 
-		[Displayable(10, typeof(ActionField), verticalOnly = true, visiblePhases = Phase.Response,
+		[Displayable(9, typeof(ActionField), verticalOnly = true, visiblePhases = Phase.Response,
 					 topPadding = 20, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
 		public GameAction defend { get; set; }
 
@@ -103,11 +111,17 @@ namespace BrocktonBay {
 			position = data.position;
 			type = data.type;
 			combat_buffs = data.buffs;
+			mechanics = data.mechanics.ConvertAll((input) => Mechanic.Load(input));
+			foreach (Mechanic mechanic in mechanics) {
+				DependencyManager.Connect(mechanic, this);
+				mechanic.parent = this;
+			}
 			attack = new GameAction {
 				name = "Attack",
 				description = "Launch an attack on " + name,
 				action = delegate (Context context) {
 					attacker = new Attack(this, context.agent);
+					Game.city.activeBattlegrounds.Add(this);
 					DependencyManager.Connect(this, attacker);
 					DependencyManager.Flag(this);
 					DependencyManager.TriggerAllFlags();

@@ -401,9 +401,8 @@ namespace BrocktonBay {
 					inspected = battleground.attacker;
 				} else if (Game.phase == Phase.Response) {
 					inspected = battleground.defender;
-				} else if (Game.phase == Phase.Mastermind) {
+				} else {
 					inspected = null;
-					if (battleground.battle == null) battleground.battle = new Battle(battleground, battleground.attacker, battleground.defender);
 					Clicked += delegate {
 						SecondaryWindow eventWindow = new SecondaryWindow("Battle at " + battleground.name);
 						eventWindow.SetMainWidget(new BattleInterface(battleground.battle));

@@ -84,8 +84,8 @@ namespace BrocktonBay {
 		[Displayable(7, typeof(IntField))]
 		public int reputation { get; set; }
 
-		[Displayable(7, typeof(MechanicCellTabularListField), 3, emphasized = true)]
-		public List<Mechanic> mechanics { get; set; }
+		[Displayable(7, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]
+		public override List<Mechanic> mechanics { get; set; }
 
 		[Displayable(8, typeof(RatingsListField), "baseRatings", emphasizedIfHorizontal = true, topPadding = 5, bottomPadding = 5)]
 		public Func<Context, RatingsProfile> ratings { get => GetRatingsProfile; }

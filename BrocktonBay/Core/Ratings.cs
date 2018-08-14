@@ -13,9 +13,9 @@ namespace BrocktonBay {
 
 	public enum Threat {
 		C = 0, //Default
-		B = 1, //Confirmed team takedown
+		B = 1, //Confirmed down
 		A = 2, //Confirmed kill
-		S = 3, //Kill order receievd
+		S = 3, //Killed captive or other action
 		X = 4  //World-ending
 	}
 

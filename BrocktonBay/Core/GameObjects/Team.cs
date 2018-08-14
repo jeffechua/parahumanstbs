@@ -11,6 +11,7 @@ namespace BrocktonBay {
 		public int unused_xp = 0;
 		public int[] spent_xp = { 0, 0, 0 };
 		public List<int> roster = new List<int>();
+		public List<MechanicData> mechanics = new List<MechanicData>();
 
 		public TeamData () { }
 
@@ -21,6 +22,7 @@ namespace BrocktonBay {
 			unused_xp = team.unused_XP;
 			spent_xp = team.spent_XP;
 			roster = team.roster.ConvertAll((parahuman) => parahuman.ID);
+			mechanics = team.mechanics.ConvertAll((input) => new MechanicData(input));
 		}
 
 	}
@@ -84,11 +86,12 @@ namespace BrocktonBay {
 		[Displayable(8, typeof(CellTabularListField<Parahuman>), 3, emphasized = true, editablePhases = Phase.Mastermind)]
 		public List<Parahuman> roster { get; set; }
 
-		[Displayable(9, typeof(RatingsMultiviewField), true, emphasized = true, verticalOnly = true, expand = true)]
+		[Displayable(9, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]
+		public override List<Mechanic> mechanics { get; set; }
+
+		[Displayable(10, typeof(RatingsMultiviewField), true, emphasized = true, verticalOnly = true, expand = true)]
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
 
-		//[Displayable(10, typeof(RatingsRadarChart), true), Emphasized, VerticalOnly]
-		//public Func<Context, RatingsProfile> ratings_profile_radar { get { return ratings; } }
 
 		public Team () : this(new TeamData())
 			=> active = true;
@@ -103,6 +106,11 @@ namespace BrocktonBay {
 			foreach (Parahuman parahuman in roster) {
 				DependencyManager.Connect(parahuman, this);
 				parahuman.parent = this;
+			}
+			mechanics = data.mechanics.ConvertAll((input) => Mechanic.Load(input));
+			foreach (Mechanic mechanic in mechanics) {
+				DependencyManager.Connect(mechanic, this);
+				mechanic.parent = this;
 			}
 			Reload();
 		}

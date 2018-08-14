@@ -23,6 +23,7 @@ namespace BrocktonBay {
 		// This is a field and not a Displayable property as parentage is usually displayed in implementation of GetHeader(), so it would be redundant.
 		public virtual GameObject parent { get; set; }
 		public abstract IAgent affiliation { get; }
+		public abstract List<Mechanic> mechanics { get; set; }
 
 		//IGUIComplete stuff
 		public abstract Widget GetHeader (Context context);

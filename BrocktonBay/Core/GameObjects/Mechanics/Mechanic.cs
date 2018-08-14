@@ -6,7 +6,12 @@ namespace BrocktonBay {
 
 	public enum InvocationTrigger {
 		None = 0,
-		GetRatings = 1
+		GetRatings = 1,
+		ActionPhase = 2,
+		ResponsePhase = 3,
+		ResolutionPhase = 4,
+		MastermindPhase = 5,
+		EventPhase = 6
 	}
 
 	public sealed class MechanicData {
@@ -94,7 +99,7 @@ namespace BrocktonBay {
 			//set effect in derived class' constructor
 		}
 
-		public abstract object Invoke (Context context, object obj);
+		public abstract object Invoke (Context context = new Context(), object obj = null);
 
 		//IGUIComplete stuff
 		public virtual Widget GetHeader (Context context) {
