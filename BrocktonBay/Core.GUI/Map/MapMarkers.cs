@@ -378,24 +378,9 @@ namespace BrocktonBay {
 			if (battleground.attacker == null)
 				return;
 
-			AlertIconType alertType = battleground.defender == null ? AlertIconType.Unopposed : AlertIconType.Opposed;
-			Gdk.Color primaryColor = battleground.attacker.affiliation.color;
-			Gdk.Color secondaryColor = battleground.defender == null ? primaryColor : battleground.defender.affiliation.color;
-			Gdk.Color trim;
-			if (Relevant(Game.player)) {
-				trim = new Gdk.Color(0, 0, 0);
-			} else {
-				trim = new Gdk.Color(50, 50, 50);
-				primaryColor.Red = (ushort)((primaryColor.Red + 150) / 2);
-				primaryColor.Green = (ushort)((primaryColor.Green + 150) / 2);
-				primaryColor.Blue = (ushort)((primaryColor.Blue + 150) / 2);
-				secondaryColor.Red = (ushort)((secondaryColor.Red + 150) / 2);
-				secondaryColor.Green = (ushort)((secondaryColor.Green + 150) / 2);
-				secondaryColor.Blue = (ushort)((secondaryColor.Blue + 150) / 2);
-			}
-			Add(Graphics.GetAlert(alertType, size, primaryColor, secondaryColor, trim));
+			Add(Graphics.GetAlert(battleground, size));
 
-			if (Relevant(Game.player)) {
+			if (Battle.Relevant(battleground, Game.player)) {
 				active = true;
 				if (Game.phase == Phase.Action || (Game.phase == Phase.Response && battleground.defender == null)) {
 					inspected = battleground.attacker;
@@ -414,11 +399,6 @@ namespace BrocktonBay {
 			ShowAll();
 
 		}
-
-		public bool Relevant (IAgent agent)
-			=> battleground.affiliation == agent ||
-					   (battleground.attacker != null && battleground.attacker.affiliation == agent) ||
-					   (battleground.defender != null && battleground.defender.affiliation == agent);
 
 		public override void Reload () {
 			if ((battleground.attacker != null) != attacked || (battleground.defender != null) != defended || Game.phase != phase) {
@@ -534,15 +514,15 @@ namespace BrocktonBay {
 
 			foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.health == Health.Injured))
 				aInjuries.PackStart(parahuman.GetHeader(context.butCompact));
-			foreach(Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.health == Health.Injured))
+			foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.health == Health.Injured))
 				dInjuries.PackStart(parahuman.GetHeader(context.butCompact));
-			foreach (Parahuman parahuman in  battle.attackers.combined_roster.FindAll((p) => p.health == Health.Down))
+			foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.health == Health.Down))
 				aDowned.PackStart(parahuman.GetHeader(context.butCompact));
-			foreach (Parahuman parahuman in  battle.defenders.combined_roster.FindAll((p) => p.health == Health.Down))
+			foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.health == Health.Down))
 				dDowned.PackStart(parahuman.GetHeader(context.butCompact));
 			foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.health == Health.Deceased))
 				aDeaths.PackStart(parahuman.GetHeader(context.butCompact));
-			foreach (Parahuman parahuman in  battle.defenders.combined_roster.FindAll((p) => p.health == Health.Deceased))
+			foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.health == Health.Deceased))
 				dDeaths.PackStart(parahuman.GetHeader(context.butCompact));
 			foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.health == Health.Captured))
 				aCaptures.PackStart(parahuman.GetHeader(context.butCompact));

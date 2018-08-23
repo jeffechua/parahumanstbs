@@ -83,7 +83,7 @@ namespace BrocktonBay {
 			MainWindow.Unload();
 		}
 
-		public static void RefreshUI () {
+		public static void RefreshUIAndTriggerAllFlags () {
 			DependencyManager.Flag(UIKey);
 			DependencyManager.TriggerAllFlags();
 		}
@@ -125,8 +125,6 @@ namespace BrocktonBay {
 							turnOrder[turn].TakeMastermindPhase();
 					} else {
 						turn = 0;
-						UpdateTurnOrder();
-						GameObject.ClearEngagements();
 						phase = Phase.Event;
 						EventPhase();
 					}
@@ -137,20 +135,25 @@ namespace BrocktonBay {
 				default:
 					throw new Exception("Invalid current game phase.");
 			}
-			RefreshUI();
+			RefreshUIAndTriggerAllFlags();
 		}
 
 		static void ResolutionPhase () {
-			foreach (IBattleground battleground in city.activeBattlegrounds)
+			foreach (IBattleground battleground in city.activeBattlegrounds){
 				battleground.battle = new Battle(battleground, battleground.attacker, battleground.defender);
+				DependencyManager.Flag(battleground);
+			}
 		}
 
 		static void EventPhase () {
+			UpdateTurnOrder();
+			GameObject.ClearEngagements();
 			foreach (IBattleground battleground in city.activeBattlegrounds) {
 				battleground.battle = null;
 				battleground.attacker = null;
 				battleground.defender = null;
 			}
+			city.activeBattlegrounds.Clear();
 			foreach (GameObject obj in city.gameObjects) {
 				foreach (Mechanic mechanic in obj.mechanics)
 					if (mechanic.trigger == InvocationTrigger.EventPhase)
@@ -158,7 +161,7 @@ namespace BrocktonBay {
 				if (obj.TryCast(out Faction faction)) {
 					foreach (Territory territory in faction.territories) {
 						faction.resources += territory.resource_income;
-						faction.reputation += territory.reputation_income;
+						territory.reputation += territory.reputation_income;
 					}
 				} else if (obj.TryCast(out Parahuman parahuman)) {
 					if(parahuman.health == Health.Deceased){

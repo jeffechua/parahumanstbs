@@ -9,6 +9,7 @@ namespace BrocktonBay {
 		Important = 0,
 		Unopposed = 1,
 		Opposed = 2,
+		Resolved = 3,
 	}
 
 	public partial class Map {

@@ -141,6 +141,8 @@ namespace BrocktonBay {
 				reputation += parahuman.reputation;
 			foreach (Team team in teams)
 				reputation += team.reputation;
+			foreach (Territory territory in territories)
+				reputation += territory.reputation;
 
 		}
 

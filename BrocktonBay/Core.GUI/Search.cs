@@ -17,8 +17,8 @@ namespace BrocktonBay {
 			Add(search);
 			//Define default dimensions and Show
 			search.resultsWindow.Realize();
+			search.resultsWindow.HscrollbarPolicy = PolicyType.Never;
 			DefaultHeight = search.resultsWindow.Child.Requisition.Height + 30;
-			DefaultWidth = search.resultsWindow.Child.Requisition.Width + 10;
 			ShowAll();
 		}
 	}

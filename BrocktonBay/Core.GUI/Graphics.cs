@@ -152,9 +152,7 @@ namespace BrocktonBay {
 						mask.DrawPoint(visible, (int)(size / 2), (int)(size / 2));
 						break;
 				}
-			}
-
-			if (iconified is StructureType) {
+			} else if (iconified is StructureType) {
 				if (decor) {
 					color.DrawRectangle(black, true, new Rectangle(0, 0, (int)size, (int)size));
 					mask.DrawRectangle(invisible, true, new Rectangle(0, 0, (int)size, (int)size));
@@ -227,27 +225,7 @@ namespace BrocktonBay {
 						}
 						break;
 				}
-			}
-
-			/*
-						double radius = 0.55 * size;
-						double d = radius * 2;
-						double eyeballRadius = radius * 0.45;
-						double pupilRadius = eyeballRadius * 0.45;
-						Vector2 upCenter = new Vector2(size / 2, size / 2 - radius / 2);
-						Vector2 downCenter = new Vector2(size / 2, size / 2 + radius / 2);
-						Vector2 upCorner = upCenter - new Vector2(radius, radius);
-						Vector2 downCorner = downCenter - new Vector2(radius, radius);
-						mask.DrawArc(visible, true, (int)upCorner.x, (int)upCorner.y, (int)d, (int)d, -30 * 64, -120 * 64);
-						mask.DrawArc(visible, true, (int)downCorner.x, (int)downCorner.y, (int)d, (int)d, 30 * 64, 120 * 64);
-						mask.DrawArc(invisible, true, (int)(size / 2 - eyeballRadius), (int)(size / 2 - eyeballRadius),
-									 (int)(eyeballRadius * 2), (int)(eyeballRadius * 2), 0, FULL_CIRCLE);
-						mask.DrawArc(visible, true, (int)(size / 2 - pupilRadius), (int)(size / 2 - pupilRadius),
-									 (int)(pupilRadius * 2), (int)(pupilRadius * 2), 0, FULL_CIRCLE);
-			 */
-
-
-			if (iconified is DirectionType) {
+			} else if (iconified is DirectionType) {
 				color.DrawRectangle(colorGC, true, new Rectangle(0, 0, (int)size, (int)size));
 				mask.DrawRectangle(invisible, true, new Rectangle(0, 0, (int)size, (int)size));
 				switch ((DirectionType)iconified) {
@@ -268,6 +246,23 @@ namespace BrocktonBay {
 				}
 			}
 
+			/*
+						double radius = 0.55 * size;
+						double d = radius * 2;
+						double eyeballRadius = radius * 0.45;
+						double pupilRadius = eyeballRadius * 0.45;
+						Vector2 upCenter = new Vector2(size / 2, size / 2 - radius / 2);
+						Vector2 downCenter = new Vector2(size / 2, size / 2 + radius / 2);
+						Vector2 upCorner = upCenter - new Vector2(radius, radius);
+						Vector2 downCorner = downCenter - new Vector2(radius, radius);
+						mask.DrawArc(visible, true, (int)upCorner.x, (int)upCorner.y, (int)d, (int)d, -30 * 64, -120 * 64);
+						mask.DrawArc(visible, true, (int)downCorner.x, (int)downCorner.y, (int)d, (int)d, 30 * 64, 120 * 64);
+						mask.DrawArc(invisible, true, (int)(size / 2 - eyeballRadius), (int)(size / 2 - eyeballRadius),
+									 (int)(eyeballRadius * 2), (int)(eyeballRadius * 2), 0, FULL_CIRCLE);
+						mask.DrawArc(visible, true, (int)(size / 2 - pupilRadius), (int)(size / 2 - pupilRadius),
+									 (int)(pupilRadius * 2), (int)(pupilRadius * 2), 0, FULL_CIRCLE);
+			 */
+
 			Pixmap scaledColor = Scale(color, size, size, 0.1);
 			Pixmap scaledMask = Scale(mask, size, size, 0.1);
 			if (PlatformDetection.os == OS.Linux)
@@ -276,7 +271,31 @@ namespace BrocktonBay {
 			return new Gtk.Image(scaledColor, scaledMask);
 		}
 
-		public static Gtk.Image GetAlert (AlertIconType alert, int iconSize, Color primaryColor, Color secondaryColor, Color trim) {
+		public static Gtk.Image GetAlert (IBattleground battleground, int iconSize) {
+
+			Color attackerColor = new Color();
+			Color defenderColor = new Color();
+			Color victorColor = new Color();
+			Color trim;
+
+			if (battleground.attacker != null)
+				attackerColor = battleground.attacker.affiliation.color;
+			if (battleground.defender != null)
+				defenderColor = battleground.defender.affiliation.color;
+			if (battleground.battle != null)
+				victorColor = battleground.battle.victor.affiliation.color;
+
+			if (Battle.Relevant(battleground, Game.player)) {
+				trim = new Gdk.Color(0, 0, 0);
+			} else {
+				trim = new Gdk.Color(50, 50, 50);
+				attackerColor.Red = (ushort)((attackerColor.Red + 150) / 2);
+				attackerColor.Green = (ushort)((attackerColor.Green + 150) / 2);
+				attackerColor.Blue = (ushort)((attackerColor.Blue + 150) / 2);
+				defenderColor.Red = (ushort)((defenderColor.Red + 150) / 2);
+				defenderColor.Green = (ushort)((defenderColor.Green + 150) / 2);
+				defenderColor.Blue = (ushort)((defenderColor.Blue + 150) / 2);
+			}
 
 			double pixelSize = iconSize;
 			double size = pixelSize * RESOLUTION_FACTOR; //Since 12 across is 0-11; we don't want to draw on 12 and lose pixels.
@@ -287,11 +306,16 @@ namespace BrocktonBay {
 			color.DrawRectangle(new Gdk.GC(color) { RgbFgColor = trim }, true, new Rectangle(0, 0, (int)size, (int)size));
 			mask.DrawRectangle(invisible, true, new Rectangle(0, 0, (int)size, (int)size));
 
-			Gdk.GC primary = new Gdk.GC(color) { RgbFgColor = primaryColor };
-			Gdk.GC secondary = new Gdk.GC(color) { RgbFgColor = secondaryColor };
+			Gdk.GC attacker = new Gdk.GC(color) { RgbFgColor = attackerColor };
+			Gdk.GC defender = new Gdk.GC(color) { RgbFgColor = defenderColor };
+			Gdk.GC victor = new Gdk.GC(color) { RgbFgColor = victorColor };
 
-			if (alert == AlertIconType.Opposed || alert == AlertIconType.Unopposed) {
-				double bsize = size * 0.15; //The antidiagonal size of the blade (width/sqrt(2))
+			//blade constants
+			double bsize = size * 0.15; //The antidiagonal size of the blade (width/sqrt(2))
+			double m2 = margin * Math.Sqrt(2);
+			double m3 = m2 - margin;
+
+			if (battleground.attacker != null) {
 				Vector2 A = new Vector2(0, size - bsize);
 				Vector2 B = new Vector2(bsize, size);
 				Vector2 C = new Vector2(size - bsize, 0);
@@ -303,63 +327,96 @@ namespace BrocktonBay {
 				Vector2 R = new Vector2(0.35, 0.95) * size;
 				Vector2 S = new Vector2(0.5, 0.8) * size;
 				mask.DrawPolygon(visible, true, new Point[] { P, Q, S, R });
-				double m2 = margin * Math.Sqrt(2);
-				double m3 = m2 - margin;
 				Vector2 A2 = A + new Vector2(m2, 0);
 				Vector2 B2 = B - new Vector2(0, m2);
 				Vector2 C2 = C + new Vector2(m3, margin);
 				Vector2 D2 = D - new Vector2(margin, m3);
 				Vector2 E2 = E - new Vector2(margin, -margin);
-				color.DrawPolygon(primary, true, new Point[] { A2, B2, D2, E2, C2 });
+				color.DrawPolygon(attacker, true, new Point[] { A2, B2, D2, E2, C2 });
 				Vector2 P2 = P + new Vector2(m2, 0);
 				Vector2 Q2 = Q + new Vector2(0, m2);
 				Vector2 R2 = R - new Vector2(0, m2);
 				Vector2 S2 = S - new Vector2(m2, 0);
-				color.DrawPolygon(primary, true, new Point[] { P2, Q2, S2, R2 });
-				if (alert == AlertIconType.Opposed) {
-					Vector2 a = new Vector2(size, size - bsize);
-					Vector2 b = new Vector2(size - bsize, size);
-					Vector2 c = new Vector2(bsize, 0);
-					Vector2 d = new Vector2(0, bsize);
-					Vector2 e = new Vector2(0, 0);
-					mask.DrawPolygon(visible, true, new Point[] { a, b, d, e, c });
-					Vector2 p = new Vector2(0.95, 0.65) * size;
-					Vector2 q = new Vector2(0.8, 0.5) * size;
-					Vector2 r = new Vector2(0.65, 0.95) * size;
-					Vector2 s = new Vector2(0.5, 0.8) * size;
-					mask.DrawPolygon(visible, true, new Point[] { p, q, s, r });
-					Vector2 a2 = a - new Vector2(m2, 0);
-					Vector2 b2 = b - new Vector2(0, m2);
-					Vector2 c2 = c + new Vector2(-m3, margin);
-					Vector2 d2 = d - new Vector2(-margin, m3);
-					Vector2 e2 = e + new Vector2(margin, margin);
-					color.DrawPolygon(secondary, true, new Point[] { a2, b2, d2, e2, c2 });
-					Vector2 p2 = p - new Vector2(m2, 0);
-					Vector2 q2 = q + new Vector2(0, m2);
-					Vector2 r2 = r - new Vector2(0, m2);
-					Vector2 s2 = s + new Vector2(m2, 0);
-					color.DrawPolygon(secondary, true, new Point[] { p2, q2, s2, r2 });
-				}
-			} else {
-				//The shaft
-				double width = size / 4.5;
-				double height = width * 3;
-				Vector2 corner = new Vector2(size / 2 - width / 2, 0);
-				double width2 = width - margin * 2;
-				double height2 = height - margin * 2;
-				Vector2 corner2 = corner + new Vector2(margin, margin);
-				mask.DrawRectangle(visible, true, new Rectangle((int)corner.x, (int)corner.y, (int)width, (int)height));
-				color.DrawRectangle(primary, true, new Rectangle((int)corner2.x, (int)corner2.y, (int)width2, (int)height2));
-				//The bulb
-				double diameter = width;
-				double radius = diameter / 2;
-				corner = new Vector2(size / 2 - radius, size - diameter);
-				double diameter2 = diameter - margin * 2;
-				double radius2 = diameter2 / 2;
-				corner2 = corner + new Vector2(margin, margin);
-				mask.DrawArc(visible, true, (int)corner.x, (int)corner.y, (int)diameter, (int)diameter, 0, FULL_CIRCLE);
-				color.DrawArc(primary, true, (int)corner2.x, (int)corner2.y, (int)diameter2, (int)diameter2, 0, FULL_CIRCLE);
+				color.DrawPolygon(attacker, true, new Point[] { P2, Q2, S2, R2 });
 			}
+			if (battleground.defender != null) {
+				Vector2 a = new Vector2(size, size - bsize);
+				Vector2 b = new Vector2(size - bsize, size);
+				Vector2 c = new Vector2(bsize, 0);
+				Vector2 d = new Vector2(0, bsize);
+				Vector2 e = new Vector2(0, 0);
+				mask.DrawPolygon(visible, true, new Point[] { a, b, d, e, c });
+				Vector2 p = new Vector2(0.95, 0.65) * size;
+				Vector2 q = new Vector2(0.8, 0.5) * size;
+				Vector2 r = new Vector2(0.65, 0.95) * size;
+				Vector2 s = new Vector2(0.5, 0.8) * size;
+				mask.DrawPolygon(visible, true, new Point[] { p, q, s, r });
+				Vector2 a2 = a - new Vector2(m2, 0);
+				Vector2 b2 = b - new Vector2(0, m2);
+				Vector2 c2 = c + new Vector2(-m3, margin);
+				Vector2 d2 = d - new Vector2(-margin, m3);
+				Vector2 e2 = e + new Vector2(margin, margin);
+				color.DrawPolygon(defender, true, new Point[] { a2, b2, d2, e2, c2 });
+				Vector2 p2 = p - new Vector2(m2, 0);
+				Vector2 q2 = q + new Vector2(0, m2);
+				Vector2 r2 = r - new Vector2(0, m2);
+				Vector2 s2 = s + new Vector2(m2, 0);
+				color.DrawPolygon(defender, true, new Point[] { p2, q2, s2, r2 });
+			}
+			if (battleground.battle != null) {
+				const double a = 0.95106; //             P
+				const double b = 0.30902; //sin 72      / \
+				const double c = 0.58779; //cos 72 T__Z/   \U__Q
+				const double d = 0.80902; //sin 36  \_   O   _/
+										  //cos 36   Y/  _  \V
+										  //         /_/ X \_\
+										  //        S         R
+										  //The unit vectors in the directions of each of the points, with O as origin
+				Vector2 nP = new Vector2(+0, -1); Vector2 nU = new Vector2(c, -d);
+				Vector2 nQ = new Vector2(+a, -b); Vector2 nV = new Vector2(a, b);
+				Vector2 nR = new Vector2(+c, +d); Vector2 nX = new Vector2(0, 1);
+				Vector2 nS = new Vector2(-c, +d); Vector2 nY = new Vector2(-a, b);
+				Vector2 nT = new Vector2(-a, -b); Vector2 nZ = new Vector2(-c, -d);
+				//Scale them and translate by (size/2, size/2) to correct origin
+				double r = size / 2;
+				double r2 = size / 5;
+				double ir = r - margin;
+				double ir2 = r2 - margin;
+				Vector2 center = new Vector2(r, r);
+				Vector2 P = center + r * nP; Vector2 U = center + r2 * nU;
+				Vector2 Q = center + r * nQ; Vector2 V = center + r2 * nV;
+				Vector2 R = center + r * nR; Vector2 X = center + r2 * nX;
+				Vector2 S = center + r * nS; Vector2 Y = center + r2 * nY;
+				Vector2 T = center + r * nT; Vector2 Z = center + r2 * nZ;
+				Vector2 iP = center + ir * nP; Vector2 iU = center + ir2 * nU;
+				Vector2 iQ = center + ir * nQ; Vector2 iV = center + ir2 * nV;
+				Vector2 iR = center + ir * nR; Vector2 iX = center + ir2 * nX;
+				Vector2 iS = center + ir * nS; Vector2 iY = center + ir2 * nY;
+				Vector2 iT = center + ir * nT; Vector2 iZ = center + ir2 * nZ;
+				mask.DrawPolygon(visible, true, new Point[] { P, U, Q, V, R, X, S, Y, T, Z });
+				color.DrawPolygon(black, true, new Point[] { P, U, Q, V, R, X, S, Y, T, Z });
+				color.DrawPolygon(victor, true, new Point[] { iP, iU, iQ, iV, iR, iX, iS, iY, iT, iZ });
+			}
+
+			/*The shaft
+			double width = size / 4.5;
+			double height = width * 3;
+			Vector2 corner = new Vector2(size / 2 - width / 2, 0);
+			double width2 = width - margin * 2;
+			double height2 = height - margin * 2;
+			Vector2 corner2 = corner + new Vector2(margin, margin);
+			mask.DrawRectangle(visible, true, new Rectangle((int)corner.x, (int)corner.y, (int)width, (int)height));
+			color.DrawRectangle(attacker, true, new Rectangle((int)corner2.x, (int)corner2.y, (int)width2, (int)height2));
+			//The bulb
+			double diameter = width;
+			double radius = diameter / 2;
+			corner = new Vector2(size / 2 - radius, size - diameter);
+			double diameter2 = diameter - margin * 2;
+			double radius2 = diameter2 / 2;
+			corner2 = corner + new Vector2(margin, margin);
+			mask.DrawArc(visible, true, (int)corner.x, (int)corner.y, (int)diameter, (int)diameter, 0, FULL_CIRCLE);
+			color.DrawArc(attacker, true, (int)corner2.x, (int)corner2.y, (int)diameter2, (int)diameter2, 0, FULL_CIRCLE);
+			*/
 
 			Pixmap scaledColor = Scale(color, size, size, 0.1);
 			Pixmap scaledMask = Scale(mask, size, size, 0.1);

@@ -198,8 +198,8 @@ public partial class MainWindow : DefocusableWindowWithInspector {
 		toolsMenu = new Menu();
 		omniscientToggle = new CheckMenuItem("Omniscient") { Active = true };
 		omnipotentToggle = new CheckMenuItem("Omnipotent") { Active = true };
-		omniscientToggle.Toggled += (o, a) => Game.RefreshUI();
-		omnipotentToggle.Toggled += (o, a) => Game.RefreshUI();
+		omniscientToggle.Toggled += (o, a) => Game.RefreshUIAndTriggerAllFlags();
+		omnipotentToggle.Toggled += (o, a) => Game.RefreshUIAndTriggerAllFlags();
 		toolsButton.Submenu = toolsMenu;
 		AppendMultiple(toolsMenu, omniscientToggle, omnipotentToggle);
 

@@ -6,7 +6,7 @@ namespace BrocktonBay {
 
 	public class MainInterface : VBox, IDependable {
 
-		public int order { get { return 0; } }
+		public int order { get { return 5; } }
 		public bool destroyed { get; set; }
 		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
@@ -90,7 +90,7 @@ namespace BrocktonBay {
 				MyDragDrop.DestSet(player, "Active IAgent");
 				MyDragDrop.DestSetDropAction(player, delegate (object obj) {
 					Game.player = (IAgent)obj;
-					Game.RefreshUI();
+					Game.RefreshUIAndTriggerAllFlags();
 				});
 			}
 			textBar.PackStart(player, false, false, 0);

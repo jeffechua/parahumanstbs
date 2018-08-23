@@ -104,9 +104,12 @@ namespace BrocktonBay {
 				if (structure.rebuild_time == null || damage > structure.rebuild_time)
 					structure.rebuild_time = damage;
 			}
-			DependencyManager.Flag(location);
-			DependencyManager.TriggerAllFlags();
 		}
+
+		public static bool Relevant (IBattleground battleground, IAgent agent)
+			=> battleground.affiliation == agent ||
+					   (battleground.attacker != null && battleground.attacker.affiliation == agent) ||
+					   (battleground.defender != null && battleground.defender.affiliation == agent);
 
 		public void Evaluate () {
 
