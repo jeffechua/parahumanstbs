@@ -298,8 +298,8 @@ namespace BrocktonBay {
 			}
 
 			double pixelSize = iconSize;
-			double size = pixelSize * RESOLUTION_FACTOR; //Since 12 across is 0-11; we don't want to draw on 12 and lose pixels.
-			double margin = BLACK_TRIM_WIDTH * RESOLUTION_FACTOR;
+			double size = pixelSize * RESOLUTION_FACTOR*5; //Since 12 across is 0-11; we don't want to draw on 12 and lose pixels.
+			double margin = BLACK_TRIM_WIDTH * RESOLUTION_FACTOR * 5;
 
 			Pixmap color = new Pixmap(MainWindow.main.GdkWindow, (int)size, (int)size);
 			Pixmap mask = new Pixmap(MainWindow.main.GdkWindow, (int)size, (int)size);
@@ -364,13 +364,13 @@ namespace BrocktonBay {
 				color.DrawPolygon(defender, true, new Point[] { p2, q2, s2, r2 });
 			}
 			if (battleground.battle != null) {
-				const double a = 0.95106; //             P
-				const double b = 0.30902; //sin 72      / \
-				const double c = 0.58779; //cos 72 T__Z/   \U__Q
-				const double d = 0.80902; //sin 36  \_   O   _/
-										  //cos 36   Y/  _  \V
-										  //         /_/ X \_\
-										  //        S         R
+				const double a = 0.95106; //sin 72           P
+				const double b = 0.30902; //cos 72          / \
+				const double c = 0.58779; //sin 36     T__Z/   \U__Q
+				const double d = 0.80902; //cos 36      \_   O   _/
+				const double ml = 3.0457; //OP margin    Y/  _  \V
+				const double ms = 1.2183; //OU margin    /_/ X \_\
+										  //            S         R
 										  //The unit vectors in the directions of each of the points, with O as origin
 				Vector2 nP = new Vector2(+0, -1); Vector2 nU = new Vector2(c, -d);
 				Vector2 nQ = new Vector2(+a, -b); Vector2 nV = new Vector2(a, b);
@@ -380,8 +380,8 @@ namespace BrocktonBay {
 				//Scale them and translate by (size/2, size/2) to correct origin
 				double r = size / 2;
 				double r2 = size / 5;
-				double ir = r - margin;
-				double ir2 = r2 - margin;
+				double ir = r - ml*margin;
+				double ir2 = r2 - ms*margin;
 				Vector2 center = new Vector2(r, r);
 				Vector2 P = center + r * nP; Vector2 U = center + r2 * nU;
 				Vector2 Q = center + r * nQ; Vector2 V = center + r2 * nV;
