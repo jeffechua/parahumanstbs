@@ -67,13 +67,13 @@ namespace BrocktonBay {
 		[Displayable(6, typeof(BasicReadonlyField))]
 		public int reputation { get; set; }
 
-		[Displayable(7, typeof(CellTabularListField<Parahuman>), 3, emphasized = true, editablePhases = Phase.Mastermind)]
+		[Displayable(7, typeof(CellTabularListField<Parahuman>), 3, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Mastermind)]
 		public List<Parahuman> roster { get; set; }
 
-		[Displayable(8, typeof(CellTabularListField<Team>), 2, emphasized = true, editablePhases = Phase.Mastermind)]
+		[Displayable(8, typeof(CellTabularListField<Team>), 2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Mastermind)]
 		public List<Team> teams { get; set; }
 
-		[Displayable(9, typeof(CellTabularListField<Territory>), 2, emphasized = true, editablePhases = Phase.Mastermind)]
+		[Displayable(9, typeof(CellTabularListField<Territory>), 2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Mastermind)]
 		public List<Territory> territories { get; set; }
 
 		[Displayable(10, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]
@@ -232,7 +232,7 @@ namespace BrocktonBay {
 
 		public override Widget GetCellContents (Context context) {
 
-			bool editable = UIFactory.CurrentlyEditable(this, "roster");
+			bool editable = UIFactory.EditAuthorized(this, "roster");
 
 			//Creates the cell contents
 			VBox childrenBox = new VBox(false, 0) { BorderWidth = 3 };

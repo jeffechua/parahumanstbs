@@ -42,8 +42,10 @@ namespace BrocktonBay {
 
 		public void Load (List<T> s) {
 			sample = s;
-			foreach (T item in sample)
-				ReorderChild(Retrieve(item), -1);
+			foreach (T item in sample) {
+				Widget retrieved = Retrieve(item);
+				ReorderChild(retrieved, -1);
+			}
 		}
 
 		public void Render () {

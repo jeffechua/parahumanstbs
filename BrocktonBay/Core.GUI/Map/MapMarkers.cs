@@ -198,6 +198,8 @@ namespace BrocktonBay {
 				shownPosition = structure.position;
 				Repin();
 			}
+			if (!deletable && Game.omnipotent) EnableDelete();
+			if (deletable && !Game.omnipotent) DisableDelete();
 		}
 
 		protected override Window GenerateRightPopup () {
@@ -263,6 +265,8 @@ namespace BrocktonBay {
 				shownPosition = territory.position;
 				Repin();
 			}
+			if (!deletable && Game.omnipotent) EnableDelete();
+			if (deletable && !Game.omnipotent) DisableDelete();
 		}
 
 		protected override Window GenerateRightPopup () {
@@ -388,16 +392,21 @@ namespace BrocktonBay {
 					inspected = battleground.defender;
 				} else {
 					inspected = null;
-					Clicked += delegate {
-						SecondaryWindow eventWindow = new SecondaryWindow("Battle at " + battleground.name);
-						eventWindow.SetMainWidget(new BattleInterface(battleground.battle));
-						eventWindow.ShowAll();
-					};
 				}
 			}
 
 			ShowAll();
 
+		}
+
+		public override void OnClicked (object obj, ButtonReleaseEventArgs args) {
+			if (inspected != null) { //This is a battle
+				base.OnClicked(obj, args);
+			} else {
+				SecondaryWindow eventWindow = new SecondaryWindow("Battle at " + battleground.name);
+				eventWindow.SetMainWidget(new BattleInterface(battleground.battle));
+				eventWindow.ShowAll();
+			}
 		}
 
 		public override void Reload () {
@@ -494,52 +503,58 @@ namespace BrocktonBay {
 			mainBox.PackStart(UIFactory.Fabricate(battle, "victor_display", context));
 			mainBox.PackStart(new HSeparator(), false, false, 7);
 
-			Table casualties = new Table(9, 3, false) { ColumnSpacing = 5, RowSpacing = 5 };
-			casualties.Attach(new VSeparator(), 1, 2, 0, 9);
-			casualties.Attach(new HSeparator(), 0, 3, 1, 2);
-			casualties.Attach(new HSeparator(), 0, 3, 3, 4);
-			casualties.Attach(new HSeparator(), 0, 3, 5, 6);
-			casualties.Attach(new HSeparator(), 0, 3, 7, 8);
-			casualties.Attach(new Label("Attackers"), 0, 1, 0, 1);
-			casualties.Attach(new Label("Defenders"), 2, 3, 0, 1);
+			if (battle.defenders == null) {
 
-			VBox aInjuries = new VBox();
-			VBox dInjuries = new VBox();
-			VBox aDowned = new VBox();
-			VBox dDowned = new VBox();
-			VBox aDeaths = new VBox();
-			VBox dDeaths = new VBox();
-			VBox aCaptures = new VBox();
-			VBox dCaptures = new VBox();
+			} else {
+				Table casualties = new Table(9, 3, false) { ColumnSpacing = 5, RowSpacing = 5 };
+				casualties.Attach(new VSeparator(), 1, 2, 0, 9);
+				casualties.Attach(new HSeparator(), 0, 3, 1, 2);
+				casualties.Attach(new HSeparator(), 0, 3, 3, 4);
+				casualties.Attach(new HSeparator(), 0, 3, 5, 6);
+				casualties.Attach(new HSeparator(), 0, 3, 7, 8);
+				casualties.Attach(new Label("Attackers"), 0, 1, 0, 1);
+				casualties.Attach(new Label("Defenders"), 2, 3, 0, 1);
 
-			foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.health == Health.Injured))
-				aInjuries.PackStart(parahuman.GetHeader(context.butCompact));
-			foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.health == Health.Injured))
-				dInjuries.PackStart(parahuman.GetHeader(context.butCompact));
-			foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.health == Health.Down))
-				aDowned.PackStart(parahuman.GetHeader(context.butCompact));
-			foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.health == Health.Down))
-				dDowned.PackStart(parahuman.GetHeader(context.butCompact));
-			foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.health == Health.Deceased))
-				aDeaths.PackStart(parahuman.GetHeader(context.butCompact));
-			foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.health == Health.Deceased))
-				dDeaths.PackStart(parahuman.GetHeader(context.butCompact));
-			foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.health == Health.Captured))
-				aCaptures.PackStart(parahuman.GetHeader(context.butCompact));
-			foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.health == Health.Captured))
-				dCaptures.PackStart(parahuman.GetHeader(context.butCompact));
+				VBox aInjuries = new VBox();
+				VBox dInjuries = new VBox();
+				VBox aDowned = new VBox();
+				VBox dDowned = new VBox();
+				VBox aDeaths = new VBox();
+				VBox dDeaths = new VBox();
+				VBox aCaptures = new VBox();
+				VBox dCaptures = new VBox();
 
-			casualties.Attach(aInjuries, 0, 1, 2, 3);
-			casualties.Attach(dInjuries, 2, 3, 2, 3);
-			casualties.Attach(aDowned, 0, 1, 4, 5);
-			casualties.Attach(dDowned, 2, 3, 4, 5);
-			casualties.Attach(aDeaths, 0, 1, 6, 7);
-			casualties.Attach(dDeaths, 2, 3, 6, 7);
-			casualties.Attach(aCaptures, 0, 1, 8, 9);
-			casualties.Attach(dCaptures, 2, 3, 8, 9);
+				foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.health == Health.Injured))
+					aInjuries.PackStart(parahuman.GetHeader(context.butCompact));
+				foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.health == Health.Down))
+					aDowned.PackStart(parahuman.GetHeader(context.butCompact));
+				foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.health == Health.Deceased))
+					aDeaths.PackStart(parahuman.GetHeader(context.butCompact));
+				foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.health == Health.Captured))
+					aCaptures.PackStart(parahuman.GetHeader(context.butCompact));
+				foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.health == Health.Injured))
+					dInjuries.PackStart(parahuman.GetHeader(context.butCompact));
+				foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.health == Health.Down))
+					dDowned.PackStart(parahuman.GetHeader(context.butCompact));
+				foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.health == Health.Deceased))
+					dDeaths.PackStart(parahuman.GetHeader(context.butCompact));
+				foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.health == Health.Captured))
+					dCaptures.PackStart(parahuman.GetHeader(context.butCompact));
 
-			mainBox.PackStart(casualties);
-			popup.Add(mainBox);
+				casualties.Attach(aInjuries, 0, 1, 2, 3);
+				casualties.Attach(dInjuries, 2, 3, 2, 3);
+				casualties.Attach(aDowned, 0, 1, 4, 5);
+				casualties.Attach(dDowned, 2, 3, 4, 5);
+				casualties.Attach(aDeaths, 0, 1, 6, 7);
+				casualties.Attach(dDeaths, 2, 3, 6, 7);
+				casualties.Attach(aCaptures, 0, 1, 8, 9);
+				casualties.Attach(dCaptures, 2, 3, 8, 9);
+
+				mainBox.PackStart(casualties);
+				popup.Add(mainBox);
+
+			}
+
 			return popup;
 
 		}

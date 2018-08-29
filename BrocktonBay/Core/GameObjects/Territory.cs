@@ -85,18 +85,18 @@ namespace BrocktonBay {
 		[ChildDisplayableAttribute("Reputation", typeof(IntField))]
 		public int reputation_income { get; set; }
 
-		[Displayable(8, typeof(CellTabularListField<Structure>), 2, emphasized = true, editablePhases = Phase.Mastermind)]
+		[Displayable(8, typeof(CellTabularListField<Structure>), 2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Mastermind)]
 		public List<Structure> structures { get; set; }
 
 		[Displayable(9, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]
 		public override List<Mechanic> mechanics { get; set; }
 
 
-		[Displayable(10, typeof(ActionField), verticalOnly = true, visiblePhases = Phase.Action,
+		[Displayable(10, typeof(ActionField), verticalOnly = true, turnClassified = true, visiblePhases = Phase.Action,
 					 topPadding = 20, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
 		public GameAction attack { get; set; }
 
-		[Displayable(11, typeof(ActionField), verticalOnly = true, visiblePhases = Phase.Response,
+		[Displayable(11, typeof(ActionField), verticalOnly = true, turnClassified = true, visiblePhases = Phase.Response,
 					 topPadding = 20, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
 		public GameAction defend { get; set; }
 
@@ -187,7 +187,7 @@ namespace BrocktonBay {
 
 		public override Widget GetCellContents (Context context) {
 
-			bool editable = UIFactory.CurrentlyEditable(this, "structures");
+			bool editable = UIFactory.EditAuthorized(this, "structures");
 
 			//Creates the cell contents
 			VBox structureBox = new VBox(false, 0) { BorderWidth = 3 };

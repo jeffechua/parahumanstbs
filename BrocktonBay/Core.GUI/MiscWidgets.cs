@@ -65,6 +65,10 @@ namespace BrocktonBay {
 		public bool destructible;
 		public bool draggable;
 
+		SeparatorMenuItem deleteSeparator;
+		MenuItem deleteButton;
+		protected bool deletable;
+
 		public InspectableBox (Widget child, IGUIComplete inspected, bool destructible = true, bool draggable = true) : this(inspected, destructible, draggable)
 			=> Child = child;
 
@@ -73,29 +77,24 @@ namespace BrocktonBay {
 			this.inspected = inspected;
 			this.destructible = destructible;
 			this.draggable = draggable;
-			rightclickMenu = new Menu();
 
 			Clicked += OnClicked;
+			RightClicked += OnRightClicked;
 
-			RightClicked += delegate {
-				rightclickMenu.Popup();
-				rightclickMenu.ShowAll();
-			};
+			rightclickMenu = new Menu();
 
 			MenuItem inspectButton = new MenuItem("Inspect");
 			inspectButton.Activated += Inspect;
+			rightclickMenu.Append(inspectButton);
 			MenuItem inspectInWindowButton = new MenuItem("Inspect in New Window");
 			inspectInWindowButton.Activated += InspectInNewWindow;
-
-			rightclickMenu.Append(inspectButton);
 			rightclickMenu.Append(inspectInWindowButton);
 
-			if (Game.omnipotent && destructible) {
-				MenuItem deleteButton = new MenuItem("Delete");
-				deleteButton.Activated += Delete;
-				rightclickMenu.Append(new SeparatorMenuItem());
-				rightclickMenu.Append(deleteButton);
-			}
+			deleteSeparator = new SeparatorMenuItem();
+			deleteButton = new MenuItem("Delete");
+			deleteButton.Activated += Delete;
+			if (Game.omnipotent && destructible)
+				EnableDelete();
 
 			//Set up drag support
 			if (draggable)
@@ -103,7 +102,24 @@ namespace BrocktonBay {
 
 		}
 
-		public void OnClicked (object obj, ButtonReleaseEventArgs args) {
+		protected void EnableDelete () {
+			rightclickMenu.Append(deleteSeparator);
+			rightclickMenu.Append(deleteButton);
+			deletable = true;
+		}
+
+		protected void DisableDelete () {
+			rightclickMenu.Remove(deleteSeparator);
+			rightclickMenu.Remove(deleteButton);
+			deletable = false;
+		}
+
+		public void OnRightClicked (object obj, ButtonPressEventArgs args) {
+			rightclickMenu.Popup();
+			rightclickMenu.ShowAll();
+		}
+
+		public virtual void OnClicked (object obj, ButtonReleaseEventArgs args) {
 			if (inspected == null) return;
 			if (args.Event.Button == 2 || (args.Event.Type == Gdk.EventType.TwoButtonPress && args.Event.Button == 1)) {
 				Inspector.InspectInNewWindow(inspected, (Window)Toplevel);

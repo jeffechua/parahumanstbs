@@ -13,13 +13,13 @@ namespace BrocktonBay {
 		[Displayable(5, typeof(EnumField<Threat>), editablePhases = Phase.Action)]
 		public override Threat force_employed { get; set; }
 
-		[Displayable(6, typeof(CellTabularListField<Team>), 2, emphasized = true, editablePhases = Phase.Action)]
+		[Displayable(6, typeof(CellTabularListField<Team>), 2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Action)]
 		public override List<Team> teams { get; set; }
 
-		[Displayable(7, typeof(CellTabularListField<Parahuman>), 2, emphasized = true, editablePhases = Phase.Action)]
+		[Displayable(7, typeof(CellTabularListField<Parahuman>), 2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Action)]
 		public override List<Parahuman> independents { get; set; }
 
-		[Displayable(8, typeof(CellTabularListField<Parahuman>), -2, emphasized = true, editablePhases = Phase.Action)]
+		[Displayable(8, typeof(CellTabularListField<Parahuman>), -2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Action)]
 		public override List<Parahuman> combined_roster { get; set; }
 
 		[Displayable(99, typeof(ActionField), 5, fillSides = false, visiblePhases = Phase.Action)]
@@ -60,13 +60,13 @@ namespace BrocktonBay {
 		[Displayable(5, typeof(EnumField<Threat>), editablePhases = Phase.Response)]
 		public override Threat force_employed { get; set; }
 
-		[Displayable(6, typeof(CellTabularListField<Team>), 2, emphasized = true, editablePhases = Phase.Response)]
+		[Displayable(6, typeof(CellTabularListField<Team>), 2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Response)]
 		public override List<Team> teams { get; set; }
 
-		[Displayable(7, typeof(CellTabularListField<Parahuman>), 2, emphasized = true, editablePhases = Phase.Response)]
+		[Displayable(7, typeof(CellTabularListField<Parahuman>), 2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Response)]
 		public override List<Parahuman> independents { get; set; }
 
-		[Displayable(8, typeof(CellTabularListField<Parahuman>), -2, emphasized = true, editablePhases = Phase.Response)]
+		[Displayable(8, typeof(CellTabularListField<Parahuman>), -2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Response)]
 		public override List<Parahuman> combined_roster { get; set; }
 
 		[Displayable(99, typeof(ActionField), 5, fillSides = false, visiblePhases = Phase.Response)]

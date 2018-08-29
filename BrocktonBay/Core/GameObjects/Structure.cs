@@ -95,11 +95,11 @@ namespace BrocktonBay {
 		[Displayable(7, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]
 		public override List<Mechanic> mechanics { get; set; }
 
-		[Displayable(8, typeof(ActionField), verticalOnly = true, visiblePhases = Phase.Action,
+		[Displayable(8, typeof(ActionField), verticalOnly = true, turnClassified = true, visiblePhases = Phase.Action,
 					 topPadding = 20, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
 		public GameAction attack { get; set; }
 
-		[Displayable(9, typeof(ActionField), verticalOnly = true, visiblePhases = Phase.Response,
+		[Displayable(9, typeof(ActionField), verticalOnly = true, turnClassified = true, visiblePhases = Phase.Response,
 					 topPadding = 20, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
 		public GameAction defend { get; set; }
 

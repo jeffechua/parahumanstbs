@@ -67,7 +67,7 @@ namespace BrocktonBay {
 
 			parent = (IContainer)obj;
 			this.context = context;
-			editable = UIFactory.CurrentlyEditable(property, obj);
+			editable = UIFactory.EditAuthorized(property, obj);
 
 			// Local convenience variable
 			List<T> list = (List<T>)property.GetValue(obj);
@@ -90,26 +90,28 @@ namespace BrocktonBay {
 				rightclickMenu.Append(clearButton);
 
 				// "Add new" button
-				MenuItem addNewButton = new MenuItem("Add New");
-				addNewButton.Activated += delegate {
-					object newElement;
-					ConstructorInfo constructor = typeof(T).GetConstructor(new Type[] { });
-					if (constructor != null) {
-						newElement = constructor.Invoke(new object[0]);
-					} else {
-						MethodInfo method = typeof(T).GetMethod("Create");
-						if (method != null) {
-							newElement = method.Invoke(null, new object[0]);
-							if (newElement == null) return;
+				if (Game.omnipotent) {
+					MenuItem addNewButton = new MenuItem("Add New");
+					addNewButton.Activated += delegate {
+						object newElement;
+						ConstructorInfo constructor = typeof(T).GetConstructor(new Type[] { });
+						if (constructor != null) {
+							newElement = constructor.Invoke(new object[0]);
 						} else {
-							throw new NotImplementedException();
+							MethodInfo method = typeof(T).GetMethod("Create");
+							if (method != null) {
+								newElement = method.Invoke(null, new object[0]);
+								if (newElement == null) return;
+							} else {
+								throw new NotImplementedException();
+							}
 						}
-					}
-					((IContainer)obj).Add(newElement);
-					if (newElement is GameObject) Game.city.Add((GameObject)newElement);
-					DependencyManager.TriggerAllFlags();
-				};
-				rightclickMenu.Append(addNewButton);
+						((IContainer)obj).Add(newElement);
+						if (newElement is GameObject) Game.city.Add((GameObject)newElement);
+						DependencyManager.TriggerAllFlags();
+					};
+					rightclickMenu.Append(addNewButton);
+				}
 
 				// "Add existing" button, but only if it's a list of GameObjects which can be searched from SelectorDialog.
 				if (typeof(T).IsSubclassOf(typeof(GameObject))) {

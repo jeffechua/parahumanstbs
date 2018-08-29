@@ -95,12 +95,14 @@ namespace BrocktonBay {
 				Evaluate();
 			} else {
 				victor = attackers;
+				victor_display = "Unopposed Victor:<small><small>\n\n</small></small><big><big>" +
+								 victor.affiliation.name + "</big></big>";
 			}
 			if (GameObject.TryCast(location, out Territory territory)) {
 				if (victor == attackers && attackers != territory.affiliation && GameObject.TryCast(attackers.affiliation, out Faction atkFaction))
 					atkFaction.Add(location);
 			} else if (GameObject.TryCast(location, out Structure structure)) {
-				int damage = (int)(((float)((int)attackers.force_employed + (int)defenders.force_employed)) / 2);
+				int damage = (int)Math.Ceiling(((float)((int)attackers.force_employed + (int)defenders.force_employed)) / 2);
 				if (structure.rebuild_time == null || damage > structure.rebuild_time)
 					structure.rebuild_time = damage;
 			}

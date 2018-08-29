@@ -35,8 +35,7 @@ namespace BrocktonBay {
 			List<PropertyInfo> properties = new List<PropertyInfo>(obj.GetType().GetProperties());
 			List<Tuple<PropertyInfo, DisplayableAttribute>> pairs = properties.ConvertAll(
 				(property) => new Tuple<PropertyInfo, DisplayableAttribute>(property, (DisplayableAttribute)property.GetCustomAttribute(typeof(DisplayableAttribute))));
-			pairs.RemoveAll((pair) => pair.Item2 == null || !pair.Item2.generate || pair.Item2.horizontalOnly
-							|| (!Game.omniscient && (pair.Item2.visiblePhases & Game.phase) == Phase.None));
+			pairs.RemoveAll((pair) => pair.Item2 == null || !pair.Item2.generate || pair.Item2.horizontalOnly || !pair.Item2.ViewAuthorized(obj));
 			pairs.Sort((x, y) => x.Item2.order.CompareTo(y.Item2.order));
 
 			//Create boxes
@@ -107,8 +106,7 @@ namespace BrocktonBay {
 			List<PropertyInfo> properties = new List<PropertyInfo>(obj.GetType().GetProperties());
 			List<Tuple<PropertyInfo, DisplayableAttribute>> pairs = properties.ConvertAll(
 				(property) => new Tuple<PropertyInfo, DisplayableAttribute>(property, (DisplayableAttribute)property.GetCustomAttribute(typeof(DisplayableAttribute))));
-			pairs.RemoveAll((pair) => pair.Item2 == null || !pair.Item2.generate || pair.Item2.verticalOnly
-							|| (!Game.omniscient && (pair.Item2.visiblePhases & Game.phase) == Phase.None));
+			pairs.RemoveAll((pair) => pair.Item2 == null || !pair.Item2.generate || pair.Item2.verticalOnly || !pair.Item2.ViewAuthorized(obj));
 			pairs.Sort((x, y) => x.Item2.order.CompareTo(y.Item2.order));
 
 			//Initialize boxes
@@ -165,16 +163,14 @@ namespace BrocktonBay {
 		public static bool HasAttribute (PropertyInfo property, Type attribute)
 			=> property.GetCustomAttribute(attribute) != null;
 
-		public static bool CurrentlyEditable (object obj, string property)
-			=> CurrentlyEditable(obj.GetType().GetProperty(property), obj);
+		public static bool EditAuthorized (object obj, string property)
+			=> EditAuthorized(obj.GetType().GetProperty(property), obj);
 
-		public static bool CurrentlyEditable (PropertyInfo property, object obj, DisplayableAttribute attribute = null) {
-			if (Game.omnipotent) return true;
-			IAffiliated affiliated = obj as IAffiliated;
-			if (affiliated != null && affiliated.affiliation != null && affiliated.affiliation != Game.player) return false;
-			if (attribute == null) attribute = (DisplayableAttribute)property.GetCustomAttribute(typeof(DisplayableAttribute));
-			return (attribute.editablePhases & Game.phase) == Game.phase;
-		}
+		public static bool EditAuthorized (PropertyInfo property, object obj)
+			=> ((DisplayableAttribute)property.GetCustomAttribute(typeof(DisplayableAttribute))).EditAuthorized(obj);
+
+		public static bool ViewAuthorized (PropertyInfo property, object obj)
+			=> ((DisplayableAttribute)property.GetCustomAttribute(typeof(DisplayableAttribute))).ViewAuthorized(obj);
 
 		public static string ToReadable (string str) {
 			string newStr = str[0].ToString().ToUpper();

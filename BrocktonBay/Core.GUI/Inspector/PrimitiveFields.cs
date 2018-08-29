@@ -45,7 +45,7 @@ namespace BrocktonBay {
 			this.property = property;
 			this.obj = (IDependable)obj;
 			this.context = context;
-			editable = UIFactory.CurrentlyEditable(property, obj);
+			editable = UIFactory.EditAuthorized(property, obj);
 
 			if (!context.compact) {
 				Label label = new Label((attribute.overrideLabel == ""

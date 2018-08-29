@@ -1,5 +1,5 @@
 UI:
-	When opening an inspector in a new window, the RatingsRadarChart does not render until you resize the window.
+	Switching the player faction before the Domain tab is first opened causes the Domain tab to be empty when it is opened.
 	Sometimes children don't disappear from parents' lists when murdered.
 
 Notes:

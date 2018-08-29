@@ -6,7 +6,7 @@ using Gtk;
 namespace BrocktonBay {
 
 	public class SelectorDialog : DefocusableWindow {
-		public SelectorDialog(Window transientFor, string title, Func<GameObject, bool> Filter = null, Action<GameObject> OnClicked = null) {
+		public SelectorDialog (Window transientFor, string title, Func<GameObject, bool> Filter = null, Action<GameObject> OnClicked = null) {
 			//Setup window
 			Title = title;
 			SetPosition(WindowPosition.Center);
@@ -55,10 +55,11 @@ namespace BrocktonBay {
 		Action<GameObject> OnClicked;
 
 
-		public Search(Func<GameObject, bool> Filter = null, Action<GameObject> OnClicked = null) {
+		public Search (Func<GameObject, bool> Filter = null, Action<GameObject> OnClicked = null) {
 
 			DependencyManager.Connect(Game.city, this);
 			DependencyManager.Connect(Game.UIKey, this);
+			Destroyed += (o, a) => DependencyManager.Delete(this);
 			this.Filter = Filter ?? delegate { return true; };
 			this.OnClicked = OnClicked ?? delegate { };
 
@@ -125,7 +126,7 @@ namespace BrocktonBay {
 
 		}
 
-		bool SatisfiesFilters(GameObject obj) {
+		bool SatisfiesFilters (GameObject obj) {
 			if (toplevelOnlyButton.Active && obj.parent != null)
 				return false;
 			if (searchText.Text != "")
@@ -147,7 +148,7 @@ namespace BrocktonBay {
 			return Filter(obj);
 		}
 
-		void TypeChanged() {
+		void TypeChanged () {
 			CheckButton[] checkButtons = Array.ConvertAll<Widget, CheckButton>(((VBox)typesMenu.Child).Children, (input) => (CheckButton)input);
 			string text = "";
 			int words = 0;
@@ -169,7 +170,7 @@ namespace BrocktonBay {
 			}
 		}
 
-		void PresentationChanged() {
+		void PresentationChanged () {
 			switch (presentation.Active) {
 				case 0:
 					if (tesselator.Parent != null) ((Container)tesselator.Parent).Remove(tesselator);
@@ -193,7 +194,7 @@ namespace BrocktonBay {
 			Reload();
 		}
 
-		Widget SetupListing(GameObject obj) {
+		Widget SetupListing (GameObject obj) {
 			Gtk.Alignment align = new Gtk.Alignment(0, 0, 0, 0) {
 				Child = new Listing(obj),
 				BorderWidth = 5,
@@ -205,7 +206,7 @@ namespace BrocktonBay {
 			return eventbox;
 		}
 
-		Widget SetupCell(GameObject obj) {
+		Widget SetupCell (GameObject obj) {
 			SmartCell cell = new SmartCell(new Context(Game.player, obj), obj);
 			cell.BorderWidth = 5;
 			cell.prelight = true;
@@ -213,7 +214,7 @@ namespace BrocktonBay {
 			return cell;
 		}
 
-		Widget SetupHeader(GameObject obj) {
+		Widget SetupHeader (GameObject obj) {
 			Widget baseHeader = obj.GetHeader(new Context(Game.player, obj, false, true));
 			HBox hbox = new HBox();
 			hbox.PackStart(baseHeader, false, false, 5);
@@ -222,7 +223,7 @@ namespace BrocktonBay {
 			return eventbox;
 		}
 
-		public void Reload() {
+		public void Reload () {
 
 			List<GameObject> resultsList = Game.city.gameObjects.FindAll(SatisfiesFilters);
 

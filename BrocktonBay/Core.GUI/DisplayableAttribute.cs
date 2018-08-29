@@ -23,6 +23,10 @@ namespace BrocktonBay {
 
 		public Phase editablePhases = 0;
 		public Phase visiblePhases = Phase.All;
+		public bool turnLocked = false;
+		public bool turnClassified = false;
+		public bool affiliationLocked = false;
+		public bool affiliationClassified = false;
 
 		public uint topPadding = 0;
 		public uint bottomPadding = 0;
@@ -47,6 +51,24 @@ namespace BrocktonBay {
 					this.arg = arg;
 					break;
 			}
+		}
+
+		public bool EditAuthorized (object obj) {
+			if (Game.omnipotent) return true;
+			if (GameObject.TryCast(obj, out IAffiliated affiliated)) {
+				if (affiliationLocked && affiliated.affiliation != Game.player) return false;
+				if (turnLocked && Game.turnOrder[Game.turn] != Game.player) return false;
+			}
+			return (editablePhases & Game.phase) == Game.phase;
+		}
+
+		public bool ViewAuthorized (object obj) {
+			if (Game.omniscient) return true;
+			if (GameObject.TryCast(obj, out IAffiliated affiliated)) {
+				if (affiliationClassified && affiliated.affiliation != Game.player) return false;
+				if (turnClassified && Game.turnOrder[Game.turn] != Game.player) return false;
+			}
+			return (visiblePhases & Game.phase) == Game.phase;
 		}
 
 	}

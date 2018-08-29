@@ -83,7 +83,7 @@ namespace BrocktonBay {
 		[ChildDisplayableAttribute("Insight", typeof(IntField))]
 		public int insight_XP { get; set; }
 
-		[Displayable(8, typeof(CellTabularListField<Parahuman>), 3, emphasized = true, editablePhases = Phase.Mastermind)]
+		[Displayable(8, typeof(CellTabularListField<Parahuman>), 3, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Mastermind)]
 		public List<Parahuman> roster { get; set; }
 
 		[Displayable(9, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]
@@ -154,7 +154,7 @@ namespace BrocktonBay {
 
 		public override Widget GetCellContents (Context context) {
 
-			bool editable = UIFactory.CurrentlyEditable(this, "roster");
+			bool editable = UIFactory.EditAuthorized(this, "roster");
 
 			//Creates the cell contents
 			VBox rosterBox = new VBox(false, 0) { BorderWidth = 3 };

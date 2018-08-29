@@ -270,7 +270,6 @@ namespace BrocktonBay {
 			iconCache.Add(request, new Icon(scaledColor, scaledMask));
 			return new Gtk.Image(scaledColor, scaledMask);
 		}
-
 		public static Gtk.Image GetAlert (IBattleground battleground, int iconSize) {
 
 			Color attackerColor = new Color();
@@ -286,9 +285,9 @@ namespace BrocktonBay {
 				victorColor = battleground.battle.victor.affiliation.color;
 
 			if (Battle.Relevant(battleground, Game.player)) {
-				trim = new Gdk.Color(0, 0, 0);
+				trim = new Color(0, 0, 0);
 			} else {
-				trim = new Gdk.Color(50, 50, 50);
+				trim = new Color(50, 50, 50);
 				attackerColor.Red = (ushort)((attackerColor.Red + 150) / 2);
 				attackerColor.Green = (ushort)((attackerColor.Green + 150) / 2);
 				attackerColor.Blue = (ushort)((attackerColor.Blue + 150) / 2);
@@ -298,8 +297,8 @@ namespace BrocktonBay {
 			}
 
 			double pixelSize = iconSize;
-			double size = pixelSize * RESOLUTION_FACTOR*5; //Since 12 across is 0-11; we don't want to draw on 12 and lose pixels.
-			double margin = BLACK_TRIM_WIDTH * RESOLUTION_FACTOR * 5;
+			double size = pixelSize * RESOLUTION_FACTOR; //Since 12 across is 0-11; we don't want to draw on 12 and lose pixels.
+			double margin = BLACK_TRIM_WIDTH * RESOLUTION_FACTOR;
 
 			Pixmap color = new Pixmap(MainWindow.main.GdkWindow, (int)size, (int)size);
 			Pixmap mask = new Pixmap(MainWindow.main.GdkWindow, (int)size, (int)size);
@@ -309,6 +308,7 @@ namespace BrocktonBay {
 			Gdk.GC attacker = new Gdk.GC(color) { RgbFgColor = attackerColor };
 			Gdk.GC defender = new Gdk.GC(color) { RgbFgColor = defenderColor };
 			Gdk.GC victor = new Gdk.GC(color) { RgbFgColor = victorColor };
+			Gdk.GC swordsMask = battleground.battle == null ? visible : translucent;
 
 			//blade constants
 			double bsize = size * 0.15; //The antidiagonal size of the blade (width/sqrt(2))
@@ -321,12 +321,12 @@ namespace BrocktonBay {
 				Vector2 C = new Vector2(size - bsize, 0);
 				Vector2 D = new Vector2(size, bsize);
 				Vector2 E = new Vector2(size, 0);
-				mask.DrawPolygon(visible, true, new Point[] { A, B, D, E, C });
+				mask.DrawPolygon(swordsMask, true, new Point[] { A, B, D, E, C });
 				Vector2 P = new Vector2(0.05, 0.65) * size;
 				Vector2 Q = new Vector2(0.2, 0.5) * size;
 				Vector2 R = new Vector2(0.35, 0.95) * size;
 				Vector2 S = new Vector2(0.5, 0.8) * size;
-				mask.DrawPolygon(visible, true, new Point[] { P, Q, S, R });
+				mask.DrawPolygon(swordsMask, true, new Point[] { P, Q, S, R });
 				Vector2 A2 = A + new Vector2(m2, 0);
 				Vector2 B2 = B - new Vector2(0, m2);
 				Vector2 C2 = C + new Vector2(m3, margin);
@@ -345,12 +345,12 @@ namespace BrocktonBay {
 				Vector2 c = new Vector2(bsize, 0);
 				Vector2 d = new Vector2(0, bsize);
 				Vector2 e = new Vector2(0, 0);
-				mask.DrawPolygon(visible, true, new Point[] { a, b, d, e, c });
+				mask.DrawPolygon(swordsMask, true, new Point[] { a, b, d, e, c });
 				Vector2 p = new Vector2(0.95, 0.65) * size;
 				Vector2 q = new Vector2(0.8, 0.5) * size;
 				Vector2 r = new Vector2(0.65, 0.95) * size;
 				Vector2 s = new Vector2(0.5, 0.8) * size;
-				mask.DrawPolygon(visible, true, new Point[] { p, q, s, r });
+				mask.DrawPolygon(swordsMask, true, new Point[] { p, q, s, r });
 				Vector2 a2 = a - new Vector2(m2, 0);
 				Vector2 b2 = b - new Vector2(0, m2);
 				Vector2 c2 = c + new Vector2(-m3, margin);
@@ -380,8 +380,8 @@ namespace BrocktonBay {
 				//Scale them and translate by (size/2, size/2) to correct origin
 				double r = size / 2;
 				double r2 = size / 5;
-				double ir = r - ml*margin;
-				double ir2 = r2 - ms*margin;
+				double ir = r - ml * margin;
+				double ir2 = r2 - ms * margin;
 				Vector2 center = new Vector2(r, r);
 				Vector2 P = center + r * nP; Vector2 U = center + r2 * nU;
 				Vector2 Q = center + r * nQ; Vector2 V = center + r2 * nV;
@@ -399,24 +399,24 @@ namespace BrocktonBay {
 			}
 
 			/*The shaft
-			double width = size / 4.5;
-			double height = width * 3;
-			Vector2 corner = new Vector2(size / 2 - width / 2, 0);
-			double width2 = width - margin * 2;
-			double height2 = height - margin * 2;
-			Vector2 corner2 = corner + new Vector2(margin, margin);
-			mask.DrawRectangle(visible, true, new Rectangle((int)corner.x, (int)corner.y, (int)width, (int)height));
-			color.DrawRectangle(attacker, true, new Rectangle((int)corner2.x, (int)corner2.y, (int)width2, (int)height2));
-			//The bulb
-			double diameter = width;
-			double radius = diameter / 2;
-			corner = new Vector2(size / 2 - radius, size - diameter);
-			double diameter2 = diameter - margin * 2;
-			double radius2 = diameter2 / 2;
-			corner2 = corner + new Vector2(margin, margin);
-			mask.DrawArc(visible, true, (int)corner.x, (int)corner.y, (int)diameter, (int)diameter, 0, FULL_CIRCLE);
-			color.DrawArc(attacker, true, (int)corner2.x, (int)corner2.y, (int)diameter2, (int)diameter2, 0, FULL_CIRCLE);
-			*/
+            double width = size / 4.5;
+            double height = width * 3;
+            Vector2 corner = new Vector2(size / 2 - width / 2, 0);
+            double width2 = width - margin * 2;
+            double height2 = height - margin * 2;
+            Vector2 corner2 = corner + new Vector2(margin, margin);
+            mask.DrawRectangle(visible, true, new Rectangle((int)corner.x, (int)corner.y, (int)width, (int)height));
+            color.DrawRectangle(attacker, true, new Rectangle((int)corner2.x, (int)corner2.y, (int)width2, (int)height2));
+            //The bulb
+            double diameter = width;
+            double radius = diameter / 2;
+            corner = new Vector2(size / 2 - radius, size - diameter);
+            double diameter2 = diameter - margin * 2;
+            double radius2 = diameter2 / 2;
+            corner2 = corner + new Vector2(margin, margin);
+            mask.DrawArc(visible, true, (int)corner.x, (int)corner.y, (int)diameter, (int)diameter, 0, FULL_CIRCLE);
+            color.DrawArc(attacker, true, (int)corner2.x, (int)corner2.y, (int)diameter2, (int)diameter2, 0, FULL_CIRCLE);
+            */
 
 			Pixmap scaledColor = Scale(color, size, size, 0.1);
 			Pixmap scaledMask = Scale(mask, size, size, 0.1);
