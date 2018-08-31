@@ -1,5 +1,7 @@
 UI:
 	Switching the player faction before the Domain tab is first opened causes the Domain tab to be empty when it is opened.
+	The search window from choosing "Add Existing" for Protectorate independents doesn't expand to fit the search results.
+	Expanding an expander doesn't expand the size allocation
 	Sometimes children don't disappear from parents' lists when murdered.
 
 Notes:

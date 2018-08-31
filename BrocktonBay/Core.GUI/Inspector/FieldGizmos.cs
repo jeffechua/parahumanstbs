@@ -14,6 +14,38 @@ namespace BrocktonBay {
 		}
 	}
 
+	public sealed class ThreatSelectionField : HBox {
+
+		IDependable obj;
+		PropertyInfo property;
+		RadioButton[] buttons;
+
+		public ThreatSelectionField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute) : base(false, 0) {
+			this.obj = (IDependable)obj;
+			this.property = property;
+			PackStart(new Label(UIFactory.ToReadable(property.Name) + ": "), false, false, 0);
+			buttons = new RadioButton[4];
+			buttons[0] = new RadioButton("C");
+			buttons[1] = new RadioButton(buttons[0], "B");
+			buttons[2] = new RadioButton(buttons[0], "A");
+			buttons[3] = new RadioButton(buttons[0], "S");
+			buttons[(int)(Threat)property.GetValue(obj)].Active = true;
+			foreach (RadioButton button in buttons) {
+				button.Toggled += OnThreatToggled;
+				PackStart(button, false, false, 0);
+			}
+		}
+		void OnThreatToggled (object o, EventArgs args) {
+			int index = 0;
+			for (int i = 0; i < 4; i++) if (buttons[i] == o) index = i;
+			if (buttons[index].Active) {
+				property.SetValue(obj, (Threat)index);
+				DependencyManager.Flag(obj);
+				DependencyManager.TriggerAllFlags();
+			}
+		}
+	}
+
 	public sealed class TabularContainerField : Table {
 		string[] children;
 		Context context;
