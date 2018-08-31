@@ -33,7 +33,7 @@ namespace BrocktonBay {
 		public Gdk.Color color { get { return new Gdk.Color(150, 150, 150); } }
 		public Dossier knowledge { get; set; }
 		bool _active;
-		[Displayable(2, typeof(BasicReadonlyField), visiblePhases = Phase.None)]
+		[Displayable(3, typeof(BasicReadonlyField), visiblePhases = Phase.None)]
 		public bool active {
 			get => _active;
 			set {
@@ -48,22 +48,22 @@ namespace BrocktonBay {
 			}
 		}
 
-		[Displayable(2, typeof(ObjectField), forceHorizontal = true)]
+		[Displayable(4, typeof(ObjectField), forceHorizontal = true)]
 		public override IAgent affiliation { get { return (IAgent)(parent ?? this); } }
 
-		[Displayable(3, typeof(EnumField<Alignment>))]
+		[Displayable(5, typeof(EnumField<Alignment>))]
 		public Alignment alignment { get; set; }
 
-		[Displayable(4, typeof(BasicReadonlyField))]
+		[Displayable(6, typeof(BasicReadonlyField))]
 		public Threat threat { get; set; }
 
-		[Displayable(5, typeof(BasicReadonlyField))]
+		[Displayable(7, typeof(BasicReadonlyField))]
 		public int reputation { get; set; }
 
-		[Displayable(6, typeof(IntField))]
+		[Displayable(8, typeof(IntField))]
 		public int unused_XP { get; set; }
 
-		[Displayable(7, typeof(TabularContainerField), "strength_XP", "stealth_XP", "insight_XP",
+		[Displayable(9, typeof(TabularContainerField), "strength_XP", "stealth_XP", "insight_XP",
 					 altWidget = typeof(LinearContainerField), emphasizedIfVertical = true)]
 		public int[] spent_XP {
 			get {
@@ -83,13 +83,13 @@ namespace BrocktonBay {
 		[ChildDisplayableAttribute("Insight", typeof(IntField))]
 		public int insight_XP { get; set; }
 
-		[Displayable(8, typeof(CellTabularListField<Parahuman>), 3, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Mastermind)]
+		[Displayable(10, typeof(CellTabularListField<Parahuman>), 3, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Mastermind)]
 		public List<Parahuman> roster { get; set; }
 
-		[Displayable(9, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]
+		[Displayable(11, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]
 		public override List<Mechanic> mechanics { get; set; }
 
-		[Displayable(10, typeof(RatingsMultiviewField), true, emphasized = true, verticalOnly = true, expand = true)]
+		[Displayable(12, typeof(RatingsMultiviewField), true, emphasized = true, verticalOnly = true, expand = true)]
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
 
 

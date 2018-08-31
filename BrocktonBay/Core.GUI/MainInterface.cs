@@ -94,7 +94,7 @@ namespace BrocktonBay {
 				});
 			}
 			textBar.PackStart(player, false, false, 0);
-			Image nextPhaseArrow = Graphics.GetIcon(DirectionType.Right, black, (int)(Graphics.textSize * 0.75));
+			Image nextPhaseArrow = Graphics.GetIcon(IconTemplate.RightArrow, black, (int)(Graphics.textSize * 0.75));
 			ClickableEventBox nextPhaseButton = new ClickableEventBox {
 				Child = nextPhaseArrow,
 				BorderWidth = (uint)(Graphics.textSize * 0.25),

@@ -56,7 +56,7 @@ namespace BrocktonBay {
 			// Navigation
 			Label pageLabel = new Label("Table");
 			ClickableEventBox leftArrow = new ClickableEventBox();
-			leftArrow.Add(Graphics.GetIcon(DirectionType.Left, new Gdk.Color(100, 100, 100), Graphics.textSize));
+			leftArrow.Add(Graphics.GetIcon(IconTemplate.LeftArrow, new Gdk.Color(100, 100, 100), Graphics.textSize));
 			leftArrow.Clicked += delegate {
 				if (notebook.CurrentPage > 0) {
 					notebook.CurrentPage--;
@@ -66,7 +66,7 @@ namespace BrocktonBay {
 				pageLabel.Text = labels[notebook.CurrentPage];
 			};
 			ClickableEventBox rightArrow = new ClickableEventBox();
-			rightArrow.Add(Graphics.GetIcon(DirectionType.Right, new Gdk.Color(100, 100, 100), Graphics.textSize));
+			rightArrow.Add(Graphics.GetIcon(IconTemplate.RightArrow, new Gdk.Color(100, 100, 100), Graphics.textSize));
 			rightArrow.Clicked += delegate {
 				if (notebook.CurrentPage < notebook.NPages - 1) {
 					notebook.CurrentPage++;
@@ -114,7 +114,7 @@ namespace BrocktonBay {
 			// Navigation
 			Label pageLabel = new Label("Table (final)");
 			ClickableEventBox leftArrow = new ClickableEventBox();
-			leftArrow.Add(Graphics.GetIcon(DirectionType.Left, new Gdk.Color(100, 100, 100), Graphics.textSize));
+			leftArrow.Add(Graphics.GetIcon(IconTemplate.LeftArrow, new Gdk.Color(100, 100, 100), Graphics.textSize));
 			leftArrow.Clicked += delegate {
 				if (notebook.CurrentPage > 0) {
 					notebook.CurrentPage--;
@@ -124,7 +124,7 @@ namespace BrocktonBay {
 				pageLabel.Text = labels[notebook.CurrentPage];
 			};
 			ClickableEventBox rightArrow = new ClickableEventBox();
-			rightArrow.Add(Graphics.GetIcon(DirectionType.Right, new Gdk.Color(100, 100, 100), Graphics.textSize));
+			rightArrow.Add(Graphics.GetIcon(IconTemplate.RightArrow, new Gdk.Color(100, 100, 100), Graphics.textSize));
 			rightArrow.Clicked += delegate {
 				if (notebook.CurrentPage < notebook.NPages - 1) {
 					notebook.CurrentPage++;

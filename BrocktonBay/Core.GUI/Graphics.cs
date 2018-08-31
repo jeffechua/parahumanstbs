@@ -7,6 +7,12 @@ using System.Collections.Generic;
 
 namespace BrocktonBay {
 
+	public enum IconTemplate {
+		LeftArrow,
+		RightArrow,
+		X
+	}
+
 	public struct IconRequest {
 		readonly string iconified;
 		readonly Color color;
@@ -225,22 +231,39 @@ namespace BrocktonBay {
 						}
 						break;
 				}
-			} else if (iconified is DirectionType) {
+			} else if (iconified is IconTemplate) {
 				color.DrawRectangle(colorGC, true, new Rectangle(0, 0, (int)size, (int)size));
 				mask.DrawRectangle(invisible, true, new Rectangle(0, 0, (int)size, (int)size));
-				switch ((DirectionType)iconified) {
-					case DirectionType.Left:
+				switch ((IconTemplate)iconified) {
+					case IconTemplate.LeftArrow:
 						mask.DrawPolygon(visible, true, new Point[]{
 							new Point((int)size, 0),
 							new Point(0, (int)(size / 2)),
 							new Point((int)size, (int)size)
 						});
 						break;
-					case DirectionType.Right:
+					case IconTemplate.RightArrow:
 						mask.DrawPolygon(visible, true, new Point[]{
 							new Point(0, 0),
 							new Point((int)size, (int)(size / 2)),
 							new Point(0, (int)size)
+						});
+						break;
+					case IconTemplate.X:
+						int close = (int)(size / 6);
+						int far = (int)(size * 5 / 6);
+						int end = (int)size;
+						mask.DrawPolygon(visible, true, new Point[]{
+							new Point(close, 0),
+							new Point(end, far),
+							new Point(far, end),
+							new Point(0, close)
+						});
+						mask.DrawPolygon(visible, true, new Point[]{
+							new Point(far, 0),
+							new Point(0, far),
+							new Point(close, end),
+							new Point(end, close)
 						});
 						break;
 				}

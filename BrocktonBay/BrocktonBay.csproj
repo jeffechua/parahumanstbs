@@ -83,6 +83,8 @@
     <Compile Include="Core.GUI\Map\MapMarkers.cs" />
     <Compile Include="gtk-gui\MainWindow.cs" />
     <Compile Include="Agency.cs" />
+    <Compile Include="Core.GUI\Map\TerritoryMarkers.cs" />
+    <Compile Include="Core.GUI\Map\StructureMarkers.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />

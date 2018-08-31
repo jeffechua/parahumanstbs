@@ -59,7 +59,7 @@ public partial class MainWindow : DefocusableWindowWithInspector {
 	public static MainWindow main;
 
 	public static VBox mainBox;
-	public static MainInterface cityInterface;
+	public static MainInterface mainInterface;
 
 	static MenuBar menuBar;
 	static Menu fileMenu;
@@ -237,8 +237,8 @@ public partial class MainWindow : DefocusableWindowWithInspector {
 		if (mainBox.Children.Length == 2) {
 			mainBox.Children[1].Destroy();
 		}
-		cityInterface = new MainInterface();
-		mainBox.PackStart(cityInterface, true, true, 0);
+		mainInterface = new MainInterface();
+		mainBox.PackStart(mainInterface, true, true, 0);
 		editButton.Sensitive = true;
 		viewButton.Sensitive = true;
 		toolsButton.Sensitive = true;
@@ -250,7 +250,7 @@ public partial class MainWindow : DefocusableWindowWithInspector {
 	}
 
 	public static void Unload () {
-		cityInterface = null;
+		mainInterface = null;
 		editButton.Sensitive = false;
 		viewButton.Sensitive = false;
 		toolsButton.Sensitive = false;
@@ -258,6 +258,7 @@ public partial class MainWindow : DefocusableWindowWithInspector {
 		saveButton.Sensitive = false;
 		saveAsButton.Sensitive = false;
 		closeButton.Sensitive = false;
+		mainInterface.Destroy();
 		main.ShowAll();
 	}
 

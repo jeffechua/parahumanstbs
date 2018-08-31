@@ -139,7 +139,7 @@ namespace BrocktonBay {
 		}
 
 		static void ResolutionPhase () {
-			foreach (IBattleground battleground in city.activeBattlegrounds){
+			foreach (IBattleground battleground in city.activeBattlegrounds) {
 				battleground.battle = new Battle(battleground, battleground.attacker, battleground.defender);
 				DependencyManager.Flag(battleground);
 			}
@@ -164,16 +164,14 @@ namespace BrocktonBay {
 						territory.reputation += territory.reputation_income;
 					}
 				} else if (obj.TryCast(out Parahuman parahuman)) {
-					if(parahuman.health == Health.Deceased){
+					if (parahuman.health == Health.Deceased) {
 						DependencyManager.Delete(parahuman);
-					}else if ((int)parahuman.health < 3) {
+					} else if ((int)parahuman.health < 3) {
 						parahuman.health++;
 					}
 				} else if (obj.TryCast(out Structure structure)) {
-					if (structure.rebuild_time != null) {
+					if (structure.rebuild_time > 0) {
 						structure.rebuild_time--;
-						if (structure.rebuild_time == 0)
-							structure.rebuild_time = null;
 					}
 				}
 			}

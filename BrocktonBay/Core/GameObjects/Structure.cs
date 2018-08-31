@@ -17,6 +17,7 @@ namespace BrocktonBay {
 		public int ID = 0;
 		public IntVector2 position = new IntVector2(0, 0);
 		public StructureType type;
+		public int rebuild_time;
 		public int[] buffs = { 0, 0, 0 };
 		public List<MechanicData> mechanics = new List<MechanicData>();
 
@@ -27,6 +28,7 @@ namespace BrocktonBay {
 			ID = structure.ID;
 			position = structure.position;
 			type = structure.type;
+			rebuild_time = structure.rebuild_time;
 			buffs = structure.combat_buffs;
 			mechanics = structure.mechanics.ConvertAll((input) => new MechanicData(input));
 		}
@@ -40,19 +42,19 @@ namespace BrocktonBay {
 		public Defense defender { get; set; }
 		public Battle battle { get; set; }
 
-		[Displayable(2, typeof(IntVector2Field), visiblePhases = Phase.None)]
+		[Displayable(3, typeof(IntVector2Field), visiblePhases = Phase.None)]
 		public IntVector2 position { get; set; }
 
-		[Displayable(3, typeof(ObjectField), forceHorizontal = true)]
+		[Displayable(4, typeof(ObjectField), forceHorizontal = true)]
 		public override IAgent affiliation { get { return (parent == null) ? null : (IAgent)parent.parent; } }
 
-		[Displayable(3, typeof(IntField))]
-		public int? rebuild_time;
-
-		[Displayable(4, typeof(EnumField<StructureType>))]
+		[Displayable(5, typeof(EnumField<StructureType>))]
 		public StructureType type { get; set; }
 
-		[Displayable(5, typeof(TabularContainerField), "strength_buff", "stealth_buff", "insight_buff",
+		[Displayable(6, typeof(IntField))]
+		public int rebuild_time { get; set; }
+
+		[Displayable(7, typeof(TabularContainerField), "strength_buff", "stealth_buff", "insight_buff",
 					 altWidget = typeof(LinearContainerField), emphasizedIfVertical = true)]
 		public int[] combat_buffs {
 			get {
@@ -72,7 +74,7 @@ namespace BrocktonBay {
 		[ChildDisplayable("Insight", typeof(IntField))]
 		public int insight_buff { get; set; }
 
-		[Displayable(6, typeof(TabularContainerField), "resource_income", "reputation_income",
+		[Displayable(8, typeof(TabularContainerField), "resource_income", "reputation_income",
 					 altWidget = typeof(LinearContainerField), emphasizedIfVertical = true)]
 		public int[] incomes {
 			get {
@@ -92,14 +94,14 @@ namespace BrocktonBay {
 		//[Displayable(7, typeof(ObjectField)), ForceHorizontal, Padded(10, 10, 10, 10), Emphasized]
 		public Battle ongoing_event { get; set; }
 
-		[Displayable(7, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]
+		[Displayable(9, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]
 		public override List<Mechanic> mechanics { get; set; }
 
-		[Displayable(8, typeof(ActionField), verticalOnly = true, turnClassified = true, visiblePhases = Phase.Action,
+		[Displayable(10, typeof(ActionField), verticalOnly = true, turnClassified = true, visiblePhases = Phase.Action,
 					 topPadding = 20, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
 		public GameAction attack { get; set; }
 
-		[Displayable(9, typeof(ActionField), verticalOnly = true, turnClassified = true, visiblePhases = Phase.Response,
+		[Displayable(11, typeof(ActionField), verticalOnly = true, turnClassified = true, visiblePhases = Phase.Response,
 					 topPadding = 20, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
 		public GameAction defend { get; set; }
 
@@ -109,6 +111,7 @@ namespace BrocktonBay {
 			name = data.name;
 			ID = data.ID;
 			position = data.position;
+			rebuild_time = data.rebuild_time;
 			type = data.type;
 			combat_buffs = data.buffs;
 			mechanics = data.mechanics.ConvertAll((input) => Mechanic.Load(input));
@@ -198,6 +201,7 @@ namespace BrocktonBay {
 		public IMapMarker[] GetMarkers (Map map) {
 			return new IMapMarker[]{
 				new StructureMarker(this, map),
+				new StructureRebuildMarker(this, map),
 				new BattleAlertMarker(this, map)
 			};
 		}

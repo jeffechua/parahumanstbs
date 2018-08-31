@@ -37,7 +37,7 @@ namespace BrocktonBay {
 		public Dossier knowledge { get; set; }
 		public override IAgent affiliation { get => this; }
 		bool _active;
-		[Displayable(2, typeof(BasicReadonlyField), visiblePhases = Phase.None)]
+		[Displayable(3, typeof(BasicReadonlyField), visiblePhases = Phase.None)]
 		public bool active {
 			get => _active;
 			set {
@@ -52,34 +52,34 @@ namespace BrocktonBay {
 			}
 		}
 
-		[Displayable(2, typeof(ColorField))]
+		[Displayable(4, typeof(ColorField))]
 		public Gdk.Color color { get; set; }
 
-		[Displayable(3, typeof(EnumField<Alignment>))]
+		[Displayable(5, typeof(EnumField<Alignment>))]
 		public Alignment alignment { get; set; }
 
-		[Displayable(4, typeof(BasicReadonlyField))]
+		[Displayable(6, typeof(BasicReadonlyField))]
 		public Threat threat { get; set; }
 
-		[Displayable(5, typeof(IntField))]
+		[Displayable(7, typeof(IntField))]
 		public int resources { get; set; }
 
-		[Displayable(6, typeof(BasicReadonlyField))]
+		[Displayable(8, typeof(BasicReadonlyField))]
 		public int reputation { get; set; }
 
-		[Displayable(7, typeof(CellTabularListField<Parahuman>), 3, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Mastermind)]
+		[Displayable(9, typeof(CellTabularListField<Parahuman>), 3, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Mastermind)]
 		public List<Parahuman> roster { get; set; }
 
-		[Displayable(8, typeof(CellTabularListField<Team>), 2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Mastermind)]
+		[Displayable(10, typeof(CellTabularListField<Team>), 2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Mastermind)]
 		public List<Team> teams { get; set; }
 
-		[Displayable(9, typeof(CellTabularListField<Territory>), 2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Mastermind)]
+		[Displayable(11, typeof(CellTabularListField<Territory>), 2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Mastermind)]
 		public List<Territory> territories { get; set; }
 
-		[Displayable(10, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]
+		[Displayable(12, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]
 		public override List<Mechanic> mechanics { get; set; }
 
-		[Displayable(11, typeof(RatingsMultiviewField), true, emphasized = true, verticalOnly = true, expand = true)]
+		[Displayable(13, typeof(RatingsMultiviewField), true, emphasized = true, verticalOnly = true, expand = true)]
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
 
 

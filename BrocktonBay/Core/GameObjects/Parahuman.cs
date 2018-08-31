@@ -43,7 +43,7 @@ namespace BrocktonBay {
 		public Gdk.Color color { get { return new Gdk.Color(0, 0, 0); } }
 		public Dossier knowledge { get; set; }
 		bool _active;
-		[Displayable(2, typeof(BasicReadonlyField), visiblePhases = Phase.None)]
+		[Displayable(3, typeof(BasicReadonlyField), visiblePhases = Phase.None)]
 		public bool active {
 			get => _active;
 			set {
@@ -58,7 +58,7 @@ namespace BrocktonBay {
 			}
 		}
 
-		[Displayable(3, typeof(ObjectField), forceHorizontal = true)]
+		[Displayable(4, typeof(ObjectField), forceHorizontal = true)]
 		public override IAgent affiliation {
 			get {
 				if (parent != null) {
@@ -72,22 +72,22 @@ namespace BrocktonBay {
 			}
 		}
 
-		[Displayable(4, typeof(EnumField<Alignment>))]
+		[Displayable(5, typeof(EnumField<Alignment>))]
 		public Alignment alignment { get; set; }
 
-		[Displayable(5, typeof(EnumField<Threat>))]
+		[Displayable(6, typeof(EnumField<Threat>))]
 		public Threat threat { get; set; }
 
-		[Displayable(6, typeof(EnumField<Health>))]
+		[Displayable(7, typeof(EnumField<Health>))]
 		public Health health { get; set; }
 
-		[Displayable(7, typeof(IntField))]
+		[Displayable(8, typeof(IntField))]
 		public int reputation { get; set; }
 
-		[Displayable(7, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]
+		[Displayable(9, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]
 		public override List<Mechanic> mechanics { get; set; }
 
-		[Displayable(8, typeof(RatingsListField), "baseRatings", emphasizedIfHorizontal = true, topPadding = 5, bottomPadding = 5)]
+		[Displayable(10, typeof(RatingsListField), "baseRatings", emphasizedIfHorizontal = true, topPadding = 5, bottomPadding = 5)]
 		public Func<Context, RatingsProfile> ratings { get => GetRatingsProfile; }
 
 		public RatingsProfile baseRatings { get; set; }
