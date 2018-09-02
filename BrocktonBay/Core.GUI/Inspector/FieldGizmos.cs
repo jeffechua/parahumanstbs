@@ -23,6 +23,7 @@ namespace BrocktonBay {
 		public ThreatSelectionField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute) : base(false, 0) {
 			this.obj = (IDependable)obj;
 			this.property = property;
+			bool editable = attribute.EditAuthorized(obj);
 			PackStart(new Label(UIFactory.ToReadable(property.Name) + ": "), false, false, 0);
 			buttons = new RadioButton[4];
 			buttons[0] = new RadioButton("C");
@@ -32,6 +33,7 @@ namespace BrocktonBay {
 			buttons[(int)(Threat)property.GetValue(obj)].Active = true;
 			foreach (RadioButton button in buttons) {
 				button.Toggled += OnThreatToggled;
+				if (!editable) button.State = StateType.Insensitive;
 				PackStart(button, false, false, 0);
 			}
 		}

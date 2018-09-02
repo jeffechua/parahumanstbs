@@ -142,8 +142,6 @@ namespace BrocktonBay {
 
 			ShowAll();
 
-			Profiler.WriteLog();
-
 		}
 
 	}

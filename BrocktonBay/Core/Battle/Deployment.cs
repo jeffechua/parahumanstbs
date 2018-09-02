@@ -10,7 +10,7 @@ namespace BrocktonBay {
 		[Displayable(1, typeof(ObjectField), forceHorizontal = true)]
 		public override Parahuman leader { get; set; }
 
-		[Displayable(5, typeof(ThreatSelectionField), editablePhases = Phase.Action)]
+		[Displayable(5, typeof(ThreatSelectionField), turnLocked = true, affiliationLocked = true, editablePhases = Phase.Action)]
 		public override Threat force_employed { get; set; }
 
 		[Displayable(6, typeof(CellTabularListField<Team>), 2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Action)]
@@ -57,7 +57,7 @@ namespace BrocktonBay {
 		[Displayable(1, typeof(ObjectField), forceHorizontal = true)]
 		public override Parahuman leader { get; set; }
 
-		[Displayable(5, typeof(ThreatSelectionField), editablePhases = Phase.Response)]
+		[Displayable(5, typeof(ThreatSelectionField), turnLocked = true, affiliationLocked = true, editablePhases = Phase.Response)]
 		public override Threat force_employed { get; set; }
 
 		[Displayable(6, typeof(CellTabularListField<Team>), 2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Response)]

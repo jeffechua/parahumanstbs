@@ -67,7 +67,7 @@ namespace BrocktonBay {
 
 			parent = (IContainer)obj;
 			this.context = context;
-			editable = UIFactory.EditAuthorized(property, obj);
+			editable = attribute.EditAuthorized(obj);
 
 			// Local convenience variable
 			List<T> list = (List<T>)property.GetValue(obj);

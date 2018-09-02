@@ -13,7 +13,7 @@ namespace BrocktonBay {
 			TransientFor = transientFor;
 			TypeHint = Gdk.WindowTypeHint.Dialog;
 			//Setup search
-			Search search = new Search(Filter, delegate (GameObject obj) { OnClicked(obj); this.Destroy(); });
+			Search search = new Search(Filter, delegate (GameObject obj) { OnClicked(obj); Destroy(); }, false);
 			Add(search);
 			//Define default dimensions and Show
 			search.resultsWindow.Realize();
@@ -54,14 +54,16 @@ namespace BrocktonBay {
 		Func<GameObject, bool> Filter;
 		Action<GameObject> OnClicked;
 
+		bool lazy;
 
-		public Search (Func<GameObject, bool> Filter = null, Action<GameObject> OnClicked = null) {
+		public Search (Func<GameObject, bool> Filter = null, Action<GameObject> OnClicked = null, bool lazy = true) {
 
 			DependencyManager.Connect(Game.city, this);
 			DependencyManager.Connect(Game.UIKey, this);
 			Destroyed += (o, a) => DependencyManager.Delete(this);
 			this.Filter = Filter ?? delegate { return true; };
 			this.OnClicked = OnClicked ?? delegate { };
+			this.lazy = lazy;
 
 			//Search bar
 			searchBar = new Toolbar();
@@ -71,9 +73,9 @@ namespace BrocktonBay {
 			resultsWindow = new ScrolledWindow();
 			PackStart(resultsWindow, true, true, 0);
 
-			lister = new CachingLister<GameObject>(Game.city.gameObjects, SetupListing);
-			tesselator = new CachingTesselator<GameObject>(Game.city.gameObjects, SetupCell, resultsWindow);
-			headerer = new CachingLister<GameObject>(Game.city.gameObjects, SetupHeader);
+			lister = new CachingLister<GameObject>(SetupListing);
+			tesselator = new CachingTesselator<GameObject>(SetupCell, resultsWindow);
+			headerer = new CachingLister<GameObject>(SetupHeader);
 
 			//Search
 			searchText = new Entry();
@@ -191,12 +193,14 @@ namespace BrocktonBay {
 					resultsWindow.AddWithViewport(headerer);
 					break;
 			}
+
+			ShowAll();
 			Reload();
 		}
 
 		Widget SetupListing (GameObject obj) {
 			Gtk.Alignment align = new Gtk.Alignment(0, 0, 0, 0) {
-				Child = new Listing(obj),
+				Child = new Listing(obj, lazy),
 				BorderWidth = 5,
 				LeftPadding = 10,
 				RightPadding = 10
@@ -207,7 +211,7 @@ namespace BrocktonBay {
 		}
 
 		Widget SetupCell (GameObject obj) {
-			SmartCell cell = new SmartCell(new Context(Game.player, obj), obj);
+			SmartCell cell = new SmartCell(new Context(Game.player, obj), obj, lazy);
 			cell.BorderWidth = 5;
 			cell.prelight = true;
 			cell.Clicked += (o, a) => OnClicked(obj);
@@ -230,20 +234,18 @@ namespace BrocktonBay {
 			switch (presentation.Active) {
 				case 0:
 					lister.Load(resultsList);
-					ShowAll();
 					lister.Render();
 					break;
 				case 1:
 					tesselator.Load(resultsList);
-					ShowAll();
 					tesselator.Render();
 					break;
 				default:
 					headerer.Load(resultsList);
-					ShowAll();
 					headerer.Render();
 					break;
 			}
+
 
 		}
 

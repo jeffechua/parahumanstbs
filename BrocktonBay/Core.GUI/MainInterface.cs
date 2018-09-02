@@ -14,6 +14,8 @@ namespace BrocktonBay {
 		public Map map;
 		HBox textBar;
 		HBox numbersBar;
+		ScrolledWindow agentsWindow;
+		CachingHCellsCategorized agentsList;
 
 		public MainInterface () {
 
@@ -45,13 +47,10 @@ namespace BrocktonBay {
 
 			Profiler.Log();
 
-			//My agents
-			Label agentsLabel = new Label("My agents");
-			Search agents = new Search((obj) => (obj is Team || obj is Parahuman) && ((IAffiliated)obj).affiliation == Game.player,
-									   (obj) => Inspector.InspectInNearestInspector(obj, this));
-			agents.typesButton.State = StateType.Insensitive;
-			agents.toplevelOnlyButton.State = StateType.Insensitive;
-			notebook.AppendPage(agents, agentsLabel);
+			//Search tab
+			Label searchLabel = new Label("Search");
+			Search search = new Search(null, (obj) => Inspector.InspectInNearestInspector(obj, this));
+			notebook.AppendPage(search, searchLabel);
 
 			//My domain
 			Label domainLabel = new Label("My domain");
@@ -61,10 +60,12 @@ namespace BrocktonBay {
 			domain.toplevelOnlyButton.State = StateType.Insensitive;
 			notebook.AppendPage(domain, domainLabel);
 
-			//Search tab
-			Label searchLabel = new Label("Search");
-			Search search = new Search(null, (obj) => Inspector.InspectInNearestInspector(obj, this));
-			notebook.AppendPage(search, searchLabel);
+			//Agents bottom bar
+			agentsWindow = new ScrolledWindow {
+				VscrollbarPolicy = PolicyType.Never
+			};
+			agentsList = new CachingHCellsCategorized { BorderWidth = 10 };
+			agentsWindow.AddWithViewport(agentsList);
 
 			Profiler.Log(ref Profiler.searchCreateTime);
 
@@ -72,7 +73,10 @@ namespace BrocktonBay {
 
 			DestroyEvent += (o, a) => DependencyManager.Delete(this);
 
+
 			Reload();
+
+			notebook.CurrentPage = 0;
 
 		}
 
@@ -104,11 +108,23 @@ namespace BrocktonBay {
 			textBar.PackEnd(nextPhaseButton, false, false, spacing);
 			textBar.PackEnd(new Label(Game.phase + " Phase"), false, false, spacing);
 
+			List<List<IGUIComplete>> agents = new List<List<IGUIComplete>>();
 			if (GameObject.TryCast(Game.player, out Faction faction)) {
 				numbersBar.PackStart(Graphics.GetIcon(StructureType.Economic, black, Graphics.textSize), false, false, spacing);
 				numbersBar.PackStart(new Label(faction.resources.ToString()), false, false, spacing);
 				numbersBar.PackStart(Graphics.GetIcon(StructureType.Aesthetic, black, Graphics.textSize), false, false, spacing);
 				numbersBar.PackStart(new Label(faction.reputation.ToString()), false, false, spacing);
+				agents.Add(faction.teams.ConvertAll((team) => (IGUIComplete)team));
+				agents.Add(faction.roster.ConvertAll((parahuman) => (IGUIComplete)parahuman));
+				List<IGUIComplete> teamed = new List<IGUIComplete>();
+				foreach (Team team in faction.teams) foreach (Parahuman parahuman in team.roster) teamed.Add(parahuman);
+				agents.Add(teamed);
+				if (agentsWindow.Parent != this) PackStart(agentsWindow, false, false, 0);
+			} else if (GameObject.TryCast(Game.player, out Team team)) {
+				agents.Add(team.roster.ConvertAll((parahuman) => (IGUIComplete)parahuman));
+				if (agentsWindow.Parent != this) PackStart(agentsWindow, false, false, 0);
+			} else if (GameObject.TryCast(Game.player, out Parahuman parahuman)) {
+				if (agentsWindow.Parent == this) Remove(agentsWindow);
 			}
 
 			if ((Game.phase & (Phase.Resolution | Phase.Event)) == Phase.None) {
@@ -122,6 +138,7 @@ namespace BrocktonBay {
 				}
 			}
 
+			agentsList.Load(agents);
 			ShowAll();
 
 		}

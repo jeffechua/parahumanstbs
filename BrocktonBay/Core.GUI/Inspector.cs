@@ -14,8 +14,11 @@ namespace BrocktonBay {
 		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 
-		public Listing (IGUIComplete obj) {
+		bool lazy;
+
+		public Listing (IGUIComplete obj, bool lazy) {
 			this.obj = obj;
+			this.lazy = lazy;
 			DependencyManager.Connect(obj, this);
 			DependencyManager.Connect(Game.UIKey, this);
 			Destroyed += (o, a) => DependencyManager.DisconnectAll(this);
@@ -29,15 +32,21 @@ namespace BrocktonBay {
 				Destroy();
 			} else {
 				HideAll();
-				Graphics.SetExposeTrigger(this, delegate {
-					SetSizeRequest(-1, -1);
-					if (Child != null) Child.Destroy();
-					if (LabelWidget != null) LabelWidget.Destroy();
-					Add(UIFactory.GenerateHorizontal(obj));
-					LabelWidget = obj.GetHeader(new Context(Game.player, obj, false, true));
-					ShowAll();
-				});
+				if (lazy) {
+					Graphics.SetExposeTrigger(this, Redraw);
+				} else {
+					Redraw();
+				}
 			}
+		}
+
+		public void Redraw () {
+			SetSizeRequest(-1, -1);
+			if (Child != null) Child.Destroy();
+			if (LabelWidget != null) LabelWidget.Destroy();
+			Add(UIFactory.GenerateHorizontal(obj));
+			LabelWidget = obj.GetHeader(new Context(Game.player, obj, false, true));
+			ShowAll();
 		}
 
 	}
@@ -55,9 +64,12 @@ namespace BrocktonBay {
 		public IGUIComplete obj;
 		public Context context;
 
-		public SmartCell (Context context, IGUIComplete obj) : base(obj) {
+		bool lazy;
+
+		public SmartCell (Context context, IGUIComplete obj, bool lazy) : base(obj) {
 			//Basic setup
 			this.obj = obj;
+			this.lazy = lazy;
 			this.context = context;
 			frame = new Frame();
 			Child = frame;
@@ -75,14 +87,20 @@ namespace BrocktonBay {
 				Destroy();
 			} else {
 				HideAll();
-				Graphics.SetExposeTrigger(this, delegate {
-					if (frame.Child != null) frame.Child.Destroy();
-					if (frame.LabelWidget != null) frame.LabelWidget.Destroy();
-					frame.Add(obj.GetCellContents(context));
-					frame.LabelWidget = obj.GetHeader(context.butCompact);
-					ShowAll();
-				});
+				if (lazy) {
+					Graphics.SetExposeTrigger(this, Redraw);
+				} else {
+					Redraw();
+				}
 			}
+		}
+
+		public void Redraw () {
+			if (frame.Child != null) frame.Child.Destroy();
+			if (frame.LabelWidget != null) frame.LabelWidget.Destroy();
+			frame.Add(obj.GetCellContents(context));
+			frame.LabelWidget = obj.GetHeader(context.butCompact);
+			ShowAll();
 		}
 
 	}

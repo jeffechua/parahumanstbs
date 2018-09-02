@@ -86,7 +86,7 @@ namespace BrocktonBay {
 				}
 
 			}
-			if (UIFactory.EditAuthorized(property, obj)) {
+			if (attribute.EditAuthorized(obj)) {
 				ClickableEventBox clickableEventBox = new ClickableEventBox { Child = alignment };
 				clickableEventBox.DoubleClicked += delegate {
 					// The property this is attached to gets the *current ratings*, not the *base ratings*, which are
