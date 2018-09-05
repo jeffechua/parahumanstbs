@@ -10,7 +10,7 @@ namespace BrocktonBay {
 
 		Territory territory;
 		Gdk.Color shownColor;
-		IntVector2 shownPosition;
+		IntVector2 shownPosition = new IntVector2(-1, -1); //So Repin() triggers on first Reload();
 
 		public override int layer { get => 2; }
 		protected override Vector2 position { get => shownPosition; }
@@ -33,8 +33,8 @@ namespace BrocktonBay {
 		}
 
 		public override void Reload () {
-			if (!territory.affiliation.color.Equal(shownColor)) {
-				shownColor = territory.affiliation.color;
+			if (!Graphics.GetColor(territory.affiliation).Equal(shownColor)) {
+				shownColor = Graphics.GetColor(territory.affiliation);
 				Redraw();
 			}
 			if (territory.position != shownPosition) {
@@ -79,7 +79,7 @@ namespace BrocktonBay {
 		Territory territory;
 		Gdk.Color shownColor;
 		int shownSize;
-		IntVector2 shownPosition;
+		IntVector2 shownPosition = new IntVector2(-1, -1); //So Repin() triggers on first Reload();
 
 		int radius { get => (int)(territory.size * Game.city.territorySizeScale * map.currentMagnif); }
 

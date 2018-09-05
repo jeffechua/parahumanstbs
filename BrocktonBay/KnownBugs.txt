@@ -3,5 +3,8 @@ UI:
 	Expanding an expander doesn't expand the size allocation
 	Sometimes children don't disappear from parents' lists when murdered.
 
+Performance:
+	Severe memory leak or uncollected IDependables or something causing everything to slow down severely with more and more RefreshUI()s.
+
 Notes:
 	.NET framework used is 4.6, default mono install may not be up to date.

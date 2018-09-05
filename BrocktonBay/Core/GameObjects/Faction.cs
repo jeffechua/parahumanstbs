@@ -82,6 +82,8 @@ namespace BrocktonBay {
 		[Displayable(13, typeof(RatingsMultiviewField), true, emphasized = true, verticalOnly = true, expand = true)]
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
 
+		public List<Parahuman> unassignedCaptures = new List<Parahuman>();
+		public List<Parahuman> assignedCaptures = new List<Parahuman>();
 
 		public Faction () : this(new FactionData())
 			=> active = true;
@@ -115,7 +117,6 @@ namespace BrocktonBay {
 			teams.Sort();
 			roster.Sort();
 			territories.Sort();
-			Reload();
 		}
 
 		public RatingsProfile GetRatingsProfile (Context context) {

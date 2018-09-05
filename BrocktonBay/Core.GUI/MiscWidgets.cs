@@ -9,6 +9,7 @@ namespace BrocktonBay {
 		private static Widget currentMouseOver;
 		private bool clickValid;
 		public EventHandler<ButtonReleaseEventArgs> Clicked = delegate { };
+		public EventHandler<ButtonReleaseEventArgs> MiddleClicked = delegate { };
 		public EventHandler<ButtonPressEventArgs> RightClicked = delegate { };
 		public EventHandler<ButtonPressEventArgs> DoubleClicked = delegate { };
 		public bool active = true;
@@ -43,6 +44,7 @@ namespace BrocktonBay {
 					State = StateType.Normal;
 				}
 				if (clickValid && args.Event.Button == 1) Clicked(this, args);
+				if (clickValid && args.Event.Button == 2) MiddleClicked(this, args);
 				clickValid = false;
 				args.RetVal = true;
 			};
@@ -78,8 +80,11 @@ namespace BrocktonBay {
 			this.destructible = destructible;
 			this.draggable = draggable;
 
+
 			Clicked += OnClicked;
-			RightClicked += OnRightClicked;
+			MiddleClicked += OnMiddleClicked;
+			RightClicked += OnDoubleClicked;
+			RightClicked += OpenRightClickMenu;
 
 			rightclickMenu = new Menu();
 
@@ -114,18 +119,24 @@ namespace BrocktonBay {
 			deletable = false;
 		}
 
-		public void OnRightClicked (object obj, ButtonPressEventArgs args) {
+		public void OpenRightClickMenu (object obj, ButtonPressEventArgs args) {
 			rightclickMenu.Popup();
 			rightclickMenu.ShowAll();
 		}
 
 		public virtual void OnClicked (object obj, ButtonReleaseEventArgs args) {
 			if (inspected == null) return;
-			if (args.Event.Button == 2 || (args.Event.Type == Gdk.EventType.TwoButtonPress && args.Event.Button == 1)) {
-				Inspector.InspectInNewWindow(inspected, (Window)Toplevel);
-			} else if (args.Event.Button == 1) {
-				Inspector.InspectInNearestInspector(inspected, this);
-			}
+			Inspector.InspectInNearestInspector(inspected, this);
+		}
+
+		public virtual void OnMiddleClicked (object obj, ButtonReleaseEventArgs args) {
+			if (inspected == null) return;
+			Inspector.InspectInNewWindow(inspected, (Window)Toplevel);
+		}
+
+		public virtual void OnDoubleClicked (object obj, ButtonPressEventArgs args) {
+			if (inspected == null) return;
+			Inspector.InspectInNewWindow(inspected, (Window)Toplevel);
 		}
 
 		public void Inspect (object obj, EventArgs args) {

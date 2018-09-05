@@ -54,7 +54,6 @@ namespace BrocktonBay {
 		public string description { get; set; }
 
 		//Managed by derivative classes
-		[Displayable(3, typeof(DialogTextEditableField), emphasized = true)]
 		public abstract string effect { get; set; }
 		public abstract InvocationTrigger trigger { get; }
 
@@ -67,7 +66,7 @@ namespace BrocktonBay {
 		public static Mechanic Create () {
 			Mechanic newMechanic = null;
 			Dialog dialog = new Dialog("Choose type of mechanic to create", MainWindow.main, DialogFlags.DestroyWithParent, "Cancel", ResponseType.Cancel, "Ok", ResponseType.Ok);
-			ComboBox comboBox = new ComboBox(new string[] { "Weakness", "TrueForm" });
+			ComboBox comboBox = new ComboBox(new string[] { "Weakness", "TrueForm", "Prison" });
 			dialog.VBox.PackStart(comboBox, true, true, 0);
 			dialog.ShowAll();
 			dialog.Response += delegate (object obj, ResponseArgs args) {
@@ -86,6 +85,10 @@ namespace BrocktonBay {
 					return new WeaknessMechanic(data);
 				case "TrueForm":
 					return new TrueFormMechanic(data);
+				case "Prison":
+					return new PrisonMechanic(data);
+				case "Prisoner":
+					return new PrisonerMechanic(data);
 				default:
 					return null;
 			}

@@ -73,7 +73,6 @@ namespace BrocktonBay {
 
 			DestroyEvent += (o, a) => DependencyManager.Delete(this);
 
-
 			Reload();
 
 			notebook.CurrentPage = 0;
@@ -138,8 +137,9 @@ namespace BrocktonBay {
 				}
 			}
 
-			agentsList.Load(agents);
 			ShowAll();
+			agentsList.Load(agents);
+			agentsList.Render();
 
 		}
 

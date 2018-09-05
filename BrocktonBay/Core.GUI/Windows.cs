@@ -250,6 +250,7 @@ public partial class MainWindow : DefocusableWindowWithInspector {
 	}
 
 	public static void Unload () {
+		mainInterface.Destroy();
 		mainInterface = null;
 		editButton.Sensitive = false;
 		viewButton.Sensitive = false;
@@ -258,7 +259,6 @@ public partial class MainWindow : DefocusableWindowWithInspector {
 		saveButton.Sensitive = false;
 		saveAsButton.Sensitive = false;
 		closeButton.Sensitive = false;
-		mainInterface.Destroy();
 		main.ShowAll();
 	}
 

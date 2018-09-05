@@ -112,7 +112,6 @@ namespace BrocktonBay {
 				DependencyManager.Connect(mechanic, this);
 				mechanic.parent = this;
 			}
-			Reload();
 		}
 
 		public RatingsProfile GetRatingsProfile (Context context) {

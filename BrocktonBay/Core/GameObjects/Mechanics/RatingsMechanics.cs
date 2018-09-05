@@ -8,6 +8,7 @@ namespace BrocktonBay {
 
 		public RatingsProfile difference;
 
+		[Displayable(3, typeof(DialogTextEditableField), emphasized = true)]
 		public override string effect {
 			get {
 				return Ratings.PrintCompact(difference.values, difference.o_vals);
@@ -20,7 +21,7 @@ namespace BrocktonBay {
 				}
 			}
 		}
-		public override InvocationTrigger trigger { get { return InvocationTrigger.GetRatings; } }
+		public override InvocationTrigger trigger { get => InvocationTrigger.GetRatings; }
 
 		public WeaknessMechanic (MechanicData data) : base(data)
 			=> effect = data.effect;
@@ -40,6 +41,7 @@ namespace BrocktonBay {
 		[Displayable(0, typeof(RatingsListField), generate = false)]
 		public Func<Context, RatingsProfile> GetTrueForm { get => (context) => trueform; }
 
+		[Displayable(3, typeof(DialogTextEditableField), emphasized = true)]
 		public override string effect {
 			get {
 				return "True form:\n" + Ratings.Print(trueform.values, trueform.o_vals);

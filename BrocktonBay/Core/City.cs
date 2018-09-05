@@ -15,11 +15,28 @@ namespace BrocktonBay {
 		public bool destroyed { get; set; }
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 		public List<IDependable> triggers { get; set; } = new List<IDependable>();
-		public void Reload () => gameObjects.Sort();
+		public void Reload () {
+			gameObjects.Sort();
+			foreach (IAgent agent in activeAgents) {
+				if (GameObject.TryCast(agent, out Faction faction)) {
+					if (faction.alignment > 0) {
+						if (heroicAuthority == null || faction.reputation > heroicAuthority.reputation) {
+							heroicAuthority = faction;
+						}
+					} else if (faction.alignment < 0) {
+						if (villainousAuthority == null || faction.reputation > villainousAuthority.reputation) {
+							villainousAuthority = faction;
+						}
+					}
+				}
+			}
+		}
 
 		public List<GameObject> gameObjects = new List<GameObject>();
 		public List<IAgent> activeAgents = new List<IAgent>();
 		public List<IBattleground> activeBattlegrounds = new List<IBattleground>();
+		public Faction heroicAuthority;
+		public Faction villainousAuthority;
 
 		public byte[] mapPngSource = { };
 		public int mapDefaultWidth = 0;

@@ -11,7 +11,7 @@ namespace BrocktonBay {
 		Structure structure;
 		Gdk.Color shownColor;
 		StructureType shownType;
-		IntVector2 shownPosition;
+		IntVector2 shownPosition = new IntVector2(-1,-1); //So Repin() triggers on first Reload();
 
 		public override int layer { get => 2; }
 		protected override Vector2 position { get => shownPosition; }
@@ -34,8 +34,8 @@ namespace BrocktonBay {
 		}
 
 		public override void Reload () {
-			if (!structure.affiliation.color.Equal(shownColor) || structure.type != shownType) {
-				shownColor = structure.affiliation.color;
+			if (!Graphics.GetColor(structure.affiliation).Equal(shownColor) || structure.type != shownType) {
+				shownColor = Graphics.GetColor(structure.affiliation);
 				shownType = structure.type;
 				Redraw();
 			}
@@ -78,7 +78,7 @@ namespace BrocktonBay {
 
 		Structure structure;
 		int? rebuild_time;
-		IntVector2 shownPosition;
+		IntVector2 shownPosition = new IntVector2(-1, -1); //So Repin() triggers on first Reload();
 
 		HBox hBox;
 

@@ -22,7 +22,7 @@ namespace BrocktonBay {
 		[Displayable(8, typeof(CellTabularListField<Parahuman>), -2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Action)]
 		public override List<Parahuman> combined_roster { get; set; }
 
-		[Displayable(99, typeof(ActionField), 5, fillSides = false, visiblePhases = Phase.Action)]
+		[Displayable(99, typeof(ActionField), 5, fillSides = false, turnLocked = true, turnClassified = true, affiliationLocked = true, affiliationClassified = true, visiblePhases = Phase.Action)]
 		public GameAction cancel { get; set; }
 
 		public Attack (IBattleground location, IAgent affiliation) : this(location, affiliation, new List<Team>(), new List<Parahuman>()) { }
@@ -69,7 +69,7 @@ namespace BrocktonBay {
 		[Displayable(8, typeof(CellTabularListField<Parahuman>), -2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Response)]
 		public override List<Parahuman> combined_roster { get; set; }
 
-		[Displayable(99, typeof(ActionField), 5, fillSides = false, visiblePhases = Phase.Response)]
+		[Displayable(99, typeof(ActionField), 5, fillSides = false, turnLocked = true, turnClassified = true, affiliationLocked = true, affiliationClassified = true, visiblePhases = Phase.Response)]
 		public GameAction cancel { get; set; }
 
 		public Defense (IBattleground location, IAgent affiliation) : this(location, affiliation, new List<Team>(), new List<Parahuman>()) { }
@@ -180,7 +180,7 @@ namespace BrocktonBay {
 
 		}
 
-		public void Apply (Fraction[] injury, Fraction[] escape) {
+		public void Apply (Fraction[] injury, Fraction[] escape, Deployment enemy) {
 			float deathThresh = injury[0].val;
 			float downThresh = injury[1].val + deathThresh;
 			float injureThresh = injury[2].val + deathThresh;
@@ -195,10 +195,22 @@ namespace BrocktonBay {
 				}
 			}
 			if (escape.Length > 1) {
+				Faction prisonerDestination = (enemy.affiliation as Faction) ??
+					(affiliation.alignment < 0 ? Game.city.villainousAuthority : Game.city.heroicAuthority);
 				foreach (Parahuman parahuman in combined_roster) {
 					float roll = Game.randomFloat;
-					if (roll < escape[0].val)
+					if (roll < escape[0].val) {
 						parahuman.health = Health.Captured;
+						MechanicData prisonerData = new MechanicData {
+							name = "Prisoner",
+							type = "Prisoner",
+							secrecy = 0,
+							description = "This parahuman has been captured by another faction.\nThey will remain in captivity until violently liberated or released.",
+							effect = prisonerDestination.ID.ToString()
+						};
+						parahuman.Add(Mechanic.Load(prisonerData));
+						prisonerDestination.unassignedCaptures.Add(parahuman);
+					}
 				}
 			}
 		}

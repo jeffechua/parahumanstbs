@@ -18,18 +18,22 @@ namespace BrocktonBay {
 		public IGUIComplete obj;
 		public Context context;
 
+		string title;
+
 		public ObjectField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute) : base(0, 0, 1, 1) {
 
 			this.property = property;
 			this.obj = (IGUIComplete)property.GetValue(obj);
 			this.context = context;
 
+			title = attribute.overrideLabel == "" ? UIFactory.ToReadable(property.Name) : attribute.overrideLabel;
+
 			if (this.obj != null) {
 				DependencyManager.Connect(this.obj, this);
 				Destroyed += (o, a) => DependencyManager.DisconnectAll(this);
 				Reload();
 			} else {
-				Label label = new Label(UIFactory.ToReadable(property.Name) + ": None");
+				Label label = new Label(title + ": None");
 				label.SetAlignment(0, 0);
 				Add(label);
 			}
@@ -39,12 +43,12 @@ namespace BrocktonBay {
 		public void Reload () {
 			if (Child != null) Child.Destroy();
 			if (context.vertical) {
-				Expander expander = new Expander(UIFactory.ToReadable(property.Name) + ": " + obj.name) { Expanded = true };
+				Expander expander = new Expander(title + ": " + obj.name) { Expanded = true };
 				expander.Add(UIFactory.GenerateVertical(obj));
 				Add(expander);
 			} else {
 				HBox headerBox = new HBox(false, 0);
-				headerBox.PackStart(new Label(UIFactory.ToReadable(property.Name) + ": "), false, false, 0);
+				headerBox.PackStart(new Label(title + ": "), false, false, 0);
 				headerBox.PackStart(obj.GetHeader(context.butCompact), false, false, 0);
 				Add(headerBox);
 			}

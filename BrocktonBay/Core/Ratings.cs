@@ -364,7 +364,6 @@ namespace BrocktonBay {
 			//Insight
 			stats[2].SetValues(zValues[4, 7], zValues[4, 8], zValues[4, 7] + zValues[4, 8],
 									 bonuses[2], zValues[4, 7] + zValues[4, 8] + bonuses[2]);
-			Console.WriteLine(forceMult);
 			return stats;
 
 		}

@@ -190,6 +190,30 @@ namespace BrocktonBay {
 			}
 		}
 
+		public override bool Accepts (object obj) => obj is Mechanic;
+		public override bool Contains (object obj) => mechanics.Contains((Mechanic)obj);
+
+		public override void AddRange<T> (List<T> objs) {
+			foreach (object obj in objs) {
+				Mechanic mechanic = (Mechanic)obj;
+				mechanics.Add(mechanic);
+				mechanic.parent = this;
+				DependencyManager.Connect(mechanic, this);
+			}
+			mechanics.Sort((a, b) => a.secrecy.CompareTo(b.secrecy));
+			DependencyManager.Flag(this);
+		}
+
+		public override void RemoveRange<T> (List<T> objs) {
+			foreach (object obj in objs) {
+				Mechanic mechanic = (Mechanic)obj;
+				mechanics.Remove(mechanic);
+				mechanic.parent = null;
+				DependencyManager.DisconnectAll(mechanic);
+			}
+			DependencyManager.Flag(this);
+		}
+
 		public override Widget GetCellContents (Context context) {
 			Label label = new Label("Strength " + strength_buff.ToString("+#;-#;+0") + "\n" +
 									"Resources " + stealth_buff.ToString("+#;-#;+0") + "\n" +

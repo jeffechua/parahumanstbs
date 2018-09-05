@@ -160,6 +160,11 @@ namespace BrocktonBay {
 		public static Gtk.Alignment Align (Widget widget, float xalign, float yalign, float xscale, float yscale)
 			=> new Gtk.Alignment(xalign, yalign, xscale, yscale) { Child = widget };
 
+		public static Label Align (Label label, float xalign, float yalign){
+			label.SetAlignment(xalign, yalign);
+			return label;
+		}
+
 		public static bool HasAttribute (PropertyInfo property, Type attribute)
 			=> property.GetCustomAttribute(attribute) != null;
 

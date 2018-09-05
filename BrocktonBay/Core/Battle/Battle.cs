@@ -135,8 +135,8 @@ namespace BrocktonBay {
 			fractions = CompareStats(defender_stats, attacker_stats, attackers.force_employed);
 			defender_injury = fractions.Item1; defender_escape = fractions.Item2;
 
-			attackers.Apply(attacker_injury, attacker_escape);
-			defenders.Apply(defender_injury, defender_escape);
+			attackers.Apply(attacker_injury, attacker_escape, defenders);
+			defenders.Apply(defender_injury, defender_escape, attackers);
 
 		}
 

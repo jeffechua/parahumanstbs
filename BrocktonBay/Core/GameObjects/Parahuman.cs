@@ -84,7 +84,7 @@ namespace BrocktonBay {
 		[Displayable(8, typeof(IntField))]
 		public int reputation { get; set; }
 
-		[Displayable(9, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]
+		[Displayable(9, typeof(MechanicCellTabularListField), 2, emphasized = true, verticalOnly = true)]
 		public override List<Mechanic> mechanics { get; set; }
 
 		[Displayable(10, typeof(RatingsListField), "baseRatings", emphasizedIfHorizontal = true, topPadding = 5, bottomPadding = 5)]
@@ -141,8 +141,8 @@ namespace BrocktonBay {
 						nameLabel.Markup = "<s>" + name + "</s>";
 						break;
 					case Health.Captured:
-						header.State = StateType.Insensitive;
-						return new InspectableBox(header, this, true, false);
+						nameLabel.State = StateType.Insensitive;
+						return new InspectableBox(header, this);
 				}
 				return new InspectableBox(header, this);
 			} else {

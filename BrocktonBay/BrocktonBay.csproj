@@ -82,9 +82,10 @@
     <Compile Include="Core.GUI\Inspector\DialogTextEditing.cs" />
     <Compile Include="Core.GUI\Map\MapMarkers.cs" />
     <Compile Include="gtk-gui\MainWindow.cs" />
-    <Compile Include="Agency.cs" />
     <Compile Include="Core.GUI\Map\TerritoryMarkers.cs" />
     <Compile Include="Core.GUI\Map\StructureMarkers.cs" />
+    <Compile Include="Core\GameObjects\Mechanics\PrisonMechanic.cs" />
+    <Compile Include="Core\Agency.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />

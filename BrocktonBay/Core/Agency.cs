@@ -2,6 +2,7 @@
 
 	public interface IAgent : IGUIComplete {
 		Threat threat { get; }
+		Alignment alignment { get; }
 		Gdk.Color color { get; }
 		Dossier knowledge { get; set; }
 		bool active { get; set; }
