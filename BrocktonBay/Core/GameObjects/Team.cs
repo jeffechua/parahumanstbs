@@ -83,7 +83,7 @@ namespace BrocktonBay {
 		[ChildDisplayableAttribute("Insight", typeof(IntField))]
 		public int insight_XP { get; set; }
 
-		[Displayable(10, typeof(CellTabularListField<Parahuman>), 3, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Mastermind)]
+		[Displayable(10, typeof(CellTabularListField<Parahuman>), 3, emphasized = true, editablePhases = Phase.Mastermind)]
 		public List<Parahuman> roster { get; set; }
 
 		[Displayable(11, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]

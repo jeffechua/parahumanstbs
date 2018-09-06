@@ -184,7 +184,7 @@ namespace BrocktonBay {
 			Fraction[] escape;
 			if (original[0].result < enemy[0].result) {
 				escape = new Fraction[2];
-				float capture_chance = original[1].result < 0.01 ? 1 : enemy[2].result / original[1].result / 4;
+				float capture_chance = original[1].result < 0.01 ? 1 : enemy[2].result / original[1].result / 8;
 				if (capture_chance > 1) capture_chance = 1;
 				escape[0] = new Fraction("Captured", capture_chance, Graphics.GetColor(Alignment.Villain));
 				escape[1] = new Fraction("Escaped", 1 - capture_chance, Graphics.GetColor(Alignment.Hero));

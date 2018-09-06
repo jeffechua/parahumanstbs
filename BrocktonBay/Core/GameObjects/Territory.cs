@@ -85,19 +85,19 @@ namespace BrocktonBay {
 		[ChildDisplayableAttribute("Reputation", typeof(IntField))]
 		public int reputation_income { get; set; }
 
-		[Displayable(8, typeof(CellTabularListField<Structure>), 2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Mastermind)]
+		[Displayable(8, typeof(CellTabularListField<Structure>), 2, emphasized = true, editablePhases = Phase.Mastermind)]
 		public List<Structure> structures { get; set; }
 
 		[Displayable(9, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]
 		public override List<Mechanic> mechanics { get; set; }
 
 
-		[Displayable(10, typeof(ActionField), verticalOnly = true, turnClassified = true, visiblePhases = Phase.Action,
-					 topPadding = 20, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
+		[Displayable(10, typeof(ActionField), verticalOnly = true, viewLocks = Locks.Turn, editLocks = Locks.Turn, visiblePhases = Phase.Action, editablePhases = Phase.Action,
+					 topPadding = 20, bottomPadding = 10, leftPadding = 20, rightPadding = 20)]
 		public GameAction attack { get; set; }
 
-		[Displayable(11, typeof(ActionField), verticalOnly = true, turnClassified = true, visiblePhases = Phase.Response,
-					 topPadding = 20, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
+		[Displayable(11, typeof(ActionField), verticalOnly = true, viewLocks = Locks.Turn, editLocks = Locks.Turn, visiblePhases = Phase.Response, editablePhases = Phase.Response,
+					 topPadding = 10, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
 		public GameAction defend { get; set; }
 
 		public Territory () : this(new TerritoryData()) { }
@@ -128,9 +128,7 @@ namespace BrocktonBay {
 					DependencyManager.Flag(this);
 					DependencyManager.TriggerAllFlags();
 				},
-				condition = delegate (Context context) {
-					return Game.phase == Phase.Action && attacker == null;
-				}
+				condition = (context) => attacker == null && UIFactory.EditAuthorized(this, "attack")
 			};
 			defend = new GameAction {
 				name = "Defend",
@@ -141,9 +139,7 @@ namespace BrocktonBay {
 					DependencyManager.Flag(this);
 					DependencyManager.TriggerAllFlags();
 				},
-				condition = delegate (Context context) {
-					return Game.phase == Phase.Response && attacker != null && defender == null;
-				}
+				condition = (context) => attacker != null && defender == null && UIFactory.EditAuthorized(this, "defend")
 			};
 		}
 

@@ -10,19 +10,19 @@ namespace BrocktonBay {
 		[Displayable(1, typeof(ObjectField), forceHorizontal = true)]
 		public override Parahuman leader { get; set; }
 
-		[Displayable(5, typeof(ThreatSelectionField), turnLocked = true, affiliationLocked = true, editablePhases = Phase.Action)]
+		[Displayable(5, typeof(ThreatSelectionField), editablePhases = Phase.Action)]
 		public override Threat force_employed { get; set; }
 
-		[Displayable(6, typeof(CellTabularListField<Team>), 2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Action)]
+		[Displayable(6, typeof(CellTabularListField<Team>), 2, emphasized = true, editablePhases = Phase.Action)]
 		public override List<Team> teams { get; set; }
 
-		[Displayable(7, typeof(CellTabularListField<Parahuman>), 2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Action)]
+		[Displayable(7, typeof(CellTabularListField<Parahuman>), 2, emphasized = true, editablePhases = Phase.Action)]
 		public override List<Parahuman> independents { get; set; }
 
-		[Displayable(8, typeof(CellTabularListField<Parahuman>), -2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Action)]
+		[Displayable(8, typeof(CellTabularListField<Parahuman>), -2, emphasized = true, editablePhases = Phase.Action)]
 		public override List<Parahuman> combined_roster { get; set; }
 
-		[Displayable(99, typeof(ActionField), 5, fillSides = false, turnLocked = true, turnClassified = true, affiliationLocked = true, affiliationClassified = true, visiblePhases = Phase.Action)]
+		[Displayable(99, typeof(ActionField), 5, fillSides = false, viewLocks = Locks.All, visiblePhases = Phase.Action, editablePhases = Phase.Action)]
 		public GameAction cancel { get; set; }
 
 		public Attack (IBattleground location, IAgent affiliation) : this(location, affiliation, new List<Team>(), new List<Parahuman>()) { }
@@ -43,7 +43,7 @@ namespace BrocktonBay {
 					DependencyManager.Flag(location);
 					DependencyManager.TriggerAllFlags();
 				},
-				condition = (context) => Game.player == affiliation
+				condition = (context) => UIFactory.EditAuthorized(this, "cancel")
 			};
 			Reload();
 		}
@@ -57,19 +57,19 @@ namespace BrocktonBay {
 		[Displayable(1, typeof(ObjectField), forceHorizontal = true)]
 		public override Parahuman leader { get; set; }
 
-		[Displayable(5, typeof(ThreatSelectionField), turnLocked = true, affiliationLocked = true, editablePhases = Phase.Response)]
+		[Displayable(5, typeof(ThreatSelectionField), editablePhases = Phase.Response)]
 		public override Threat force_employed { get; set; }
 
-		[Displayable(6, typeof(CellTabularListField<Team>), 2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Response)]
+		[Displayable(6, typeof(CellTabularListField<Team>), 2, emphasized = true, editablePhases = Phase.Response)]
 		public override List<Team> teams { get; set; }
 
-		[Displayable(7, typeof(CellTabularListField<Parahuman>), 2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Response)]
+		[Displayable(7, typeof(CellTabularListField<Parahuman>), 2, emphasized = true, editablePhases = Phase.Response)]
 		public override List<Parahuman> independents { get; set; }
 
-		[Displayable(8, typeof(CellTabularListField<Parahuman>), -2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Response)]
+		[Displayable(8, typeof(CellTabularListField<Parahuman>), -2, emphasized = true, editablePhases = Phase.Response)]
 		public override List<Parahuman> combined_roster { get; set; }
 
-		[Displayable(99, typeof(ActionField), 5, fillSides = false, turnLocked = true, turnClassified = true, affiliationLocked = true, affiliationClassified = true, visiblePhases = Phase.Response)]
+		[Displayable(99, typeof(ActionField), 5, fillSides = false, viewLocks = Locks.All, visiblePhases = Phase.Response, editablePhases = Phase.Response)]
 		public GameAction cancel { get; set; }
 
 		public Defense (IBattleground location, IAgent affiliation) : this(location, affiliation, new List<Team>(), new List<Parahuman>()) { }
@@ -89,7 +89,7 @@ namespace BrocktonBay {
 					DependencyManager.Flag(location);
 					DependencyManager.TriggerAllFlags();
 				},
-				condition = (context) => Game.player == affiliation
+				condition = (context) => UIFactory.EditAuthorized(this, "cancel")
 			};
 			Reload();
 		}

@@ -119,6 +119,16 @@ namespace BrocktonBay {
 					phase = Phase.Mastermind;
 					break;
 				case Phase.Mastermind:
+					if (GameObject.TryCast(Game.turnOrder[turn], out Faction faction)) {
+						if (faction.unassignedCaptures.Count > 0) {
+							MessageDialog dialog = new MessageDialog(MainWindow.main, 0, MessageType.Error, ButtonsType.Ok,
+																	 "You have prisoners not assigned to any prison.\n" +
+																	 "Check for tactical structures with the trait \"Prison\".");
+							dialog.Run();
+							dialog.Destroy();
+							break;
+						}
+					}
 					if (turn < turnOrder.Count - 1) {
 						turn++;
 						if (turnOrder[turn] != player)

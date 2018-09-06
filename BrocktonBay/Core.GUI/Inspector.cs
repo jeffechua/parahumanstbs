@@ -187,11 +187,11 @@ namespace BrocktonBay {
 			}
 		}
 
-		public static Window InspectInNewWindow (IGUIComplete newObj, Window transientFor) {
+		public static Window InspectInNewWindow (IGUIComplete newObj) {
 			DefocusableWindow win = new DefocusableWindow();
 			win.SetPosition(WindowPosition.Center);
 			win.Title = "Inspector";
-			win.TransientFor = transientFor;
+			win.TransientFor = MainWindow.main;
 			win.TypeHint = Gdk.WindowTypeHint.Utility;
 			Inspector inspector = new Inspector(newObj) { BorderWidth = 2 };
 			inspector.Hidden += delegate { if (inspector.obj == null) win.Destroy(); };
@@ -199,8 +199,7 @@ namespace BrocktonBay {
 			win.DeleteEvent += (o, a) => DependencyManager.DisconnectAll(inspector);
 			//Gtk complains if GC hasn't gotten around to us, and obj tries to reload this.
 			win.FocusInEvent += (o, a) => win.TransientFor = transientFor;
-			inspector.Realize();
-			win.DefaultHeight = inspector.Child.Requisition.Height + 10;
+			win.DefaultHeight = inspector.Child.SizeRequest().Height + 10;
 			win.ShowAll();
 			return win;
 		}
@@ -208,7 +207,7 @@ namespace BrocktonBay {
 		public static void InspectInNearestInspector (IGUIComplete obj, Widget referenceWidget) {
 			Inspector nearestInspector = FindNearestInspector(referenceWidget);
 			if (nearestInspector == null) {
-				InspectInNewWindow(obj, (Window)referenceWidget.Toplevel);
+				InspectInNewWindow(obj);
 			} else {
 				nearestInspector.Inspect(obj);
 			}

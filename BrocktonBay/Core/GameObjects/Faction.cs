@@ -67,13 +67,13 @@ namespace BrocktonBay {
 		[Displayable(8, typeof(BasicReadonlyField))]
 		public int reputation { get; set; }
 
-		[Displayable(9, typeof(CellTabularListField<Parahuman>), 3, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Mastermind)]
+		[Displayable(9, typeof(CellTabularListField<Parahuman>), 3, emphasized = true, editablePhases = Phase.Mastermind)]
 		public List<Parahuman> roster { get; set; }
 
-		[Displayable(10, typeof(CellTabularListField<Team>), 2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Mastermind)]
+		[Displayable(10, typeof(CellTabularListField<Team>), 2, emphasized = true, editablePhases = Phase.Mastermind)]
 		public List<Team> teams { get; set; }
 
-		[Displayable(11, typeof(CellTabularListField<Territory>), 2, emphasized = true, turnLocked = true, affiliationLocked = true, editablePhases = Phase.Mastermind)]
+		[Displayable(11, typeof(CellTabularListField<Territory>), 2, emphasized = true, editablePhases = Phase.Mastermind)]
 		public List<Territory> territories { get; set; }
 
 		[Displayable(12, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]

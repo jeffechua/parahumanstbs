@@ -610,13 +610,13 @@ namespace BrocktonBay {
 			widget.ExposeEvent += handler;
 		}
 
-		public static void SetAllocTrigger<T1, T2> (Widget widget, System.Action<T1, T2> action, T1 arg1, T2 arg2) {
-			SizeAllocatedHandler handler = null;
+		public static void SetRealizeTrigger (Widget widget, System.Action action) {
+			EventHandler handler = null;
 			handler = delegate {
-				widget.SizeAllocated -= handler;
-				action(arg1, arg2);
+				widget.Realized -= handler;
+				action();
 			};
-			widget.SizeAllocated += handler;
+			widget.Realized += handler;
 		}
 
 		public static void RemainInvisible (object obj, EventArgs args) => ((Widget)obj).Hide();

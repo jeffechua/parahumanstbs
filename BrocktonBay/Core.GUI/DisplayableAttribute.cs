@@ -2,6 +2,9 @@
 
 namespace BrocktonBay {
 
+	[Flags]
+	public enum Locks { Turn = 1 << 0, Affiliation = 1 << 1, None = 0, All = 1 << 0 | 1 << 1 }
+
 	// "DisplayableAttribute" is used to tag a property to indicate that they can be displayed by the UI and to supply the relevant metadata for displaying them.
 	public class DisplayableAttribute : Attribute {
 
@@ -21,12 +24,15 @@ namespace BrocktonBay {
 		public bool forceVertical = false;
 		public bool forceHorizontal = false;
 
-		public Phase editablePhases = 0;
+		public Phase editablePhases = Phase.None;
 		public Phase visiblePhases = Phase.All;
-		public bool turnLocked = false;
-		public bool turnClassified = false;
-		public bool affiliationLocked = false;
-		public bool affiliationClassified = false;
+		public Locks editLocks = Locks.All;
+		public Locks viewLocks = Locks.None;
+
+		bool turnEditLocked { get => (editLocks & Locks.Turn) != 0; }
+		bool affiliationEditLocked { get => (editLocks & Locks.Affiliation) != 0; }
+		bool turnViewLocked { get => (viewLocks & Locks.Turn) != 0; }
+		bool affiliationViewLocked { get => (viewLocks & Locks.Affiliation) != 0; }
 
 		public uint topPadding = 0;
 		public uint bottomPadding = 0;
@@ -56,8 +62,8 @@ namespace BrocktonBay {
 		public bool EditAuthorized (object obj) {
 			if (Game.omnipotent) return true;
 			if (GameObject.TryCast(obj, out IAffiliated affiliated)) {
-				if (affiliationLocked && affiliated.affiliation != Game.player) return false;
-				if (turnLocked && Game.turnOrder[Game.turn] != Game.player) return false;
+				if (affiliationEditLocked && affiliated.affiliation != Game.player) return false;
+				if (turnEditLocked && Game.turnOrder[Game.turn] != Game.player) return false;
 			}
 			return (editablePhases & Game.phase) == Game.phase;
 		}
@@ -65,8 +71,8 @@ namespace BrocktonBay {
 		public bool ViewAuthorized (object obj) {
 			if (Game.omniscient) return true;
 			if (GameObject.TryCast(obj, out IAffiliated affiliated)) {
-				if (affiliationClassified && affiliated.affiliation != Game.player) return false;
-				if (turnClassified && Game.turnOrder[Game.turn] != Game.player) return false;
+				if (affiliationViewLocked && affiliated.affiliation != Game.player) return false;
+				if (turnViewLocked && Game.turnOrder[Game.turn] != Game.player) return false;
 			}
 			return (visiblePhases & Game.phase) == Game.phase;
 		}

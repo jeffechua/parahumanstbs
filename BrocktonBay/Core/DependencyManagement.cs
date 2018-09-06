@@ -90,9 +90,6 @@ namespace BrocktonBay {
 
 			obj.destroyed = true;
 
-			if (obj is IContainer)
-				((IContainer)obj).RemoveRange(obj.triggers.FindAll(
-					(element) => ((IContainer)obj).Contains(element)));
 			while (true) {
 				int length = obj.listeners.Count;
 				for (int i = 0; i < obj.listeners.Count; i++)
@@ -100,6 +97,9 @@ namespace BrocktonBay {
 						((IContainer)obj.listeners[i]).Remove(obj);
 				if (obj.listeners.Count == length) break; //If there has been no new removals, exit the loop
 			}
+			if (obj is IContainer)
+				((IContainer)obj).RemoveRange(obj.triggers.FindAll(
+					(element) => ((IContainer)obj).Contains(element)));
 
 			Flag(obj);
 			TriggerAllFlags();

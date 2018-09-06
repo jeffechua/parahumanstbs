@@ -94,8 +94,10 @@ namespace BrocktonBay {
 					ReorderChild(retrieved, -1);
 				}
 				if (i != sample.Count - 1) {
-					separators.Add(new VSeparator());
-					PackStart(separators[separators.Count - 1], false, false, 0);
+					VSeparator separator = new VSeparator();
+					separators.Add(separator);
+					PackStart(separator, false, false, 0);
+					separator.ShowAll();
 				}
 			}
 		}
