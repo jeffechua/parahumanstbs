@@ -82,32 +82,33 @@ namespace BrocktonBay {
 
 	}
 
-	public sealed class LinearContainerField : HBox {
 
-		string[] children;
-		Context context;
+	public sealed class BasicHContainerField : HBox {
+		public BasicHContainerField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute) : base(true, 10) {
+			string[] children = Array.ConvertAll((object[])attribute.arg, (str) => (string)str);
+			for (int i = 0; i < children.Length; i++) {
+				Widget childWidget = UIFactory.Fabricate(obj, children[i], context.butCompact);
+				PackStart(childWidget, true, true, 0);
+			}
+			BorderWidth = 10;
+		}
+	}
 
-		public LinearContainerField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute) {
-			children = Array.ConvertAll((object[])attribute.arg, (str) => (string)str);
-			this.context = context;
-
+	public sealed class SlashDelimitedContainerField : HBox {
+		public SlashDelimitedContainerField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute) {
+			string[] children = Array.ConvertAll((object[])attribute.arg, (str) => (string)str);
 			Label label = new Label(UIFactory.ToReadable(property.Name) + ": ");
-
 			if (attribute.tooltipText != "") {
 				label.HasTooltip = true;
 				label.TooltipMarkup = attribute.tooltipText;
 			}
-
 			PackStart(label, false, false, 0);
-
 			for (int i = 0; i < children.Length; i++) {
 				Widget childWidget = UIFactory.Fabricate(obj, children[i], context.butCompact);
 				PackStart(childWidget, false, false, 0);
 				if (i != children.Length - 1) PackStart(new Label("/"), false, false, 0);
 			}
-
 		}
-
 	}
 
 
@@ -377,7 +378,7 @@ namespace BrocktonBay {
 			action = (GameAction)property.GetValue(obj);
 			Gtk.Alignment alignment = (Gtk.Alignment)Child;
 			alignment.Add(new Label(action.name));
-			alignment.BorderWidth = attribute.arg == null ? 10 : (uint)(int)attribute.arg;
+			if (attribute.arg != null) alignment.BorderWidth = (uint)(int)attribute.arg;
 			TooltipText = action.description;
 			Sensitive = action.condition(context);
 			Clicked += (o, a) => action.action(context);

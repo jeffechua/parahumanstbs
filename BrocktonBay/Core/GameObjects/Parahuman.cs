@@ -31,7 +31,7 @@ namespace BrocktonBay {
 			threat = parahuman.threat;
 			health = parahuman.health;
 			reputation = parahuman.reputation;
-			mechanics = parahuman.mechanics.ConvertAll((input) => new MechanicData(input));
+			mechanics = parahuman.traits.ConvertAll((input) => new MechanicData(input));
 			ratings = parahuman.baseRatings.o_vals;
 		}
 
@@ -85,7 +85,7 @@ namespace BrocktonBay {
 		public int reputation { get; set; }
 
 		[Displayable(9, typeof(MechanicCellTabularListField), 2, emphasized = true, verticalOnly = true)]
-		public override List<Mechanic> mechanics { get; set; }
+		public override List<Trait> traits { get; set; }
 
 		[Displayable(10, typeof(RatingsListField), "baseRatings", emphasizedIfHorizontal = true, topPadding = 5, bottomPadding = 5)]
 		public Func<Context, RatingsProfile> ratings { get => GetRatingsProfile; }
@@ -102,8 +102,8 @@ namespace BrocktonBay {
 			threat = data.threat;
 			health = data.health;
 			reputation = data.reputation;
-			mechanics = data.mechanics.ConvertAll((input) => Mechanic.Load(input));
-			foreach (Mechanic mechanic in mechanics) {
+			traits = data.mechanics.ConvertAll((input) => Trait.Load(input));
+			foreach (Trait mechanic in traits) {
 				DependencyManager.Connect(mechanic, this);
 				mechanic.parent = this;
 			}
@@ -114,7 +114,7 @@ namespace BrocktonBay {
 
 		public RatingsProfile GetRatingsProfile (Context context) {
 			RatingsProfile ratingsProfile = baseRatings;
-			foreach (Mechanic mechanic in mechanics) {
+			foreach (Trait mechanic in traits) {
 				if (mechanic.trigger == InvocationTrigger.GetRatings) {
 					ratingsProfile = (RatingsProfile)mechanic.Invoke(context, ratingsProfile);
 				}
@@ -172,24 +172,24 @@ namespace BrocktonBay {
 			return field;
 		}
 
-		public override bool Accepts (object obj) => obj is Mechanic;
-		public override bool Contains (object obj) => mechanics.Contains((Mechanic)obj);
+		public override bool Accepts (object obj) => obj is Trait;
+		public override bool Contains (object obj) => traits.Contains((Trait)obj);
 
 		public override void AddRange<T> (List<T> objs) {
 			foreach (object obj in objs) {
-				Mechanic mechanic = (Mechanic)obj;
-				mechanics.Add(mechanic);
+				Trait mechanic = (Trait)obj;
+				traits.Add(mechanic);
 				mechanic.parent = this;
 				DependencyManager.Connect(mechanic, this);
 			}
-			mechanics.Sort((a, b) => a.secrecy.CompareTo(b.secrecy));
+			traits.Sort((a, b) => a.secrecy.CompareTo(b.secrecy));
 			DependencyManager.Flag(this);
 		}
 
 		public override void RemoveRange<T> (List<T> objs) {
 			foreach (object obj in objs) {
-				Mechanic mechanic = (Mechanic)obj;
-				mechanics.Remove(mechanic);
+				Trait mechanic = (Trait)obj;
+				traits.Remove(mechanic);
 				mechanic.parent = null;
 				DependencyManager.DisconnectAll(mechanic);
 			}

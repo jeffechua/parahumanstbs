@@ -26,7 +26,7 @@ namespace BrocktonBay {
 			roster = faction.roster.ConvertAll((parahuman) => parahuman.ID);
 			teams = faction.teams.ConvertAll((team) => team.ID);
 			territories = faction.territories.ConvertAll((territory) => territory.ID);
-			mechanics = faction.mechanics.ConvertAll((input) => new MechanicData(input));
+			mechanics = faction.traits.ConvertAll((input) => new MechanicData(input));
 		}
 
 	}
@@ -77,7 +77,7 @@ namespace BrocktonBay {
 		public List<Territory> territories { get; set; }
 
 		[Displayable(12, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]
-		public override List<Mechanic> mechanics { get; set; }
+		public override List<Trait> traits { get; set; }
 
 		[Displayable(13, typeof(RatingsMultiviewField), true, emphasized = true, verticalOnly = true, expand = true)]
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
@@ -109,8 +109,8 @@ namespace BrocktonBay {
 				DependencyManager.Connect(territory, this);
 				territory.parent = this;
 			}
-			mechanics = data.mechanics.ConvertAll((input) => Mechanic.Load(input));
-			foreach (Mechanic mechanic in mechanics) {
+			traits = data.mechanics.ConvertAll((input) => Trait.Load(input));
+			foreach (Trait mechanic in traits) {
 				DependencyManager.Connect(mechanic, this);
 				mechanic.parent = this;
 			}

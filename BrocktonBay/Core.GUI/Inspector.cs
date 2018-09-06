@@ -198,7 +198,7 @@ namespace BrocktonBay {
 			win.Add(inspector);
 			win.DeleteEvent += (o, a) => DependencyManager.DisconnectAll(inspector);
 			//Gtk complains if GC hasn't gotten around to us, and obj tries to reload this.
-			win.FocusInEvent += (o, a) => win.TransientFor = transientFor;
+			win.FocusInEvent += (o, a) => win.TransientFor = MainWindow.main;
 			win.DefaultHeight = inspector.Child.SizeRequest().Height + 10;
 			win.ShowAll();
 			return win;

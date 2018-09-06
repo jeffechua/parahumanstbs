@@ -118,7 +118,7 @@ namespace BrocktonBay {
 		public Threat threat { get; set; }
 
 		[Displayable(9, typeof(TabularContainerField), "strength", "stealth", "insight",
-					 altWidget = typeof(LinearContainerField), emphasizedIfVertical = true)]
+					 altWidget = typeof(SlashDelimitedContainerField), emphasizedIfVertical = true)]
 		public Expression[] base_stats {
 			get {
 				return new Expression[] { strength, stealth, insight };
@@ -129,11 +129,11 @@ namespace BrocktonBay {
 				insight = value[2];
 			}
 		}
-		[ChildDisplayableAttribute("Strength", typeof(ExpressionField), tooltipText = "β + δ + ½Σ + ½ψ + bonuses\n× force multiplier")]
+		[ChildDisplayable("Strength", typeof(ExpressionField), tooltipText = "β + δ + ½Σ + ½ψ + bonuses\n× force multiplier")]
 		public Expression strength { get; set; }
-		[ChildDisplayableAttribute("Stealth", typeof(ExpressionField), tooltipText = "μ + φ + bonuses")]
+		[ChildDisplayable("Stealth", typeof(ExpressionField), tooltipText = "μ + φ + bonuses")]
 		public Expression stealth { get; set; }
-		[ChildDisplayableAttribute("Insight", typeof(ExpressionField), tooltipText = "ξ + Ω + bonuses")]
+		[ChildDisplayable("Insight", typeof(ExpressionField), tooltipText = "ξ + Ω + bonuses")]
 		public Expression insight { get; set; }
 
 		[Displayable(10, typeof(RatingsMultiviewField), true, emphasized = true, verticalOnly = true, expand = true)]
@@ -196,7 +196,7 @@ namespace BrocktonBay {
 			}
 			if (escape.Length > 1) {
 				Faction prisonerDestination = (enemy.affiliation as Faction) ??
-					(affiliation.alignment < 0 ? Game.city.villainousAuthority : Game.city.heroicAuthority);
+					(enemy.affiliation.alignment < 0 ? Game.city.villainousAuthority : Game.city.heroicAuthority);
 				foreach (Parahuman parahuman in combined_roster) {
 					float roll = Game.randomFloat;
 					if (roll < escape[0].val) {
@@ -208,7 +208,7 @@ namespace BrocktonBay {
 							description = "This parahuman has been captured by another faction.\nThey will remain in captivity until violently liberated or released.",
 							effect = prisonerDestination.ID.ToString()
 						};
-						parahuman.Add(Mechanic.Load(prisonerData));
+						parahuman.Add(Trait.Load(prisonerData));
 						prisonerDestination.unassignedCaptures.Add(parahuman);
 					}
 				}

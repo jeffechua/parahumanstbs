@@ -165,7 +165,7 @@ namespace BrocktonBay {
 			}
 			city.activeBattlegrounds.Clear();
 			foreach (GameObject obj in city.gameObjects) {
-				foreach (Mechanic mechanic in obj.mechanics)
+				foreach (Trait mechanic in obj.traits)
 					if (mechanic.trigger == InvocationTrigger.EventPhase)
 						mechanic.Invoke();
 				if (obj.TryCast(out Faction faction)) {

@@ -131,12 +131,12 @@ namespace BrocktonBay {
 
 		public virtual void OnMiddleClicked (object obj, ButtonReleaseEventArgs args) {
 			if (inspected == null) return;
-			Inspector.InspectInNewWindow(inspected, (Window)Toplevel);
+			Inspector.InspectInNewWindow(inspected);
 		}
 
 		public virtual void OnDoubleClicked (object obj, ButtonPressEventArgs args) {
 			if (inspected == null) return;
-			Inspector.InspectInNewWindow(inspected, (Window)Toplevel);
+			Inspector.InspectInNewWindow(inspected);
 		}
 
 		public void Inspect (object obj, EventArgs args) {
@@ -145,7 +145,7 @@ namespace BrocktonBay {
 		}
 		public void InspectInNewWindow (object obj, EventArgs args) {
 			if (inspected == null) return;
-			Inspector.InspectInNewWindow(inspected, (Window)Toplevel);
+			Inspector.InspectInNewWindow(inspected);
 		}
 		public void Delete (object obj, EventArgs args) {
 			if (inspected == null) return;

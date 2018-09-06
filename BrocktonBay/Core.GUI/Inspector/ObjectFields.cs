@@ -273,12 +273,12 @@ namespace BrocktonBay {
 
 	}
 
-	public class MechanicCellTabularListField : CellTabularListField<Mechanic> {
+	public class MechanicCellTabularListField : CellTabularListField<Trait> {
 
 		public MechanicCellTabularListField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute)
 			: base(property, obj, context, attribute) { }
 
-		protected override Widget GetElementWidget (Mechanic obj) {
+		protected override Widget GetElementWidget (Trait obj) {
 			if (!obj.Known(context)) {
 				Table table = new Table(1, 1, true);
 				Label number = new Label { UseMarkup = true, Markup = "<big><b>" + obj.secrecy + "</b></big>" };

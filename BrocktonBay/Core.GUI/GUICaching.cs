@@ -57,59 +57,9 @@ namespace BrocktonBay {
 			}
 		}
 
-	}
-
-	public class CachingHCellsCategorized : HBox {
-
-		List<IGUIComplete> sample;
-		List<ObjectWidgetPair<IGUIComplete>> cache;
-		List<VSeparator> separators;
-		Context context;
-
-		public CachingHCellsCategorized () : base(false, 10) {
-			cache = new List<ObjectWidgetPair<IGUIComplete>>();
-			separators = new List<VSeparator>();
-		}
-
-		public Widget Retrieve (IGUIComplete obj) {
-			ObjectWidgetPair<IGUIComplete> pair = cache.Find((element) => obj == element.obj);
-			if (pair.obj == null) {
-				pair = new ObjectWidgetPair<IGUIComplete>(obj, UIFactory.Align(new SmartCell(context, obj, false), 0, 0, 0, 0.5f));
-				PackStart(pair.widget, false, false, 0);
-				cache.Add(pair);
-			}
-			return pair.widget;
-		}
-
-		public void Load (List<List<IGUIComplete>> sample) {
-			this.sample = new List<IGUIComplete>();
-			context = new Context(Game.player, this);
-			foreach (VSeparator separator in separators)
-				separator.Destroy();
-			separators.Clear();
-			for (int i = 0; i < sample.Count; i++) {
-				foreach (IGUIComplete item in sample[i]) {
-					this.sample.Add(item);
-					Widget retrieved = Retrieve(item);
-					ReorderChild(retrieved, -1);
-				}
-				if (i != sample.Count - 1) {
-					VSeparator separator = new VSeparator();
-					separators.Add(separator);
-					PackStart(separator, false, false, 0);
-					separator.ShowAll();
-				}
-			}
-		}
-
-		public void Render () {
-			foreach (ObjectWidgetPair<IGUIComplete> pair in cache) {
-				if (sample.Contains(pair.obj)) {
-					pair.widget.ShowAll();
-				} else {
-					pair.widget.HideAll();
-				}
-			}
+		protected override void OnShown () {
+			base.OnShown();
+			Render();
 		}
 
 	}
@@ -184,6 +134,11 @@ namespace BrocktonBay {
 					pair.widget.HideAll();
 				}
 			}
+		}
+
+		protected override void OnShown () {
+			base.OnShown();
+			Render();
 		}
 
 	}

@@ -22,7 +22,7 @@ namespace BrocktonBay {
 			unused_xp = team.unused_XP;
 			spent_xp = team.spent_XP;
 			roster = team.roster.ConvertAll((parahuman) => parahuman.ID);
-			mechanics = team.mechanics.ConvertAll((input) => new MechanicData(input));
+			mechanics = team.traits.ConvertAll((input) => new MechanicData(input));
 		}
 
 	}
@@ -64,7 +64,7 @@ namespace BrocktonBay {
 		public int unused_XP { get; set; }
 
 		[Displayable(9, typeof(TabularContainerField), "strength_XP", "stealth_XP", "insight_XP",
-					 altWidget = typeof(LinearContainerField), emphasizedIfVertical = true)]
+					 altWidget = typeof(SlashDelimitedContainerField), emphasizedIfVertical = true)]
 		public int[] spent_XP {
 			get {
 				return new int[] { strength_XP, stealth_XP, insight_XP };
@@ -87,7 +87,7 @@ namespace BrocktonBay {
 		public List<Parahuman> roster { get; set; }
 
 		[Displayable(11, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]
-		public override List<Mechanic> mechanics { get; set; }
+		public override List<Trait> traits { get; set; }
 
 		[Displayable(12, typeof(RatingsMultiviewField), true, emphasized = true, verticalOnly = true, expand = true)]
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
@@ -107,8 +107,8 @@ namespace BrocktonBay {
 				DependencyManager.Connect(parahuman, this);
 				parahuman.parent = this;
 			}
-			mechanics = data.mechanics.ConvertAll((input) => Mechanic.Load(input));
-			foreach (Mechanic mechanic in mechanics) {
+			traits = data.mechanics.ConvertAll((input) => Trait.Load(input));
+			foreach (Trait mechanic in traits) {
 				DependencyManager.Connect(mechanic, this);
 				mechanic.parent = this;
 			}

@@ -21,7 +21,7 @@ namespace BrocktonBay {
 		public string description = "";
 		public string effect = "";
 		public MechanicData () { }
-		public MechanicData (Mechanic mechanic) {
+		public MechanicData (Trait mechanic) {
 			name = mechanic.name;
 			type = mechanic.type;
 			secrecy = mechanic.secrecy;
@@ -32,7 +32,7 @@ namespace BrocktonBay {
 			=> this.type = type;
 	}
 
-	public abstract class Mechanic : IGUIComplete {
+	public abstract class Trait : IGUIComplete {
 
 		//IDependable stuff
 		public int order { get { return 0; } }
@@ -42,7 +42,7 @@ namespace BrocktonBay {
 		public virtual void Reload () { }
 
 
-		[Displayable(0, typeof(StringField))]
+		[Displayable(0, typeof(StringField), overrideLabel = "Trait")]
 		public string name { get; set; }
 
 		public string type;
@@ -50,7 +50,7 @@ namespace BrocktonBay {
 		[Displayable(1, typeof(IntField))]
 		public int secrecy { get; set; }
 
-		[Displayable(2, typeof(StringField))]
+		[Displayable(2, typeof(DialogTextEditableField))]
 		public string description { get; set; }
 
 		//Managed by derivative classes
@@ -63,8 +63,8 @@ namespace BrocktonBay {
 
 		public GameObject parent;
 
-		public static Mechanic Create () {
-			Mechanic newMechanic = null;
+		public static Trait Create () {
+			Trait newMechanic = null;
 			Dialog dialog = new Dialog("Choose type of mechanic to create", MainWindow.main, DialogFlags.DestroyWithParent, "Cancel", ResponseType.Cancel, "Ok", ResponseType.Ok);
 			ComboBox comboBox = new ComboBox(new string[] { "Weakness", "TrueForm", "Prison" });
 			dialog.VBox.PackStart(comboBox, true, true, 0);
@@ -79,22 +79,22 @@ namespace BrocktonBay {
 			return newMechanic;
 		}
 
-		public static Mechanic Load (MechanicData data) {
+		public static Trait Load (MechanicData data) {
 			switch (data.type) {
 				case "Weakness":
-					return new WeaknessMechanic(data);
+					return new WeaknessTrait(data);
 				case "TrueForm":
-					return new TrueFormMechanic(data);
+					return new TrueFormTrait(data);
 				case "Prison":
-					return new PrisonMechanic(data);
+					return new PrisonTrait(data);
 				case "Prisoner":
-					return new PrisonerMechanic(data);
+					return new PrisonerTrait(data);
 				default:
 					return null;
 			}
 		}
 
-		public Mechanic (MechanicData data) {
+		public Trait (MechanicData data) {
 			name = data.name;
 			type = data.type;
 			secrecy = data.secrecy;

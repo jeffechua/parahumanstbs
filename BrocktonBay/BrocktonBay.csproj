@@ -77,14 +77,14 @@
     <Compile Include="Core.GUI\Inspector\Ratings\RatingsMultiviewField.cs" />
     <Compile Include="Core.GUI\Inspector\Ratings\RatingsRadarChart.cs" />
     <Compile Include="Core.GUI\Inspector\Ratings\RatingsTable.cs" />
-    <Compile Include="Core\GameObjects\Mechanics\Mechanic.cs" />
-    <Compile Include="Core\GameObjects\Mechanics\RatingsMechanics.cs" />
+    <Compile Include="Core\GameObjects\Traits\Trait.cs" />
+    <Compile Include="Core\GameObjects\Traits\RatingsMechanics.cs" />
     <Compile Include="Core.GUI\Inspector\DialogTextEditing.cs" />
     <Compile Include="Core.GUI\Map\MapMarkers.cs" />
     <Compile Include="gtk-gui\MainWindow.cs" />
     <Compile Include="Core.GUI\Map\TerritoryMarkers.cs" />
     <Compile Include="Core.GUI\Map\StructureMarkers.cs" />
-    <Compile Include="Core\GameObjects\Mechanics\PrisonMechanic.cs" />
+    <Compile Include="Core\GameObjects\Traits\PrisonTrait.cs" />
     <Compile Include="Core\Agency.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -95,7 +95,7 @@
     <Folder Include="Core\GameObjects\" />
     <Folder Include="Core.GUI\Map\" />
     <Folder Include="Core.GUI\Inspector\Ratings\" />
-    <Folder Include="Core\GameObjects\Mechanics\" />
+    <Folder Include="Core\GameObjects\Traits\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

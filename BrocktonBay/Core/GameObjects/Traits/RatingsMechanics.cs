@@ -4,7 +4,7 @@ using Gtk;
 
 namespace BrocktonBay {
 
-	public sealed class WeaknessMechanic : Mechanic {
+	public sealed class WeaknessTrait : Trait {
 
 		public RatingsProfile difference;
 
@@ -23,7 +23,7 @@ namespace BrocktonBay {
 		}
 		public override InvocationTrigger trigger { get => InvocationTrigger.GetRatings; }
 
-		public WeaknessMechanic (MechanicData data) : base(data)
+		public WeaknessTrait (MechanicData data) : base(data)
 			=> effect = data.effect;
 
 		public override object Invoke (Context context, object obj) {
@@ -34,7 +34,7 @@ namespace BrocktonBay {
 
 	}
 
-	public sealed class TrueFormMechanic : Mechanic {
+	public sealed class TrueFormTrait : Trait {
 
 		public RatingsProfile trueform { get; set; }
 
@@ -61,7 +61,7 @@ namespace BrocktonBay {
 		}
 		public override InvocationTrigger trigger { get { return InvocationTrigger.GetRatings; } }
 
-		public TrueFormMechanic (MechanicData data) : base(data)
+		public TrueFormTrait (MechanicData data) : base(data)
 			=> effect = data.effect;
 
 		public override object Invoke (Context context, object obj) {

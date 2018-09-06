@@ -14,8 +14,8 @@ namespace BrocktonBay {
 		public Map map;
 		HBox textBar;
 		HBox numbersBar;
-		ScrolledWindow agentsWindow;
-		CachingHCellsCategorized agentsList;
+		ScrolledWindow assetsWindow;
+		AssetsBottomBar assetsBar;
 
 		public MainInterface () {
 
@@ -61,11 +61,12 @@ namespace BrocktonBay {
 			notebook.AppendPage(domain, domainLabel);
 
 			//Agents bottom bar
-			agentsWindow = new ScrolledWindow {
+			assetsWindow = new ScrolledWindow {
 				VscrollbarPolicy = PolicyType.Never
 			};
-			agentsList = new CachingHCellsCategorized { BorderWidth = 10 };
-			agentsWindow.AddWithViewport(agentsList);
+			assetsBar = new AssetsBottomBar { BorderWidth = 10 };
+			assetsWindow.AddWithViewport(assetsBar);
+			PackStart(assetsWindow, false, false, 0);
 
 			Profiler.Log(ref Profiler.searchCreateTime);
 
@@ -107,23 +108,11 @@ namespace BrocktonBay {
 			textBar.PackEnd(nextPhaseButton, false, false, spacing);
 			textBar.PackEnd(new Label(Game.phase + " Phase"), false, false, spacing);
 
-			List<List<IGUIComplete>> agents = new List<List<IGUIComplete>>();
 			if (GameObject.TryCast(Game.player, out Faction faction)) {
 				numbersBar.PackStart(Graphics.GetIcon(StructureType.Economic, black, Graphics.textSize), false, false, spacing);
 				numbersBar.PackStart(new Label(faction.resources.ToString()), false, false, spacing);
 				numbersBar.PackStart(Graphics.GetIcon(StructureType.Aesthetic, black, Graphics.textSize), false, false, spacing);
 				numbersBar.PackStart(new Label(faction.reputation.ToString()), false, false, spacing);
-				agents.Add(faction.teams.ConvertAll((team) => (IGUIComplete)team));
-				agents.Add(faction.roster.ConvertAll((parahuman) => (IGUIComplete)parahuman));
-				List<IGUIComplete> teamed = new List<IGUIComplete>();
-				foreach (Team team in faction.teams) foreach (Parahuman parahuman in team.roster) teamed.Add(parahuman);
-				agents.Add(teamed);
-				if (agentsWindow.Parent != this) PackStart(agentsWindow, false, false, 0);
-			} else if (GameObject.TryCast(Game.player, out Team team)) {
-				agents.Add(team.roster.ConvertAll((parahuman) => (IGUIComplete)parahuman));
-				if (agentsWindow.Parent != this) PackStart(agentsWindow, false, false, 0);
-			} else if (GameObject.TryCast(Game.player, out Parahuman parahuman)) {
-				if (agentsWindow.Parent == this) Remove(agentsWindow);
 			}
 
 			if ((Game.phase & (Phase.Resolution | Phase.Event)) == Phase.None) {
@@ -138,8 +127,6 @@ namespace BrocktonBay {
 			}
 
 			ShowAll();
-			agentsList.Load(agents);
-			agentsList.Render();
 
 		}
 
@@ -151,6 +138,61 @@ namespace BrocktonBay {
 				VisibleWindow = false
 			};
 			return inspectable;
+		}
+
+	}
+
+	public sealed class AssetsBottomBar : HBox, IDependable {
+
+		public int order { get { return 5; } }
+		public bool destroyed { get; set; }
+		public List<IDependable> triggers { get; set; } = new List<IDependable>();
+		public List<IDependable> listeners { get; set; } = new List<IDependable>();
+
+		Context context;
+
+		public AssetsBottomBar () : base(false, 10) {
+			DependencyManager.Connect(Game.city, this);
+			DependencyManager.Connect(Game.UIKey, this);
+			Reload();
+		}
+
+		public void Reload () {
+
+			context = new Context(Game.player, this);
+			while (Children.Length > 0) Children[0].Destroy();
+
+			if (GameObject.TryCast(Game.player, out Faction faction)) {
+				PackStart(new VSeparator(), false, false, 0);
+				AppendCategory("Unsettled prisoners", faction.unassignedCaptures);
+				AppendCategory("Teams", faction.teams);
+				AppendCategory("Direct members", faction.roster);
+				List<IGUIComplete> teamed = new List<IGUIComplete>();
+				foreach (Team team in faction.teams) foreach (Parahuman parahuman in team.roster) teamed.Add(parahuman);
+				AppendCategory("Members of teams", teamed);
+				AppendCategory("Prisoners", faction.assignedCaptures);
+			} else if (GameObject.TryCast(Game.player, out Team team)) {
+				PackStart(new VSeparator(), false, false, 0);
+				AppendCategory("The team", new List<Team> { team });
+				AppendCategory("Team members", team.roster);
+			} else if (GameObject.TryCast(Game.player, out Parahuman parahuman)) {
+				AppendCategory("Yourself", new List<Parahuman> { parahuman });
+			}
+
+			ShowAll();
+		}
+
+		void AppendCategory<T> (string title, List<T> elements) where T : IGUIComplete {
+			if (elements.Count > 0) {
+				VBox vBox = new VBox(false, 3) { BorderWidth = 3 };
+				PackStart(vBox, false, false, 0);
+				vBox.PackStart(new Label(title) { Sensitive = false }, true, true, 0);
+				HBox hBox = new HBox(false, 10);
+				vBox.PackStart(hBox, true, true, 0);
+				foreach (T element in elements)
+					hBox.PackStart(new Cell(context, element), false, false, 0);
+				PackStart(new VSeparator(), false, false, 0);
+			}
 		}
 
 	}

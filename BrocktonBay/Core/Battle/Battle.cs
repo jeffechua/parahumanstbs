@@ -28,7 +28,7 @@ namespace BrocktonBay {
 		public EffectiveRatingsProfile attacker_profile { get { return profiles[0]; } set { profiles[0] = value; } }
 
 		[Displayable(3, typeof(TabularContainerField), "attacker_strength", "attacker_stealth", "attacker_insight",
-					 altWidget = typeof(LinearContainerField), emphasizedIfVertical = true)]
+					 altWidget = typeof(SlashDelimitedContainerField), emphasizedIfVertical = true)]
 		public Expression[] attacker_stats {
 			get {
 				return new Expression[] { attacker_strength, attacker_stealth, attacker_insight };
@@ -61,7 +61,7 @@ namespace BrocktonBay {
 		public Fraction[] defender_escape { get; set; } //Chance of capture, per member
 
 		[Displayable(9, typeof(TabularContainerField), "defender_strength", "defender_stealth", "defender_insight",
-					 altWidget = typeof(LinearContainerField), emphasizedIfVertical = true)]
+					 altWidget = typeof(SlashDelimitedContainerField), emphasizedIfVertical = true)]
 		public Expression[] defender_stats {
 			get {
 				return new Expression[] { defender_strength, defender_stealth, defender_insight };

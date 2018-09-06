@@ -2,7 +2,7 @@
 using Gtk;
 
 namespace BrocktonBay {
-	public sealed class PrisonMechanic : Mechanic, IContainer, IAffiliated {
+	public sealed class PrisonTrait : Trait, IContainer, IAffiliated {
 
 		public IAgent affiliation { get => parent.affiliation; }
 
@@ -31,7 +31,7 @@ namespace BrocktonBay {
 		[Displayable(3, typeof(CellTabularListField<Parahuman>), 3, emphasized = true, editablePhases = Phase.Mastermind)]
 		public List<Parahuman> prisoners { get; set; }
 
-		public PrisonMechanic (MechanicData data) : base(data)
+		public PrisonTrait (MechanicData data) : base(data)
 			=> effect = data.effect;
 
 		public override object Invoke (Context context, object obj) {
@@ -50,7 +50,7 @@ namespace BrocktonBay {
 			Faction faction = parent.affiliation as Faction;
 			foreach (object obj in objs) {
 				Parahuman parahuman = (Parahuman)obj;
-				PrisonerMechanic prisoner = GetPrisonerMechanic(parahuman);
+				PrisonerTrait prisoner = GetPrisonerMechanic(parahuman);
 				if (prisoner.prison != null)
 					prisoner.prison.Remove(prisoner);
 				prisoners.Add(parahuman);
@@ -66,7 +66,7 @@ namespace BrocktonBay {
 			Faction faction = parent.affiliation as Faction;
 			foreach (object obj in objs) {
 				Parahuman parahuman = (Parahuman)obj;
-				PrisonerMechanic prisoner = GetPrisonerMechanic(parahuman);
+				PrisonerTrait prisoner = GetPrisonerMechanic(parahuman);
 				prisoners.Remove(parahuman);
 				prisoner.prison = null;
 				faction.assignedCaptures.Remove(parahuman);
@@ -77,8 +77,8 @@ namespace BrocktonBay {
 			DependencyManager.Flag(parent);
 		}
 
-		PrisonerMechanic GetPrisonerMechanic (Parahuman parahuman)
-			=> (PrisonerMechanic)parahuman.mechanics.Find((m) => m is PrisonerMechanic);
+		PrisonerTrait GetPrisonerMechanic (Parahuman parahuman)
+			=> (PrisonerTrait)parahuman.traits.Find((m) => m is PrisonerTrait);
 
 		public override Widget GetCellContents (Context context) {
 
@@ -115,7 +115,7 @@ namespace BrocktonBay {
 
 	}
 
-	public sealed class PrisonerMechanic : Mechanic, IAffiliated {
+	public sealed class PrisonerTrait : Trait, IAffiliated {
 
 		public override string effect {
 			get => imprisonerID.ToString();
@@ -125,7 +125,7 @@ namespace BrocktonBay {
 
 		int imprisonerID;
 		Faction _imprisoners;
-		[Displayable(3, typeof(ObjectField), forceHorizontal = true)]
+		[Displayable(3, typeof(ObjectField), emphasized = true, forceHorizontal = true)]
 		public Faction imprisoners {
 			get {
 				if (_imprisoners == null) _imprisoners = Game.city.Get<Faction>(imprisonerID);
@@ -137,25 +137,26 @@ namespace BrocktonBay {
 			}
 		}
 
-		[Displayable(4, typeof(ObjectField), forceHorizontal = true, overrideLabel = "Prison")]
+		[Displayable(4, typeof(ObjectField), emphasized = true, forceHorizontal = true, overrideLabel = "Prison")]
 		public Structure prisonStructure { get => prison == null ? null : prison.parent as Structure; }
-		public PrisonMechanic prison;
+		public PrisonTrait prison;
 
 		public IAgent affiliation { get => imprisoners; }
 
-		[Displayable(5, typeof(ActionField), verticalOnly = true, visiblePhases = Phase.Mastermind, editablePhases = Phase.Mastermind,
-					 topPadding = 20, bottomPadding = 10, leftPadding = 20, rightPadding = 20)]
+		[Displayable(5, typeof(BasicHContainerField), "release", "execute")]
+		public GameAction[] actions { get => new GameAction[] { release, execute }; }
+
+		[ChildDisplayable("release", typeof(ActionField), 7, fillSides = false, verticalOnly = true, visiblePhases = Phase.Mastermind, editablePhases = Phase.Mastermind)]
 		public GameAction release { get; set; }
 
-		[Displayable(6, typeof(ActionField), verticalOnly = true, visiblePhases = Phase.Mastermind, editablePhases = Phase.Mastermind,
-					 topPadding = 10, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
+		[ChildDisplayable("execute", typeof(ActionField), 7, fillSides = false, verticalOnly = true, visiblePhases = Phase.Mastermind, editablePhases = Phase.Mastermind)]
 		public GameAction execute { get; set; }
 
-		public PrisonerMechanic (MechanicData data) : base(data) {
+		public PrisonerTrait (MechanicData data) : base(data) {
 			effect = data.effect;
 			release = new GameAction {
 				name = "Release",
-				description = "Release " + name + (prisonStructure == null ? "" : (" from " + prisonStructure.name + ".")),
+				description = "Release this captive" + (prisonStructure == null ? "." : (" from " + prisonStructure.name + ".")),
 				action = delegate (Context context) {
 					((Parahuman)parent).health = Health.Healthy;
 					DependencyManager.Flag(parent);
@@ -168,8 +169,8 @@ namespace BrocktonBay {
 				condition = (context) => UIFactory.EditAuthorized(this, "release")
 			};
 			execute = new GameAction {
-				name = "Execute",
-				description = "Kill " + name + " in cold blood. This is an S-Class action.",
+				name = "Execute [S]",
+				description = "Kill this captive in cold blood. This is an S-Class action.",
 				action = delegate (Context context) {
 					((Parahuman)parent).health = Health.Deceased;
 					DependencyManager.Flag(parent);

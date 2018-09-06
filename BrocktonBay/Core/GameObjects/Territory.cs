@@ -24,7 +24,7 @@ namespace BrocktonBay {
 			size = territory.size;
 			reputation = territory.reputation;
 			structures = territory.structures.ConvertAll((structure) => structure.ID);
-			mechanics = territory.mechanics.ConvertAll((input) => new MechanicData(input));
+			mechanics = territory.traits.ConvertAll((input) => new MechanicData(input));
 		}
 
 	}
@@ -49,7 +49,7 @@ namespace BrocktonBay {
 		public int reputation { get; set; }
 
 		[Displayable(6, typeof(TabularContainerField), "strength_buff", "stealth_buff", "insight_buff",
-					 altWidget = typeof(LinearContainerField), emphasizedIfVertical = true)]
+					 altWidget = typeof(SlashDelimitedContainerField), emphasizedIfVertical = true)]
 		public int[] combat_buffs {
 			get {
 				return new int[] { strength_buff, stealth_buff, insight_buff };
@@ -69,7 +69,7 @@ namespace BrocktonBay {
 		public int insight_buff { get; set; }
 
 		[Displayable(7, typeof(TabularContainerField), "resource_income", "reputation_income",
-					 altWidget = typeof(LinearContainerField), emphasizedIfVertical = true)]
+					 altWidget = typeof(SlashDelimitedContainerField), emphasizedIfVertical = true)]
 		public int[] incomes {
 			get {
 				return new int[] { resource_income, reputation_income };
@@ -89,14 +89,14 @@ namespace BrocktonBay {
 		public List<Structure> structures { get; set; }
 
 		[Displayable(9, typeof(MechanicCellTabularListField), 3, emphasized = true, verticalOnly = true)]
-		public override List<Mechanic> mechanics { get; set; }
+		public override List<Trait> traits { get; set; }
 
 
-		[Displayable(10, typeof(ActionField), verticalOnly = true, viewLocks = Locks.Turn, editLocks = Locks.Turn, visiblePhases = Phase.Action, editablePhases = Phase.Action,
+		[Displayable(10, typeof(ActionField), 10, verticalOnly = true, viewLocks = Locks.Turn, editLocks = Locks.Turn, visiblePhases = Phase.Action, editablePhases = Phase.Action,
 					 topPadding = 20, bottomPadding = 10, leftPadding = 20, rightPadding = 20)]
 		public GameAction attack { get; set; }
 
-		[Displayable(11, typeof(ActionField), verticalOnly = true, viewLocks = Locks.Turn, editLocks = Locks.Turn, visiblePhases = Phase.Response, editablePhases = Phase.Response,
+		[Displayable(11, typeof(ActionField), 10, verticalOnly = true, viewLocks = Locks.Turn, editLocks = Locks.Turn, visiblePhases = Phase.Response, editablePhases = Phase.Response,
 					 topPadding = 10, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
 		public GameAction defend { get; set; }
 
@@ -113,8 +113,8 @@ namespace BrocktonBay {
 				DependencyManager.Connect(structure, this);
 				structure.parent = this;
 			}
-			mechanics = data.mechanics.ConvertAll((input) => Mechanic.Load(input));
-			foreach (Mechanic mechanic in mechanics) {
+			traits = data.mechanics.ConvertAll((input) => Trait.Load(input));
+			foreach (Trait mechanic in traits) {
 				DependencyManager.Connect(mechanic, this);
 				mechanic.parent = this;
 			}
