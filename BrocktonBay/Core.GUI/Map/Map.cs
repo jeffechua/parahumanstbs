@@ -115,6 +115,8 @@ namespace BrocktonBay {
 
 		}
 
+
+
 		public void Zoom () {
 
 			// Zoom the background by a combination of scaling the image and translating the "stage" GtkFixed.

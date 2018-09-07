@@ -11,6 +11,8 @@ namespace BrocktonBay {
 		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 		public void Reload () { }
+		public void OnTriggerDestroyed (IDependable trigger) { }
+		public void OnListenerDestroyed (IDependable listener) { }
 
 		public Deployment[] deployments;
 		public Deployment attackers { get => deployments[0]; set => deployments[0] = value; }
@@ -72,11 +74,11 @@ namespace BrocktonBay {
 				defender_insight = value[2];
 			}
 		}
-		[ChildDisplayableAttribute("Strength", typeof(ExpressionField), tooltipText = "β + δ + ½Σ + ½ψ + bonuses\n× force multiplier")]
+		[ChildDisplayable("Strength", typeof(ExpressionField), tooltipText = "β + δ + ½Σ + ½ψ + bonuses\n× force multiplier")]
 		public Expression defender_strength { get; set; }
-		[ChildDisplayableAttribute("Stealth", typeof(ExpressionField), tooltipText = "μ + φ + bonuses")]
+		[ChildDisplayable("Stealth", typeof(ExpressionField), tooltipText = "μ + φ + bonuses")]
 		public Expression defender_stealth { get; set; }
-		[ChildDisplayableAttribute("Insight", typeof(ExpressionField), tooltipText = "ξ + Ω + bonuses")]
+		[ChildDisplayable("Insight", typeof(ExpressionField), tooltipText = "ξ + Ω + bonuses")]
 		public Expression defender_insight { get; set; }
 
 		[Displayable(10, typeof(EffectiveRatingsMultiview), emphasized = true, expand = true)]

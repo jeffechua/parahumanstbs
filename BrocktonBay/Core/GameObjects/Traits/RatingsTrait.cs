@@ -21,7 +21,7 @@ namespace BrocktonBay {
 				}
 			}
 		}
-		public override InvocationTrigger trigger { get => InvocationTrigger.GetRatings; }
+		public override EffectTrigger trigger { get => EffectTrigger.GetRatings; }
 
 		public WeaknessTrait (MechanicData data) : base(data)
 			=> effect = data.effect;
@@ -59,7 +59,7 @@ namespace BrocktonBay {
 				}
 			}
 		}
-		public override InvocationTrigger trigger { get { return InvocationTrigger.GetRatings; } }
+		public override EffectTrigger trigger { get { return EffectTrigger.GetRatings; } }
 
 		public TrueFormTrait (MechanicData data) : base(data)
 			=> effect = data.effect;

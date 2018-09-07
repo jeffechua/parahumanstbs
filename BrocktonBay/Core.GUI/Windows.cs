@@ -234,9 +234,8 @@ public partial class MainWindow : DefocusableWindowWithInspector {
 	}
 
 	public static void Load () {
-		if (mainBox.Children.Length == 2) {
-			mainBox.Children[1].Destroy();
-		}
+		if (mainInterface!=null)
+			mainInterface.Destroy();
 		mainInterface = new MainInterface();
 		mainBox.PackStart(mainInterface, true, true, 0);
 		editButton.Sensitive = true;

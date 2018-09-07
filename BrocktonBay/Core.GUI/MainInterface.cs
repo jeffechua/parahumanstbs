@@ -10,6 +10,8 @@ namespace BrocktonBay {
 		public bool destroyed { get; set; }
 		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
+		public void OnListenerDestroyed (IDependable listener) { }
+		public void OnTriggerDestroyed (IDependable trigger) { }
 
 		public Map map;
 		HBox textBar;
@@ -67,7 +69,7 @@ namespace BrocktonBay {
 
 			MainWindow.main.inspector = inspector;
 
-			DestroyEvent += (o, a) => DependencyManager.Delete(this);
+			Destroyed += (o, a) => DependencyManager.Destroy(this);
 
 			Reload();
 
@@ -143,6 +145,8 @@ namespace BrocktonBay {
 		public bool destroyed { get; set; }
 		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
+		public void OnListenerDestroyed (IDependable listener) { }
+		public void OnTriggerDestroyed (IDependable trigger) { }
 
 		Context context;
 		HBox mainBox;

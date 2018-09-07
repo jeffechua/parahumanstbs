@@ -35,6 +35,16 @@ namespace BrocktonBay {
 		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 		public abstract void Reload ();
+		public virtual void OnTriggerDestroyed (IDependable trigger) {
+			if (Contains(trigger)) {
+				Remove(trigger);
+				DependencyManager.Flag(this);
+			}
+		}
+		public virtual void OnListenerDestroyed (IDependable listener) {
+			if (listener == parent)
+				parent.Remove(this);
+		}
 
 		//IContainer stuff
 		public virtual bool Accepts (object obj) => false;

@@ -164,9 +164,10 @@ namespace BrocktonBay {
 				battleground.defender = null;
 			}
 			city.activeBattlegrounds.Clear();
-			foreach (GameObject obj in city.gameObjects) {
+			GameObject[] gameObjects = city.gameObjects.ToArray();
+			foreach (GameObject obj in gameObjects) {
 				foreach (Trait mechanic in obj.traits)
-					if (mechanic.trigger == InvocationTrigger.EventPhase)
+					if (mechanic.trigger == EffectTrigger.EventPhase)
 						mechanic.Invoke();
 				if (obj.TryCast(out Faction faction)) {
 					foreach (Territory territory in faction.territories) {
@@ -175,7 +176,7 @@ namespace BrocktonBay {
 					}
 				} else if (obj.TryCast(out Parahuman parahuman)) {
 					if (parahuman.health == Health.Deceased) {
-						DependencyManager.Delete(parahuman);
+						DependencyManager.Destroy(parahuman);
 					} else if ((int)parahuman.health < 3) {
 						parahuman.health++;
 					}

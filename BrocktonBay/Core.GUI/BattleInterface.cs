@@ -11,11 +11,12 @@ namespace BrocktonBay {
 		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 
-		public Battle gameEvent;
+		public Battle battle;
 
-		public BattleInterface (Battle gameEvent) {
-			this.gameEvent = gameEvent;
-			DependencyManager.Connect(gameEvent, this);
+		public BattleInterface (Battle battle) {
+			this.battle = battle;
+			DependencyManager.Connect(battle, this);
+			DependencyManager.Connect(Game.UIKey, this);
 			Reload();
 		}
 
@@ -23,21 +24,29 @@ namespace BrocktonBay {
 			while (Children.Length > 0)
 				Children[0].Destroy();
 
-			PackStart(GenerateDeploymentInterface(gameEvent.attackers, "Initiators"), true, true, 0);
+			PackStart(GenerateDeploymentInterface(battle.attackers, "Initiators"), true, true, 0);
 			PackStart(new VSeparator(), false, false, 0);
 			PackStart(GenerateEventCenter(), true, true, 0);
 			PackStart(new VSeparator(), false, false, 0);
-			PackStart(GenerateDeploymentInterface(gameEvent.defenders, "Responders"), true, true, 0);
+			PackStart(GenerateDeploymentInterface(battle.defenders, "Responders"), true, true, 0);
 			ShowAll();
 		}
 
+		public void OnTriggerDestroyed (IDependable trigger) {
+			if (trigger == battle) {
+				Destroy();
+				DependencyManager.DisconnectAll(this);
+			}
+		}
+		public void OnListenerDestroyed (IDependable listener) { }
+
 		public Widget GenerateEventCenter () {
-			Context context = new Context(Game.player, gameEvent);
+			Context context = new Context(Game.player, battle);
 			VBox mainBox = new VBox { BorderWidth = 10 };
-			mainBox.PackStart(gameEvent.GetHeader(context), false, false, 10);
+			mainBox.PackStart(battle.GetHeader(context), false, false, 10);
 			mainBox.PackStart(new HSeparator(), false, false, 0);
-			ScrolledWindow scrolledWindow = new ScrolledWindow { HscrollbarPolicy = PolicyType.Never};
-			scrolledWindow.AddWithViewport(UIFactory.Generate(context, gameEvent));
+			ScrolledWindow scrolledWindow = new ScrolledWindow { HscrollbarPolicy = PolicyType.Never };
+			scrolledWindow.AddWithViewport(UIFactory.Generate(context, battle));
 			mainBox.PackStart(scrolledWindow, true, true, 5);
 			return mainBox;
 		}
@@ -47,7 +56,7 @@ namespace BrocktonBay {
 			mainBox.PackStart(UIFactory.Align(new Label(label), 0, 0, 1, 1), false, false, 10);
 			mainBox.PackStart(new HSeparator(), false, false, 0);
 			ScrolledWindow scrolledWindow = new ScrolledWindow { HscrollbarPolicy = PolicyType.Never };
-			scrolledWindow.AddWithViewport(UIFactory.Generate(new Context(Game.player, gameEvent), deployment));
+			scrolledWindow.AddWithViewport(UIFactory.Generate(new Context(Game.player, battle), deployment));
 			mainBox.PackStart(scrolledWindow, true, true, 5);
 			return mainBox;
 		}

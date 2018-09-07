@@ -4,7 +4,7 @@ using Gtk;
 
 namespace BrocktonBay {
 
-	public enum InvocationTrigger {
+	public enum EffectTrigger {
 		None = 0,
 		GetRatings = 1,
 		ActionPhase = 2,
@@ -40,6 +40,8 @@ namespace BrocktonBay {
 		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 		public virtual void Reload () { }
+		public virtual void OnTriggerDestroyed (IDependable trigger) { }
+		public virtual void OnListenerDestroyed (IDependable listener) { if (listener == parent) DependencyManager.Destroy(this); }
 
 
 		[Displayable(0, typeof(StringField), overrideLabel = "Trait")]
@@ -55,7 +57,7 @@ namespace BrocktonBay {
 
 		//Managed by derivative classes
 		public abstract string effect { get; set; }
-		public abstract InvocationTrigger trigger { get; }
+		public abstract EffectTrigger trigger { get; }
 
 		public bool Known (Context context) {
 			return (context.agent == Game.player && Game.omniscient) || context.agent.knowledge[parent] >= secrecy;
@@ -102,7 +104,8 @@ namespace BrocktonBay {
 			//set effect in derived class' constructor
 		}
 
-		public abstract object Invoke (Context context = new Context(), object obj = null);
+		public virtual object Invoke (Context context = new Context(), object obj = null) => null;
+		public virtual void ManageCellContents (Widget widget) { }
 
 		//IGUIComplete stuff
 		public virtual Widget GetHeader (Context context) {

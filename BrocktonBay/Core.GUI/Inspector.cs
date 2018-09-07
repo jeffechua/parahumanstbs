@@ -29,20 +29,23 @@ namespace BrocktonBay {
 		}
 
 		public void Reload () {
-			if (obj.destroyed) {
-				Destroy();
-			} else {
-				HideAll();
-				if (lazy) {
-					if (!redrawQueued) {
-						redrawQueued = true;
-						Graphics.SetExposeTrigger(this, Redraw);
-					}
-				} else {
-					Redraw();
+			HideAll();
+			if (lazy) {
+				if (!redrawQueued) {
+					redrawQueued = true;
+					Graphics.SetExposeTrigger(this, Redraw);
 				}
+			} else {
+				Redraw();
 			}
 		}
+		public void OnTriggerDestroyed (IDependable trigger) {
+			if (trigger == obj) {
+				Destroy();
+				DependencyManager.Destroy(this);
+			}
+		}
+		public void OnListenerDestroyed (IDependable listener) { }
 
 		public void Redraw () {
 			SetSizeRequest(-1, -1);
@@ -89,20 +92,24 @@ namespace BrocktonBay {
 		}
 
 		public void Reload () {
-			if (obj.destroyed) {
-				Destroy();
-			} else {
-				HideAll();
-				if (lazy) {
-					if (!redrawQueued) {
-						redrawQueued = true;
-						Graphics.SetExposeTrigger(this, Redraw);
-					}
-				} else {
-					Redraw();
+			HideAll();
+			if (lazy) {
+				if (!redrawQueued) {
+					redrawQueued = true;
+					Graphics.SetExposeTrigger(this, Redraw);
 				}
+			} else {
+				Redraw();
 			}
 		}
+
+		public void OnTriggerDestroyed (IDependable trigger) {
+			if (trigger == obj) {
+				Destroy();
+				DependencyManager.Destroy(this);
+			}
+		}
+		public void OnListenerDestroyed (IDependable listener) { }
 
 		public void Redraw () {
 			if (frame.Child != null) frame.Child.Destroy();
@@ -199,13 +206,9 @@ namespace BrocktonBay {
 			}
 		}
 
-		public void Reload () {
-			if (obj.destroyed) {
-				Inspect(null);
-			} else {
-				Inspect(obj);
-			}
-		}
+		public void Reload () => Inspect(obj);
+		public void OnTriggerDestroyed (IDependable trigger) { if (trigger == obj) Inspect(null); }
+		public void OnListenerDestroyed (IDependable listener) { }
 
 		public static Window InspectInNewWindow (IGUIComplete newObj) {
 			DefocusableWindow win = new DefocusableWindow();

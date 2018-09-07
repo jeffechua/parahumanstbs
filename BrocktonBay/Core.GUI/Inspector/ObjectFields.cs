@@ -13,6 +13,8 @@ namespace BrocktonBay {
 		public bool destroyed { get; set; }
 		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
+		public void OnListenerDestroyed (IDependable listener) { }
+		public void OnTriggerDestroyed (IDependable trigger) { }
 
 		public PropertyInfo property;
 		public IGUIComplete obj;
@@ -122,7 +124,7 @@ namespace BrocktonBay {
 					MenuItem addExistingButton = new MenuItem("Add Existing");
 					rightclickMenu.Append(addExistingButton);
 					addExistingButton.Activated += (o, a) => new SelectorDialog(
-						(Gtk.Window)Toplevel, "Select new addition to " + UIFactory.ToReadable(property.Name),
+						"Select new addition to " + UIFactory.ToReadable(property.Name),
 						(tested) => ((IContainer)obj).Accepts(tested) && tested is T,
 						delegate (GameObject returned) {
 							((IContainer)obj).Add(returned);
@@ -311,7 +313,7 @@ namespace BrocktonBay {
 
 				MenuItem moveButton = new MenuItem("Move");
 				moveButton.Activated += (o, a)
-					=> new SelectorDialog((Gtk.Window)Toplevel, "Select new parent for " + obj.name,
+					=> new SelectorDialog("Select new parent for " + obj.name,
 										  (tested) => tested.Accepts(obj),
 										  delegate (GameObject returned) {
 											  returned.Add(obj);

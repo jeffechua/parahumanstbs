@@ -33,6 +33,7 @@ namespace BrocktonBay {
 			ObjectWidgetPair<T> pair = cache.Find((element) => obj == element.obj);
 			if (pair.obj == null) {
 				pair = new ObjectWidgetPair<T>(obj, Generator(obj));
+				pair.widget.Destroyed += (o, a) => cache.Remove(pair);
 				PackStart(pair.widget, false, false, 0);
 				cache.Add(pair);
 			}
@@ -87,6 +88,7 @@ namespace BrocktonBay {
 			ObjectWidgetPair<T> pair = cache.Find((element) => obj == element.obj);
 			if (pair.obj == null) {
 				pair = new ObjectWidgetPair<T>(obj, Generator(obj));
+				pair.widget.Destroyed += (o, a) => cache.Remove(pair);
 				contents.Put(pair.widget, 0, 0);
 				contents.ShowAll();
 				cache.Add(pair);

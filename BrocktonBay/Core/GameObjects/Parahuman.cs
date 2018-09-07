@@ -115,7 +115,7 @@ namespace BrocktonBay {
 		public RatingsProfile GetRatingsProfile (Context context) {
 			RatingsProfile ratingsProfile = baseRatings;
 			foreach (Trait mechanic in traits) {
-				if (mechanic.trigger == InvocationTrigger.GetRatings) {
+				if (mechanic.trigger == EffectTrigger.GetRatings) {
 					ratingsProfile = (RatingsProfile)mechanic.Invoke(context, ratingsProfile);
 				}
 			}

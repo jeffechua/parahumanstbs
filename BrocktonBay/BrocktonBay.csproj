@@ -78,7 +78,7 @@
     <Compile Include="Core.GUI\Inspector\Ratings\RatingsRadarChart.cs" />
     <Compile Include="Core.GUI\Inspector\Ratings\RatingsTable.cs" />
     <Compile Include="Core\GameObjects\Traits\Trait.cs" />
-    <Compile Include="Core\GameObjects\Traits\RatingsMechanics.cs" />
+    <Compile Include="Core\GameObjects\Traits\RatingsTrait.cs" />
     <Compile Include="Core.GUI\Inspector\DialogTextEditing.cs" />
     <Compile Include="Core.GUI\Map\MapMarkers.cs" />
     <Compile Include="gtk-gui\MainWindow.cs" />
@@ -86,6 +86,7 @@
     <Compile Include="Core.GUI\Map\StructureMarkers.cs" />
     <Compile Include="Core\GameObjects\Traits\PrisonTrait.cs" />
     <Compile Include="Core\Agency.cs" />
+    <Compile Include="Core.GUI\Map\BattleAlertMarker.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />

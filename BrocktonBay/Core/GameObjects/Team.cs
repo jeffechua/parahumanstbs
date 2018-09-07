@@ -119,18 +119,14 @@ namespace BrocktonBay {
 		}
 
 		public override void Reload () {
-
 			roster.Sort();
-
 			threat = Threat.C;
 			for (int i = 0; i < roster.Count; i++)
 				if (roster[i].threat > threat)
 					threat = roster[i].threat;
-
 			reputation = 0;
 			foreach (Parahuman parahuman in roster)
 				reputation += parahuman.reputation;
-
 		}
 
 		public override Widget GetHeader (Context context) {

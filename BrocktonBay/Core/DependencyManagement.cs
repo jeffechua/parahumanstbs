@@ -10,6 +10,8 @@ namespace BrocktonBay {
 		bool destroyed { get; set; }
 		List<IDependable> triggers { get; set; }
 		List<IDependable> listeners { get; set; }
+		void OnTriggerDestroyed (IDependable trigger);
+		void OnListenerDestroyed (IDependable listener);
 		void Reload ();
 	}
 
@@ -24,6 +26,8 @@ namespace BrocktonBay {
 			Destroyed += (o, a) => DependencyManager.DisconnectAll(this); //Theoretically we could Delete(obj), but that's unnecessary
 		}
 		public void Reload () => ReloadEvent.Invoke(this, new EventArgs());
+		public void OnListenerDestroyed (IDependable listener) { }
+		public void OnTriggerDestroyed (IDependable trigger) { }
 	}
 
 	public static class DependencyManager {
@@ -108,24 +112,19 @@ namespace BrocktonBay {
 		//  - Call dependent.Remove(obj) for all dependents that are IContainers
 		// This is because we assume that parents are dependent on children,
 		// and children are dependencies of parents.
-		public static void Delete (IDependable obj) {
+		public static void Destroy (IDependable obj) {
 
-			obj.destroyed = true;
+			IDependable[] triggers = obj.triggers.ToArray();
+			foreach (IDependable trigger in triggers)
+				trigger.OnListenerDestroyed(obj);
 
-			while (true) {
-				int length = obj.listeners.Count;
-				for (int i = 0; i < obj.listeners.Count; i++)
-					if (obj.listeners[i] is IContainer)
-						((IContainer)obj.listeners[i]).Remove(obj);
-				if (obj.listeners.Count == length) break; //If there has been no new removals, exit the loop
-			}
-			if (obj is IContainer)
-				((IContainer)obj).RemoveRange(obj.triggers.FindAll(
-					(element) => ((IContainer)obj).Contains(element)));
+			IDependable[] listeners = obj.listeners.ToArray();
+			foreach (IDependable listener in listeners)
+				listener.OnTriggerDestroyed(obj);
 
-			Flag(obj);
-			TriggerAllFlags();
 			DisconnectAll(obj);
+			TriggerAllFlags();
+
 		}
 
 	}

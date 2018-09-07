@@ -45,6 +45,14 @@ namespace BrocktonBay {
 			if (deletable && !Game.omnipotent) DisableDelete();
 		}
 
+		public override void OnTriggerDestroyed (IDependable trigger) {
+			if (trigger == territory) {
+				Destroy();
+				DependencyManager.DisconnectAll(this);
+			}
+		}
+		public override void OnListenerDestroyed (IDependable listener) { }
+
 		protected override Window GenerateRightPopup () {
 			Window popup = new Window(WindowType.Popup) { TransientFor = (Window)map.Toplevel };
 			Context context = new Context(Game.player, territory, true, false);
@@ -102,7 +110,7 @@ namespace BrocktonBay {
 		}
 
 		public override void Reload () {
-			if (!territory.affiliation.color.Equal(shownColor) || territory.size != shownSize) {
+			if (!Graphics.GetColor(territory.affiliation).Equal(shownColor) || territory.size != shownSize) {
 				shownColor = territory.affiliation.color;
 				shownSize = territory.size;
 				Redraw();
@@ -112,6 +120,15 @@ namespace BrocktonBay {
 				Repin();
 			}
 		}
+
+		public override void OnTriggerDestroyed (IDependable trigger) {
+			if (trigger == territory) {
+				Destroy();
+				DependencyManager.DisconnectAll(this);
+			}
+		}
+		public override void OnListenerDestroyed (IDependable listener) { }
+
 	}
 
 }

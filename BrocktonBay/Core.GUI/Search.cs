@@ -6,11 +6,11 @@ using Gtk;
 namespace BrocktonBay {
 
 	public class SelectorDialog : DefocusableWindow {
-		public SelectorDialog (Window transientFor, string title, Func<GameObject, bool> Filter = null, Action<GameObject> OnClicked = null) {
+		public SelectorDialog (string title, Func<GameObject, bool> Filter = null, Action<GameObject> OnClicked = null) {
 			//Setup window
 			Title = title;
 			SetPosition(WindowPosition.Center);
-			TransientFor = transientFor;
+			TransientFor = MainWindow.main;
 			TypeHint = Gdk.WindowTypeHint.Dialog;
 			//Setup search
 			Search search = new Search(Filter, delegate (GameObject obj) { OnClicked(obj); Destroy(); }, false);
@@ -29,6 +29,8 @@ namespace BrocktonBay {
 		public bool destroyed { get; set; }
 		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
+		public void OnListenerDestroyed (IDependable listener) { }
+		public void OnTriggerDestroyed (IDependable trigger) { }
 
 		Toolbar searchBar;
 		Entry searchText;
@@ -60,7 +62,7 @@ namespace BrocktonBay {
 
 			DependencyManager.Connect(Game.city, this);
 			DependencyManager.Connect(Game.UIKey, this);
-			Destroyed += (o, a) => DependencyManager.Delete(this);
+			Destroyed += (o, a) => DependencyManager.Destroy(this);
 			this.Filter = Filter ?? delegate { return true; };
 			this.OnClicked = OnClicked ?? delegate { };
 			this.lazy = lazy;

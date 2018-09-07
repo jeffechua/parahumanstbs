@@ -11,7 +11,7 @@ namespace BrocktonBay {
 		Structure structure;
 		Gdk.Color shownColor;
 		StructureType shownType;
-		IntVector2 shownPosition = new IntVector2(-1,-1); //So Repin() triggers on first Reload();
+		IntVector2 shownPosition = new IntVector2(-1, -1); //So Repin() triggers on first Reload();
 
 		public override int layer { get => 2; }
 		protected override Vector2 position { get => shownPosition; }
@@ -46,6 +46,14 @@ namespace BrocktonBay {
 			if (!deletable && Game.omnipotent) EnableDelete();
 			if (deletable && !Game.omnipotent) DisableDelete();
 		}
+
+		public override void OnTriggerDestroyed (IDependable trigger) {
+			if (trigger == structure) {
+				Destroy();
+				DependencyManager.DisconnectAll(this);
+			}
+		}
+		public override void OnListenerDestroyed (IDependable listener) { }
 
 		protected override Window GenerateRightPopup () {
 			Window popup = new Window(WindowType.Popup) { TransientFor = (Window)map.Toplevel };
@@ -121,6 +129,14 @@ namespace BrocktonBay {
 				Repin();
 			}
 		}
+
+		public override void OnTriggerDestroyed (IDependable trigger) {
+			if (trigger == structure) {
+				Destroy();
+				DependencyManager.DisconnectAll(this);
+			}
+		}
+		public override void OnListenerDestroyed (IDependable listener) { }
 
 	}
 

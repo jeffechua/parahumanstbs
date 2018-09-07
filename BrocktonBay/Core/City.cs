@@ -31,6 +31,13 @@ namespace BrocktonBay {
 				}
 			}
 		}
+		public void OnTriggerDestroyed (IDependable trigger) {
+			if (Contains(trigger)) {
+				Remove(trigger);
+				DependencyManager.Flag(this);
+			}
+		}
+		public void OnListenerDestroyed (IDependable listener) { }
 
 		public List<GameObject> gameObjects = new List<GameObject>();
 		public List<IAgent> activeAgents = new List<IAgent>();

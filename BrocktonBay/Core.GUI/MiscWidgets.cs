@@ -149,7 +149,8 @@ namespace BrocktonBay {
 		}
 		public void Delete (object obj, EventArgs args) {
 			if (inspected == null) return;
-			DependencyManager.Delete(inspected);
+			DependencyManager.Destroy(inspected);
+			DependencyManager.TriggerAllFlags();
 		}
 
 	}

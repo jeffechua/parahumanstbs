@@ -42,7 +42,7 @@ namespace BrocktonBay {
 				action = delegate {
 					location.attacker = null;
 					Game.city.activeBattlegrounds.Remove(location);
-					DependencyManager.Delete(this);
+					DependencyManager.Destroy(this);
 					DependencyManager.Flag(location);
 					DependencyManager.TriggerAllFlags();
 				},
@@ -100,7 +100,7 @@ namespace BrocktonBay {
 				description = "Cancel this defense.",
 				action = delegate {
 					location.defender = null;
-					DependencyManager.Delete(this);
+					DependencyManager.Destroy(this);
 					DependencyManager.Flag(location);
 					DependencyManager.TriggerAllFlags();
 				},
@@ -190,10 +190,16 @@ namespace BrocktonBay {
 			foreach (Parahuman parahuman in combined_roster)
 				if (parahuman.threat > threat)
 					threat = parahuman.threat;
-
 			base_stats = ratings(new Context(affiliation, this)).GetStats(force_employed);
-
 		}
+
+		public void OnTriggerDestroyed (IDependable trigger) {
+			if (Contains(trigger)) {
+				Remove(trigger);
+				DependencyManager.Flag(this);
+			}
+		}
+		public void OnListenerDestroyed (IDependable listener) { }
 
 		public void Apply (Fraction[] injury, Fraction[] escape, Deployment enemy) {
 			float deathThresh = injury[0].val;
