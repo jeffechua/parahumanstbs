@@ -334,6 +334,10 @@ namespace BrocktonBay {
 					parent.Remove(obj);
 					DependencyManager.TriggerAllFlags();
 				});
+				MyDragDrop.SetFailAction(cell.frame.LabelWidget, delegate {
+					parent.Remove(obj);
+					DependencyManager.TriggerAllFlags();
+				});
 
 			}
 

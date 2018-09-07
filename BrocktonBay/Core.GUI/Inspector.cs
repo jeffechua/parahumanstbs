@@ -109,6 +109,11 @@ namespace BrocktonBay {
 			if (frame.LabelWidget != null) frame.LabelWidget.Destroy();
 			frame.Add(obj.GetCellContents(context));
 			frame.LabelWidget = obj.GetHeader(context.butCompact);
+			InspectableBox inspectableBox = frame.LabelWidget as InspectableBox;
+			if (inspectableBox != null) {
+				inspectableBox.rightclickMenu.Destroy();
+				inspectableBox.rightclickMenu = rightclickMenu;
+			}
 			ShowAll();
 			redrawQueued = false;
 		}
@@ -140,6 +145,11 @@ namespace BrocktonBay {
 			// - Only if the user has dragged cellObject from any list to *nothing* can it be assumed that they need it manually removed by us.
 			frame.Add(obj.GetCellContents(context));
 			frame.LabelWidget = obj.GetHeader(context.butCompact);
+			InspectableBox inspectableBox = frame.LabelWidget as InspectableBox;
+			if (inspectableBox != null) {
+				inspectableBox.rightclickMenu.Destroy();
+				inspectableBox.rightclickMenu = rightclickMenu;
+			}
 			ShowAll();
 		}
 
@@ -231,7 +241,7 @@ namespace BrocktonBay {
 			if (container is DefocusableWindowWithInspector)
 				if (((DefocusableWindowWithInspector)container).inspectorEnabled)
 					return ((DefocusableWindowWithInspector)container).inspector;
-			return null;    // Null -> invoker should InspectInNewWindow. I could just return main, but this is clearer.
+			return null;    // null -> invoker should InspectInNewWindow.
 		}
 
 	}

@@ -83,7 +83,7 @@ namespace BrocktonBay {
 
 			Clicked += OnClicked;
 			MiddleClicked += OnMiddleClicked;
-			RightClicked += OnDoubleClicked;
+			DoubleClicked += OnDoubleClicked;
 			RightClicked += OpenRightClickMenu;
 
 			rightclickMenu = new Menu();

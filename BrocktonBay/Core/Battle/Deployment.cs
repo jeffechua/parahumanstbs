@@ -22,8 +22,11 @@ namespace BrocktonBay {
 		[Displayable(8, typeof(CellTabularListField<Parahuman>), -2, emphasized = true, editablePhases = Phase.Action)]
 		public override List<Parahuman> combined_roster { get; set; }
 
-		[Displayable(99, typeof(ActionField), 5, fillSides = false, viewLocks = Locks.All, visiblePhases = Phase.Action, editablePhases = Phase.Action)]
+		[Displayable(98, typeof(ActionField), 5, fillSides = false, viewLocks = Locks.All, visiblePhases = Phase.Action, editablePhases = Phase.Action)]
 		public GameAction cancel { get; set; }
+
+		[Displayable(99, typeof(ActionField), 5, fillSides = false, viewLocks = Locks.Turn, editLocks = Locks.Turn, visiblePhases = Phase.Response, editablePhases = Phase.Response)]
+		public GameAction oppose { get; set; }
 
 		public Attack (IBattleground location, IAgent affiliation) : this(location, affiliation, new List<Team>(), new List<Parahuman>()) { }
 
@@ -44,6 +47,18 @@ namespace BrocktonBay {
 					DependencyManager.TriggerAllFlags();
 				},
 				condition = (context) => UIFactory.EditAuthorized(this, "cancel")
+			};
+			oppose = new GameAction {
+				name = "Mount opposition",
+				description = "Mount a defense of " + location.name + " against this attack force",
+				action = delegate (Context context) {
+					location.defender = new Defense(location, context.agent);
+					DependencyManager.Connect(location, location.defender);
+					DependencyManager.Flag(location);
+					DependencyManager.TriggerAllFlags();
+					Inspector.InspectInNearestInspector(location.defender, MainWindow.main);
+				},
+				condition = (context) => location.attacker != null && location.defender == null && UIFactory.EditAuthorized(this, "oppose")
 			};
 			Reload();
 		}

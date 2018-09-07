@@ -93,11 +93,11 @@ namespace BrocktonBay {
 
 
 		[Displayable(10, typeof(ActionField), 10, verticalOnly = true, viewLocks = Locks.Turn, editLocks = Locks.Turn, visiblePhases = Phase.Action, editablePhases = Phase.Action,
-					 topPadding = 20, bottomPadding = 10, leftPadding = 20, rightPadding = 20)]
+					 topPadding = 20, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
 		public GameAction attack { get; set; }
 
 		[Displayable(11, typeof(ActionField), 10, verticalOnly = true, viewLocks = Locks.Turn, editLocks = Locks.Turn, visiblePhases = Phase.Response, editablePhases = Phase.Response,
-					 topPadding = 10, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
+					 topPadding = 20, bottomPadding = 20, leftPadding = 20, rightPadding = 20)]
 		public GameAction defend { get; set; }
 
 		public Territory () : this(new TerritoryData()) { }
@@ -127,6 +127,7 @@ namespace BrocktonBay {
 					DependencyManager.Connect(this, attacker);
 					DependencyManager.Flag(this);
 					DependencyManager.TriggerAllFlags();
+					Inspector.InspectInNearestInspector(attacker, MainWindow.main);
 				},
 				condition = (context) => attacker == null && UIFactory.EditAuthorized(this, "attack")
 			};
@@ -138,6 +139,7 @@ namespace BrocktonBay {
 					DependencyManager.Connect(this, defender);
 					DependencyManager.Flag(this);
 					DependencyManager.TriggerAllFlags();
+					Inspector.InspectInNearestInspector(defender, MainWindow.main);
 				},
 				condition = (context) => attacker != null && defender == null && UIFactory.EditAuthorized(this, "defend")
 			};
