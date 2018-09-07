@@ -6,15 +6,15 @@ namespace BrocktonBay {
 
 	public sealed class Battle : IGUIComplete {
 
-		public int order { get { return 5; } }
+		public int order { get => 5; }
 		public bool destroyed { get; set; }
 		public List<IDependable> triggers { get; set; } = new List<IDependable>();
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 		public void Reload () { }
 
 		public Deployment[] deployments;
-		public Deployment attackers { get { return deployments[0]; } set { deployments[0] = value; } }
-		public Deployment defenders { get { return deployments[1]; } set { deployments[1] = value; } }
+		public Deployment attackers { get => deployments[0]; set => deployments[0] = value; }
+		public Deployment defenders { get => deployments[1]; set => deployments[1] = value; }
 		public EffectiveRatingsProfile[] profiles;
 
 		public string name { get { return "Battle at " + location.name; } }
@@ -25,7 +25,7 @@ namespace BrocktonBay {
 
 
 		[Displayable(2, typeof(EffectiveRatingsMultiview), emphasized = true, expand = true)]
-		public EffectiveRatingsProfile attacker_profile { get { return profiles[0]; } set { profiles[0] = value; } }
+		public EffectiveRatingsProfile attacker_profile { get => profiles[0]; set => profiles[0] = value; }
 
 		[Displayable(3, typeof(TabularContainerField), "attacker_strength", "attacker_stealth", "attacker_insight",
 					 altWidget = typeof(SlashDelimitedContainerField), emphasizedIfVertical = true)]

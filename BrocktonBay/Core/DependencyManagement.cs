@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define RELOAD_TRACKING
+
+using System;
 using System.Collections.Generic;
 
 namespace BrocktonBay {
@@ -35,28 +37,48 @@ namespace BrocktonBay {
 				flagged[obj.order].Add(obj);
 		}
 
+#if !RELOAD_TRACKING
 		// As a general rule, utility methods such as AddRange, RemoveRange should not call TriggerAllFlags: the
 		// first initiating callback/method is responsible for this such as to minimize unnecessary work.
 		public static void TriggerAllFlags () {
-			//Console.WriteLine("Triggering all flags:");
+			for (int i = 0; i < flagged.Count; i++)
+				for (int j = 0; j < flagged.Values[i].Count; j++)
+					for (int k = 0; k < flagged.Values[i][j].listeners.Count; k++)
+						Flag(flagged.Values[i][j].listeners[k]);
+			for (int i = 0; i < flagged.Count; i++)
+				for (int j = 0; j < flagged.Values[i].Count; j++)
+					flagged.Values[i][j].Reload();
+			flagged.Clear();
+		}
+#endif
+#if RELOAD_TRACKING
+		public static void TriggerAllFlags () {
 			for (int i = 0; i < flagged.Count; i++)
 				for (int j = 0; j < flagged.Values[i].Count; j++)
 					for (int k = 0; k < flagged.Values[i][j].listeners.Count; k++)
 						Flag(flagged.Values[i][j].listeners[k]);
 			for (int i = 0; i < flagged.Count; i++) {
-				//Console.WriteLine("\t" + "Reloading order " + i + " objects.");
-				for (int j = 0; j < flagged.Values[i].Count; j++) {
-					flagged.Values[i][j].Reload();
-					if (flagged.Values[i][j] is IGUIComplete) {
-						//Console.WriteLine("\t" + "\t" + "Reloading " + ((IGUIComplete)flagged.Values[i][j]).name);
-					} else {
-						//Console.WriteLine("\t" + "\t" + "Reloading " + flagged.Values[i][j].ToString());
+				if (flagged.Values[i].Count > 0) {
+					Console.WriteLine("Reloading order " + flagged.Values[i][0].order + " IDependents...");
+					DateTime metaCurrentTime = DateTime.Now;
+					for (int j = 0; j < flagged.Values[i].Count; j++) {
+						DateTime currentTime = DateTime.Now;
+						flagged.Values[i][j].Reload();
+						double interval = (DateTime.Now - currentTime).TotalMilliseconds;
+						if (flagged.Values[i][j] is IGUIComplete) {
+							Console.WriteLine("\tReloaded " + ((IGUIComplete)flagged.Values[i][j]).name + " in " + interval + " ms.");
+						} else {
+							Console.WriteLine("\tReloaded " + flagged.Values[i][j] + " in " + interval + " ms.");
+						}
 					}
+					double metaInterval = (DateTime.Now - metaCurrentTime).TotalMilliseconds;
+					Console.WriteLine("Reloaded order " + flagged.Values[i][0].order + " IDependents in " + metaInterval + " ms.");
 				}
 			}
-			//Console.WriteLine("\n");
+			Console.WriteLine("\n");
 			flagged.Clear();
 		}
+#endif
 
 		public static void Connect (IDependable trigger, IDependable listener) {
 			if (trigger.listeners.Contains(listener))

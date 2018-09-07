@@ -14,7 +14,6 @@ namespace BrocktonBay {
 		public Map map;
 		HBox textBar;
 		HBox numbersBar;
-		ScrolledWindow assetsWindow;
 		AssetsBottomBar assetsBar;
 
 		public MainInterface () {
@@ -61,12 +60,8 @@ namespace BrocktonBay {
 			notebook.AppendPage(domain, domainLabel);
 
 			//Agents bottom bar
-			assetsWindow = new ScrolledWindow {
-				VscrollbarPolicy = PolicyType.Never
-			};
 			assetsBar = new AssetsBottomBar { BorderWidth = 10 };
-			assetsWindow.AddWithViewport(assetsBar);
-			PackStart(assetsWindow, false, false, 0);
+			PackStart(assetsBar, false, false, 0);
 
 			Profiler.Log(ref Profiler.searchCreateTime);
 
@@ -142,7 +137,7 @@ namespace BrocktonBay {
 
 	}
 
-	public sealed class AssetsBottomBar : HBox, IDependable {
+	public sealed class AssetsBottomBar : Expander, IDependable {
 
 		public int order { get { return 5; } }
 		public bool destroyed { get; set; }
@@ -150,20 +145,42 @@ namespace BrocktonBay {
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 
 		Context context;
+		HBox mainBox;
 
-		public AssetsBottomBar () : base(false, 10) {
+		bool redrawQueued;
+
+		public AssetsBottomBar () : base("Parahuman resources") {
+			Spacing = 5;
+			ScrolledWindow scroller = new ScrolledWindow { VscrollbarPolicy = PolicyType.Never };
+			mainBox = new HBox(false, 10);
+			scroller.AddWithViewport(mainBox);
+			Add(scroller);
 			DependencyManager.Connect(Game.city, this);
 			DependencyManager.Connect(Game.UIKey, this);
+			Activated += OnActivated;
 			Reload();
 		}
 
 		public void Reload () {
+			if (Expanded) {
+				Redraw();
+			} else if (!redrawQueued) {
+				redrawQueued = true;
+			}
+		}
 
+		public void OnActivated (object obj, EventArgs args) {
+			if (redrawQueued) {
+				Redraw();
+				redrawQueued = false;
+			}
+		}
+
+		public void Redraw () {
 			context = new Context(Game.player, this);
-			while (Children.Length > 0) Children[0].Destroy();
-
+			while (mainBox.Children.Length > 0) mainBox.Children[0].Destroy();
 			if (GameObject.TryCast(Game.player, out Faction faction)) {
-				PackStart(new VSeparator(), false, false, 0);
+				mainBox.PackStart(new VSeparator(), false, false, 0);
 				AppendCategory("Unsettled prisoners", faction.unassignedCaptures);
 				AppendCategory("Teams", faction.teams);
 				AppendCategory("Direct members", faction.roster);
@@ -172,26 +189,25 @@ namespace BrocktonBay {
 				AppendCategory("Members of teams", teamed);
 				AppendCategory("Prisoners", faction.assignedCaptures);
 			} else if (GameObject.TryCast(Game.player, out Team team)) {
-				PackStart(new VSeparator(), false, false, 0);
+				mainBox.PackStart(new VSeparator(), false, false, 0);
 				AppendCategory("The team", new List<Team> { team });
 				AppendCategory("Team members", team.roster);
 			} else if (GameObject.TryCast(Game.player, out Parahuman parahuman)) {
 				AppendCategory("Yourself", new List<Parahuman> { parahuman });
 			}
-
 			ShowAll();
 		}
 
 		void AppendCategory<T> (string title, List<T> elements) where T : IGUIComplete {
 			if (elements.Count > 0) {
 				VBox vBox = new VBox(false, 3) { BorderWidth = 3 };
-				PackStart(vBox, false, false, 0);
+				mainBox.PackStart(vBox, false, false, 0);
 				vBox.PackStart(new Label(title) { Sensitive = false }, true, true, 0);
 				HBox hBox = new HBox(false, 10);
 				vBox.PackStart(hBox, true, true, 0);
 				foreach (T element in elements)
 					hBox.PackStart(new Cell(context, element), false, false, 0);
-				PackStart(new VSeparator(), false, false, 0);
+				mainBox.PackStart(new VSeparator(), false, false, 0);
 			}
 		}
 

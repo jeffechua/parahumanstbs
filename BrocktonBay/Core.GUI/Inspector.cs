@@ -15,6 +15,7 @@ namespace BrocktonBay {
 		public List<IDependable> listeners { get; set; } = new List<IDependable>();
 
 		bool lazy;
+		bool redrawQueued;
 
 		public Listing (IGUIComplete obj, bool lazy) {
 			this.obj = obj;
@@ -33,7 +34,10 @@ namespace BrocktonBay {
 			} else {
 				HideAll();
 				if (lazy) {
-					Graphics.SetExposeTrigger(this, Redraw);
+					if (!redrawQueued) {
+						redrawQueued = true;
+						Graphics.SetExposeTrigger(this, Redraw);
+					}
 				} else {
 					Redraw();
 				}
@@ -47,6 +51,7 @@ namespace BrocktonBay {
 			Add(UIFactory.GenerateHorizontal(obj));
 			LabelWidget = obj.GetHeader(new Context(Game.player, obj, false, true));
 			ShowAll();
+			redrawQueued = false;
 		}
 
 	}
@@ -65,6 +70,7 @@ namespace BrocktonBay {
 		public Context context;
 
 		bool lazy;
+		bool redrawQueued;
 
 		public SmartCell (Context context, IGUIComplete obj, bool lazy) : base(obj) {
 			//Basic setup
@@ -88,7 +94,10 @@ namespace BrocktonBay {
 			} else {
 				HideAll();
 				if (lazy) {
-					Graphics.SetExposeTrigger(this, Redraw);
+					if (!redrawQueued) {
+						redrawQueued = true;
+						Graphics.SetExposeTrigger(this, Redraw);
+					}
 				} else {
 					Redraw();
 				}
@@ -101,6 +110,7 @@ namespace BrocktonBay {
 			frame.Add(obj.GetCellContents(context));
 			frame.LabelWidget = obj.GetHeader(context.butCompact);
 			ShowAll();
+			redrawQueued = false;
 		}
 
 	}
