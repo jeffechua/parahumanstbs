@@ -20,9 +20,7 @@ namespace BrocktonBay {
 			editable = attribute.EditAuthorized(obj);
 
 			if (!context.compact) {
-				Label label = new Label((attribute.overrideLabel == "" ?
-										 UIFactory.ToReadable(property.Name) :
-				                         attribute.overrideLabel) + ": ");
+				Label label = new Label(attribute.overrideLabel ?? UIFactory.ToReadable(property.Name) + ": ");
 				label.SetAlignment(0, 1);
 				if (attribute.tooltipText != null) {
 					label.HasTooltip = true;

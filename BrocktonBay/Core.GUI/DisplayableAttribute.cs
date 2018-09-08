@@ -40,8 +40,8 @@ namespace BrocktonBay {
 		public uint rightPadding = 0;
 		public bool fillSides = true;
 
-		public string tooltipText = "";
-		public string overrideLabel = "";
+		public string tooltipText = null;
+		public string overrideLabel = null;
 
 		public DisplayableAttribute (int order, Type widget, params object[] arg) {
 			this.order = order;

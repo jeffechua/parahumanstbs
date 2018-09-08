@@ -191,23 +191,25 @@ namespace BrocktonBay {
 		public override bool Accepts (object obj) => obj is Trait;
 		public override bool Contains (object obj) => traits.Contains((Trait)obj);
 
-		public override void AddRange<T> (List<T> objs) {
+		public override void AddRange<T> (IEnumerable<T> objs) {
 			foreach (object obj in objs) {
-				Trait mechanic = (Trait)obj;
-				traits.Add(mechanic);
-				mechanic.parent = this;
-				DependencyManager.Connect(mechanic, this);
+				Trait trait = (Trait)obj;
+				traits.Add(trait);
+				trait.parent = this;
+				DependencyManager.Flag(trait);
+				DependencyManager.Connect(trait, this);
 			}
 			traits.Sort((a, b) => a.secrecy.CompareTo(b.secrecy));
 			DependencyManager.Flag(this);
 		}
 
-		public override void RemoveRange<T> (List<T> objs) {
+		public override void RemoveRange<T> (IEnumerable<T> objs) {
 			foreach (object obj in objs) {
-				Trait mechanic = (Trait)obj;
-				traits.Remove(mechanic);
-				mechanic.parent = null;
-				DependencyManager.DisconnectAll(mechanic);
+				Trait trait = (Trait)obj;
+				traits.Remove(trait);
+				trait.parent = null;
+				DependencyManager.Destroy(trait);
+				DependencyManager.Disconnect(trait, this);
 			}
 			DependencyManager.Flag(this);
 		}

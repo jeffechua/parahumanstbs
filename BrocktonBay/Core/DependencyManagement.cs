@@ -105,14 +105,11 @@ namespace BrocktonBay {
 			obj.triggers.Clear();
 		}
 
-		// Utility function to:
-		//  - DisconnectAll(obj)
-		//  - obj.Destroy()
-		//  - Call obj.RemoveRange(dependencies) if obj is an IContainer
-		//  - Call dependent.Remove(obj) for all dependents that are IContainers
-		// This is because we assume that parents are dependent on children,
-		// and children are dependencies of parents.
 		public static void Destroy (IDependable obj) {
+
+			if (obj.destroyed) return;
+
+			obj.destroyed = true;
 
 			IDependable[] triggers = obj.triggers.ToArray();
 			foreach (IDependable trigger in triggers)
@@ -123,7 +120,6 @@ namespace BrocktonBay {
 				listener.OnTriggerDestroyed(obj);
 
 			DisconnectAll(obj);
-			TriggerAllFlags();
 
 		}
 

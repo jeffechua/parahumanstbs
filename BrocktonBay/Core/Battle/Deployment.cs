@@ -161,15 +161,9 @@ namespace BrocktonBay {
 			RatingsProfile profile = new RatingsProfile(context, teams, independents);
 			if (affiliation != null) {
 				int[] buffs = location.GetCombatBuffs(new Context(affiliation, this));
-				for (int n = 0; n < 3; n++) {
-					if (this is Attack) { //Negative bonus equals buff for attackers
-						if (buffs[n] < 0) //Positive bonus equals buff for defenders
-							profile.bonuses[n] -= buffs[n];
-					} else {
-						if (buffs[n] > 0)
-							profile.bonuses[n] += buffs[n];
-					}
-				}
+				for (int n = 0; n < 3; n++)
+					if (this is Defense)
+						profile.bonuses[n] += buffs[n];
 			}
 			return profile;
 		}
@@ -242,7 +236,7 @@ namespace BrocktonBay {
 		public void Add (object obj) => AddRange(new List<object> { obj });
 		public void Remove (object obj) => RemoveRange(new List<object> { obj });
 
-		public void AddRange<T> (List<T> objs) {
+		public void AddRange<T> (IEnumerable<T> objs) {
 			foreach (object obj in objs) {
 				if (obj is Team && !teams.Contains((Team)obj)) {
 					Team team = (Team)obj;
@@ -264,7 +258,7 @@ namespace BrocktonBay {
 			DependencyManager.Flag(this);
 		}
 
-		public void RemoveRange<T> (List<T> objs) {
+		public void RemoveRange<T> (IEnumerable<T> objs) {
 			foreach (object obj in objs) {
 				if (obj is Team) {
 					Team team = (Team)obj;

@@ -163,7 +163,7 @@ namespace BrocktonBay {
 		public override bool Accepts (object obj) => (obj is Parahuman || obj is Team || obj is Territory) &&
 													 (Game.omnipotent || ((IAffiliated)obj).affiliation == affiliation);
 
-		public override void AddRange<T> (List<T> objs) { //It is assumed that the invoker has already checked if we Accept(obj).
+		public override void AddRange<T> (IEnumerable<T> objs) { //It is assumed that the invoker has already checked if we Accept(obj).
 			foreach (object element in objs) {
 				GameObject obj = (GameObject)element;
 				if (obj.parent != null) obj.parent.Remove(obj);
@@ -191,7 +191,7 @@ namespace BrocktonBay {
 			DependencyManager.Flag(this);
 		}
 
-		public override void RemoveRange<T> (List<T> objs) { //It is assumed that the invoker has already checked if we Accept(obj).
+		public override void RemoveRange<T> (IEnumerable<T> objs) { //It is assumed that the invoker has already checked if we Accept(obj).
 			foreach (object element in objs) {
 				GameObject obj = (GameObject)element;
 				obj.parent = null;

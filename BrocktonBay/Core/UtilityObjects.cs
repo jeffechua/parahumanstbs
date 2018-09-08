@@ -23,7 +23,7 @@ namespace BrocktonBay {
 		public Context butNotCompact { get { return new Context(agent, UIContext, vertical, false); } }
 		public Context butHorizontal { get { return new Context(agent, UIContext, false, compact); } }
 		public Context butRequestedBy (IAgent newRequester) => new Context(newRequester, UIContext, vertical, compact);
-		public Context butKnownBy (Dossier newKnowledge) => new Context(agent, newKnowledge, vertical, compact);
+		public Context butInUIContext (object newUIContext) => new Context(agent, newUIContext, vertical, compact);
 
 		public Context (IAgent requester, object UIContext, bool vertical = true, bool compact = false) {
 			this.agent = requester;

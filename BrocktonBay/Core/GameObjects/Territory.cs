@@ -222,7 +222,7 @@ namespace BrocktonBay {
 		public override bool Accepts (object obj) => obj is Structure && (Game.omnipotent || ((IAffiliated)obj).affiliation == affiliation);
 		public override bool Contains (object obj) => obj is Structure && structures.Contains((Structure)obj);
 
-		public override void AddRange<T> (List<T> objs) {
+		public override void AddRange<T> (IEnumerable<T> objs) {
 			foreach (object element in objs) {
 				GameObject obj = (GameObject)element;
 				if (obj.parent != null) obj.parent.Remove(obj);
@@ -234,7 +234,7 @@ namespace BrocktonBay {
 			DependencyManager.Flag(this);
 		}
 
-		public override void RemoveRange<T> (List<T> objs) {
+		public override void RemoveRange<T> (IEnumerable<T> objs) {
 			foreach (object element in objs) {
 				GameObject obj = (GameObject)element;
 				structures.Remove((Structure)obj);

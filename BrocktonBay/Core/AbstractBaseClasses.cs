@@ -51,8 +51,8 @@ namespace BrocktonBay {
 		public virtual bool Contains (object obj) => false; //It is NOT assumed that the invoker has already checked if Accept(obj)
 		public void Add (object obj) => AddRange(new List<object> { obj }); //It is assumed that the invoker has already checked if Accept(obj).
 		public void Remove (object obj) => RemoveRange(new List<object> { obj });
-		public virtual void AddRange<T> (List<T> objs) { } //It is assumed that the invoker has already checked if Accept(obj).
-		public virtual void RemoveRange<T> (List<T> objs) { }
+		public virtual void AddRange<T> (IEnumerable<T> objs) { } //It is assumed that the invoker has already checked if Accept(obj).
+		public virtual void RemoveRange<T> (IEnumerable<T> objs) { }
 		public virtual void Sort () { }
 		public int CompareTo (GameObject obj) => ID.CompareTo(obj.ID);
 
@@ -91,6 +91,8 @@ namespace BrocktonBay {
 		// For example, a Parahuman returns a list of its condensed ratings. A Team returns a list of its members.
 		Widget GetCellContents (Context context);
 
+		//Widget GetRightclickMenu (Context context);
+
 	}
 
 	public interface IAffiliated {
@@ -114,8 +116,8 @@ namespace BrocktonBay {
 		bool Contains (object obj);
 		void Add (object obj);
 		void Remove (object obj);
-		void AddRange<T> (List<T> objs); //AddRange() assumes that the invoker has already checked if we Accept(obj).
-		void RemoveRange<T> (List<T> objs);
+		void AddRange<T> (IEnumerable<T> objs); //AddRange() assumes that the invoker has already checked if we Accept(obj).
+		void RemoveRange<T> (IEnumerable<T> objs);
 	}
 
 }

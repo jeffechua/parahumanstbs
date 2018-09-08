@@ -186,7 +186,7 @@ namespace BrocktonBay {
 		public override bool Accepts (object obj) => obj is Parahuman && (Game.omnipotent || ((IAffiliated)obj).affiliation == affiliation);
 		public override bool Contains (object obj) => obj is Parahuman && roster.Contains((Parahuman)obj);
 
-		public override void AddRange<T> (List<T> objs) {
+		public override void AddRange<T> (IEnumerable<T> objs) {
 			foreach (object obj in objs) {
 				Parahuman parahuman = (Parahuman)obj;
 				if (parahuman.parent != null) parahuman.parent.Remove(obj);
@@ -201,7 +201,7 @@ namespace BrocktonBay {
 			DependencyManager.Flag(this);
 		}
 
-		public override void RemoveRange<T> (List<T> objs) {
+		public override void RemoveRange<T> (IEnumerable<T> objs) {
 			foreach (object obj in objs) {
 				Parahuman parahuman = (Parahuman)obj;
 				parahuman.parent = null;

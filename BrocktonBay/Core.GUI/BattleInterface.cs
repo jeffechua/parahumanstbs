@@ -15,6 +15,7 @@ namespace BrocktonBay {
 
 		public BattleInterface (Battle battle) {
 			this.battle = battle;
+			Destroyed += (o, a) => DependencyManager.Destroy(this);
 			DependencyManager.Connect(battle, this);
 			DependencyManager.Connect(Game.UIKey, this);
 			Reload();
@@ -38,6 +39,7 @@ namespace BrocktonBay {
 				DependencyManager.DisconnectAll(this);
 			}
 		}
+
 		public void OnListenerDestroyed (IDependable listener) { }
 
 		public Widget GenerateEventCenter () {

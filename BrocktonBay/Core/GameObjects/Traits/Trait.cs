@@ -63,7 +63,7 @@ namespace BrocktonBay {
 			return (context.agent == Game.player && Game.omniscient) || context.agent.knowledge[parent] >= secrecy;
 		}
 
-		public GameObject parent;
+		public virtual GameObject parent { get; set; }
 
 		public static Trait Create () {
 			Trait newMechanic = null;

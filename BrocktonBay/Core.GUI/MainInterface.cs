@@ -86,7 +86,7 @@ namespace BrocktonBay {
 			while (numbersBar.Children.Length > 0) numbersBar.Children[0].Destroy();
 
 			textBar.PackStart(new Label("Playing as: "), false, false, spacing);
-			InspectableBox player = (InspectableBox)Game.player.GetHeader(new Context(Game.player, this, false, true));
+			InspectableBox player = (InspectableBox)Game.player.GetHeader(new Context(Game.player, null, false, true));
 			if (Game.omnipotent) {
 				MyDragDrop.DestSet(player, "Active IAgent");
 				MyDragDrop.DestSetDropAction(player, delegate (object obj) {
@@ -181,7 +181,7 @@ namespace BrocktonBay {
 		}
 
 		public void Redraw () {
-			context = new Context(Game.player, this);
+			context = new Context(Game.player, null);
 			while (mainBox.Children.Length > 0) mainBox.Children[0].Destroy();
 			if (GameObject.TryCast(Game.player, out Faction faction)) {
 				mainBox.PackStart(new VSeparator(), false, false, 0);

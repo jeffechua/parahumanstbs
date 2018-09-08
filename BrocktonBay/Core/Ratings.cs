@@ -352,7 +352,7 @@ namespace BrocktonBay {
 
 			//Strength
 			float baseStrength = zValues[4, 1] + zValues[4, 2] + zValues[4, 3] / 2 + zValues[4, 4] / 2;
-			float plusBonus = baseStrength + bonuses[0];
+			float plusBonus = ClampZero(baseStrength + bonuses[0]);
 			if (plusBonus < 0) plusBonus = 0;
 			float forceMult = Battle.ForceMult(force_employed);
 			float plusForce = plusBonus * forceMult;
@@ -360,15 +360,19 @@ namespace BrocktonBay {
 									baseStrength, bonuses[0], plusBonus, forceMult, plusForce);
 			//Stealth
 			stats[1].SetValues(zValues[4, 5], zValues[4, 6], zValues[4, 5] + zValues[4, 6],
-									 bonuses[1], zValues[4, 5] + zValues[4, 6] + bonuses[1]);
+							   bonuses[1], ClampZero(zValues[4, 5] + zValues[4, 6] + bonuses[1]));
 			//Insight
 			stats[2].SetValues(zValues[4, 7], zValues[4, 8], zValues[4, 7] + zValues[4, 8],
-									 bonuses[2], zValues[4, 7] + zValues[4, 8] + bonuses[2]);
+							   bonuses[2], ClampZero(zValues[4, 7] + zValues[4, 8] + bonuses[2]));
 			return stats;
 
 		}
 
+		float ClampZero (float val) => val <= 0 ? 0 : val;
+
 	}
+
+
 
 	public interface IRated {
 		Func<Context, RatingsProfile> ratings { get; }

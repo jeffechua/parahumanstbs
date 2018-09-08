@@ -191,9 +191,7 @@ namespace BrocktonBay {
 			this.obj = obj;
 			exp = (Expression)property.GetValue(obj);
 			this.context = context;
-			title = (attribute.overrideLabel == "" ?
-					 UIFactory.ToReadable(property.Name) :
-					 attribute.overrideLabel) + ": "; ;
+			title = attribute.overrideLabel ?? UIFactory.ToReadable(property.Name);
 
 			Label label = new Label();
 			label.UseMarkup = true;

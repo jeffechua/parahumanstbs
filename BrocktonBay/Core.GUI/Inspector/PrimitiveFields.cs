@@ -17,9 +17,7 @@ namespace BrocktonBay {
 			if (context.compact) {
 				Text = text;
 			} else {
-				Text = (attribute.overrideLabel == "" ?
-						UIFactory.ToReadable(property.Name) :
-						attribute.overrideLabel) + ": " + text;
+				Text = (attribute.overrideLabel ?? UIFactory.ToReadable(property.Name)) + ": " + text;
 			}
 			SetAlignment(0, 0.5f);
 		}
@@ -48,9 +46,7 @@ namespace BrocktonBay {
 			editable = attribute.EditAuthorized(obj);
 
 			if (!context.compact) {
-				Label label = new Label((attribute.overrideLabel == ""
-				                         ?UIFactory.ToReadable(property.Name) :
-				                         attribute.overrideLabel) + ": ");
+				Label label = new Label((attribute.overrideLabel ?? UIFactory.ToReadable(property.Name)) + ": ");
 				PackStart(label, false, false, 0);
 			}
 

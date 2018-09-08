@@ -28,7 +28,7 @@ namespace BrocktonBay {
 			this.obj = (IGUIComplete)property.GetValue(obj);
 			this.context = context;
 
-			title = attribute.overrideLabel == "" ? UIFactory.ToReadable(property.Name) : attribute.overrideLabel;
+			title = attribute.overrideLabel ?? UIFactory.ToReadable(property.Name);
 
 			if (this.obj != null) {
 				DependencyManager.Connect(this.obj, this);
@@ -157,7 +157,7 @@ namespace BrocktonBay {
 						alignment.Add(table);
 					}
 				} else {
-					Expander expander = new Expander(UIFactory.ToReadable(property.Name));
+					Expander expander = new Expander(attribute.overrideLabel ?? UIFactory.ToReadable(property.Name));
 					expander.Expanded = (int)attribute.arg > 0;
 					expander.Add(table);
 					alignment.Add(expander);
@@ -202,7 +202,7 @@ namespace BrocktonBay {
 			}
 		}
 
-		void AttemptDrag (object data) {
+		protected virtual void AttemptDrag (object data) {
 			if (parent.Accepts(data)) {
 				parent.Add(data);
 				DependencyManager.TriggerAllFlags();
@@ -292,6 +292,8 @@ namespace BrocktonBay {
 			}
 			return base.GetElementWidget(obj);
 		}
+
+		protected override void AttemptDrag (object data) { }
 
 	}
 

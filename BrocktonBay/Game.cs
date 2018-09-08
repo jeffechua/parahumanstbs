@@ -29,7 +29,7 @@ namespace BrocktonBay {
 			for (int i = 0; i < fragments.Length; i++) {
 				box.PackStart(new Label(fragments[i]), false, false, 0);
 				if (i != fragments.Length - 1)
-					box.PackStart(elements[i].GetHeader(new Context(Game.player, box, true, true)), false, false, 0);
+					box.PackStart(elements[i].GetHeader(new Context(Game.player, null, true, true)), false, false, 0);
 			}
 			return box;
 		}

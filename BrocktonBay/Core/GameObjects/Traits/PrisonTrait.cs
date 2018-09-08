@@ -19,10 +19,10 @@ namespace BrocktonBay {
 				List<string> ids = new List<string>(value.Split(' '));
 				if (ids.Count == 1 && ids[0] == "") return;
 				foreach (string id in ids) {
-					Parahuman parahuman = Game.city.Get<Parahuman>(int.Parse(id));
-					prisoners.Add(parahuman);
-					(parent.affiliation as Faction).assignedCaptures.Add(parahuman);
-					GetPrisonerTrait(parahuman).prison = this;
+					PrisonerTrait prisonerTrait = GetPrisonerTrait(Game.city.Get<Parahuman>(int.Parse(id)));
+					prisoners.Add(prisonerTrait.parahuman);
+					prisonerTrait.imprisoners.assignedCaptures.Add(prisonerTrait.parahuman);
+					prisonerTrait.prison = this;
 				}
 			}
 		}
@@ -44,56 +44,70 @@ namespace BrocktonBay {
 		}
 
 		public override void OnTriggerDestroyed (IDependable trigger) {
-			if (Contains(trigger)) {
-				Remove(trigger);
+			PrisonerTrait trait = (PrisonerTrait)trigger;
+			if (Contains(trait.parahuman)) {
+				trait.Release();
 				DependencyManager.Flag(this);
 			}
 		}
 
 		public override void OnListenerDestroyed (IDependable listener) {
-			if(listener == parent){
-				RemoveRange(prisoners);
+			if (listener == parent) {
+				RemoveRange(prisoners.ToArray());
 				DependencyManager.Destroy(this);
 			}
 		}
 
-		public bool Accepts (object obj) => GameObject.TryCast(obj, out Parahuman p) && TryGetPrisonerTrait(p, out PrisonerTrait trait) && trait.imprisoners == parent.affiliation;
-		public bool Contains (object obj) => GameObject.TryCast(obj, out Parahuman p) && prisoners.Contains(p);
+		public bool Accepts (object obj) {
+			if (GameObject.TryCast(obj, out Parahuman parahuman)) {
+				return TryGetPrisonerTrait(parahuman, out PrisonerTrait trait) && trait.imprisoners == parent.affiliation;
+			} else if (GameObject.TryCast(obj, out PrisonerTrait trait)) {
+				return trait.imprisoners == parent.affiliation;
+			} else {
+				return false;
+			}
+		}
+		public bool Contains (object obj) {
+			if (GameObject.TryCast(obj, out Parahuman parahuman)) {
+				return prisoners.Contains(parahuman);
+			} else if (GameObject.TryCast(obj, out PrisonerTrait trait)) {
+				return prisoners.Find((prisoner) => GetPrisonerTrait(prisoner) == trait) != null;
+			} else {
+				return false;
+			}
+		}
 		public void Add (object obj) => AddRange(new List<object> { obj });
 		public void Remove (object obj) => RemoveRange(new List<object> { obj });
-		public void AddRange<T> (List<T> objs) {
-			Faction faction = parent.affiliation as Faction;
+		public void AddRange<T> (IEnumerable<T> objs) {
 			foreach (object obj in objs) {
-				Parahuman parahuman = (Parahuman)obj;
-				PrisonerTrait prisoner = GetPrisonerTrait(parahuman);
-				if (prisoner.prison != null)
-					prisoner.prison.Remove(prisoner);
-				prisoners.Add(parahuman);
-				prisoner.prison = this;
-				faction.assignedCaptures.Add(parahuman);
-				faction.unassignedCaptures.Remove(parahuman);
-				DependencyManager.Connect(parahuman, this);
-				DependencyManager.Flag(parahuman);
+				PrisonerTrait prisonerTrait = obj is Parahuman ? GetPrisonerTrait((Parahuman)obj) : (PrisonerTrait)obj;
+				if (prisonerTrait.prison != null)
+					prisonerTrait.prison.Remove(prisonerTrait);
+				prisoners.Add(prisonerTrait.parahuman);
+				prisonerTrait.prison = this;
+				prisonerTrait.imprisoners.assignedCaptures.Add(prisonerTrait.parahuman);
+				prisonerTrait.imprisoners.unassignedCaptures.Remove(prisonerTrait.parahuman);
+				DependencyManager.Connect(prisonerTrait, this);
+				DependencyManager.Flag(prisonerTrait);
 			}
 			DependencyManager.Flag(this);
 		}
-		public void RemoveRange<T> (List<T> objs) {
-			Faction faction = parent.affiliation as Faction;
+		public void RemoveRange<T> (IEnumerable<T> objs) {
 			foreach (object obj in objs) {
-				Parahuman parahuman = (Parahuman)obj;
-				PrisonerTrait prisoner = GetPrisonerTrait(parahuman);
-				prisoners.Remove(parahuman);
-				prisoner.prison = null;
-				faction.assignedCaptures.Remove(parahuman);
-				faction.unassignedCaptures.Add(parahuman);
-				DependencyManager.Disconnect(parahuman, this);
-				DependencyManager.Flag(parahuman);
+				PrisonerTrait prisonerTrait = obj is Parahuman ? GetPrisonerTrait((Parahuman)obj) : (PrisonerTrait)obj;
+				prisoners.Remove(prisonerTrait.parahuman);
+				prisonerTrait.prison = null;
+				prisonerTrait.imprisoners.assignedCaptures.Remove(prisonerTrait.parahuman);
+				prisonerTrait.imprisoners.unassignedCaptures.Add(prisonerTrait.parahuman);
+				DependencyManager.Disconnect(prisonerTrait, this);
+				DependencyManager.Flag(prisonerTrait);
 			}
 			DependencyManager.Flag(this);
 		}
 
 		PrisonerTrait GetPrisonerTrait (Parahuman parahuman)
 			=> (PrisonerTrait)parahuman.traits.Find((m) => m is PrisonerTrait);
+
 
 		bool TryGetPrisonerTrait (Parahuman parahuman, out PrisonerTrait trait) {
 			trait = (PrisonerTrait)parahuman.traits.Find((m) => m is PrisonerTrait);
@@ -161,6 +175,18 @@ namespace BrocktonBay {
 		public Structure prisonStructure { get => prison == null ? null : prison.parent as Structure; }
 		public PrisonTrait prison;
 
+		//So that it can clean up after it's unparented.
+		public Parahuman parahuman;
+		public override GameObject parent {
+			get => _parent;
+			set {
+				if (value != null)
+					parahuman = (Parahuman)value;
+				_parent = value;
+			}
+		}
+		GameObject _parent;
+
 		public IAgent affiliation { get => imprisoners; }
 
 		[Displayable(5, typeof(BasicHContainerField), "move", "release", "execute")]
@@ -186,7 +212,7 @@ namespace BrocktonBay {
 						(obj) => (obj.affiliation == imprisoners) && obj is Structure && (obj.traits.Find((trait) => trait is PrisonTrait) != null),
 						delegate (GameObject obj) {
 							PrisonTrait chosenPrison = (PrisonTrait)obj.traits.Find((trait) => trait is PrisonTrait);
-							chosenPrison.Add(parent);
+							chosenPrison.Add(parahuman);
 							DependencyManager.TriggerAllFlags();
 						}
 					);
@@ -197,10 +223,7 @@ namespace BrocktonBay {
 				name = "Release",
 				description = "Release this captive" + (prisonStructure == null ? "." : (" from " + prisonStructure.name + ".")),
 				action = delegate (Context context) {
-					((Parahuman)parent).health = Health.Healthy;
-					if (prison != null) prison.Remove(parent);
-					imprisoners.unassignedCaptures.Remove((Parahuman)parent);
-					DependencyManager.Destroy(this);
+					Release();
 					DependencyManager.TriggerAllFlags();
 				},
 				condition = (context) => UIFactory.EditAuthorized(this, "release")
@@ -209,14 +232,21 @@ namespace BrocktonBay {
 				name = "Execute [S]",
 				description = "Kill this captive in cold blood. This is an S-Class action.",
 				action = delegate (Context context) {
-					((Parahuman)parent).health = Health.Deceased;
-					if (prison != null) prison.Remove(parent);
-					imprisoners.unassignedCaptures.Remove((Parahuman)parent);
+					parahuman.health = Health.Deceased;
+					if (prison != null) prison.Remove(parahuman);
+					imprisoners.unassignedCaptures.Remove(parahuman);
 					DependencyManager.Destroy(this);
 					DependencyManager.TriggerAllFlags();
 				},
 				condition = (context) => UIFactory.EditAuthorized(this, "execute")
 			};
+		}
+
+		public void Release () {
+			parahuman.health = Health.Healthy;
+			if (prison != null) prison.Remove(this);
+			imprisoners.unassignedCaptures.Remove(parahuman);
+			DependencyManager.Destroy(this);
 		}
 
 		public override void Reload () {
@@ -238,6 +268,14 @@ namespace BrocktonBay {
 			}
 		}
 
+		public override void OnListenerDestroyed (IDependable listener) {
+			if (listener == parent) {
+				DependencyManager.Destroy(this);
+			} else if (listener == prison) {
+				prison.Remove(this);
+			}
+		}
+
 		public override object Invoke (Context context, object obj) {
 			throw new System.NotImplementedException();
 		}
@@ -253,7 +291,7 @@ namespace BrocktonBay {
 			}
 			vBox.PackStart(new Label() { HeightRequest = 5 });
 			if (UIFactory.EditAuthorized(this, "move")) {
-				ActionField action = (ActionField)UIFactory.Fabricate(this, "move", new Context(Game.player, vBox));
+				ActionField action = (ActionField)UIFactory.Fabricate(this, "move", new Context(Game.player, this));
 				((Gtk.Alignment)action.Child).BorderWidth = 1;
 				vBox.PackStart(action, false, false, 0);
 			}

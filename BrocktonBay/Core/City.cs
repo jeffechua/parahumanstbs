@@ -58,7 +58,7 @@ namespace BrocktonBay {
 		public bool Contains (object obj) => obj is GameObject && gameObjects.Contains((GameObject)obj);
 		public void Add (object obj) => AddRange(new List<object> { obj });
 		public void Remove (object obj) => RemoveRange(new List<object> { obj });
-		public void AddRange<T> (List<T> objs) {
+		public void AddRange<T> (IEnumerable<T> objs) {
 			foreach (object obj in objs) {
 				GameObject newGO = (GameObject)obj;
 				gameObjects.Add(newGO);
@@ -72,7 +72,7 @@ namespace BrocktonBay {
 			}
 			DependencyManager.Flag(this);
 		}
-		public void RemoveRange<T> (List<T> objs) {
+		public void RemoveRange<T> (IEnumerable<T> objs) {
 			foreach (object obj in objs) {
 				GameObject removedGO = (GameObject)obj;
 				gameObjects.Remove(removedGO);
