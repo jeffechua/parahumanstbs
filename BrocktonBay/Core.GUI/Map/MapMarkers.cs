@@ -69,7 +69,7 @@ namespace BrocktonBay {
 		public abstract bool magnifRedraw { get; }
 		protected abstract int popupDistance { get; }
 
-		public InspectableMapMarker (IGUIComplete obj, Map map, bool destructible = true, bool draggable = true) : base(obj, destructible, draggable) {
+		public InspectableMapMarker (IGUIComplete obj, Map map, bool draggable = true) : base(obj, new Context(obj), draggable) {
 			VisibleWindow = false;
 			this.map = map;
 			node = Graphics.GetIcon(Threat.C, new Gdk.Color(255, 255, 255), 8);

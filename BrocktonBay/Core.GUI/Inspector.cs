@@ -52,7 +52,7 @@ namespace BrocktonBay {
 			if (Child != null) Child.Destroy();
 			if (LabelWidget != null) LabelWidget.Destroy();
 			Add(UIFactory.GenerateHorizontal(obj));
-			LabelWidget = obj.GetHeader(new Context(Game.player, obj, false, true));
+			LabelWidget = obj.GetHeader(new Context(obj, Game.player, false, true));
 			ShowAll();
 			redrawQueued = false;
 		}
@@ -70,16 +70,14 @@ namespace BrocktonBay {
 
 		public Frame frame;
 		public IGUIComplete obj;
-		public Context context;
 
 		bool lazy;
 		bool redrawQueued;
 
-		public SmartCell (Context context, IGUIComplete obj, bool lazy) : base(obj) {
+		public SmartCell (Context context, IGUIComplete obj, bool lazy) : base(obj, context) {
 			//Basic setup
 			this.obj = obj;
 			this.lazy = lazy;
-			this.context = context;
 			frame = new Frame();
 			Child = frame;
 			prelight = false;
@@ -115,12 +113,7 @@ namespace BrocktonBay {
 			if (frame.Child != null) frame.Child.Destroy();
 			if (frame.LabelWidget != null) frame.LabelWidget.Destroy();
 			frame.Add(obj.GetCellContents(context));
-			frame.LabelWidget = obj.GetHeader(context.butCompact);
-			InspectableBox inspectableBox = frame.LabelWidget as InspectableBox;
-			if (inspectableBox != null) {
-				inspectableBox.rightclickMenu.Destroy();
-				inspectableBox.rightclickMenu = rightclickMenu;
-			}
+			frame.LabelWidget = obj.GetHeader(context);
 			ShowAll();
 			redrawQueued = false;
 		}
@@ -131,12 +124,10 @@ namespace BrocktonBay {
 
 		public Frame frame;
 		public IGUIComplete obj;
-		public Context context;
 
-		public Cell (Context context, IGUIComplete obj) : base(obj) {
+		public Cell (Context context, IGUIComplete obj) : base(obj, context) {
 			//Basic setup
 			this.obj = obj;
-			this.context = context;
 			frame = new Frame();
 			Child = frame;
 			prelight = false;
@@ -150,13 +141,9 @@ namespace BrocktonBay {
 			// - If cellObject is dragged from an associative list to an aggregative list or vice versa,
 			//   We reasonably assume that user doesn't want it removed from the first list since the concept of "moving" doesn't apply in this context.
 			// - Only if the user has dragged cellObject from any list to *nothing* can it be assumed that they need it manually removed by us.
-			frame.Add(obj.GetCellContents(context));
-			frame.LabelWidget = obj.GetHeader(context.butCompact);
+			frame.Add(obj.GetCellContents(this.context));
+			frame.LabelWidget = obj.GetHeader(this.context);
 			InspectableBox inspectableBox = frame.LabelWidget as InspectableBox;
-			if (inspectableBox != null) {
-				inspectableBox.rightclickMenu.Destroy();
-				inspectableBox.rightclickMenu = rightclickMenu;
-			}
 			ShowAll();
 		}
 
@@ -198,7 +185,7 @@ namespace BrocktonBay {
 				DependencyManager.Connect(Game.UIKey, this);
 				if (Child != null) Child.Destroy();
 				VBox mainbox = new VBox(false, 0);
-				mainbox.PackStart(obj.GetHeader(new Context(Game.player, obj, true, false)), false, false, 10);
+				mainbox.PackStart(obj.GetHeader(new Context(obj)), false, false, 10);
 				mainbox.PackStart(new HSeparator(), false, false, 0);
 				mainbox.PackStart(UIFactory.GenerateVertical(obj), true, true, 5);
 				AddWithViewport(mainbox);

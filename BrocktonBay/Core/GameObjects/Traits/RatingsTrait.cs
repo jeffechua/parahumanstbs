@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Reflection;
+using System.Collections.Generic;
 using Gtk;
 
 namespace BrocktonBay {
@@ -21,13 +21,13 @@ namespace BrocktonBay {
 				}
 			}
 		}
-		public override EffectTrigger trigger { get => EffectTrigger.GetRatings; }
+		public override List<EffectTrigger> trigger { get => new List<EffectTrigger> { EffectTrigger.GetRatings }; }
 
-		public WeaknessTrait (MechanicData data) : base(data)
+		public WeaknessTrait (TraitData data) : base(data)
 			=> effect = data.effect;
 
-		public override object Invoke (Context context, object obj) {
-			if (Known(context) && context.agent != parent.affiliation)
+		public override object Invoke (EffectTrigger trigger, Context context, object obj) {
+			if (Known(context) && context.requester != parent.affiliation)
 				return (RatingsProfile)obj * difference;
 			return obj;
 		}
@@ -59,13 +59,13 @@ namespace BrocktonBay {
 				}
 			}
 		}
-		public override EffectTrigger trigger { get { return EffectTrigger.GetRatings; } }
+		public override List<EffectTrigger> trigger { get => new List<EffectTrigger> { EffectTrigger.GetRatings }; }
 
-		public TrueFormTrait (MechanicData data) : base(data)
+		public TrueFormTrait (TraitData data) : base(data)
 			=> effect = data.effect;
 
-		public override object Invoke (Context context, object obj) {
-			if (Known(context) && context.agent != parent.affiliation)
+		public override object Invoke (EffectTrigger trigger, Context context, object obj) {
+			if (Known(context) && context.requester != parent.affiliation)
 				return trueform;
 			return obj;
 		}

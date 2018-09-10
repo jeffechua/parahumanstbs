@@ -95,6 +95,19 @@ namespace BrocktonBay {
 				};
 				rightclickMenu.Append(clearButton);
 
+				// "Add existing" button, but only if it's a list of GameObjects which can be searched from SelectorDialog.
+				if (typeof(T).IsSubclassOf(typeof(GameObject))) {
+					MenuItem addExistingButton = new MenuItem("Add");
+					rightclickMenu.Append(addExistingButton);
+					addExistingButton.Activated += (o, a) => new SelectorDialog(
+						"Select new addition to " + UIFactory.ToReadable(property.Name),
+						(tested) => ((IContainer)obj).Accepts(tested) && tested is T,
+						delegate (GameObject returned) {
+							((IContainer)obj).Add(returned);
+							DependencyManager.TriggerAllFlags();
+						});
+				}
+
 				// "Add new" button
 				if (Game.omnipotent) {
 					MenuItem addNewButton = new MenuItem("Add New");
@@ -117,19 +130,6 @@ namespace BrocktonBay {
 						DependencyManager.TriggerAllFlags();
 					};
 					rightclickMenu.Append(addNewButton);
-				}
-
-				// "Add existing" button, but only if it's a list of GameObjects which can be searched from SelectorDialog.
-				if (typeof(T).IsSubclassOf(typeof(GameObject))) {
-					MenuItem addExistingButton = new MenuItem("Add Existing");
-					rightclickMenu.Append(addExistingButton);
-					addExistingButton.Activated += (o, a) => new SelectorDialog(
-						"Select new addition to " + UIFactory.ToReadable(property.Name),
-						(tested) => ((IContainer)obj).Accepts(tested) && tested is T,
-						delegate (GameObject returned) {
-							((IContainer)obj).Add(returned);
-							DependencyManager.TriggerAllFlags();
-						});
 				}
 
 			}
@@ -310,30 +310,6 @@ namespace BrocktonBay {
 			cell = new Cell(context, obj);
 
 			if (editable) {
-
-				//Set up menu
-
-				MenuItem moveButton = new MenuItem("Move");
-				moveButton.Activated += (o, a)
-					=> new SelectorDialog("Select new parent for " + obj.name,
-										  (tested) => tested.Accepts(obj),
-										  delegate (GameObject returned) {
-											  returned.Add(obj);
-											  DependencyManager.TriggerAllFlags();
-										  });
-
-				MenuItem removeButton = new MenuItem("Remove");
-				removeButton.Activated += delegate {
-					parent.Remove(obj);
-					DependencyManager.TriggerAllFlags();
-				};
-
-				cell.rightclickMenu.Append(new SeparatorMenuItem());
-				cell.rightclickMenu.Append(moveButton);
-				cell.rightclickMenu.Append(removeButton);
-
-				//Set up drag/drop
-
 				MyDragDrop.SetFailAction(cell, delegate {
 					parent.Remove(obj);
 					DependencyManager.TriggerAllFlags();
@@ -342,7 +318,6 @@ namespace BrocktonBay {
 					parent.Remove(obj);
 					DependencyManager.TriggerAllFlags();
 				});
-
 			}
 
 			// Rationale for removing only if drag had no target

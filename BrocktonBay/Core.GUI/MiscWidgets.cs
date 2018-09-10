@@ -63,95 +63,32 @@ namespace BrocktonBay {
 	public class InspectableBox : ClickableEventBox {
 
 		public IGUIComplete inspected;
-		public Menu rightclickMenu;
-		public bool destructible;
-		public bool draggable;
+		public Context context; // So derived classes can use the more convenient "context" variable name
 
-		SeparatorMenuItem deleteSeparator;
-		MenuItem deleteButton;
-		protected bool deletable;
-
-		public InspectableBox (Widget child, IGUIComplete inspected, bool destructible = true, bool draggable = true) : this(inspected, destructible, draggable)
+		public InspectableBox (Widget child, IGUIComplete inspected, Context context, bool draggable = true) : this(inspected, context, draggable)
 			=> Child = child;
 
-		public InspectableBox (IGUIComplete inspected, bool destructible = true, bool draggable = true) {
-
+		public InspectableBox (IGUIComplete inspected, Context context, bool draggable = true) {
 			this.inspected = inspected;
-			this.destructible = destructible;
-			this.draggable = draggable;
-
-
+			this.context = context.butCompact;
 			Clicked += OnClicked;
 			MiddleClicked += OnMiddleClicked;
 			DoubleClicked += OnDoubleClicked;
-			RightClicked += OpenRightClickMenu;
-
-			rightclickMenu = new Menu();
-
-			MenuItem inspectButton = new MenuItem("Inspect");
-			inspectButton.Activated += Inspect;
-			rightclickMenu.Append(inspectButton);
-			MenuItem inspectInWindowButton = new MenuItem("Inspect in New Window");
-			inspectInWindowButton.Activated += InspectInNewWindow;
-			rightclickMenu.Append(inspectInWindowButton);
-
-			deleteSeparator = new SeparatorMenuItem();
-			deleteButton = new MenuItem("Delete");
-			deleteButton.Activated += Delete;
-			if (Game.omnipotent && destructible)
-				EnableDelete();
-
-			//Set up drag support
+			RightClicked += OnRightClicked;
 			if (draggable)
 				MyDragDrop.SourceSet(this, inspected);
-
 		}
 
-		protected void EnableDelete () {
-			rightclickMenu.Append(deleteSeparator);
-			rightclickMenu.Append(deleteButton);
-			deletable = true;
+		protected void OnRightClicked (object obj, ButtonPressEventArgs args) {
+			Menu rightClickMenu = inspected.GetRightClickMenu(context, this);
+			if (context.UIContext != null) context.UIContext.ContributeMemberRightClickMenu(inspected, rightClickMenu, context, this);
+			rightClickMenu.Popup();
+			rightClickMenu.ShowAll();
 		}
 
-		protected void DisableDelete () {
-			rightclickMenu.Remove(deleteSeparator);
-			rightclickMenu.Remove(deleteButton);
-			deletable = false;
-		}
-
-		public void OpenRightClickMenu (object obj, ButtonPressEventArgs args) {
-			rightclickMenu.Popup();
-			rightclickMenu.ShowAll();
-		}
-
-		public virtual void OnClicked (object obj, ButtonReleaseEventArgs args) {
-			if (inspected == null) return;
-			Inspector.InspectInNearestInspector(inspected, this);
-		}
-
-		public virtual void OnMiddleClicked (object obj, ButtonReleaseEventArgs args) {
-			if (inspected == null) return;
-			Inspector.InspectInNewWindow(inspected);
-		}
-
-		public virtual void OnDoubleClicked (object obj, ButtonPressEventArgs args) {
-			if (inspected == null) return;
-			Inspector.InspectInNewWindow(inspected);
-		}
-
-		public void Inspect (object obj, EventArgs args) {
-			if (inspected == null) return;
-			Inspector.InspectInNearestInspector(inspected, this);
-		}
-		public void InspectInNewWindow (object obj, EventArgs args) {
-			if (inspected == null) return;
-			Inspector.InspectInNewWindow(inspected);
-		}
-		public void Delete (object obj, EventArgs args) {
-			if (inspected == null) return;
-			DependencyManager.Destroy(inspected);
-			DependencyManager.TriggerAllFlags();
-		}
+		protected virtual void OnClicked (object obj, ButtonReleaseEventArgs args) => Inspector.InspectInNearestInspector(inspected, this);
+		protected virtual void OnMiddleClicked (object obj, ButtonReleaseEventArgs args) => Inspector.InspectInNewWindow(inspected);
+		protected virtual void OnDoubleClicked (object obj, ButtonPressEventArgs args) => Inspector.InspectInNewWindow(inspected);
 
 	}
 

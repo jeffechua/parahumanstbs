@@ -14,10 +14,10 @@ namespace BrocktonBay {
 			typeof(DisplayableAttribute)
 		};
 
-		public static VBox GenerateVertical (object obj)
-			=> GenerateVertical(new Context(Game.player, obj, true, false), obj);
-		public static VBox GenerateHorizontal (object obj)
-			=> GenerateHorizontal(new Context(Game.player, obj, false, false), obj);
+		public static VBox GenerateVertical (IGUIComplete obj)
+			=> GenerateVertical(new Context(obj, Game.player, true, false), obj);
+		public static VBox GenerateHorizontal (IGUIComplete obj)
+			=> GenerateHorizontal(new Context(obj, Game.player, false, false), obj);
 
 		public static VBox Generate (Context context, object obj) {
 			if (context.vertical) {
@@ -174,6 +174,9 @@ namespace BrocktonBay {
 		public static bool EditAuthorized (PropertyInfo property, object obj)
 			=> ((DisplayableAttribute)property.GetCustomAttribute(typeof(DisplayableAttribute))).EditAuthorized(obj);
 
+		public static bool ViewAuthorized (object obj, string property)
+			=> ViewAuthorized(obj.GetType().GetProperty(property), obj);
+
 		public static bool ViewAuthorized (PropertyInfo property, object obj)
 			=> ((DisplayableAttribute)property.GetCustomAttribute(typeof(DisplayableAttribute))).ViewAuthorized(obj);
 
@@ -192,4 +195,58 @@ namespace BrocktonBay {
 		}
 
 	}
+
+	public static class MenuFactory {
+
+		public static MenuItem CreateInspectButton (IGUIComplete obj, Widget referenceWidget) {
+			MenuItem inspectButton = new MenuItem("Inspect");
+			inspectButton.Activated += (o, a) => Inspector.InspectInNearestInspector(obj, referenceWidget);
+			return inspectButton;
+		}
+
+		public static MenuItem CreateInspectInNewWindowButton (IGUIComplete obj) {
+			MenuItem inspectInWindowButton = new MenuItem("Inspect in New Window");
+			inspectInWindowButton.Activated += (o, a) => Inspector.InspectInNewWindow(obj);
+			return inspectInWindowButton;
+		}
+
+		public static MenuItem CreateDeleteButton (IDependable obj) {
+			MenuItem deleteButton = new MenuItem("Delete");
+			deleteButton.Activated += delegate {
+				DependencyManager.Destroy(obj);
+				DependencyManager.TriggerAllFlags();
+			};
+			return deleteButton;
+		}
+
+		public static MenuItem CreateMoveButton (IGUIComplete child) {
+			MenuItem moveButton = new MenuItem("Move");
+			moveButton.Activated += (o, a)
+				=> new SelectorDialog("Select new parent for " + child.name,
+									  (tested) => tested.Accepts(child),
+									  delegate (GameObject returned) {
+										  returned.Add(child);
+										  DependencyManager.TriggerAllFlags();
+									  });
+			return moveButton;
+		}
+
+		public static MenuItem CreateRemoveButton (IContainer container, object child) {
+			MenuItem removeButton = new MenuItem("Remove");
+			removeButton.Activated += delegate {
+				container.Remove(child);
+				DependencyManager.TriggerAllFlags();
+			};
+			return removeButton;
+		}
+
+		public static MenuItem CreateActionButton (GameAction action, Context context) {
+			MenuItem actionButton = new MenuItem(action.name);
+			actionButton.Activated += (o, a) => action.action(context);
+			actionButton.Sensitive = action.condition(context);
+			return actionButton;
+		}
+
+	}
+
 }

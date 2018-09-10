@@ -28,6 +28,30 @@ namespace BrocktonBay {
 		//IGUIComplete stuff
 		public abstract Widget GetHeader (Context context);
 		public abstract Widget GetCellContents (Context context);
+		public virtual Menu GetRightClickMenu (Context context, Widget rightClickedWidget) {
+			Menu rightClickMenu = new Menu();
+			rightClickMenu.Append(MenuFactory.CreateInspectButton(this, rightClickedWidget));
+			rightClickMenu.Append(MenuFactory.CreateInspectInNewWindowButton(this));
+			foreach (Trait trait in traits)
+				if (trait.trigger.Contains(EffectTrigger.GetRightClickMenu))
+					trait.Invoke(EffectTrigger.GetRightClickMenu, context);
+			if (Game.omnipotent) {
+				rightClickMenu.Append(new SeparatorMenuItem());
+				rightClickMenu.Append(MenuFactory.CreateDeleteButton(this));
+				if (TryCast(out IAgent agent) && agent.active) {
+					rightClickMenu.Append(new SeparatorMenuItem());
+					MenuItem setPlayerButton = new MenuItem("Set player");
+					setPlayerButton.Activated += delegate {
+						Game.player = (IAgent)this;
+						Game.RefreshUIAndTriggerAllFlags();
+					};
+					rightClickMenu.Append(setPlayerButton);
+				}
+			}
+			return rightClickMenu;
+		}
+
+		public abstract void ContributeMemberRightClickMenu (object member, Menu rightClickMenu, Context context, Widget rightClickedWidget);
 
 		//IDependable stuff
 		public abstract int order { get; }
@@ -91,7 +115,9 @@ namespace BrocktonBay {
 		// For example, a Parahuman returns a list of its condensed ratings. A Team returns a list of its members.
 		Widget GetCellContents (Context context);
 
-		//Widget GetRightclickMenu (Context context);
+		Menu GetRightClickMenu (Context context, Widget rightClickedWidget);
+
+		void ContributeMemberRightClickMenu (object member, Menu rightClickMenu, Context context, Widget rightClickedWidget);
 
 	}
 

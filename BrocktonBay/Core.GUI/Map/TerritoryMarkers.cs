@@ -41,8 +41,6 @@ namespace BrocktonBay {
 				shownPosition = territory.position;
 				Repin();
 			}
-			if (!deletable && Game.omnipotent) EnableDelete();
-			if (deletable && !Game.omnipotent) DisableDelete();
 		}
 
 		public override void OnTriggerDestroyed (IDependable trigger) {
@@ -55,7 +53,6 @@ namespace BrocktonBay {
 
 		protected override Window GenerateRightPopup () {
 			Window popup = new Window(WindowType.Popup) { TransientFor = (Window)map.Toplevel };
-			Context context = new Context(Game.player, territory, true, false);
 			VBox mainBox = new VBox(false, 2) { BorderWidth = 10 };
 			mainBox.PackStart(UIFactory.Align(territory.GetHeader(context.butCompact), 0.5f, 0, 0, 1), false, false, 3);
 			mainBox.PackStart(new HSeparator(), false, false, 5);

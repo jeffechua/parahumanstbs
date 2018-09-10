@@ -19,10 +19,10 @@ namespace BrocktonBay {
 		public Deployment defenders { get => deployments[1]; set => deployments[1] = value; }
 		public EffectiveRatingsProfile[] profiles;
 
-		public string name { get { return "Battle at " + location.name; } }
+		public string name { get { return "Battle at " + battleground.name; } }
 
 		[Displayable(1, typeof(ObjectField), forceHorizontal = true)]
-		public IBattleground location;
+		public IBattleground battleground;
 
 
 
@@ -90,7 +90,7 @@ namespace BrocktonBay {
 		public Dossier apparentKnowledge;
 
 		public Battle (IBattleground location, Deployment attackers, Deployment defenders) {
-			this.location = location;
+			this.battleground = location;
 			deployments = new Deployment[] { attackers, defenders };
 			if (defenders != null) {
 				profiles = new EffectiveRatingsProfile[2];
@@ -117,8 +117,8 @@ namespace BrocktonBay {
 
 		public void Evaluate () {
 
-			RatingsProfile attacker_base_profile = attackers.ratings(new Context(defenders.affiliation, attackers));
-			RatingsProfile defender_base_profile = defenders.ratings(new Context(attackers.affiliation, defenders));
+			RatingsProfile attacker_base_profile = attackers.ratings(new Context(attackers, defenders.affiliation));
+			RatingsProfile defender_base_profile = defenders.ratings(new Context(defenders, attackers.affiliation));
 			attacker_profile = CompareProfiles(attacker_base_profile, defender_base_profile);
 			defender_profile = CompareProfiles(defender_base_profile, attacker_base_profile);
 
@@ -247,7 +247,7 @@ namespace BrocktonBay {
 			if (context.compact) {
 				HBox frameHeader = new HBox(false, 0);
 				frameHeader.PackStart(new Label(name), false, false, 0);
-				return new InspectableBox(frameHeader, this);
+				return new InspectableBox(frameHeader, this, context);
 			} else {
 				VBox headerBox = new VBox(false, 5);
 
@@ -279,16 +279,30 @@ namespace BrocktonBay {
 			if (attackers.affiliation == null) {
 				versusBox.PackStart(new Label("Nobody"));
 			} else {
-				versusBox.PackStart(attackers.affiliation.GetHeader(context.butCompact));
+				versusBox.PackStart(attackers.affiliation.GetHeader(context.butInUIContext(this)));
 			}
 			versusBox.PackStart(new Label(" VERSUS "));
 			if (defenders.affiliation == null) {
 				versusBox.PackStart(new Label("Nobody"));
 			} else {
-				versusBox.PackStart(defenders.affiliation.GetHeader(context.butCompact));
+				versusBox.PackStart(defenders.affiliation.GetHeader(context.butInUIContext(this)));
 			}
 
 			return versusBox;
+		}
+
+		public Menu GetRightClickMenu (Context context, Widget rightClickedWidget) {
+			Menu rightClickMenu = new Menu();
+			MenuItem viewButton = new MenuItem("View breakdown");
+			viewButton.Activated += (o, a) => GenerateInterface();
+			return rightClickMenu;
+		}
+		public void ContributeMemberRightClickMenu (object member, Menu rightClickMenu, Context context, Widget rightClickedWidget) { }
+
+		public void GenerateInterface () {
+			SecondaryWindow eventWindow = new SecondaryWindow("Battle at " + battleground.name);
+			eventWindow.SetMainWidget(new BattleInterface(battleground.battle));
+			eventWindow.ShowAll();
 		}
 
 	}

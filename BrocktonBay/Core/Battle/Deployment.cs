@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System;
+using Gtk;
 
 namespace BrocktonBay {
 
@@ -52,7 +53,7 @@ namespace BrocktonBay {
 				name = "Mount opposition",
 				description = "Mount a defense of " + location.name + " against this attack force",
 				action = delegate (Context context) {
-					location.defender = new Defense(location, context.agent);
+					location.defender = new Defense(location, context.requester);
 					DependencyManager.Connect(location, location.defender);
 					DependencyManager.Flag(location);
 					DependencyManager.TriggerAllFlags();
@@ -61,6 +62,19 @@ namespace BrocktonBay {
 				condition = (context) => location.attacker != null && location.defender == null && UIFactory.EditAuthorized(this, "oppose")
 			};
 			Reload();
+		}
+
+		public override Menu GetRightClickMenu (Context context, Widget rightClickedWidget) {
+			Menu rightClickMenu = base.GetRightClickMenu(context, rightClickedWidget);
+			if (UIFactory.EditAuthorized(this, "cancel")) {
+				rightClickMenu.Append(new SeparatorMenuItem());
+				rightClickMenu.Append(MenuFactory.CreateActionButton(cancel, context));
+			}
+			if (UIFactory.EditAuthorized(this, "oppose")) {
+				rightClickMenu.Append(new SeparatorMenuItem());
+				rightClickMenu.Append(MenuFactory.CreateActionButton(oppose, context));
+			}
+			return rightClickMenu;
 		}
 
 	}
@@ -109,6 +123,15 @@ namespace BrocktonBay {
 			Reload();
 		}
 
+		public override Menu GetRightClickMenu (Context context, Widget rightClickedWidget) {
+			Menu rightClickMenu = base.GetRightClickMenu(context, rightClickedWidget);
+			if (UIFactory.EditAuthorized(this, "cancel")) {
+				rightClickMenu.Append(new SeparatorMenuItem());
+				rightClickMenu.Append(MenuFactory.CreateActionButton(cancel, context));
+			}
+			return rightClickMenu;
+		}
+
 	}
 
 	public abstract class Deployment : IGUIComplete, IContainer, IRated, IDependable, IAffiliated {
@@ -154,13 +177,25 @@ namespace BrocktonBay {
 		[Displayable(10, typeof(RatingsMultiviewField), true, emphasized = true, verticalOnly = true, expand = true)]
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
 
-		public Gtk.Widget GetHeader (Context context) => new Gtk.Label(name);
-		public Gtk.Widget GetCellContents (Context context) => new Gtk.Label(name);
+		public Widget GetHeader (Context context) => new Label(name);
+		public Widget GetCellContents (Context context) => new Label(name);
+		public virtual Menu GetRightClickMenu (Context context, Widget rightClickedWidget) {
+			Menu rightClickMenu = new Menu();
+			rightClickMenu.Append(MenuFactory.CreateInspectButton(this, rightClickedWidget));
+			rightClickMenu.Append(MenuFactory.CreateInspectInNewWindowButton(this));
+			return rightClickMenu;
+		}
+		public void ContributeMemberRightClickMenu (object member, Menu rightClickMenu, Context context, Widget rightClickedWidget) {
+			if (Contains(member) && UIFactory.EditAuthorized(this, "teams")) {
+				rightClickMenu.Append(new SeparatorMenuItem());
+				rightClickMenu.Append(MenuFactory.CreateRemoveButton(this, member));
+			}
+		}
 
 		public RatingsProfile GetRatingsProfile (Context context) {
 			RatingsProfile profile = new RatingsProfile(context, teams, independents);
 			if (affiliation != null) {
-				int[] buffs = location.GetCombatBuffs(new Context(affiliation, this));
+				int[] buffs = location.GetCombatBuffs(new Context(this, affiliation));
 				for (int n = 0; n < 3; n++)
 					if (this is Defense)
 						profile.bonuses[n] += buffs[n];
@@ -184,7 +219,7 @@ namespace BrocktonBay {
 			foreach (Parahuman parahuman in combined_roster)
 				if (parahuman.threat > threat)
 					threat = parahuman.threat;
-			base_stats = ratings(new Context(affiliation, this)).GetStats(force_employed);
+			base_stats = ratings(new Context(this, affiliation)).GetStats(force_employed);
 		}
 
 		public void OnTriggerDestroyed (IDependable trigger) {
@@ -216,7 +251,7 @@ namespace BrocktonBay {
 					float roll = Game.randomFloat;
 					if (roll < escape[0].val) {
 						parahuman.health = Health.Captured;
-						MechanicData prisonerData = new MechanicData {
+						TraitData prisonerData = new TraitData {
 							name = "Prisoner",
 							type = "Prisoner",
 							secrecy = 0,

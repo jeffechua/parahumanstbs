@@ -43,7 +43,7 @@ namespace BrocktonBay {
 		public void OnListenerDestroyed (IDependable listener) { }
 
 		public Widget GenerateEventCenter () {
-			Context context = new Context(Game.player, battle);
+			Context context = new Context(battle);
 			VBox mainBox = new VBox { BorderWidth = 10 };
 			mainBox.PackStart(battle.GetHeader(context), false, false, 10);
 			mainBox.PackStart(new HSeparator(), false, false, 0);
@@ -58,7 +58,7 @@ namespace BrocktonBay {
 			mainBox.PackStart(UIFactory.Align(new Label(label), 0, 0, 1, 1), false, false, 10);
 			mainBox.PackStart(new HSeparator(), false, false, 0);
 			ScrolledWindow scrolledWindow = new ScrolledWindow { HscrollbarPolicy = PolicyType.Never };
-			scrolledWindow.AddWithViewport(UIFactory.Generate(new Context(Game.player, battle), deployment));
+			scrolledWindow.AddWithViewport(UIFactory.Generate(new Context(battle), deployment));
 			mainBox.PackStart(scrolledWindow, true, true, 5);
 			return mainBox;
 		}

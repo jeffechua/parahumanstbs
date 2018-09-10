@@ -19,7 +19,7 @@ namespace BrocktonBay {
 		public StructureType type;
 		public int rebuild_time;
 		public int[] buffs = { 0, 0, 0 };
-		public List<MechanicData> mechanics = new List<MechanicData>();
+		public List<TraitData> mechanics = new List<TraitData>();
 
 		public StructureData () { }
 
@@ -30,7 +30,7 @@ namespace BrocktonBay {
 			type = structure.type;
 			rebuild_time = structure.rebuild_time;
 			buffs = structure.combat_buffs;
-			mechanics = structure.traits.ConvertAll((input) => new MechanicData(input));
+			mechanics = structure.traits.ConvertAll((input) => new TraitData(input));
 		}
 
 	}
@@ -123,7 +123,7 @@ namespace BrocktonBay {
 				name = "Attack",
 				description = "Launch an attack on " + name,
 				action = delegate (Context context) {
-					attacker = new Attack(this, context.agent);
+					attacker = new Attack(this, context.requester);
 					Game.city.activeBattlegrounds.Add(this);
 					DependencyManager.Connect(this, attacker);
 					DependencyManager.Flag(this);
@@ -136,7 +136,7 @@ namespace BrocktonBay {
 				name = "Defend",
 				description = "Mount a defense of " + name,
 				action = delegate (Context context) {
-					defender = new Defense(this, context.agent);
+					defender = new Defense(this, context.requester);
 					DependencyManager.Connect(this, defender);
 					DependencyManager.Flag(this);
 					DependencyManager.TriggerAllFlags();
@@ -162,12 +162,12 @@ namespace BrocktonBay {
 				header.PackStart(new Label(name), false, false, 0);
 				header.PackStart(Graphics.GetIcon(type, Graphics.GetColor(affiliation), Graphics.textSize),
 								 false, false, (uint)(Graphics.textSize / 5));
-				return new InspectableBox(header, this);
+				return new InspectableBox(header, this, context);
 
 			} else {
 
 				VBox headerBox = new VBox(false, 5);
-				InspectableBox namebox = new InspectableBox(new Label(name), this);
+				InspectableBox namebox = new InspectableBox(new Label(name), this, context);
 				Gtk.Alignment align = new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = namebox, WidthRequest = 200 };
 				headerBox.PackStart(align, false, false, 0);
 
@@ -220,6 +220,26 @@ namespace BrocktonBay {
 									"Reputation " + insight_buff.ToString("+#;-#;+0"));
 			label.Justify = Justification.Left;
 			return new Gtk.Alignment(0, 0, 1, 0) { Child = label, BorderWidth = 10 };
+		}
+
+		public override Menu GetRightClickMenu (Context context, Widget rightClickedWidget) {
+			Menu rightClickMenu = base.GetRightClickMenu(context, rightClickedWidget);
+			if (UIFactory.ViewAuthorized(this, "attack")) {
+				rightClickMenu.Append(new SeparatorMenuItem());
+				rightClickMenu.Append(MenuFactory.CreateActionButton(attack, context));
+			}
+			if (UIFactory.ViewAuthorized(this, "defend")) {
+				rightClickMenu.Append(new SeparatorMenuItem());
+				rightClickMenu.Append(MenuFactory.CreateActionButton(defend, context));
+			}
+			return rightClickMenu;
+		}
+
+		public override void ContributeMemberRightClickMenu (object member, Menu rightClickMenu, Context context, Widget rightClickedWidget) {
+			if (member is Trait && UIFactory.EditAuthorized(this, "traits")) {
+				rightClickMenu.Append(new SeparatorMenuItem());
+				rightClickMenu.Append(MenuFactory.CreateRemoveButton(this, member));
+			}
 		}
 
 		public IMapMarker[] GetMarkers (Map map) {

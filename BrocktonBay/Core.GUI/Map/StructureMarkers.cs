@@ -43,8 +43,6 @@ namespace BrocktonBay {
 				shownPosition = structure.position;
 				Repin();
 			}
-			if (!deletable && Game.omnipotent) EnableDelete();
-			if (deletable && !Game.omnipotent) DisableDelete();
 		}
 
 		public override void OnTriggerDestroyed (IDependable trigger) {
@@ -57,7 +55,6 @@ namespace BrocktonBay {
 
 		protected override Window GenerateRightPopup () {
 			Window popup = new Window(WindowType.Popup) { TransientFor = (Window)map.Toplevel };
-			Context context = new Context(Game.player, structure, true, false);
 			VBox mainBox = new VBox(false, 2) { BorderWidth = 10 };
 			mainBox.PackStart(UIFactory.Align(structure.GetHeader(context), 0.5f, 0, 0, 1), false, false, 3);
 			mainBox.PackStart(new HSeparator(), false, false, 5);
@@ -66,13 +63,13 @@ namespace BrocktonBay {
 			if (structure.affiliation == null)
 				affiliationBox.PackStart(new Label("None"));
 			else
-				affiliationBox.PackStart(structure.affiliation.GetHeader(context.butCompact));
+				affiliationBox.PackStart(structure.affiliation.GetHeader(context));
 			mainBox.PackStart(UIFactory.Align(affiliationBox, 0, 0, 0, 1));
 			mainBox.PackStart(UIFactory.Align(new Label("Type: " + structure.type), 0, 0, 0, 1));
 			mainBox.PackStart(new HSeparator(), false, false, 5);
-			mainBox.PackStart(UIFactory.Fabricate(structure, "combat_buffs", context));
+			mainBox.PackStart(UIFactory.Fabricate(structure, "combat_buffs", context.butNotCompact));
 			mainBox.PackStart(new HSeparator(), false, false, 5);
-			mainBox.PackStart(UIFactory.Fabricate(structure, "incomes", context));
+			mainBox.PackStart(UIFactory.Fabricate(structure, "incomes", context.butNotCompact));
 			popup.Add(mainBox);
 			return popup;
 		}

@@ -13,7 +13,7 @@ namespace BrocktonBay {
 		public int size = 0;
 		public int reputation = 0;
 		public List<int> structures = new List<int>();
-		public List<MechanicData> mechanics = new List<MechanicData>();
+		public List<TraitData> mechanics = new List<TraitData>();
 
 		public TerritoryData () { }
 
@@ -24,7 +24,7 @@ namespace BrocktonBay {
 			size = territory.size;
 			reputation = territory.reputation;
 			structures = territory.structures.ConvertAll((structure) => structure.ID);
-			mechanics = territory.traits.ConvertAll((input) => new MechanicData(input));
+			mechanics = territory.traits.ConvertAll((input) => new TraitData(input));
 		}
 
 	}
@@ -61,11 +61,11 @@ namespace BrocktonBay {
 			}
 		}
 
-		[ChildDisplayableAttribute("Strength", typeof(BasicReadonlyField))]
+		[ChildDisplayable("Strength", typeof(BasicReadonlyField))]
 		public int strength_buff { get; set; }
-		[ChildDisplayableAttribute("Stealth", typeof(BasicReadonlyField))]
+		[ChildDisplayable("Stealth", typeof(BasicReadonlyField))]
 		public int stealth_buff { get; set; }
-		[ChildDisplayableAttribute("Insight", typeof(BasicReadonlyField))]
+		[ChildDisplayable("Insight", typeof(BasicReadonlyField))]
 		public int insight_buff { get; set; }
 
 		[Displayable(7, typeof(TabularContainerField), "resource_income", "reputation_income",
@@ -80,9 +80,9 @@ namespace BrocktonBay {
 			}
 		}
 
-		[ChildDisplayableAttribute("Resources", typeof(IntField))]
+		[ChildDisplayable("Resources", typeof(IntField))]
 		public int resource_income { get; set; }
-		[ChildDisplayableAttribute("Reputation", typeof(IntField))]
+		[ChildDisplayable("Reputation", typeof(IntField))]
 		public int reputation_income { get; set; }
 
 		[Displayable(8, typeof(CellTabularListField<Structure>), 2, emphasized = true, editablePhases = Phase.Mastermind)]
@@ -122,7 +122,7 @@ namespace BrocktonBay {
 				name = "Attack",
 				description = "Launch an attack on " + name,
 				action = delegate (Context context) {
-					attacker = new Attack(this, context.agent);
+					attacker = new Attack(this, context.requester);
 					Game.city.activeBattlegrounds.Add(this);
 					DependencyManager.Connect(this, attacker);
 					DependencyManager.Flag(this);
@@ -135,7 +135,7 @@ namespace BrocktonBay {
 				name = "Defend",
 				description = "Mount a defense of " + name,
 				action = delegate (Context context) {
-					defender = new Defense(this, context.agent);
+					defender = new Defense(this, context.requester);
 					DependencyManager.Connect(this, defender);
 					DependencyManager.Flag(this);
 					DependencyManager.TriggerAllFlags();
@@ -171,10 +171,10 @@ namespace BrocktonBay {
 				header.PackStart(new Label(name), false, false, 0);
 				header.PackStart(Graphics.GetIcon(Threat.C, Graphics.GetColor(affiliation), Graphics.textSize),
 								 false, false, (uint)(Graphics.textSize / 5));
-				return new InspectableBox(header, this);
+				return new InspectableBox(header, this, context);
 			} else {
 				VBox headerBox = new VBox(false, 5);
-				InspectableBox namebox = new InspectableBox(new Label(name), this);
+				InspectableBox namebox = new InspectableBox(new Label(name), this, context);
 				Gtk.Alignment align = new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = namebox, WidthRequest = 200 };
 				headerBox.PackStart(align, false, false, 0);
 				if (parent != null)
@@ -190,7 +190,7 @@ namespace BrocktonBay {
 			//Creates the cell contents
 			VBox structureBox = new VBox(false, 0) { BorderWidth = 3 };
 			foreach (Structure structure in structures) {
-				InspectableBox header = (InspectableBox)structure.GetHeader(context.butCompact);
+				InspectableBox header = (InspectableBox)structure.GetHeader(context.butInUIContext(this));
 				if (editable)
 					MyDragDrop.SetFailAction(header, delegate {
 						Remove(structure);
@@ -217,6 +217,30 @@ namespace BrocktonBay {
 
 			//For some reason drag/drop highlights include BorderWidth.
 			//The Alignment makes the highlight actually appear at the 3:7 point in the margin.
+		}
+
+		public override Menu GetRightClickMenu (Context context, Widget rightClickedWidget) {
+			Menu rightClickMenu = base.GetRightClickMenu(context, rightClickedWidget);
+			if (UIFactory.ViewAuthorized(this, "attack")) {
+				rightClickMenu.Append(new SeparatorMenuItem());
+				rightClickMenu.Append(MenuFactory.CreateActionButton(attack, context));
+			}
+			if (UIFactory.ViewAuthorized(this, "defend")) {
+				rightClickMenu.Append(new SeparatorMenuItem());
+				rightClickMenu.Append(MenuFactory.CreateActionButton(defend, context));
+			}
+			return rightClickMenu;
+		}
+
+		public override void ContributeMemberRightClickMenu (object member, Menu rightClickMenu, Context context, Widget rightClickedWidget) {
+			if (member is Parahuman && UIFactory.EditAuthorized(this, "structures")) {
+				rightClickMenu.Append(new SeparatorMenuItem());
+				rightClickMenu.Append(MenuFactory.CreateMoveButton((IGUIComplete)member));
+				rightClickMenu.Append(MenuFactory.CreateRemoveButton(this, member));
+			} else if (member is Trait && UIFactory.EditAuthorized(this, "traits")) {
+				rightClickMenu.Append(new SeparatorMenuItem());
+				rightClickMenu.Append(MenuFactory.CreateRemoveButton(this, member));
+			}
 		}
 
 		public override bool Accepts (object obj) => obj is Structure && (Game.omnipotent || ((IAffiliated)obj).affiliation == affiliation);

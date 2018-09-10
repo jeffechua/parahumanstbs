@@ -22,7 +22,7 @@ namespace BrocktonBay {
 		public override bool magnifRedraw { get => false; }
 		protected override int popupDistance { get => size * 2; }
 
-		public BattleAlertMarker (IBattleground battleground, Map map) : base(battleground, map, false, false) {
+		public BattleAlertMarker (IBattleground battleground, Map map) : base(battleground, map, false) {
 			this.battleground = battleground;
 			if (battleground is Structure) {
 				size = StructureMarker.markerSize * 6 / 5;
@@ -49,12 +49,12 @@ namespace BrocktonBay {
 
 			if (Battle.Relevant(battleground, Game.player)) {
 				active = true;
-				if (Game.phase == Phase.Action || (Game.phase == Phase.Response && battleground.defender == null)) {
-					inspected = battleground.attacker;
-				} else if (Game.phase == Phase.Response) {
-					inspected = battleground.defender;
-				} else {
+				if (battleground.battle != null) {
 					inspected = null;
+				} else if (battleground.defender != null) {
+					inspected = battleground.defender;
+				} else if (battleground.attacker != null) {
+					inspected = battleground.attacker;
 				}
 			}
 
@@ -62,13 +62,28 @@ namespace BrocktonBay {
 
 		}
 
-		public override void OnClicked (object obj, ButtonReleaseEventArgs args) {
-			if (inspected != null) { //This is a battle
+
+		protected override void OnClicked (object obj, ButtonReleaseEventArgs args) {
+			if (battleground.battle == null) { //This is a battle
 				base.OnClicked(obj, args);
 			} else {
-				SecondaryWindow eventWindow = new SecondaryWindow("Battle at " + battleground.name);
-				eventWindow.SetMainWidget(new BattleInterface(battleground.battle));
-				eventWindow.ShowAll();
+				battleground.battle.GenerateInterface();
+			}
+		}
+
+		protected override void OnMiddleClicked (object obj, ButtonReleaseEventArgs args) {
+			if (battleground.battle == null) { //This is a battle
+				base.OnMiddleClicked(obj, args);
+			} else {
+				battleground.battle.GenerateInterface();
+			}
+		}
+
+		protected override void OnDoubleClicked (object obj, ButtonPressEventArgs args) {
+			if (battleground.battle == null) { //This is a battle
+				base.OnDoubleClicked(obj, args);
+			} else {
+				battleground.battle.GenerateInterface();
 			}
 		}
 
@@ -121,7 +136,7 @@ namespace BrocktonBay {
 		Window GenerateDeploymentPopup (Deployment deployment) {
 
 			Window popup = new Window(WindowType.Popup) { TransientFor = (Window)map.Toplevel };
-			Context context = new Context(Game.player, deployment, true, false);
+			Context depContext = new Context(deployment);
 			VBox mainBox = new VBox(false, 2) { BorderWidth = 10 };
 
 			Label name = new Label(deployment.name);
@@ -133,7 +148,7 @@ namespace BrocktonBay {
 			if (deployment.affiliation == null) {
 				affiliationBox.PackStart(new Label("None"));
 			} else {
-				affiliationBox.PackStart(deployment.affiliation.GetHeader(context.butCompact));
+				affiliationBox.PackStart(deployment.affiliation.GetHeader(depContext.butCompact));
 			}
 			mainBox.PackStart(UIFactory.Align(affiliationBox, 0, 0, 0, 1));
 			mainBox.PackStart(UIFactory.Align(new Label("Threat: " + deployment.threat), 0, 0, 0, 1));
@@ -141,16 +156,16 @@ namespace BrocktonBay {
 			mainBox.PackStart(new HSeparator(), false, false, 5);
 
 			List<Widget> cells = new List<Widget>();
-			cells.AddRange(deployment.teams.ConvertAll((team) => new Cell(context, team)));
-			cells.AddRange(deployment.independents.ConvertAll((team) => new Cell(context, team)));
+			cells.AddRange(deployment.teams.ConvertAll((team) => new Cell(depContext, team)));
+			cells.AddRange(deployment.independents.ConvertAll((team) => new Cell(depContext, team)));
 			mainBox.PackStart(new DynamicTable(cells, 2));
 
 			mainBox.PackStart(new HSeparator(), false, false, 5);
-			mainBox.PackStart(UIFactory.Fabricate(deployment, "strength", context));
+			mainBox.PackStart(UIFactory.Fabricate(deployment, "strength", depContext));
 			mainBox.PackStart(new HSeparator(), false, false, 5);
-			mainBox.PackStart(UIFactory.Fabricate(deployment, "stealth", context));
+			mainBox.PackStart(UIFactory.Fabricate(deployment, "stealth", depContext));
 			mainBox.PackStart(new HSeparator(), false, false, 5);
-			mainBox.PackStart(UIFactory.Fabricate(deployment, "insight", context));
+			mainBox.PackStart(UIFactory.Fabricate(deployment, "insight", depContext));
 
 			popup.Add(mainBox);
 			return popup;
@@ -163,14 +178,14 @@ namespace BrocktonBay {
 				Gravity = Gdk.Gravity.West,
 				TransientFor = (Window)map.Toplevel
 			};
-			Context context = new Context(Game.player, battle, true, false);
+			Context battleContext = new Context(battle);
 			VBox mainBox = new VBox(false, 2) { BorderWidth = 10 };
 
 			Label name = new Label(battle.name);
 			name.SetAlignment(0.5f, 1);
 			mainBox.PackStart(name, false, false, 3);
 			mainBox.PackStart(new HSeparator(), false, false, 5);
-			mainBox.PackStart(UIFactory.Fabricate(battle, "victor_display", context));
+			mainBox.PackStart(UIFactory.Fabricate(battle, "victor_display", battleContext));
 			mainBox.PackStart(new HSeparator(), false, false, 7);
 
 			if (battle.defenders == null) {
@@ -195,21 +210,21 @@ namespace BrocktonBay {
 				VBox dCaptures = new VBox();
 
 				foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.health == Health.Injured))
-					aInjuries.PackStart(parahuman.GetHeader(context.butCompact));
+					aInjuries.PackStart(parahuman.GetHeader(battleContext.butCompact));
 				foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.health == Health.Down))
-					aDowned.PackStart(parahuman.GetHeader(context.butCompact));
+					aDowned.PackStart(parahuman.GetHeader(battleContext.butCompact));
 				foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.health == Health.Deceased))
-					aDeaths.PackStart(parahuman.GetHeader(context.butCompact));
+					aDeaths.PackStart(parahuman.GetHeader(battleContext.butCompact));
 				foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.health == Health.Captured))
-					aCaptures.PackStart(parahuman.GetHeader(context.butCompact));
+					aCaptures.PackStart(parahuman.GetHeader(battleContext.butCompact));
 				foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.health == Health.Injured))
-					dInjuries.PackStart(parahuman.GetHeader(context.butCompact));
+					dInjuries.PackStart(parahuman.GetHeader(battleContext.butCompact));
 				foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.health == Health.Down))
-					dDowned.PackStart(parahuman.GetHeader(context.butCompact));
+					dDowned.PackStart(parahuman.GetHeader(battleContext.butCompact));
 				foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.health == Health.Deceased))
-					dDeaths.PackStart(parahuman.GetHeader(context.butCompact));
+					dDeaths.PackStart(parahuman.GetHeader(battleContext.butCompact));
 				foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.health == Health.Captured))
-					dCaptures.PackStart(parahuman.GetHeader(context.butCompact));
+					dCaptures.PackStart(parahuman.GetHeader(battleContext.butCompact));
 
 				casualties.Attach(aInjuries, 0, 1, 2, 3);
 				casualties.Attach(dInjuries, 2, 3, 2, 3);

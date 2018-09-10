@@ -29,7 +29,7 @@ namespace BrocktonBay {
 			for (int i = 0; i < fragments.Length; i++) {
 				box.PackStart(new Label(fragments[i]), false, false, 0);
 				if (i != fragments.Length - 1)
-					box.PackStart(elements[i].GetHeader(new Context(Game.player, null, true, true)), false, false, 0);
+					box.PackStart(elements[i].GetHeader(new Context(null, Game.player, true, true)), false, false, 0);
 			}
 			return box;
 		}
@@ -166,9 +166,9 @@ namespace BrocktonBay {
 			city.activeBattlegrounds.Clear();
 			GameObject[] gameObjects = city.gameObjects.ToArray();
 			foreach (GameObject obj in gameObjects) {
-				foreach (Trait mechanic in obj.traits)
-					if (mechanic.trigger == EffectTrigger.EventPhase)
-						mechanic.Invoke();
+				foreach (Trait trait in obj.traits)
+					if (trait.trigger.Contains(EffectTrigger.EventPhase))
+						trait.Invoke(EffectTrigger.EventPhase);
 				if (obj.TryCast(out Faction faction)) {
 					foreach (Territory territory in faction.territories) {
 						faction.resources += territory.resource_income;

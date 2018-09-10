@@ -27,15 +27,15 @@ namespace BrocktonBay {
 			}
 		}
 
-		public override EffectTrigger trigger { get => EffectTrigger.EventPhase; }
+		public override List<EffectTrigger> trigger { get => new List<EffectTrigger> { EffectTrigger.EventPhase }; }
 
 		[Displayable(3, typeof(CellTabularListField<Parahuman>), 3, emphasized = true, editablePhases = Phase.Mastermind)]
 		public List<Parahuman> prisoners { get; set; }
 
-		public PrisonTrait (MechanicData data) : base(data)
+		public PrisonTrait (TraitData data) : base(data)
 			=> effect = data.effect;
 
-		public override object Invoke (Context context, object obj) {
+		public override object Invoke (EffectTrigger trigger, Context context, object obj) {
 			Faction faction = parent.affiliation as Faction;
 			if (faction == null) return null;
 			foreach (Parahuman prisoner in prisoners)
@@ -121,7 +121,7 @@ namespace BrocktonBay {
 			//Creates the cell contents
 			VBox prisonersBox = new VBox(false, 0) { BorderWidth = 3 };
 			foreach (Parahuman prisoner in prisoners) {
-				InspectableBox header = (InspectableBox)prisoner.GetHeader(context.butCompact);
+				InspectableBox header = (InspectableBox)prisoner.GetHeader(context.butInUIContext(this));
 				if (editable)
 					MyDragDrop.SetFailAction(header, delegate {
 						Remove(prisoner);
@@ -155,7 +155,7 @@ namespace BrocktonBay {
 			get => imprisonerID.ToString();
 			set => imprisonerID = int.Parse(value);
 		}
-		public override EffectTrigger trigger { get => EffectTrigger.None; }
+		public override List<EffectTrigger> trigger { get => new List<EffectTrigger> { EffectTrigger.GetRightClickMenu }; }
 
 		int imprisonerID;
 		Faction _imprisoners;
@@ -201,7 +201,7 @@ namespace BrocktonBay {
 		[ChildDisplayable("execute", typeof(ActionField), 5, visiblePhases = Phase.Mastermind, editablePhases = Phase.Mastermind)]
 		public GameAction execute { get; set; }
 
-		public PrisonerTrait (MechanicData data) : base(data) {
+		public PrisonerTrait (TraitData data) : base(data) {
 			effect = data.effect;
 			move = new GameAction {
 				name = "Assign",
@@ -276,8 +276,20 @@ namespace BrocktonBay {
 			}
 		}
 
-		public override object Invoke (Context context, object obj) {
-			throw new System.NotImplementedException();
+		public override object Invoke (EffectTrigger trigger, Context context, object obj) {
+			Menu rightClickMenu = (Menu)obj;
+			if (UIFactory.EditAuthorized(this, "move")) {
+				MenuItem moveButton = new MenuItem(move.name);
+				moveButton.Activated += (o, a) => move.action(context);
+				rightClickMenu.Append(moveButton);
+				MenuItem releaseButton = new MenuItem("Release");
+				releaseButton.Activated += (o, a) => release.action(context);
+				rightClickMenu.Append(releaseButton);
+				MenuItem executeButton = new MenuItem("Execute [S]");
+				executeButton.Activated += (o, a) => execute.action(context);
+				rightClickMenu.Append(executeButton);
+			}
+			return rightClickMenu;
 		}
 
 		public override Widget GetCellContents (Context context) {
@@ -291,7 +303,7 @@ namespace BrocktonBay {
 			}
 			vBox.PackStart(new Label() { HeightRequest = 5 });
 			if (UIFactory.EditAuthorized(this, "move")) {
-				ActionField action = (ActionField)UIFactory.Fabricate(this, "move", new Context(Game.player, this));
+				ActionField action = (ActionField)UIFactory.Fabricate(this, "move", new Context(this));
 				((Gtk.Alignment)action.Child).BorderWidth = 1;
 				vBox.PackStart(action, false, false, 0);
 			}

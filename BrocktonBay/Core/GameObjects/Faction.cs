@@ -13,7 +13,7 @@ namespace BrocktonBay {
 		public List<int> roster = new List<int>();
 		public List<int> teams = new List<int>();
 		public List<int> territories = new List<int>();
-		public List<MechanicData> mechanics = new List<MechanicData>();
+		public List<TraitData> mechanics = new List<TraitData>();
 
 		public FactionData () { }
 
@@ -26,7 +26,7 @@ namespace BrocktonBay {
 			roster = faction.roster.ConvertAll((parahuman) => parahuman.ID);
 			teams = faction.teams.ConvertAll((team) => team.ID);
 			territories = faction.territories.ConvertAll((territory) => territory.ID);
-			mechanics = faction.traits.ConvertAll((input) => new MechanicData(input));
+			mechanics = faction.traits.ConvertAll((input) => new TraitData(input));
 		}
 
 	}
@@ -222,12 +222,25 @@ namespace BrocktonBay {
 				header.PackStart(new Label(name), false, false, 0);
 				header.PackStart(Graphics.GetIcon(threat, color, Graphics.textSize),
 								 false, false, (uint)(Graphics.textSize / 5));
-				return new InspectableBox(header, this);
+				return new InspectableBox(header, this, context);
 			} else { //A dependable wrapper is not necessary as noncompact headers only exist in inspectors of this object, which will reload anyway.
 				return new Gtk.Alignment(0.5f, 0.5f, 0, 0) {
-					Child = new InspectableBox(new Label(name), this),
+					Child = new InspectableBox(new Label(name), this, context),
 					WidthRequest = 200
 				};
+			}
+		}
+
+		public override void ContributeMemberRightClickMenu (object member, Menu rightClickMenu, Context context, Widget rightClickedWidget) {
+			if ((member is Parahuman && UIFactory.EditAuthorized(this, "roster")) ||
+			   (member is Team && UIFactory.EditAuthorized(this, "teams")) ||
+			   (member is Territory && UIFactory.EditAuthorized(this, "territories"))) {
+				rightClickMenu.Append(new SeparatorMenuItem());
+				rightClickMenu.Append(MenuFactory.CreateMoveButton((IGUIComplete)member));
+				rightClickMenu.Append(MenuFactory.CreateRemoveButton(this, member));
+			} else if (member is Trait && UIFactory.EditAuthorized(this, "traits")) {
+				rightClickMenu.Append(new SeparatorMenuItem());
+				rightClickMenu.Append(MenuFactory.CreateRemoveButton(this, member));
 			}
 		}
 
@@ -238,7 +251,7 @@ namespace BrocktonBay {
 			//Creates the cell contents
 			VBox childrenBox = new VBox(false, 0) { BorderWidth = 3 };
 			foreach (Parahuman parahuman in roster) {
-				InspectableBox header = (InspectableBox)parahuman.GetHeader(context.butCompact);
+				InspectableBox header = (InspectableBox)parahuman.GetHeader(context.butInUIContext(this));
 				if (editable)
 					MyDragDrop.SetFailAction(header, delegate {
 						Remove(parahuman);
@@ -247,7 +260,7 @@ namespace BrocktonBay {
 				childrenBox.PackStart(header, false, false, 0);
 			}
 			foreach (Team team in teams) {
-				InspectableBox header = (InspectableBox)team.GetHeader(context.butCompact);
+				InspectableBox header = (InspectableBox)team.GetHeader(context.butInUIContext(this));
 				if (editable)
 					MyDragDrop.SetFailAction(header, delegate {
 						Remove(team);

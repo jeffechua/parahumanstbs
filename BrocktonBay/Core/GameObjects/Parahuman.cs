@@ -19,7 +19,7 @@ namespace BrocktonBay {
 		public Threat threat = Threat.C;
 		public Health health = Health.Healthy;
 		public int reputation = 0;
-		public List<MechanicData> mechanics = new List<MechanicData>();
+		public List<TraitData> mechanics = new List<TraitData>();
 		public int[,] ratings = new int[5, 9];
 
 		public ParahumanData () { }
@@ -31,7 +31,7 @@ namespace BrocktonBay {
 			threat = parahuman.threat;
 			health = parahuman.health;
 			reputation = parahuman.reputation;
-			mechanics = parahuman.traits.ConvertAll((input) => new MechanicData(input));
+			mechanics = parahuman.traits.ConvertAll((input) => new TraitData(input));
 			ratings = parahuman.baseRatings.o_vals;
 		}
 
@@ -114,11 +114,9 @@ namespace BrocktonBay {
 
 		public RatingsProfile GetRatingsProfile (Context context) {
 			RatingsProfile ratingsProfile = baseRatings;
-			foreach (Trait mechanic in traits) {
-				if (mechanic.trigger == EffectTrigger.GetRatings) {
-					ratingsProfile = (RatingsProfile)mechanic.Invoke(context, ratingsProfile);
-				}
-			}
+			foreach (Trait mechanic in traits)
+				if (mechanic.trigger.Contains(EffectTrigger.GetRatings))
+					ratingsProfile = (RatingsProfile)mechanic.Invoke(EffectTrigger.GetRatings, context, ratingsProfile);
 			return ratingsProfile;
 		}
 
@@ -142,12 +140,12 @@ namespace BrocktonBay {
 						break;
 					case Health.Captured:
 						nameLabel.State = StateType.Insensitive;
-						return new InspectableBox(header, this);
+						return new InspectableBox(header, this, context);
 				}
-				return new InspectableBox(header, this);
+				return new InspectableBox(header, this, context);
 			} else {
 				VBox headerBox = new VBox(false, 5);
-				InspectableBox namebox = new InspectableBox(new Label(name), this);
+				InspectableBox namebox = new InspectableBox(new Label(name), this, context);
 				Gtk.Alignment align = UIFactory.Align(namebox, 0.5f, 0.5f, 0, 0);
 				align.WidthRequest = 200;
 				headerBox.PackStart(align, false, false, 0);
@@ -170,6 +168,13 @@ namespace BrocktonBay {
 			RatingsListField field = (RatingsListField)UIFactory.Fabricate(this, "ratings", context.butCompact);
 			field.BorderWidth = 5;
 			return field;
+		}
+
+		public override void ContributeMemberRightClickMenu (object member, Menu rightClickMenu, Context context, Widget rightClickedWidget) {
+			if (member is Trait && UIFactory.EditAuthorized(this, "traits")) {
+				rightClickMenu.Append(new SeparatorMenuItem());
+				rightClickMenu.Append(MenuFactory.CreateRemoveButton(this, member));
+			}
 		}
 
 		public override bool Accepts (object obj) => obj is Trait;

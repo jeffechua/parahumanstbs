@@ -12,22 +12,22 @@ namespace BrocktonBay {
 
 	public struct Context {
 
-		public IAgent agent;
-		public object UIContext;
+		public IAgent requester;
+		public IGUIComplete UIContext;
 		public bool vertical;
 		public bool compact;
 
 		//Convenience properties and methods for on-the-go modifications.
-		public Context butCompact { get { return new Context(agent, UIContext, vertical, true); } }
-		public Context butVertical { get { return new Context(agent, UIContext, true, compact); } }
-		public Context butNotCompact { get { return new Context(agent, UIContext, vertical, false); } }
-		public Context butHorizontal { get { return new Context(agent, UIContext, false, compact); } }
-		public Context butRequestedBy (IAgent newRequester) => new Context(newRequester, UIContext, vertical, compact);
-		public Context butInUIContext (object newUIContext) => new Context(agent, newUIContext, vertical, compact);
+		public Context butCompact { get { return new Context(UIContext, requester, vertical, true); } }
+		public Context butVertical { get { return new Context(UIContext, requester, true, compact); } }
+		public Context butNotCompact { get { return new Context(UIContext, requester, vertical, false); } }
+		public Context butHorizontal { get { return new Context(UIContext, requester, false, compact); } }
+		public Context butRequestedBy (IAgent newRequester) => new Context(UIContext, newRequester, vertical, compact);
+		public Context butInUIContext (IGUIComplete newUIContext) => new Context(newUIContext, requester, vertical, compact);
 
-		public Context (IAgent requester, object UIContext, bool vertical = true, bool compact = false) {
-			this.agent = requester;
+		public Context (IGUIComplete UIContext, IAgent requester = null, bool vertical = true, bool compact = false) {
 			this.UIContext = UIContext;
+			this.requester = requester ?? Game.player;
 			this.vertical = vertical;
 			this.compact = compact;
 		}

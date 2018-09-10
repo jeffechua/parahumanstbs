@@ -5,30 +5,31 @@ using Gtk;
 namespace BrocktonBay {
 
 	public enum EffectTrigger {
-		None = 0,
-		GetRatings = 1,
-		ActionPhase = 2,
-		ResponsePhase = 3,
-		ResolutionPhase = 4,
-		MastermindPhase = 5,
-		EventPhase = 6
+		None,
+		GetRightClickMenu,
+		GetRatings,
+		ActionPhase,
+		ResponsePhase,
+		ResolutionPhase,
+		MastermindPhase,
+		EventPhase
 	}
 
-	public sealed class MechanicData {
+	public sealed class TraitData {
 		public string name = "New Mechanic";
 		public string type = "";
 		public int secrecy = 0;
 		public string description = "";
 		public string effect = "";
-		public MechanicData () { }
-		public MechanicData (Trait mechanic) {
+		public TraitData () { }
+		public TraitData (Trait mechanic) {
 			name = mechanic.name;
 			type = mechanic.type;
 			secrecy = mechanic.secrecy;
 			description = mechanic.description;
 			effect = mechanic.effect;
 		}
-		public MechanicData (string type)
+		public TraitData (string type)
 			=> this.type = type;
 	}
 
@@ -57,10 +58,10 @@ namespace BrocktonBay {
 
 		//Managed by derivative classes
 		public abstract string effect { get; set; }
-		public abstract EffectTrigger trigger { get; }
+		public abstract List<EffectTrigger> trigger { get; }
 
 		public bool Known (Context context) {
-			return (context.agent == Game.player && Game.omniscient) || context.agent.knowledge[parent] >= secrecy;
+			return (context.requester == Game.player && Game.omniscient) || context.requester.knowledge[parent] >= secrecy;
 		}
 
 		public virtual GameObject parent { get; set; }
@@ -73,7 +74,7 @@ namespace BrocktonBay {
 			dialog.ShowAll();
 			dialog.Response += delegate (object obj, ResponseArgs args) {
 				if (args.ResponseId == ResponseType.Ok) {
-					newMechanic = Load(new MechanicData(comboBox.ActiveText));
+					newMechanic = Load(new TraitData(comboBox.ActiveText));
 				}
 			};
 			dialog.Run();
@@ -81,7 +82,7 @@ namespace BrocktonBay {
 			return newMechanic;
 		}
 
-		public static Trait Load (MechanicData data) {
+		public static Trait Load (TraitData data) {
 			switch (data.type) {
 				case "Weakness":
 					return new WeaknessTrait(data);
@@ -96,7 +97,7 @@ namespace BrocktonBay {
 			}
 		}
 
-		public Trait (MechanicData data) {
+		public Trait (TraitData data) {
 			name = data.name;
 			type = data.type;
 			secrecy = data.secrecy;
@@ -104,16 +105,16 @@ namespace BrocktonBay {
 			//set effect in derived class' constructor
 		}
 
-		public virtual object Invoke (Context context = new Context(), object obj = null) => null;
+		public virtual object Invoke (EffectTrigger trigger, Context context = new Context(), object obj = null) => null;
 		public virtual void ManageCellContents (Widget widget) { }
 
 		//IGUIComplete stuff
 		public virtual Widget GetHeader (Context context) {
 			if (context.compact) {
-				return new InspectableBox(new Label(name), this);
+				return new InspectableBox(new Label(name), this, context);
 			} else {
 				VBox headerBox = new VBox(false, 5);
-				InspectableBox namebox = new InspectableBox(new Label(name), this);
+				InspectableBox namebox = new InspectableBox(new Label(name), this, context);
 				Gtk.Alignment align = new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = namebox, WidthRequest = 200 };
 				headerBox.PackStart(align, false, false, 0);
 				if (parent != null)
@@ -128,6 +129,27 @@ namespace BrocktonBay {
 			return field;
 		}
 
-	}
+		public virtual Menu GetRightClickMenu (Context context, Widget rightClickedWidget) {
+			Menu rightClickMenu = new Menu();
+			MenuItem inspectButton = new MenuItem("Inspect");
+			inspectButton.Activated += (o, a) => Inspector.InspectInNearestInspector(this, rightClickedWidget);
+			rightClickMenu.Append(inspectButton);
+			MenuItem inspectInWindowButton = new MenuItem("Inspect in New Window");
+			inspectInWindowButton.Activated += (o, a) => Inspector.InspectInNewWindow(this);
+			rightClickMenu.Append(inspectInWindowButton);
+			if (Game.omnipotent) {
+				rightClickMenu.Append(new SeparatorMenuItem());
+				MenuItem deleteButton = new MenuItem("Delete");
+				deleteButton.Activated += delegate {
+					DependencyManager.Destroy(this);
+					DependencyManager.TriggerAllFlags();
+				};
+				rightClickMenu.Append(deleteButton);
+			}
+			return rightClickMenu;
+		}
 
+		public void ContributeMemberRightClickMenu (object member, Menu rightClickMenu, Context context, Widget rightClickedWidget) { }
+
+	}
 }

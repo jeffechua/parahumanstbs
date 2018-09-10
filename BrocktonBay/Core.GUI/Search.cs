@@ -213,7 +213,7 @@ namespace BrocktonBay {
 		}
 
 		Widget SetupCell (GameObject obj) {
-			SmartCell cell = new SmartCell(new Context(Game.player, obj), obj, lazy);
+			SmartCell cell = new SmartCell(new Context(obj), obj, lazy);
 			cell.BorderWidth = 5;
 			cell.prelight = true;
 			cell.Clicked += (o, a) => OnClicked(obj);
@@ -221,7 +221,7 @@ namespace BrocktonBay {
 		}
 
 		Widget SetupHeader (GameObject obj) {
-			Widget baseHeader = obj.GetHeader(new Context(Game.player, obj, false, true));
+			Widget baseHeader = obj.GetHeader(new Context(obj, Game.player, false, true));
 			HBox hbox = new HBox();
 			hbox.PackStart(baseHeader, false, false, 5);
 			ClickableEventBox eventbox = new ClickableEventBox { Child = hbox };

@@ -86,7 +86,7 @@ namespace BrocktonBay {
 			while (numbersBar.Children.Length > 0) numbersBar.Children[0].Destroy();
 
 			textBar.PackStart(new Label("Playing as: "), false, false, spacing);
-			InspectableBox player = (InspectableBox)Game.player.GetHeader(new Context(Game.player, null, false, true));
+			InspectableBox player = (InspectableBox)Game.player.GetHeader(new Context(null, Game.player, false, true));
 			if (Game.omnipotent) {
 				MyDragDrop.DestSet(player, "Active IAgent");
 				MyDragDrop.DestSetDropAction(player, delegate (object obj) {
@@ -129,7 +129,7 @@ namespace BrocktonBay {
 
 		InspectableBox GetAgentIcon (IAgent agent) {
 			Image icon = Graphics.GetIcon(agent.threat, Graphics.GetColor(agent), Graphics.textSize);
-			InspectableBox inspectable = new InspectableBox(icon, agent) {
+			InspectableBox inspectable = new InspectableBox(icon, agent, new Context(null)) {
 				HasTooltip = true,
 				TooltipText = agent.name,
 				VisibleWindow = false
@@ -181,7 +181,7 @@ namespace BrocktonBay {
 		}
 
 		public void Redraw () {
-			context = new Context(Game.player, null);
+			context = new Context(null);
 			while (mainBox.Children.Length > 0) mainBox.Children[0].Destroy();
 			if (GameObject.TryCast(Game.player, out Faction faction)) {
 				mainBox.PackStart(new VSeparator(), false, false, 0);

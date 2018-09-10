@@ -11,7 +11,7 @@ namespace BrocktonBay {
 		public int unused_xp = 0;
 		public int[] spent_xp = { 0, 0, 0 };
 		public List<int> roster = new List<int>();
-		public List<MechanicData> mechanics = new List<MechanicData>();
+		public List<TraitData> mechanics = new List<TraitData>();
 
 		public TeamData () { }
 
@@ -22,7 +22,7 @@ namespace BrocktonBay {
 			unused_xp = team.unused_XP;
 			spent_xp = team.spent_XP;
 			roster = team.roster.ConvertAll((parahuman) => parahuman.ID);
-			mechanics = team.traits.ConvertAll((input) => new MechanicData(input));
+			mechanics = team.traits.ConvertAll((input) => new TraitData(input));
 		}
 
 	}
@@ -135,10 +135,10 @@ namespace BrocktonBay {
 				frameHeader.PackStart(new Label(name), false, false, 0);
 				frameHeader.PackStart(Graphics.GetIcon(threat, Graphics.GetColor(alignment), Graphics.textSize),
 									  false, false, (uint)(Graphics.textSize / 5));
-				return new InspectableBox(frameHeader, this);
+				return new InspectableBox(frameHeader, this, context);
 			} else {
 				VBox headerBox = new VBox(false, 5);
-				InspectableBox namebox = new InspectableBox(new Label(name), this);
+				InspectableBox namebox = new InspectableBox(new Label(name), this, context);
 				Gtk.Alignment align = new Gtk.Alignment(0.5f, 0.5f, 0, 0) { Child = namebox, WidthRequest = 200 };
 				headerBox.PackStart(align, false, false, 0);
 				if (parent != null)
@@ -154,7 +154,7 @@ namespace BrocktonBay {
 			//Creates the cell contents
 			VBox rosterBox = new VBox(false, 0) { BorderWidth = 3 };
 			foreach (Parahuman parahuman in roster) {
-				InspectableBox header = (InspectableBox)parahuman.GetHeader(context.butCompact);
+				InspectableBox header = (InspectableBox)parahuman.GetHeader(context.butInUIContext(this));
 				if (editable)
 					MyDragDrop.SetFailAction(header, delegate {
 						Remove(parahuman);
@@ -181,6 +181,17 @@ namespace BrocktonBay {
 
 			//For some reason drag/drop highlights include BorderWidth.
 			//The Alignment makes the highlight actually appear at the 3:7 point in the margin.
+		}
+
+		public override void ContributeMemberRightClickMenu (object member, Menu rightClickMenu, Context context, Widget rightClickedWidget) {
+			if (member is Parahuman && UIFactory.EditAuthorized(this, "roster")) {
+				rightClickMenu.Append(new SeparatorMenuItem());
+				rightClickMenu.Append(MenuFactory.CreateMoveButton((IGUIComplete)member));
+				rightClickMenu.Append(MenuFactory.CreateRemoveButton(this, member));
+			} else if (member is Trait && UIFactory.EditAuthorized(this, "traits")) {
+				rightClickMenu.Append(new SeparatorMenuItem());
+				rightClickMenu.Append(MenuFactory.CreateRemoveButton(this, member));
+			}
 		}
 
 		public override bool Accepts (object obj) => obj is Parahuman && (Game.omnipotent || ((IAffiliated)obj).affiliation == affiliation);
