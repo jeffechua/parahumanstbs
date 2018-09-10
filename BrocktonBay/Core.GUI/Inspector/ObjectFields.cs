@@ -100,12 +100,12 @@ namespace BrocktonBay {
 					MenuItem addExistingButton = new MenuItem("Add");
 					rightclickMenu.Append(addExistingButton);
 					addExistingButton.Activated += (o, a) => new SelectorDialog(
-						"Select new addition to " + UIFactory.ToReadable(property.Name),
+						"Select new addition to " + UIFactory.ToReadable(property.Name) + " (shift to add multiple)",
 						(tested) => ((IContainer)obj).Accepts(tested) && tested is T,
 						delegate (GameObject returned) {
 							((IContainer)obj).Add(returned);
 							DependencyManager.TriggerAllFlags();
-						});
+						}, true);
 				}
 
 				// "Add new" button

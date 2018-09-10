@@ -148,12 +148,12 @@ namespace BrocktonBay {
 			Menu rightClickMenu = base.GetRightClickMenu(context, rightClickedWidget);
 			rightClickMenu.Append(new SeparatorMenuItem());
 			MenuItem addPrisonerButton = new MenuItem("Add Prisoner");
-			addPrisonerButton.Activated += (o, a) => new SelectorDialog("Select new prisoner",
+			addPrisonerButton.Activated += (o, a) => new SelectorDialog("Select new prisoner (shift to add multiple)",
 									  (tested) => Accepts(tested),
 									  delegate (GameObject returned) {
 										  Add(returned);
 										  DependencyManager.TriggerAllFlags();
-									  });
+									  }, true);
 			rightClickMenu.Append(addPrisonerButton);
 			MenuItem emptyButton = new MenuItem("Empty");
 			emptyButton.Activated += delegate {

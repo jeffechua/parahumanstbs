@@ -1,19 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Gdk;
 using Gtk;
 
 namespace BrocktonBay {
 
 	public class SelectorDialog : DefocusableWindow {
-		public SelectorDialog (string title, Func<GameObject, bool> Filter = null, Action<GameObject> OnClicked = null) {
+		
+		bool shifting;
+		bool allowMulti;
+		Search search;
+		Action<GameObject> OnClicked;
+
+		public SelectorDialog (string title, Func<GameObject, bool> Filter, Action<GameObject> OnClicked, bool allowMulti = false) {
+			this.OnClicked = OnClicked;
+			this.allowMulti = allowMulti;
 			//Setup window
 			Title = title;
 			SetPosition(WindowPosition.Center);
 			TransientFor = MainWindow.main;
-			TypeHint = Gdk.WindowTypeHint.Dialog;
+			TypeHint = WindowTypeHint.Dialog;
 			//Setup search
-			Search search = new Search(Filter, delegate (GameObject obj) { OnClicked(obj); Destroy(); }, false);
+			search = new Search(Filter, Clicked, false);
 			Add(search);
 			//Define default dimensions and Show
 			search.resultsWindow.Realize();
@@ -21,6 +30,26 @@ namespace BrocktonBay {
 			DefaultHeight = search.resultsWindow.Child.Requisition.Height + 30;
 			ShowAll();
 		}
+
+		void Clicked (GameObject obj) {
+			OnClicked(obj);
+			if (allowMulti && shifting) {
+				search.Reload();
+			} else {
+				Destroy();
+			}
+		}
+
+		protected override bool OnKeyPressEvent (EventKey evnt) {
+			if (evnt.Key == Gdk.Key.Shift_L || evnt.Key == Gdk.Key.Shift_R) shifting = true;
+			return true;
+		}
+
+		protected override bool OnKeyReleaseEvent (EventKey evnt) {
+			if (evnt.Key == Gdk.Key.Shift_L || evnt.Key == Gdk.Key.Shift_R) shifting = false;
+			return true;
+		}
+
 	}
 
 	public class Search : VBox, IDependable {
