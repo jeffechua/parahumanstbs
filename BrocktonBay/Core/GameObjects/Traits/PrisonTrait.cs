@@ -115,9 +115,7 @@ namespace BrocktonBay {
 		}
 
 		public override Widget GetCellContents (Context context) {
-
 			bool editable = UIFactory.EditAuthorized(this, "prisoners");
-
 			//Creates the cell contents
 			VBox prisonersBox = new VBox(false, 0) { BorderWidth = 3 };
 			foreach (Parahuman prisoner in prisoners) {
@@ -129,7 +127,6 @@ namespace BrocktonBay {
 					});
 				prisonersBox.PackStart(header, false, false, 0);
 			}
-
 			if (editable) {
 				//Set up dropping
 				EventBox eventBox = new EventBox { Child = prisonersBox, VisibleWindow = false };
@@ -145,6 +142,40 @@ namespace BrocktonBay {
 				prisonersBox.BorderWidth += 7;
 				return prisonersBox;
 			}
+		}
+
+		public override Menu GetRightClickMenu (Context context, Widget rightClickedWidget) {
+			Menu rightClickMenu = base.GetRightClickMenu(context, rightClickedWidget);
+			rightClickMenu.Append(new SeparatorMenuItem());
+			MenuItem addPrisonerButton = new MenuItem("Add Prisoner");
+			addPrisonerButton.Activated += (o, a) => new SelectorDialog("Select new prisoner",
+									  (tested) => Accepts(tested),
+									  delegate (GameObject returned) {
+										  Add(returned);
+										  DependencyManager.TriggerAllFlags();
+									  });
+			rightClickMenu.Append(addPrisonerButton);
+			MenuItem emptyButton = new MenuItem("Empty");
+			emptyButton.Activated += delegate {
+				RemoveRange(prisoners.ToArray());
+				DependencyManager.TriggerAllFlags();
+			};
+			rightClickMenu.Append(emptyButton);
+			MenuItem releaseAllButton = new MenuItem("Release All");
+			releaseAllButton.Activated += delegate {
+				foreach (Parahuman prisoner in prisoners.ToArray())
+					GetPrisonerTrait(prisoner).Release();
+				DependencyManager.TriggerAllFlags();
+			};
+			rightClickMenu.Append(releaseAllButton);
+			MenuItem executeAllButton = new MenuItem("Execute All [S]");
+			executeAllButton.Activated += delegate {
+				foreach (Parahuman prisoner in prisoners.ToArray())
+					GetPrisonerTrait(prisoner).Execute();
+				DependencyManager.TriggerAllFlags();
+			};
+			rightClickMenu.Append(executeAllButton);
+			return rightClickMenu;
 		}
 
 	}
@@ -232,10 +263,7 @@ namespace BrocktonBay {
 				name = "Execute [S]",
 				description = "Kill this captive in cold blood. This is an S-Class action.",
 				action = delegate (Context context) {
-					parahuman.health = Health.Deceased;
-					if (prison != null) prison.Remove(parahuman);
-					imprisoners.unassignedCaptures.Remove(parahuman);
-					DependencyManager.Destroy(this);
+					Execute();
 					DependencyManager.TriggerAllFlags();
 				},
 				condition = (context) => UIFactory.EditAuthorized(this, "execute")
@@ -245,6 +273,12 @@ namespace BrocktonBay {
 		public void Release () {
 			parahuman.health = Health.Healthy;
 			if (prison != null) prison.Remove(this);
+			imprisoners.unassignedCaptures.Remove(parahuman);
+			DependencyManager.Destroy(this);
+		}
+		public void Execute () {
+			parahuman.health = Health.Deceased;
+			if (prison != null) prison.Remove(parahuman);
 			imprisoners.unassignedCaptures.Remove(parahuman);
 			DependencyManager.Destroy(this);
 		}
@@ -278,16 +312,10 @@ namespace BrocktonBay {
 
 		public override object Invoke (EffectTrigger trigger, Context context, object obj) {
 			Menu rightClickMenu = (Menu)obj;
-			if (UIFactory.EditAuthorized(this, "move")) {
-				MenuItem moveButton = new MenuItem(move.name);
-				moveButton.Activated += (o, a) => move.action(context);
-				rightClickMenu.Append(moveButton);
-				MenuItem releaseButton = new MenuItem("Release");
-				releaseButton.Activated += (o, a) => release.action(context);
-				rightClickMenu.Append(releaseButton);
-				MenuItem executeButton = new MenuItem("Execute [S]");
-				executeButton.Activated += (o, a) => execute.action(context);
-				rightClickMenu.Append(executeButton);
+			if (UIFactory.ViewAuthorized(this, "move")) {
+				rightClickMenu.Append(MenuFactory.CreateActionButton(move, context));
+				rightClickMenu.Append(MenuFactory.CreateActionButton(release, context));
+				rightClickMenu.Append(MenuFactory.CreateActionButton(execute, context));
 			}
 			return rightClickMenu;
 		}

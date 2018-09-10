@@ -131,20 +131,11 @@ namespace BrocktonBay {
 
 		public virtual Menu GetRightClickMenu (Context context, Widget rightClickedWidget) {
 			Menu rightClickMenu = new Menu();
-			MenuItem inspectButton = new MenuItem("Inspect");
-			inspectButton.Activated += (o, a) => Inspector.InspectInNearestInspector(this, rightClickedWidget);
-			rightClickMenu.Append(inspectButton);
-			MenuItem inspectInWindowButton = new MenuItem("Inspect in New Window");
-			inspectInWindowButton.Activated += (o, a) => Inspector.InspectInNewWindow(this);
-			rightClickMenu.Append(inspectInWindowButton);
+			rightClickMenu.Append(MenuFactory.CreateInspectButton(this, rightClickedWidget));
+			rightClickMenu.Append(MenuFactory.CreateInspectInNewWindowButton(this));
 			if (Game.omnipotent) {
 				rightClickMenu.Append(new SeparatorMenuItem());
-				MenuItem deleteButton = new MenuItem("Delete");
-				deleteButton.Activated += delegate {
-					DependencyManager.Destroy(this);
-					DependencyManager.TriggerAllFlags();
-				};
-				rightClickMenu.Append(deleteButton);
+				rightClickMenu.Append(MenuFactory.CreateDeleteButton(this));
 			}
 			return rightClickMenu;
 		}

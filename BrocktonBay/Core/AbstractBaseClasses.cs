@@ -34,13 +34,13 @@ namespace BrocktonBay {
 			rightClickMenu.Append(MenuFactory.CreateInspectInNewWindowButton(this));
 			foreach (Trait trait in traits)
 				if (trait.trigger.Contains(EffectTrigger.GetRightClickMenu))
-					trait.Invoke(EffectTrigger.GetRightClickMenu, context);
+					trait.Invoke(EffectTrigger.GetRightClickMenu, context, rightClickMenu);
 			if (Game.omnipotent) {
 				rightClickMenu.Append(new SeparatorMenuItem());
 				rightClickMenu.Append(MenuFactory.CreateDeleteButton(this));
 				if (TryCast(out IAgent agent) && agent.active) {
 					rightClickMenu.Append(new SeparatorMenuItem());
-					MenuItem setPlayerButton = new MenuItem("Set player");
+					MenuItem setPlayerButton = new MenuItem("Set Player");
 					setPlayerButton.Activated += delegate {
 						Game.player = (IAgent)this;
 						Game.RefreshUIAndTriggerAllFlags();
