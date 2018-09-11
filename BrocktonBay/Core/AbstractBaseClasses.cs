@@ -83,8 +83,8 @@ namespace BrocktonBay {
 		//Engagement management: is this GameObject currently occupied in the game, e.g. deployed to a battle?
 		static int currentEngagement = 1;
 		int lastEngaged = 0;
-		//The isEngaged property returns whether I, or any of my ancestors, have been Engaged() since the last ClearEngagements().
-		public bool isEngaged { get { return lastEngaged == currentEngagement || ((parent == null) ? false : parent.isEngaged); } }
+		//The deployable property returns whether I, or any of my ancestors, have been Engaged() since the last ClearEngagements().
+		public virtual bool isEngaged { get => lastEngaged == currentEngagement || ((parent == null) ? false : parent.isEngaged); }
 		public void Engage () => lastEngaged = currentEngagement;
 		public void Disengage () => lastEngaged = currentEngagement - 1;
 		public static void ClearEngagements () => currentEngagement++;

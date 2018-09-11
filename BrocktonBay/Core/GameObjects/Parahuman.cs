@@ -4,12 +4,13 @@ using Gtk;
 
 namespace BrocktonBay {
 
-	public enum Health {
-		Deceased = 0,
-		Down = 1,
+	public enum Status {
+		Healthy = 0,
+		Resting = 1,
 		Injured = 2,
-		Healthy = 3,
-		Captured = 4
+		Down = 3,
+		Deceased = 4,
+		Captured = -1
 	}
 
 	public sealed class ParahumanData {
@@ -17,7 +18,7 @@ namespace BrocktonBay {
 		public int ID = 0;
 		public Alignment alignment = Alignment.Rogue;
 		public Threat threat = Threat.C;
-		public Health health = Health.Healthy;
+		public Status status = Status.Healthy;
 		public int reputation = 0;
 		public List<TraitData> mechanics = new List<TraitData>();
 		public int[,] ratings = new int[5, 9];
@@ -29,7 +30,7 @@ namespace BrocktonBay {
 			ID = parahuman.ID;
 			alignment = parahuman.alignment;
 			threat = parahuman.threat;
-			health = parahuman.health;
+			status = parahuman.status;
 			reputation = parahuman.reputation;
 			mechanics = parahuman.traits.ConvertAll((input) => new TraitData(input));
 			ratings = parahuman.baseRatings.o_vals;
@@ -38,6 +39,8 @@ namespace BrocktonBay {
 	}
 
 	public sealed partial class Parahuman : GameObject, IRated, IAgent {
+
+		public override bool isEngaged => base.isEngaged || status == Status.Captured;
 
 		public override int order { get { return 1; } }
 		public Gdk.Color color { get { return new Gdk.Color(0, 0, 0); } }
@@ -78,8 +81,8 @@ namespace BrocktonBay {
 		[Displayable(6, typeof(EnumField<Threat>))]
 		public Threat threat { get; set; }
 
-		[Displayable(7, typeof(EnumField<Health>))]
-		public Health health { get; set; }
+		[Displayable(7, typeof(EnumField<Status>))]
+		public Status status { get; set; }
 
 		[Displayable(8, typeof(IntField))]
 		public int reputation { get; set; }
@@ -100,7 +103,7 @@ namespace BrocktonBay {
 			ID = data.ID;
 			alignment = data.alignment;
 			threat = data.threat;
-			health = data.health;
+			status = data.status;
 			reputation = data.reputation;
 			traits = data.mechanics.ConvertAll((input) => Trait.Load(input));
 			foreach (Trait mechanic in traits) {
@@ -124,24 +127,24 @@ namespace BrocktonBay {
 			if (context.compact) {
 				HBox header = new HBox(false, 0);
 				Label nameLabel = new Label(name);
-				header.PackStart(nameLabel, false, false, 0);
-				header.PackStart(Graphics.GetIcon(threat, Graphics.GetColor(alignment), Graphics.textSize),
-								 false, false, (uint)(Graphics.textSize / 5));
-				switch (health) {
-					case Health.Injured:
-						Graphics.SetAllFg(nameLabel, Graphics.GetColor(Health.Injured));
-						break;
-					case Health.Down:
-						Graphics.SetAllFg(nameLabel, Graphics.GetColor(Health.Down));
-						break;
-					case Health.Deceased:
-						nameLabel.UseMarkup = true;
-						nameLabel.Markup = "<s>" + name + "</s>";
-						break;
-					case Health.Captured:
-						nameLabel.State = StateType.Insensitive;
-						return new InspectableBox(header, this, context);
+				if (status > Status.Healthy && status < Status.Deceased) {
+					Graphics.SetAllFg(nameLabel, Graphics.GetColor(status));
+				} else if (status == Status.Deceased) { // Deceased
+					nameLabel.UseMarkup = true;
+					nameLabel.Markup = "<s>" + name + "</s>";
+				} else if (status == Status.Captured) {
+					nameLabel.Sensitive = false;
 				}
+				Gdk.Color color = Graphics.GetColor(alignment);
+				if (status != Status.Healthy) {
+					Gtk.Global.RgbToHsv(((double)color.Red) / 65535, ((double)color.Green) / 65535, ((double)color.Blue) / 65535,
+										out double h, out double s, out double v);
+					s /= 3; v = (1 + v) / 2;
+					Gtk.HSV.ToRgb(h, s, v, out double r, out double g, out double b);
+					color = new Gdk.Color((byte)(ushort)(r * 255), (byte)(ushort)(g * 255), (byte)(ushort)(b * 255));
+				}
+				header.PackStart(nameLabel, false, false, 0);
+				header.PackStart(Graphics.GetIcon(threat, color, Graphics.textSize), false, false, (uint)(Graphics.textSize / 5));
 				return new InspectableBox(header, this, context);
 			} else {
 				VBox headerBox = new VBox(false, 5);

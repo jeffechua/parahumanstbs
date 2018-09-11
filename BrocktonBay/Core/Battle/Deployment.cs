@@ -43,6 +43,8 @@ namespace BrocktonBay {
 				action = delegate {
 					location.attacker = null;
 					Game.city.activeBattlegrounds.Remove(location);
+					RemoveRange(teams.ToArray());
+					RemoveRange(independents.ToArray());
 					DependencyManager.Destroy(this);
 					DependencyManager.Flag(location);
 					DependencyManager.TriggerAllFlags();
@@ -114,6 +116,8 @@ namespace BrocktonBay {
 				description = "Cancel this defense.",
 				action = delegate {
 					location.defender = null;
+					RemoveRange(teams.ToArray());
+					RemoveRange(independents.ToArray());
 					DependencyManager.Destroy(this);
 					DependencyManager.Flag(location);
 					DependencyManager.TriggerAllFlags();
@@ -237,11 +241,13 @@ namespace BrocktonBay {
 			foreach (Parahuman parahuman in combined_roster) {
 				float roll = Game.randomFloat;
 				if (roll <= deathThresh) {
-					parahuman.health = Health.Deceased;
+					parahuman.status = Status.Deceased;
 				} else if (roll < downThresh) {
-					parahuman.health = Health.Down;
+					parahuman.status = Status.Down;
 				} else if (roll < injureThresh) {
-					parahuman.health = Health.Injured;
+					parahuman.status = Status.Injured;
+				} else {
+					parahuman.status = Status.Resting;
 				}
 			}
 			if (escape.Length > 1) {
@@ -250,7 +256,7 @@ namespace BrocktonBay {
 				foreach (Parahuman parahuman in combined_roster) {
 					float roll = Game.randomFloat;
 					if (roll < escape[0].val) {
-						parahuman.health = Health.Captured;
+						parahuman.status = Status.Captured;
 						TraitData prisonerData = new TraitData {
 							name = "Prisoner",
 							type = "Prisoner",
@@ -290,6 +296,7 @@ namespace BrocktonBay {
 						Add(parahuman.parent);
 				}
 			}
+			MainWindow.mainInterface.assetsBar.UpdateEngagement();
 			DependencyManager.Flag(this);
 		}
 
@@ -319,10 +326,11 @@ namespace BrocktonBay {
 					}
 				}
 			}
+			MainWindow.mainInterface.assetsBar.UpdateEngagement();
 			DependencyManager.Flag(this);
 		}
 
-		public bool Accepts (object obj) => (obj is Team || (obj is Parahuman && ((Parahuman)obj).health == Health.Healthy))
+		public bool Accepts (object obj) => (obj is Team || (obj is Parahuman && ((Parahuman)obj).status == Status.Healthy))
 			&& !((GameObject)obj).isEngaged && (affiliation == null || ((IAffiliated)obj).affiliation == affiliation);
 		public bool Contains (object obj) => (obj is Parahuman && independents.Contains((Parahuman)obj)) || (obj is Team && teams.Contains((Team)obj));
 
@@ -336,7 +344,7 @@ namespace BrocktonBay {
 			CombineRoster();
 
 			//Remove all invalids
-			combined_roster.RemoveAll((input) => input.health != Health.Healthy);
+			combined_roster.RemoveAll((input) => input.status != Status.Healthy);
 
 		}
 

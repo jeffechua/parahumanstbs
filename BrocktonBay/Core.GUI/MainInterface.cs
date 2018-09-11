@@ -16,7 +16,7 @@ namespace BrocktonBay {
 		public Map map;
 		HBox textBar;
 		HBox numbersBar;
-		AssetsBottomBar assetsBar;
+		public AssetsBottomBar assetsBar;
 
 		public MainInterface () {
 
@@ -110,6 +110,12 @@ namespace BrocktonBay {
 				numbersBar.PackStart(new Label(faction.resources.ToString()), false, false, spacing);
 				numbersBar.PackStart(Graphics.GetIcon(StructureType.Aesthetic, black, Graphics.textSize), false, false, spacing);
 				numbersBar.PackStart(new Label(faction.reputation.ToString()), false, false, spacing);
+			} else if (GameObject.TryCast(Game.player, out Team team)) {
+				numbersBar.PackStart(Graphics.GetIcon(StructureType.Aesthetic, black, Graphics.textSize), false, false, spacing);
+				numbersBar.PackStart(new Label(team.reputation.ToString()), false, false, spacing);
+			} else if (GameObject.TryCast(Game.player, out Parahuman parahuman)) {
+				numbersBar.PackStart(Graphics.GetIcon(StructureType.Aesthetic, black, Graphics.textSize), false, false, spacing);
+				numbersBar.PackStart(new Label(parahuman.reputation.ToString()), false, false, spacing);
 			}
 
 			if ((Game.phase & (Phase.Resolution | Phase.Event)) == Phase.None) {
@@ -151,6 +157,9 @@ namespace BrocktonBay {
 		Context context;
 		HBox mainBox;
 
+		//This dictionary allows fast updating of the bar to reflect engagement of agents.
+		List<Tuple<GameObject, Container>> table = new List<Tuple<GameObject, Container>>();
+
 		bool redrawQueued;
 
 		public AssetsBottomBar () : base("Parahuman resources") {
@@ -181,36 +190,74 @@ namespace BrocktonBay {
 		}
 
 		public void Redraw () {
+			table.Clear();
 			context = new Context(null);
 			while (mainBox.Children.Length > 0) mainBox.Children[0].Destroy();
 			if (GameObject.TryCast(Game.player, out Faction faction)) {
 				mainBox.PackStart(new VSeparator(), false, false, 0);
-				AppendCategory("Unsettled prisoners", faction.unassignedCaptures);
-				AppendCategory("Teams", faction.teams);
-				AppendCategory("Direct members", faction.roster);
-				List<IGUIComplete> teamed = new List<IGUIComplete>();
+				AppendParahumans("Unsettled prisoners", faction.unassignedCaptures);
+				AppendTeams("Teams", faction.teams);
+				AppendParahumans("Direct members", faction.roster);
+				List<Parahuman> teamed = new List<Parahuman>();
 				foreach (Team team in faction.teams) foreach (Parahuman parahuman in team.roster) teamed.Add(parahuman);
-				AppendCategory("Members of teams", teamed);
-				AppendCategory("Prisoners", faction.assignedCaptures);
+				AppendParahumans("Members of teams", teamed);
+				AppendParahumans("Prisoners", faction.assignedCaptures);
 			} else if (GameObject.TryCast(Game.player, out Team team)) {
 				mainBox.PackStart(new VSeparator(), false, false, 0);
-				AppendCategory("The team", new List<Team> { team });
-				AppendCategory("Team members", team.roster);
+				AppendTeams("The team", new List<Team> { team });
+				AppendParahumans("Team members", team.roster);
 			} else if (GameObject.TryCast(Game.player, out Parahuman parahuman)) {
-				AppendCategory("Yourself", new List<Parahuman> { parahuman });
+				AppendParahumans("Yourself", new List<Parahuman> { parahuman });
 			}
+			UpdateEngagement();
 			ShowAll();
 		}
 
-		void AppendCategory<T> (string title, List<T> elements) where T : IGUIComplete {
+		public void UpdateEngagement () {
+			foreach (Tuple<GameObject, Container> tuple in table) {
+				if (tuple.Item1.isEngaged) {
+					tuple.Item2.Children[0].Sensitive = false;
+				} else {
+					tuple.Item2.Children[0].Sensitive = true;
+				}
+			}
+		}
+
+		void AppendTeams (string title, List<Team> elements) {
 			if (elements.Count > 0) {
 				VBox vBox = new VBox(false, 3) { BorderWidth = 3 };
 				mainBox.PackStart(vBox, false, false, 0);
 				vBox.PackStart(new Label(title) { Sensitive = false }, true, true, 0);
 				HBox hBox = new HBox(false, 10);
 				vBox.PackStart(hBox, true, true, 0);
-				foreach (T element in elements)
-					hBox.PackStart(new Cell(context, element), false, false, 0);
+				foreach (Team element in elements) {            //Here we see spaghetti code to get the parahuman headers embedded in Team.GetCellContents()
+					Cell teamCell = new Cell(context, element); //All the casting and child getting looks horrible but there's really no major performance loss
+					table.Add(new Tuple<GameObject, Container>(element, teamCell));
+					Container current = teamCell;
+					while (current is Frame || current is Gtk.Alignment || current is EventBox) //This reaches rosterBox in Team.GetCellContents() but no further
+						current = (Container)current.Children[0];
+					Widget[] parahumanBoxes = current.Children;
+					foreach (Widget parahumanBox in parahumanBoxes)
+						table.Add(new Tuple<GameObject, Container>(
+							(GameObject)((InspectableBox)parahumanBox).inspected, (Container)parahumanBox));
+					hBox.PackStart(teamCell, false, false, 0);
+				}
+				mainBox.PackStart(new VSeparator(), false, false, 0);
+			}
+		}
+
+		void AppendParahumans (string title, List<Parahuman> elements) {
+			if (elements.Count > 0) {
+				VBox vBox = new VBox(false, 3) { BorderWidth = 3 };
+				mainBox.PackStart(vBox, false, false, 0);
+				vBox.PackStart(new Label(title) { Sensitive = false }, true, true, 0);
+				HBox hBox = new HBox(false, 10);
+				vBox.PackStart(hBox, true, true, 0);
+				foreach (Parahuman element in elements) {
+					Cell parahumanCell = new Cell(context, element);
+					table.Add(new Tuple<GameObject, Container>(element, parahumanCell));
+					hBox.PackStart(parahumanCell, false, false, 0);
+				}
 				mainBox.PackStart(new VSeparator(), false, false, 0);
 			}
 		}

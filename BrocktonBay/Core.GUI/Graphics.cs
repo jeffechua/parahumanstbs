@@ -48,12 +48,12 @@ namespace BrocktonBay {
 		const double RESOLUTION_FACTOR = 10; //The icon is rendered at this times the requested size then scaled down.
 		static Assembly assembly;
 
-		public static readonly Gdk.Color[] healthColors = { new Color(50, 50, 50), new Color(210, 0, 0), new Color(200, 100, 0), new Color(0, 200, 0), new Color(150, 150, 150) };
-		public static readonly Gdk.Color[] alignmentColors = { new Color(0, 100, 230), new Color(170, 140, 0), new Color(100, 150, 0), new Color(0, 0, 0), new Color(150, 0, 175) };
+		public static readonly Color[] healthColors = { new Color(0, 200, 0), new Color(76, 94, 76), new Color(190, 140, 0), new Color(210, 0, 0), new Color(50, 50, 50) };
+		public static readonly Color[] alignmentColors = { new Color(0, 100, 230), new Color(170, 140, 0), new Color(100, 150, 0), new Color(0, 0, 0), new Color(150, 0, 175) };
 
 		public static Dictionary<IconRequest, Icon> iconCache = new Dictionary<IconRequest, Icon>();
 
-		public static Color GetColor (Health health) => healthColors[(int)health];
+		public static Color GetColor (Status health) => healthColors[(int)health];
 		public static Color GetColor (Alignment alignment) => alignmentColors[2 - (int)alignment];
 		public static Color GetColor (IAgent agent) => (agent == null) ? new Color(125, 125, 125) : agent.color;
 

@@ -153,6 +153,7 @@ namespace BrocktonBay {
 				battleground.battle = new Battle(battleground, battleground.attacker, battleground.defender);
 				DependencyManager.Flag(battleground);
 			}
+			GameObject.ClearEngagements();
 		}
 
 		static void EventPhase () {
@@ -175,10 +176,10 @@ namespace BrocktonBay {
 						territory.reputation += territory.reputation_income;
 					}
 				} else if (obj.TryCast(out Parahuman parahuman)) {
-					if (parahuman.health == Health.Deceased) {
+					if (parahuman.status == Status.Deceased) {
 						DependencyManager.Destroy(parahuman);
-					} else if ((int)parahuman.health < 3) {
-						parahuman.health++;
+					} else if ((int)parahuman.status > 0) {
+						parahuman.status--;
 					}
 				} else if (obj.TryCast(out Structure structure)) {
 					if (structure.rebuild_time > 0) {

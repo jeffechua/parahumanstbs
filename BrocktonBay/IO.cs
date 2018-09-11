@@ -128,6 +128,7 @@ namespace BrocktonBay {
 
 			} catch (Exception e) {
 
+				Game.city = null;
 				MessageDialog errorMessage =
 					new MessageDialog(MainWindow.main,
 									  DialogFlags.DestroyWithParent,

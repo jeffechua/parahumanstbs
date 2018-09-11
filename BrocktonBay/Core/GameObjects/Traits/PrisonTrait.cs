@@ -35,6 +35,7 @@ namespace BrocktonBay {
 		public PrisonTrait (TraitData data) : base(data)
 			=> effect = data.effect;
 
+		/*
 		public override object Invoke (EffectTrigger trigger, Context context, object obj) {
 			Faction faction = parent.affiliation as Faction;
 			if (faction == null) return null;
@@ -42,6 +43,7 @@ namespace BrocktonBay {
 				faction.resources -= (int)prisoner.threat + 1;
 			return null;
 		}
+		*/
 
 		public override void OnTriggerDestroyed (IDependable trigger) {
 			PrisonerTrait trait = (PrisonerTrait)trigger;
@@ -271,13 +273,13 @@ namespace BrocktonBay {
 		}
 
 		public void Release () {
-			parahuman.health = Health.Healthy;
+			parahuman.status = Status.Healthy;
 			if (prison != null) prison.Remove(this);
 			imprisoners.unassignedCaptures.Remove(parahuman);
 			DependencyManager.Destroy(this);
 		}
 		public void Execute () {
-			parahuman.health = Health.Deceased;
+			parahuman.status = Status.Deceased;
 			if (prison != null) prison.Remove(parahuman);
 			imprisoners.unassignedCaptures.Remove(parahuman);
 			DependencyManager.Destroy(this);

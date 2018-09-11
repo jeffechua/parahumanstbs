@@ -209,21 +209,21 @@ namespace BrocktonBay {
 				VBox aCaptures = new VBox();
 				VBox dCaptures = new VBox();
 
-				foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.health == Health.Injured))
+				foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.status == Status.Injured))
 					aInjuries.PackStart(parahuman.GetHeader(battleContext.butCompact));
-				foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.health == Health.Down))
+				foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.status == Status.Down))
 					aDowned.PackStart(parahuman.GetHeader(battleContext.butCompact));
-				foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.health == Health.Deceased))
+				foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.status == Status.Deceased))
 					aDeaths.PackStart(parahuman.GetHeader(battleContext.butCompact));
-				foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.health == Health.Captured))
+				foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.status == Status.Captured))
 					aCaptures.PackStart(parahuman.GetHeader(battleContext.butCompact));
-				foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.health == Health.Injured))
+				foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.status == Status.Injured))
 					dInjuries.PackStart(parahuman.GetHeader(battleContext.butCompact));
-				foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.health == Health.Down))
+				foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.status == Status.Down))
 					dDowned.PackStart(parahuman.GetHeader(battleContext.butCompact));
-				foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.health == Health.Deceased))
+				foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.status == Status.Deceased))
 					dDeaths.PackStart(parahuman.GetHeader(battleContext.butCompact));
-				foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.health == Health.Captured))
+				foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.status == Status.Captured))
 					dCaptures.PackStart(parahuman.GetHeader(battleContext.butCompact));
 
 				casualties.Attach(aInjuries, 0, 1, 2, 3);
