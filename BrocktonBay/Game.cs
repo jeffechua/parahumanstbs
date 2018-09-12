@@ -7,11 +7,11 @@ namespace BrocktonBay {
 
 	[Flags]
 	public enum Phase {
-		Action = 1 << 0,
-		Response = 1 << 1,
-		Resolution = 1 << 2,
-		Mastermind = 1 << 3,
-		Event = 1 << 4,
+		Event = 1 << 0,
+		Action = 1 << 1,
+		Response = 1 << 2,
+		Resolution = 1 << 3,
+		Mastermind = 1 << 4,
 		All = int.MaxValue,
 		None = 0
 	}
@@ -83,6 +83,15 @@ namespace BrocktonBay {
 			MainWindow.Unload();
 		}
 
+		public static void SetPlayer (IAgent agent) {
+			player = agent;
+			foreach (IBattleground battleground in city.activeBattlegrounds) { // Since knowledge affects the values in deployments
+				if (battleground.attacker != null) DependencyManager.Flag(battleground.attacker);
+				if (battleground.defender != null) DependencyManager.Flag(battleground.defender);
+			}
+			RefreshUIAndTriggerAllFlags();
+		}
+
 		public static void RefreshUIAndTriggerAllFlags () {
 			DependencyManager.Flag(UIKey);
 			DependencyManager.TriggerAllFlags();
@@ -148,14 +157,6 @@ namespace BrocktonBay {
 			RefreshUIAndTriggerAllFlags();
 		}
 
-		static void ResolutionPhase () {
-			foreach (IBattleground battleground in city.activeBattlegrounds) {
-				battleground.battle = new Battle(battleground, battleground.attacker, battleground.defender);
-				DependencyManager.Flag(battleground);
-			}
-			GameObject.ClearEngagements();
-		}
-
 		static void EventPhase () {
 			UpdateTurnOrder();
 			GameObject.ClearEngagements();
@@ -187,6 +188,14 @@ namespace BrocktonBay {
 					}
 				}
 			}
+		}
+
+		static void ResolutionPhase () {
+			foreach (IBattleground battleground in city.activeBattlegrounds) {
+				battleground.battle = new Battle(battleground, battleground.attacker, battleground.defender);
+				DependencyManager.Flag(battleground);
+			}
+			GameObject.ClearEngagements();
 		}
 
 		static void UpdateTurnOrder () {

@@ -115,7 +115,11 @@ namespace BrocktonBay {
 		}
 
 		public RatingsProfile GetRatingsProfile (Context context) {
-			return new RatingsProfile(context, roster);
+			RatingsProfile profile = new RatingsProfile(context, roster);
+			profile.bonuses[0] += spent_XP[0];
+			profile.bonuses[1] += spent_XP[1];
+			profile.bonuses[2] += spent_XP[2];
+			return profile;
 		}
 
 		public override void Reload () {

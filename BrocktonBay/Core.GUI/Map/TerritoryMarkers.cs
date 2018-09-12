@@ -54,21 +54,21 @@ namespace BrocktonBay {
 		protected override Window GenerateRightPopup () {
 			Window popup = new Window(WindowType.Popup) { TransientFor = (Window)map.Toplevel };
 			VBox mainBox = new VBox(false, 2) { BorderWidth = 10 };
-			mainBox.PackStart(UIFactory.Align(territory.GetHeader(context.butCompact), 0.5f, 0, 0, 1), false, false, 3);
+			mainBox.PackStart(UIFactory.Align(territory.GetHeader(context), 0.5f, 0, 0, 1), false, false, 3);
 			mainBox.PackStart(new HSeparator(), false, false, 5);
 			HBox affiliationBox = new HBox();
 			affiliationBox.PackStart(new Label("Affiliation: "));
 			if (territory.affiliation == null)
 				affiliationBox.PackStart(new Label("None"));
 			else
-				affiliationBox.PackStart(territory.affiliation.GetHeader(context.butCompact));
+				affiliationBox.PackStart(territory.affiliation.GetHeader(context));
 			mainBox.PackStart(UIFactory.Align(affiliationBox, 0, 0, 0, 1));
 			mainBox.PackStart(UIFactory.Align(new Label("Size: " + territory.size), 0, 0, 0, 1));
 			mainBox.PackStart(UIFactory.Align(new Label("Reputation: " + territory.reputation), 0, 0, 0, 1));
 			mainBox.PackStart(new HSeparator(), false, false, 5);
-			mainBox.PackStart(UIFactory.Fabricate(territory, "combat_buffs", context));
+			mainBox.PackStart(UIFactory.Fabricate(territory, "combat_buffs", context.butNotCompact));
 			mainBox.PackStart(new HSeparator(), false, false, 5);
-			mainBox.PackStart(UIFactory.Fabricate(territory, "incomes", context));
+			mainBox.PackStart(UIFactory.Fabricate(territory, "incomes", context.butNotCompact));
 			mainBox.PackStart(new HSeparator(), false, false, 5);
 			mainBox.PackStart(UIFactory.Fabricate(territory, "structures", context));
 			popup.Add(mainBox);

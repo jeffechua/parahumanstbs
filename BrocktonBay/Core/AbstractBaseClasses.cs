@@ -41,10 +41,7 @@ namespace BrocktonBay {
 				if (TryCast(out IAgent agent) && agent.active) {
 					rightClickMenu.Append(new SeparatorMenuItem());
 					MenuItem setPlayerButton = new MenuItem("Set Player");
-					setPlayerButton.Activated += delegate {
-						Game.player = (IAgent)this;
-						Game.RefreshUIAndTriggerAllFlags();
-					};
+					setPlayerButton.Activated += (o, a) => Game.SetPlayer(agent);
 					rightClickMenu.Append(setPlayerButton);
 				}
 			}

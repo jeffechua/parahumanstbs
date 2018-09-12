@@ -73,6 +73,14 @@ namespace BrocktonBay {
 			widget.ModifyBg(StateType.Insensitive, color);
 		}
 
+		public static string Shrink (string text, int times) {
+			string newText = "";
+			for (int i = 0; i < times; i++) newText += "<small>";
+			newText += text;
+			for (int i = 0; i < times; i++) newText += "</small>";
+			return newText;
+		}
+
 		public static int textSize;
 		static Gdk.GC visible;
 		static Gdk.GC translucent;

@@ -223,7 +223,7 @@ namespace BrocktonBay {
 			foreach (Parahuman parahuman in combined_roster)
 				if (parahuman.threat > threat)
 					threat = parahuman.threat;
-			base_stats = ratings(new Context(this, affiliation)).GetStats(force_employed);
+			base_stats = ratings(new Context(this, Game.player)).GetStats(force_employed);
 		}
 
 		public void OnTriggerDestroyed (IDependable trigger) {

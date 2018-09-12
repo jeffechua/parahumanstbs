@@ -226,7 +226,7 @@ namespace BrocktonBay {
 									  (tested) => tested.Accepts(child),
 									  delegate (GameObject returned) {
 										  returned.Add(child);
-										  DependencyManager.TriggerAllFlags();
+				DependencyManager.TriggerAllFlags();
 									  });
 			return moveButton;
 		}

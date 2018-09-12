@@ -90,8 +90,8 @@ namespace BrocktonBay {
 			if (Game.omnipotent) {
 				MyDragDrop.DestSet(player, "Active IAgent");
 				MyDragDrop.DestSetDropAction(player, delegate (object obj) {
-					Game.player = (IAgent)obj;
-					Game.RefreshUIAndTriggerAllFlags();
+					if (GameObject.TryCast(obj, out IAgent agent))
+						Game.SetPlayer(agent);
 				});
 			}
 			textBar.PackStart(player, false, false, 0);

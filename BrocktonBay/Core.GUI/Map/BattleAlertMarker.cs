@@ -161,11 +161,28 @@ namespace BrocktonBay {
 			mainBox.PackStart(new DynamicTable(cells, 2));
 
 			mainBox.PackStart(new HSeparator(), false, false, 5);
-			mainBox.PackStart(UIFactory.Fabricate(deployment, "strength", depContext));
+			HBox stats = new HBox(false, 2);
+			stats.PackStart(new Label {
+				UseMarkup = true,
+				Markup = "<b>Strength</b>" + Graphics.Shrink("\n\n", 6) + deployment.base_stats[0].formattedResult,
+				Justify = Justification.Right
+			}, true, true, 0);
+			stats.PackStart(new VSeparator(), false, false, 0);
+			stats.PackStart(new Label {
+				UseMarkup = true,
+				Markup = "<b>Stealth</b>" + Graphics.Shrink("\n\n", 6) + deployment.base_stats[1].formattedResult,
+				Justify = Justification.Center
+			}, true, true, 0);
+			stats.PackStart(new VSeparator(), false, false, 0);
+			stats.PackStart(new Label {
+				UseMarkup = true,
+				Markup = "<b>Insight</b>" + Graphics.Shrink("\n\n", 6) + deployment.base_stats[2].formattedResult,
+				Justify = Justification.Left
+			}, true, true, 0);
+			mainBox.PackStart(stats, false, false, 0);
 			mainBox.PackStart(new HSeparator(), false, false, 5);
-			mainBox.PackStart(UIFactory.Fabricate(deployment, "stealth", depContext));
-			mainBox.PackStart(new HSeparator(), false, false, 5);
-			mainBox.PackStart(UIFactory.Fabricate(deployment, "insight", depContext));
+
+			mainBox.PackStart(UIFactory.Fabricate(deployment, "ratings", new Context(deployment, Game.player)));
 
 			popup.Add(mainBox);
 			return popup;
