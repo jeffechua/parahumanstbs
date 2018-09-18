@@ -90,8 +90,11 @@ namespace BrocktonBay {
 		public Dossier apparentKnowledge;
 
 		public Battle (IBattleground location, Deployment attackers, Deployment defenders) {
-			this.battleground = location;
+
+			battleground = location;
 			deployments = new Deployment[] { attackers, defenders };
+
+			//Evaluate battle (and apply human consequences)
 			if (defenders != null) {
 				profiles = new EffectiveRatingsProfile[2];
 				Evaluate();
@@ -100,14 +103,64 @@ namespace BrocktonBay {
 				victor_display = "Unopposed Victor:<small><small>\n\n</small></small><big><big>" +
 								 victor.affiliation.name + "</big></big>";
 			}
-			if (GameObject.TryCast(location, out Territory territory)) {
+
+			//Conquest and destruction
+			if (GameObject.TryCast(location, out Territory territory))
 				if (victor == attackers && attackers != territory.affiliation && GameObject.TryCast(attackers.affiliation, out Faction atkFaction))
 					atkFaction.Add(location);
-			} else if (GameObject.TryCast(location, out Structure structure)) {
+			if (GameObject.TryCast(location, out Structure structure)) {
 				int damage = (int)Math.Ceiling(((float)((int)attackers.force_employed + (int)defenders.force_employed)) / 2);
 				if (damage > structure.rebuild_time)
 					structure.rebuild_time = damage;
 			}
+
+			// Reputation transfers
+			int pool = 0;
+			int delta = 0;
+			/// Each attacker "invests" a fraction of its reputation into the pool, depending on the force employed
+			double attacker_investment = ((int)attackers.force_employed + 1) * 0.1f;
+			foreach (Parahuman parahuman in attackers.combined_roster) {
+				delta = (int)Math.Round(parahuman.reputation * attacker_investment);
+				if (delta < 1) delta = 1;
+				parahuman.reputation -= delta;
+				pool += delta;
+			}
+			/// Same for each defender; higher force = more investment
+			double defender_investment = 0;
+			if (defenders != null) {
+				defender_investment = ((int)defenders.force_employed + 1) * 0.1f;
+				foreach (Parahuman parahuman in defenders.combined_roster) {
+					delta = (int)Math.Round(parahuman.reputation * defender_investment);
+					if (delta < 1) delta = 1;
+					parahuman.reputation -= delta;
+					pool += delta;
+				}
+			}
+			/// The territory also "invests" some of its reputation, the average of the two sides' percentages.
+			/// It's not really an investment per se, since it can't get it back.
+			Territory disreputedTerritory = territory ?? ((Territory)structure.parent);
+			delta = (int)Math.Round((attacker_investment + defender_investment) / 2 * disreputedTerritory.reputation);
+			disreputedTerritory.reputation -= delta;
+			pool += delta;
+			/// The victors share the pooled reputation equally among themselves.
+			int gain = (int)Math.Round(((float)pool) / victor.combined_roster.Count);
+			foreach (Parahuman parahuman in victor.combined_roster) parahuman.reputation += gain;
+
+			// XP gain depending on faced force
+			foreach (Team team in attackers.teams)
+				if (CountDeployed(team, attackers) * 2 >= team.roster.Count)
+					team.unused_XP += (int)defenders.force_employed + 1;
+			foreach (Team team in defenders.teams)
+				if (CountDeployed(team, defenders) * 2 >= team.roster.Count)
+					team.unused_XP += (int)attackers.force_employed + 1;
+		}
+
+		public static int CountDeployed (Team team, Deployment deployment) {
+			int n = 0;
+			foreach (Parahuman parahuman in team.roster)
+				if (deployment.combined_roster.Contains(parahuman))
+					n++;
+			return n;
 		}
 
 		public static bool Relevant (IBattleground battleground, IAgent agent)
