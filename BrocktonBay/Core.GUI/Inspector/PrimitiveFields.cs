@@ -38,6 +38,8 @@ namespace BrocktonBay {
 		protected Context context;
 		protected bool editable;
 
+		int activeIndex; //the index of the child that's "active": the entry or the clickable thingy.
+
 		public TextEditableField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute) {
 
 			this.property = property;
@@ -46,6 +48,7 @@ namespace BrocktonBay {
 			editable = attribute.EditAuthorized(obj);
 
 			if (!context.compact) {
+				activeIndex = 1;
 				Label label = new Label((attribute.overrideLabel ?? UIFactory.ToReadable(property.Name)) + ": ");
 				PackStart(label, false, false, 0);
 			}
@@ -78,13 +81,13 @@ namespace BrocktonBay {
 
 		void Open (object widget, EventArgs args) {
 			Entry entry = new Entry();
-			entry.SetSizeRequest(Math.Max(Children[1].Allocation.Width, Children[1].SizeRequest().Width + 10), -1);
+			entry.SetSizeRequest(Math.Max(Children[activeIndex].Allocation.Width, Children[activeIndex].SizeRequest().Width + 10), -1);
 			entry.Activated += Submit;
 			entry.FocusOutEvent += Cancel;
 			entry.Text = GetValueAsString();
 			entry.SelectRegion(0, -1);
 
-			Children[1].Destroy();
+			Children[activeIndex].Destroy();
 			PackStart(entry, true, true, 0);
 
 			ShowAll();
@@ -92,7 +95,7 @@ namespace BrocktonBay {
 		}
 
 		public void Reload () {
-			if (Children.Length > 1) Children[1].Destroy();
+			if (Children.Length > activeIndex) Children[activeIndex].Destroy();
 			Label val = new Label(GetValueAsString());
 			val.SetAlignment(0, 0.5f);
 			if (editable) {

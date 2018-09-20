@@ -208,6 +208,7 @@ namespace BrocktonBay {
 		}
 
 		public void Reload () {
+			if ((Game.phase & (Phase.Action | Phase.Response)) == Phase.None) return;
 			Sort();
 			if (leader == null || !combined_roster.Contains(leader)) {
 				if (combined_roster.Count > 0) {

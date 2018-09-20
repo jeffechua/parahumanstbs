@@ -84,8 +84,8 @@ namespace BrocktonBay {
 		[Displayable(10, typeof(EffectiveRatingsMultiview), emphasized = true, expand = true)]
 		public EffectiveRatingsProfile defender_profile { get { return profiles[1]; } set { profiles[1] = value; } }
 
-
-
+		public int tDeltaR;
+		public int[][] pDeltaR;
 
 		public Dossier apparentKnowledge;
 
@@ -116,35 +116,41 @@ namespace BrocktonBay {
 
 			// Reputation transfers
 			int pool = 0;
-			int delta = 0;
+			pDeltaR = new int[][] {
+				new int[attackers.combined_roster.Count],
+				new int[defenders.combined_roster.Count]
+			};
 			/// Each attacker "invests" a fraction of its reputation into the pool, depending on the force employed
 			double attacker_investment = ((int)attackers.force_employed + 1) * 0.1f;
-			foreach (Parahuman parahuman in attackers.combined_roster) {
-				delta = (int)Math.Round(parahuman.reputation * attacker_investment);
-				if (delta < 1) delta = 1;
-				parahuman.reputation -= delta;
-				pool += delta;
+			for (int i = 0; i < attackers.combined_roster.Count; i++) {
+				pDeltaR[0][i] = -(int)Math.Round(attackers.combined_roster[i].reputation * attacker_investment);
+				if (pDeltaR[0][i] > -1) pDeltaR[0][i] = -1;
+				attackers.combined_roster[i].reputation += pDeltaR[0][i];
+				pool -= pDeltaR[0][i];
 			}
 			/// Same for each defender; higher force = more investment
 			double defender_investment = 0;
 			if (defenders != null) {
 				defender_investment = ((int)defenders.force_employed + 1) * 0.1f;
-				foreach (Parahuman parahuman in defenders.combined_roster) {
-					delta = (int)Math.Round(parahuman.reputation * defender_investment);
-					if (delta < 1) delta = 1;
-					parahuman.reputation -= delta;
-					pool += delta;
+				for (int i = 0; i < defenders.combined_roster.Count; i++) {
+					pDeltaR[1][i] = -(int)Math.Round(defenders.combined_roster[i].reputation * defender_investment);
+					if (pDeltaR[1][i] > -1) pDeltaR[1][i] = -1;
+					defenders.combined_roster[i].reputation += pDeltaR[1][i];
+					pool -= pDeltaR[1][i];
 				}
 			}
 			/// The territory also "invests" some of its reputation, the average of the two sides' percentages.
 			/// It's not really an investment per se, since it can't get it back.
 			Territory disreputedTerritory = territory ?? ((Territory)structure.parent);
-			delta = (int)Math.Round((attacker_investment + defender_investment) / 2 * disreputedTerritory.reputation);
-			disreputedTerritory.reputation -= delta;
-			pool += delta;
+			tDeltaR = -(int)Math.Round((attacker_investment + defender_investment) / 2 * disreputedTerritory.reputation);
+			disreputedTerritory.reputation += tDeltaR;
+			pool -= tDeltaR;
 			/// The victors share the pooled reputation equally among themselves.
 			int gain = (int)Math.Round(((float)pool) / victor.combined_roster.Count);
-			foreach (Parahuman parahuman in victor.combined_roster) parahuman.reputation += gain;
+			for (int i = 0; i < victor.combined_roster.Count; i++) {
+				pDeltaR[victor == attackers ? 0 : 1][i] += gain;
+				victor.combined_roster[i].reputation += gain;
+			}
 
 			// XP gain depending on faced force
 			foreach (Team team in attackers.teams)

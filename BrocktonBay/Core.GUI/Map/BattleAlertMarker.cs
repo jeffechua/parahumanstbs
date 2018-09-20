@@ -6,7 +6,7 @@ namespace BrocktonBay {
 	public sealed class BattleAlertMarker : InspectableMapMarker {
 
 		int size;
-		public override int order { get { return 3; } }
+		public override int order { get { return 6; } }
 
 		IBattleground battleground;
 		bool attacked;
@@ -205,58 +205,63 @@ namespace BrocktonBay {
 			mainBox.PackStart(UIFactory.Fabricate(battle, "victor_display", battleContext));
 			mainBox.PackStart(new HSeparator(), false, false, 7);
 
+			Context compactContext = battleContext.butCompact;
+
 			if (battle.defenders == null) {
 
+				VBox attackersBox = new VBox();
+				mainBox.PackStart(attackersBox);
+				for (int i = 0; i < battle.attackers.combined_roster.Count; i++) {
+					Parahuman parahuman = battle.attackers.combined_roster[i];
+					HBox parahumanBox = new HBox(false, 2);
+					parahumanBox.PackStart(parahuman.GetHeader(compactContext), true, true, 0);
+					int delta = battle.pDeltaR[0][i];
+					parahumanBox.PackStart(new Label(delta >= 0 ? ("+" + delta) : delta.ToString()), false, false, 0);
+					attackersBox.PackStart(parahumanBox);
+				}
+
 			} else {
-				Table casualties = new Table(9, 3, false) { ColumnSpacing = 5, RowSpacing = 5 };
-				casualties.Attach(new VSeparator(), 1, 2, 0, 9);
-				casualties.Attach(new HSeparator(), 0, 3, 1, 2);
-				casualties.Attach(new HSeparator(), 0, 3, 3, 4);
-				casualties.Attach(new HSeparator(), 0, 3, 5, 6);
-				casualties.Attach(new HSeparator(), 0, 3, 7, 8);
-				casualties.Attach(new Label("Attackers"), 0, 1, 0, 1);
-				casualties.Attach(new Label("Defenders"), 2, 3, 0, 1);
 
-				VBox aInjuries = new VBox();
-				VBox dInjuries = new VBox();
-				VBox aDowned = new VBox();
-				VBox dDowned = new VBox();
-				VBox aDeaths = new VBox();
-				VBox dDeaths = new VBox();
-				VBox aCaptures = new VBox();
-				VBox dCaptures = new VBox();
+				HBox hBox = new HBox();
+				VBox attackersBox = new VBox();
+				VBox defendersBox = new VBox();
+				hBox.PackStart(attackersBox, true, true, 0);
+				hBox.PackStart(new VSeparator(), false, false, 4);
+				hBox.PackStart(defendersBox, true, true, 0);
+				mainBox.PackStart(hBox);
 
-				foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.status == Status.Injured))
-					aInjuries.PackStart(parahuman.GetHeader(battleContext.butCompact));
-				foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.status == Status.Down))
-					aDowned.PackStart(parahuman.GetHeader(battleContext.butCompact));
-				foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.status == Status.Deceased))
-					aDeaths.PackStart(parahuman.GetHeader(battleContext.butCompact));
-				foreach (Parahuman parahuman in battle.attackers.combined_roster.FindAll((p) => p.status == Status.Captured))
-					aCaptures.PackStart(parahuman.GetHeader(battleContext.butCompact));
-				foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.status == Status.Injured))
-					dInjuries.PackStart(parahuman.GetHeader(battleContext.butCompact));
-				foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.status == Status.Down))
-					dDowned.PackStart(parahuman.GetHeader(battleContext.butCompact));
-				foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.status == Status.Deceased))
-					dDeaths.PackStart(parahuman.GetHeader(battleContext.butCompact));
-				foreach (Parahuman parahuman in battle.defenders.combined_roster.FindAll((p) => p.status == Status.Captured))
-					dCaptures.PackStart(parahuman.GetHeader(battleContext.butCompact));
+				System.Console.WriteLine(battle.attackers.combined_roster.Count);
+				for (int i = 0; i < battle.attackers.combined_roster.Count; i++) {
+					Parahuman parahuman = battle.attackers.combined_roster[i];
+					HBox parahumanBox = new HBox(false, 2);
+					parahumanBox.PackStart(parahuman.GetHeader(compactContext), true, true, 0);
+					int delta = battle.pDeltaR[0][i];
+					parahumanBox.PackStart(new Label(delta >= 0 ? ("+" + delta) : delta.ToString()), false, false, 0);
+					attackersBox.PackStart(parahumanBox);
+				}
 
-				casualties.Attach(aInjuries, 0, 1, 2, 3);
-				casualties.Attach(dInjuries, 2, 3, 2, 3);
-				casualties.Attach(aDowned, 0, 1, 4, 5);
-				casualties.Attach(dDowned, 2, 3, 4, 5);
-				casualties.Attach(aDeaths, 0, 1, 6, 7);
-				casualties.Attach(dDeaths, 2, 3, 6, 7);
-				casualties.Attach(aCaptures, 0, 1, 8, 9);
-				casualties.Attach(dCaptures, 2, 3, 8, 9);
-
-				mainBox.PackStart(casualties);
-				popup.Add(mainBox);
+				for (int i = 0; i < battle.defenders.combined_roster.Count; i++) {
+					Parahuman parahuman = battle.defenders.combined_roster[i];
+					HBox parahumanBox = new HBox(false, 2);
+					parahumanBox.PackStart(parahuman.GetHeader(compactContext), true, true, 0);
+					int delta = battle.pDeltaR[1][i];
+					parahumanBox.PackStart(new Label(delta >= 0 ? ("+" + delta) : delta.ToString()), false, false, 0);
+					defendersBox.PackStart(parahumanBox);
+				}
 
 			}
 
+			mainBox.PackStart(new Label { HeightRequest = 3 });
+
+			HBox territoryBox = new HBox();
+			GameObject disreputedTerritory = GameObject.TryCast(battleground, out Structure structure) ? structure.parent : (Territory)battleground;
+			territoryBox.PackStart(disreputedTerritory.GetHeader(compactContext));
+			string deltaText = battle.tDeltaR >= 0 ? ("+" + battle.tDeltaR) : battle.tDeltaR.ToString();
+			territoryBox.PackStart(new Label(" " + deltaText + " reputation."));
+
+			mainBox.PackStart(territoryBox);
+
+			popup.Add(mainBox);
 			return popup;
 
 		}
