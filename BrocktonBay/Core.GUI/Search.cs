@@ -182,7 +182,7 @@ namespace BrocktonBay {
 		}
 
 		void TypeChanged () {
-			CheckButton[] checkButtons = Array.ConvertAll<Widget, CheckButton>(((VBox)typesMenu.Child).Children, (input) => (CheckButton)input);
+			CheckButton[] checkButtons = Array.ConvertAll(((VBox)typesMenu.Child).Children, (input) => (CheckButton)input);
 			string text = "";
 			int words = 0;
 			for (int i = 0; i < checkButtons.Length; i++) {

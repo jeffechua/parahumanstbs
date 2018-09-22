@@ -136,7 +136,7 @@ public partial class MainWindow : DefocusableWindowWithInspector {
 		saveAsButton = new MenuItem("Save As") { Sensitive = false };
 		saveAsButton.Activated += (o, a) => IO.SelectSaveAs();
 		closeButton = new MenuItem("Close") { Sensitive = false };
-		closeButton.Activated += (o, a) => IO.AskIfSaveBefore(Unload);
+		closeButton.Activated += (o, a) => IO.AskIfSaveBefore(Game.Unload);
 		MenuItem quitButton = new MenuItem("Quit");
 		quitButton.Activated += (o, a) => IO.AskIfSaveBefore(Application.Quit);
 		fileButton.Submenu = fileMenu;
@@ -234,7 +234,7 @@ public partial class MainWindow : DefocusableWindowWithInspector {
 	}
 
 	public static void Load () {
-		if (mainInterface!=null)
+		if (mainInterface != null)
 			mainInterface.Destroy();
 		mainInterface = new MainInterface();
 		mainBox.PackStart(mainInterface, true, true, 0);

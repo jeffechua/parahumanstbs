@@ -46,7 +46,7 @@ namespace BrocktonBay {
 		public static int turn;
 		public static List<IAgent> turnOrder;
 
-		public static List<EventLog> eventLogs = new List<EventLog>();
+		public static List<EventLog> eventLogs;
 
 		public static DependableShell UIKey; // A "key" connected to all IDependable UI elements. "Turned" (flagged) to induce a reload across the board.
 
@@ -74,6 +74,7 @@ namespace BrocktonBay {
 			Game.city = city;
 			phase = Phase.Action;
 			turn = 0;
+			eventLogs = new List<EventLog>();
 			UpdateTurnOrder();
 			MainWindow.Load();
 		}
@@ -81,6 +82,7 @@ namespace BrocktonBay {
 		public static void Unload () {
 			city = null;
 			MainWindow.Unload();
+			Map.Unload();
 		}
 
 		public static void SetPlayer (IAgent agent) {

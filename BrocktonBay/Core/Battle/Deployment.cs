@@ -8,19 +8,16 @@ namespace BrocktonBay {
 
 		public override string name { get => "Attack on " + location.name; }
 
-		[Displayable(1, typeof(ObjectField), forceHorizontal = true)]
-		public override Parahuman leader { get; set; }
+		[Displayable(5, typeof(DeploymentForceSelectionField), editLocks = Locks.Turn, editablePhases = Phase.Action)]
+		public object placemarker { get => this; } // Useless property to host DeploymentForceSelectionField
 
-		[Displayable(5, typeof(ThreatSelectionField), editablePhases = Phase.Action)]
-		public override Threat force_employed { get; set; }
-
-		[Displayable(6, typeof(CellTabularListField<Team>), 2, emphasized = true, editablePhases = Phase.Action)]
+		[Displayable(6, typeof(SelectivelyEditableCellTabularListField<Team>), 2, emphasized = true, editLocks = Locks.Turn, editablePhases = Phase.Action)]
 		public override List<Team> teams { get; set; }
 
-		[Displayable(7, typeof(CellTabularListField<Parahuman>), 2, emphasized = true, editablePhases = Phase.Action)]
+		[Displayable(7, typeof(SelectivelyEditableCellTabularListField<Parahuman>), 2, emphasized = true, editLocks = Locks.Turn, editablePhases = Phase.Action)]
 		public override List<Parahuman> independents { get; set; }
 
-		[Displayable(8, typeof(CellTabularListField<Parahuman>), -2, emphasized = true, editablePhases = Phase.Action)]
+		[Displayable(8, typeof(SelectivelyEditableCellTabularListField<Parahuman>), -2, emphasized = true, editLocks = Locks.Turn, editablePhases = Phase.Action)]
 		public override List<Parahuman> combined_roster { get; set; }
 
 		[Displayable(98, typeof(ActionField), 5, fillSides = false, viewLocks = Locks.All, visiblePhases = Phase.Action, editablePhases = Phase.Action)]
@@ -29,14 +26,14 @@ namespace BrocktonBay {
 		[Displayable(99, typeof(ActionField), 5, fillSides = false, viewLocks = Locks.Turn, editLocks = Locks.Turn, visiblePhases = Phase.Response, editablePhases = Phase.Response)]
 		public GameAction oppose { get; set; }
 
-		public Attack (IBattleground location, IAgent affiliation) : this(location, affiliation, new List<Team>(), new List<Parahuman>()) { }
+		public Attack (IBattleground location) : this(location, new List<Team>(), new List<Parahuman>()) { }
 
-		public Attack (IBattleground location, IAgent affiliation, List<Team> teams, List<Parahuman> independents, Parahuman leader = null) {
+		public Attack (IBattleground location, List<Team> teams, List<Parahuman> independents) {
+			proposedForces = new Dictionary<IAgent, Threat>();
+			proposedForces.Add(Game.turnOrder[Game.turn], Threat.C);
 			this.location = location;
-			this.affiliation = affiliation;
 			this.teams = teams;
 			this.independents = independents;
-			this.leader = leader;
 			cancel = new GameAction {
 				name = "Cancel attack",
 				description = "Cancel this attack.",
@@ -55,7 +52,7 @@ namespace BrocktonBay {
 				name = "Mount opposition",
 				description = "Mount a defense of " + location.name + " against this attack force",
 				action = delegate (Context context) {
-					location.defender = new Defense(location, context.requester);
+					location.defender = new Defense(location);
 					DependencyManager.Connect(location, location.defender);
 					DependencyManager.Flag(location);
 					DependencyManager.TriggerAllFlags();
@@ -85,32 +82,29 @@ namespace BrocktonBay {
 
 		public override string name { get => "Defense of " + location.name; }
 
-		[Displayable(1, typeof(ObjectField), forceHorizontal = true)]
-		public override Parahuman leader { get; set; }
+		[Displayable(5, typeof(DeploymentForceSelectionField), editLocks = Locks.Turn, editablePhases = Phase.Response)]
+		public object placemarker { get => this; } // Useless property to host DeploymentForceSelectionField
 
-		[Displayable(5, typeof(ThreatSelectionField), editablePhases = Phase.Response)]
-		public override Threat force_employed { get; set; }
-
-		[Displayable(6, typeof(CellTabularListField<Team>), 2, emphasized = true, editablePhases = Phase.Response)]
+		[Displayable(6, typeof(SelectivelyEditableCellTabularListField<Team>), 2, emphasized = true, editLocks = Locks.Turn, editablePhases = Phase.Response)]
 		public override List<Team> teams { get; set; }
 
-		[Displayable(7, typeof(CellTabularListField<Parahuman>), 2, emphasized = true, editablePhases = Phase.Response)]
+		[Displayable(7, typeof(SelectivelyEditableCellTabularListField<Parahuman>), 2, emphasized = true, editLocks = Locks.Turn, editablePhases = Phase.Response)]
 		public override List<Parahuman> independents { get; set; }
 
-		[Displayable(8, typeof(CellTabularListField<Parahuman>), -2, emphasized = true, editablePhases = Phase.Response)]
+		[Displayable(8, typeof(SelectivelyEditableCellTabularListField<Parahuman>), -2, emphasized = true, editLocks = Locks.Turn, editablePhases = Phase.Response)]
 		public override List<Parahuman> combined_roster { get; set; }
 
 		[Displayable(99, typeof(ActionField), 5, fillSides = false, viewLocks = Locks.All, visiblePhases = Phase.Response, editablePhases = Phase.Response)]
 		public GameAction cancel { get; set; }
 
-		public Defense (IBattleground location, IAgent affiliation) : this(location, affiliation, new List<Team>(), new List<Parahuman>()) { }
+		public Defense (IBattleground location) : this(location, new List<Team>(), new List<Parahuman>()) { }
 
-		public Defense (IBattleground location, IAgent affiliation, List<Team> teams, List<Parahuman> independents, Parahuman leader = null) {
+		public Defense (IBattleground location, List<Team> teams, List<Parahuman> independents) {
+			proposedForces = new Dictionary<IAgent, Threat>();
+			proposedForces.Add(Game.turnOrder[Game.turn], Threat.C);
 			this.location = location;
-			this.affiliation = affiliation;
 			this.teams = teams;
 			this.independents = independents;
-			this.leader = leader;
 			cancel = new GameAction {
 				name = "Cancel defense",
 				description = "Cancel this defense.",
@@ -148,11 +142,12 @@ namespace BrocktonBay {
 		public abstract string name { get; }
 		public IBattleground location;
 
-		public abstract Parahuman leader { get; set; }
-		public abstract Threat force_employed { get; set; }
+		public Threat force_employed { get => proposedForces[affiliation]; }
+		public Dictionary<IAgent, Threat> proposedForces;
 		public abstract List<Team> teams { get; set; }
 		public abstract List<Parahuman> independents { get; set; }
 		public abstract List<Parahuman> combined_roster { get; set; }
+
 
 		[Displayable(3, typeof(ObjectField), forceHorizontal = true)]
 		public IAgent affiliation { get; set; }
@@ -208,23 +203,29 @@ namespace BrocktonBay {
 		}
 
 		public void Reload () {
+
+			//So the newly damaged parahumans don't get ejected from the Deployment the moment it Applies a battle.
 			if ((Game.phase & (Phase.Action | Phase.Response)) == Phase.None) return;
+
 			Sort();
-			if (leader == null || !combined_roster.Contains(leader)) {
-				if (combined_roster.Count > 0) {
-					leader = combined_roster[0];
-					foreach (Parahuman parahuman in combined_roster)
-						if (parahuman.reputation > leader.reputation)
-							leader = parahuman;
-				} else {
-					leader = null;
-				}
-			}
+
+			//Determine threat - the max amongst all in deployment
 			threat = Threat.C;
 			foreach (Parahuman parahuman in combined_roster)
 				if (parahuman.threat > threat)
 					threat = parahuman.threat;
+
+			//Determine affiliation - the faction that has the most deployed in this deployment
+			Dictionary<IAgent, int> counts = new Dictionary<IAgent, int>();
+			foreach (IAgent agent in proposedForces.Keys) counts.Add(agent, 0);
+			foreach (Parahuman parahuman in combined_roster) counts[parahuman.affiliation]++;
+			foreach (KeyValuePair<IAgent, int> pair in counts)
+				if (affiliation == null || pair.Value > counts[affiliation])
+					affiliation = pair.Key;
+
+			//Evaluate the base strength, stealth and insight of the deployment
 			base_stats = ratings(new Context(this, Game.player)).GetStats(force_employed);
+
 		}
 
 		public void OnTriggerDestroyed (IDependable trigger) {
@@ -280,17 +281,17 @@ namespace BrocktonBay {
 
 		public void AddRange<T> (IEnumerable<T> objs) {
 			foreach (object obj in objs) {
-				if (obj is Team && !teams.Contains((Team)obj)) {
-					Team team = (Team)obj;
+				if (GameObject.TryCast(obj, out Team team) && !teams.Contains(team)) {
 					RemoveRange(team.roster);
 					teams.Add(team);
 					team.Engage();
+					if (!proposedForces.ContainsKey(team.affiliation)) proposedForces.Add(team.affiliation, Threat.C);
 					DependencyManager.Connect(team, this);
 				}
-				if (obj is Parahuman && !combined_roster.Contains((Parahuman)obj)) {
-					Parahuman parahuman = (Parahuman)obj;
+				if (GameObject.TryCast(obj, out Parahuman parahuman) && !combined_roster.Contains(parahuman)) {
 					independents.Add(parahuman);
 					parahuman.Engage();
+					if (!proposedForces.ContainsKey(parahuman.affiliation)) proposedForces.Add(parahuman.affiliation, Threat.C);
 					DependencyManager.Connect(parahuman, this);
 					if (parahuman.parent is Team &&
 						((Team)parahuman.parent).roster.TrueForAll((member) => independents.Contains(member)))
@@ -331,8 +332,7 @@ namespace BrocktonBay {
 			DependencyManager.Flag(this);
 		}
 
-		public bool Accepts (object obj) => (obj is Team || (obj is Parahuman && ((Parahuman)obj).status == Status.Healthy))
-			&& !((GameObject)obj).isEngaged && (affiliation == null || ((IAffiliated)obj).affiliation == affiliation);
+		public bool Accepts (object obj) => (obj is Team || (obj is Parahuman && ((Parahuman)obj).status == Status.Healthy)) && !((GameObject)obj).isEngaged;
 		public bool Contains (object obj) => (obj is Parahuman && independents.Contains((Parahuman)obj)) || (obj is Team && teams.Contains((Team)obj));
 
 		public void Sort () {
@@ -357,4 +357,5 @@ namespace BrocktonBay {
 		}
 
 	}
+
 }

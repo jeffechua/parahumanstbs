@@ -13,6 +13,7 @@ namespace BrocktonBay {
 		bool defended;
 		Phase phase;
 		IntVector2 shownPosition;
+		bool shownRelevance;
 
 		Vector2 _offset;
 		public override int layer { get => 2; }
@@ -38,8 +39,6 @@ namespace BrocktonBay {
 
 		public override void Redraw () {
 
-			active = false;
-
 			if (Child != null) Child.Destroy();
 
 			if (battleground.attacker == null)
@@ -47,15 +46,12 @@ namespace BrocktonBay {
 
 			Add(Graphics.GetAlert(battleground, size));
 
-			if (Battle.Relevant(battleground, Game.player)) {
-				active = true;
-				if (battleground.battle != null) {
-					inspected = null;
-				} else if (battleground.defender != null) {
-					inspected = battleground.defender;
-				} else if (battleground.attacker != null) {
-					inspected = battleground.attacker;
-				}
+			if (battleground.battle != null) {
+				inspected = null;
+			} else if (battleground.defender != null) {
+				inspected = battleground.defender;
+			} else if (battleground.attacker != null) {
+				inspected = battleground.attacker;
 			}
 
 			ShowAll();
@@ -88,9 +84,10 @@ namespace BrocktonBay {
 		}
 
 		public override void Reload () {
-			if ((battleground.attacker != null) != attacked || (battleground.defender != null) != defended || Game.phase != phase) {
+			if ((battleground.attacker != null) != attacked || (battleground.defender != null) != defended || Game.phase != phase || Battle.Relevant(battleground, Game.player) != shownRelevance) {
 				attacked = battleground.attacker != null;
 				defended = battleground.defender != null;
+				shownRelevance = Battle.Relevant(battleground, Game.player);
 				phase = Game.phase;
 				Redraw();
 			}

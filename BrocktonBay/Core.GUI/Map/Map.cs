@@ -29,6 +29,11 @@ namespace BrocktonBay {
 			markeds.Remove(marked);
 		}
 
+		public static void Unload () {
+			maps = new List<Map>();
+			markeds = new List<MapMarked>();
+		}
+
 	}
 
 	public partial class Map : EventBox {

@@ -59,6 +59,8 @@ namespace BrocktonBay {
 
 	}
 
+
+
 	// the absolute value of (int)arg = number of columns in table if used
 	// arg>0 => expander starts expanded, <0 => starts collapsed
 	public abstract class TabularListField<T> : EventBox where T : IGUIComplete {
@@ -101,7 +103,7 @@ namespace BrocktonBay {
 					rightclickMenu.Append(addExistingButton);
 					addExistingButton.Activated += (o, a) => new SelectorDialog(
 						"Select new addition to " + UIFactory.ToReadable(property.Name) + " (shift to add multiple)",
-						(tested) => ((IContainer)obj).Accepts(tested) && tested is T,
+						AddExistingFilter,
 						delegate (GameObject returned) {
 							((IContainer)obj).Add(returned);
 							DependencyManager.TriggerAllFlags();
@@ -202,14 +204,109 @@ namespace BrocktonBay {
 			}
 		}
 
+		protected virtual bool AddExistingFilter (object tested) => parent.Accepts(tested) && tested is T;
+
 		protected virtual void AttemptDrag (object data) {
-			if (parent.Accepts(data)) {
+			if (AddExistingFilter(data)) {
 				parent.Add(data);
 				DependencyManager.TriggerAllFlags();
 			}
 		}
 
 		protected abstract Widget GetElementWidget (T obj);
+
+	}
+
+	public class MechanicCellTabularListField : CellTabularListField<Trait> {
+
+		public MechanicCellTabularListField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute)
+			: base(property, obj, context, attribute) { }
+
+		protected override Widget GetElementWidget (Trait obj) {
+			if (!obj.Known(context)) {
+				Table table = new Table(1, 1, true);
+				Label number = new Label { UseMarkup = true, Markup = "<big><b>" + obj.secrecy + "</b></big>" };
+				Gtk.Image image = new Gtk.Image(Stock.DialogAuthentication, IconSize.Dnd);
+				table.Attach(UIFactory.Align(number, 0.5f, 0.5f, 0, 0), 0, 1, 0, 1);
+				table.Attach(UIFactory.Align(image, 0.5f, 0.5f, 0, 0), 0, 1, 0, 1);
+				table.BorderWidth = 10;
+				return new Frame { Child = table, Label = "???" };
+			}
+			return base.GetElementWidget(obj);
+		}
+
+		protected override void AttemptDrag (object data) { }
+
+	}
+
+	public class SelectivelyEditableCellTabularListField<T> : TabularListField<T> where T : IGUIComplete, IAffiliated {
+
+		public SelectivelyEditableCellTabularListField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute)
+			: base(property, obj, context, attribute) { }
+
+		protected override Widget GetElementWidget (T obj) {
+
+			Cell cell;
+			cell = new Cell(context, obj);
+
+			if (editable && (obj.affiliation == Game.player || Game.omnipotent)) {
+				MyDragDrop.SetFailAction(cell, delegate {
+					parent.Remove(obj);
+					DependencyManager.TriggerAllFlags();
+				});
+				MyDragDrop.SetFailAction(cell.frame.LabelWidget, delegate {
+					parent.Remove(obj);
+					DependencyManager.TriggerAllFlags();
+				});
+			}
+
+			// Rationale for removing only if drag had no target ("fails")
+			// - If cellObject is dragged from an aggregative list to another aggregative list,
+			//   the Add() function on the second automatically removes it from the first, so calling Remove() is unnecessary.
+			// - If cellObject is dragged from an associative list to an aggregative list or vice versa,
+			//   We reasonably assume that user doesn't want it removed from the first list since the concept of "moving" doesn't apply in this context.
+			// - Only if the user has dragged cellObject from any list to *nothing* can it be assumed that they need it manually removed by us.
+
+			return cell;
+
+		}
+
+		protected override bool AddExistingFilter (object tested)
+		=> parent.Accepts(tested) && (((IAffiliated)tested).affiliation == Game.player || Game.omnipotent) && tested is T;
+
+	}
+
+	public class CellTabularListField<T> : TabularListField<T> where T : IGUIComplete {
+
+		public CellTabularListField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute)
+			: base(property, obj, context, attribute) { }
+
+		protected override Widget GetElementWidget (T obj) {
+
+			Cell cell;
+			cell = new Cell(context, obj);
+
+			if (editable) {
+				MyDragDrop.SetFailAction(cell, delegate {
+					parent.Remove(obj);
+					DependencyManager.TriggerAllFlags();
+				});
+				MyDragDrop.SetFailAction(cell.frame.LabelWidget, delegate {
+					parent.Remove(obj);
+					DependencyManager.TriggerAllFlags();
+				});
+			}
+
+			// Rationale for removing only if drag had no target ("fails")
+			// - If cellObject is dragged from an aggregative list to another aggregative list,
+			//   the Add() function on the second automatically removes it from the first, so calling Remove() is unnecessary.
+			// - If cellObject is dragged from an associative list to an aggregative list or vice versa,
+			//   We reasonably assume that user doesn't want it removed from the first list since the concept of "moving" doesn't apply in this context.
+			// - Only if the user has dragged cellObject from any list to *nothing* can it be assumed that they need it manually removed by us.
+
+			return cell;
+
+		}
 
 	}
 
@@ -275,61 +372,4 @@ namespace BrocktonBay {
 
 	}
 
-	public class MechanicCellTabularListField : CellTabularListField<Trait> {
-
-		public MechanicCellTabularListField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute)
-			: base(property, obj, context, attribute) { }
-
-		protected override Widget GetElementWidget (Trait obj) {
-			if (!obj.Known(context)) {
-				Table table = new Table(1, 1, true);
-				Label number = new Label { UseMarkup = true, Markup = "<big><b>" + obj.secrecy + "</b></big>" };
-				Gtk.Image image = new Gtk.Image(Stock.DialogAuthentication, IconSize.Dnd);
-				table.Attach(UIFactory.Align(number, 0.5f, 0.5f, 0, 0), 0, 1, 0, 1);
-				table.Attach(UIFactory.Align(image, 0.5f, 0.5f, 0, 0), 0, 1, 0, 1);
-				table.BorderWidth = 10;
-				return new Frame { Child = table, Label = "???" };
-			}
-			return base.GetElementWidget(obj);
-		}
-
-		protected override void AttemptDrag (object data) { }
-
-	}
-
-	public class CellTabularListField<T> : TabularListField<T> where T : IGUIComplete {
-
-		public CellTabularListField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute)
-			: base(property, obj, context, attribute) { }
-
-		protected override Widget GetElementWidget (T obj) {
-
-			// Set up the actual widget.
-
-			Cell cell;
-			cell = new Cell(context, obj);
-
-			if (editable) {
-				MyDragDrop.SetFailAction(cell, delegate {
-					parent.Remove(obj);
-					DependencyManager.TriggerAllFlags();
-				});
-				MyDragDrop.SetFailAction(cell.frame.LabelWidget, delegate {
-					parent.Remove(obj);
-					DependencyManager.TriggerAllFlags();
-				});
-			}
-
-			// Rationale for removing only if drag had no target
-			// - If cellObject is dragged from an aggregative list to another aggregative list,
-			//   the Add() function on the second automatically removes it from the first, so calling Remove() is unnecessary.
-			// - If cellObject is dragged from an associative list to an aggregative list or vice versa,
-			//   We reasonably assume that user doesn't want it removed from the first list since the concept of "moving" doesn't apply in this context.
-			// - Only if the user has dragged cellObject from any list to *nothing* can it be assumed that they need it manually removed by us.
-
-			return cell;
-
-		}
-
-	}
 }

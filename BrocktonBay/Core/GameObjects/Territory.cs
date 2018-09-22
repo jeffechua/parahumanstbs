@@ -122,7 +122,7 @@ namespace BrocktonBay {
 				name = "Attack",
 				description = "Launch an attack on " + name,
 				action = delegate (Context context) {
-					attacker = new Attack(this, context.requester);
+					attacker = new Attack(this);
 					Game.city.activeBattlegrounds.Add(this);
 					DependencyManager.Connect(this, attacker);
 					DependencyManager.Flag(this);
@@ -135,7 +135,7 @@ namespace BrocktonBay {
 				name = "Defend",
 				description = "Mount a defense of " + name,
 				action = delegate (Context context) {
-					defender = new Defense(this, context.requester);
+					defender = new Defense(this);
 					DependencyManager.Connect(this, defender);
 					DependencyManager.Flag(this);
 					DependencyManager.TriggerAllFlags();

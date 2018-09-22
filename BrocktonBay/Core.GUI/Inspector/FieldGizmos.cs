@@ -14,15 +14,13 @@ namespace BrocktonBay {
 		}
 	}
 
-	public sealed class ThreatSelectionField : HBox {
+	public sealed class DeploymentForceSelectionField : HBox {
 
-		IDependable obj;
-		PropertyInfo property;
 		RadioButton[] buttons;
+		Deployment deployment;
 
-		public ThreatSelectionField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute) : base(false, 0) {
-			this.obj = (IDependable)obj;
-			this.property = property;
+		public DeploymentForceSelectionField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute) : base(false, 0) {
+			deployment = (Deployment)obj;
 			bool editable = attribute.EditAuthorized(obj);
 			PackStart(new Label(UIFactory.ToReadable(property.Name) + ": "), false, false, 0);
 			buttons = new RadioButton[4];
@@ -30,10 +28,10 @@ namespace BrocktonBay {
 			buttons[1] = new RadioButton(buttons[0], "B");
 			buttons[2] = new RadioButton(buttons[0], "A");
 			buttons[3] = new RadioButton(buttons[0], "S");
-			buttons[(int)(Threat)property.GetValue(obj)].Active = true;
+			buttons[(int)deployment.force_employed].Active = true;
 			foreach (RadioButton button in buttons) {
 				button.Toggled += OnThreatToggled;
-				if (!editable) button.State = StateType.Insensitive;
+				if (!editable || (deployment.affiliation != Game.player && !Game.omnipotent)) button.State = StateType.Insensitive;
 				PackStart(button, false, false, 0);
 			}
 		}
@@ -41,8 +39,8 @@ namespace BrocktonBay {
 			int index = 0;
 			for (int i = 0; i < 4; i++) if (buttons[i] == o) index = i;
 			if (buttons[index].Active) {
-				property.SetValue(obj, (Threat)index);
-				DependencyManager.Flag(obj);
+				deployment.proposedForces[deployment.affiliation] = (Threat)index;
+				DependencyManager.Flag(deployment);
 				DependencyManager.TriggerAllFlags();
 			}
 		}
