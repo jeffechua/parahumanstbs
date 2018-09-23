@@ -38,8 +38,8 @@ namespace BrocktonBay {
 	public sealed class Structure : GameObject, IBattleground, MapMarked {
 
 		public override int order { get { return 1; } }
-		public Attack attacker { get; set; }
-		public Defense defender { get; set; }
+		public Attack attackers { get; set; }
+		public Defense defenders { get; set; }
 		public Battle battle { get; set; }
 
 		[Displayable(3, typeof(IntVector2Field), visiblePhases = Phase.None)]
@@ -123,26 +123,26 @@ namespace BrocktonBay {
 				name = "Attack",
 				description = "Launch an attack on " + name,
 				action = delegate (Context context) {
-					attacker = new Attack(this);
+					attackers = new Attack(this);
 					Game.city.activeBattlegrounds.Add(this);
-					DependencyManager.Connect(this, attacker);
+					DependencyManager.Connect(this, attackers);
 					DependencyManager.Flag(this);
 					DependencyManager.TriggerAllFlags();
-					Inspector.InspectInNearestInspector(attacker, MainWindow.main);
+					Inspector.InspectInNearestInspector(attackers, MainWindow.main);
 				},
-				condition = (context) => attacker == null && UIFactory.EditAuthorized(this, "attack")
+				condition = (context) => attackers == null && UIFactory.EditAuthorized(this, "attack")
 			};
 			defend = new GameAction {
 				name = "Defend",
 				description = "Mount a defense of " + name,
 				action = delegate (Context context) {
-					defender = new Defense(this);
-					DependencyManager.Connect(this, defender);
+					defenders = new Defense(this);
+					DependencyManager.Connect(this, defenders);
 					DependencyManager.Flag(this);
 					DependencyManager.TriggerAllFlags();
-					Inspector.InspectInNearestInspector(defender, MainWindow.main);
+					Inspector.InspectInNearestInspector(defenders, MainWindow.main);
 				},
-				condition = (context) => attacker != null && defender == null && UIFactory.EditAuthorized(this, "defend")
+				condition = (context) => attackers != null && defenders == null && UIFactory.EditAuthorized(this, "defend")
 			};
 		}
 

@@ -9,8 +9,8 @@ namespace BrocktonBay {
 		public override int order { get { return 6; } }
 
 		IBattleground battleground;
-		bool attacked;
-		bool defended;
+		IAgent attackingAgent;
+		IAgent defendingAgent;
 		Phase phase;
 		IntVector2 shownPosition;
 		bool shownRelevance;
@@ -41,17 +41,17 @@ namespace BrocktonBay {
 
 			if (Child != null) Child.Destroy();
 
-			if (battleground.attacker == null)
+			if (battleground.attackers == null)
 				return;
 
 			Add(Graphics.GetAlert(battleground, size));
 
 			if (battleground.battle != null) {
 				inspected = null;
-			} else if (battleground.defender != null) {
-				inspected = battleground.defender;
-			} else if (battleground.attacker != null) {
-				inspected = battleground.attacker;
+			} else if (battleground.defenders != null) {
+				inspected = battleground.defenders;
+			} else if (battleground.attackers != null) {
+				inspected = battleground.attackers;
 			}
 
 			ShowAll();
@@ -84,9 +84,12 @@ namespace BrocktonBay {
 		}
 
 		public override void Reload () {
-			if ((battleground.attacker != null) != attacked || (battleground.defender != null) != defended || Game.phase != phase || Battle.Relevant(battleground, Game.player) != shownRelevance) {
-				attacked = battleground.attacker != null;
-				defended = battleground.defender != null;
+			IAgent newAttackingAgent = battleground.attackers == null ? null : battleground.attackers.affiliation;
+			IAgent newDefendingAgent = battleground.defenders == null ? null : battleground.defenders.affiliation;
+			if (attackingAgent != newAttackingAgent || defendingAgent != newDefendingAgent ||
+				Game.phase != phase || Battle.Relevant(battleground, Game.player) != shownRelevance) {
+				attackingAgent = newAttackingAgent;
+				defendingAgent = newDefendingAgent;
 				shownRelevance = Battle.Relevant(battleground, Game.player);
 				phase = Game.phase;
 				Redraw();
@@ -105,26 +108,26 @@ namespace BrocktonBay {
 		public override void OnListenerDestroyed (IDependable listener) { }
 
 		protected override Window GenerateLeftPopup () {
-			if (!attacked) return null;
+			if (attackingAgent == null) return null;
 			switch (Game.phase) {
 				case Phase.Action:
 					return null;
 				case Phase.Response:
-					return defended ? GenerateDeploymentPopup(battleground.attacker) : null;
+					return defendingAgent == null ? null : GenerateDeploymentPopup(battleground.attackers);
 				default:
 					return null;
 			}
 		}
 
 		protected override Window GenerateRightPopup () {
-			if (!attacked) return null;
+			if (attackingAgent == null) return null;
 			switch (Game.phase) {
 				case Phase.Action:
-					return GenerateDeploymentPopup(battleground.attacker);
+					return GenerateDeploymentPopup(battleground.attackers);
 				case Phase.Response:
-					return GenerateDeploymentPopup(defended ?
-												   (Deployment)battleground.defender :
-												   (Deployment)battleground.attacker);
+					return GenerateDeploymentPopup(defendingAgent == null ?
+												   (Deployment)battleground.attackers :
+												   (Deployment)battleground.defenders);
 				default:
 					return GenerateBattlePopup(battleground.battle);
 			}

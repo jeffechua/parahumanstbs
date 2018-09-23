@@ -73,6 +73,8 @@ namespace BrocktonBay {
 
 		public TabularListField (PropertyInfo property, object obj, Context context, DisplayableAttribute attribute) { //obj must be an IContainer.
 
+			VisibleWindow = false;
+
 			parent = (IContainer)obj;
 			this.context = context;
 			editable = attribute.EditAuthorized(obj);
@@ -150,7 +152,7 @@ namespace BrocktonBay {
 
 				if (context.compact) {
 					if (editable) {
-						EventBox eventBox = new EventBox { Child = table };
+						EventBox eventBox = new EventBox { Child = table, VisibleWindow = false };
 						alignment.Add(eventBox);
 						eventBox.ButtonPressEvent += ListPressed; //Set up right-click menu
 						MyDragDrop.DestSet(eventBox, typeof(T).Name); //Set up

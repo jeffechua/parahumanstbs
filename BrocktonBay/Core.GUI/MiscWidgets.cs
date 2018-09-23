@@ -4,9 +4,11 @@ using Gtk;
 
 namespace BrocktonBay {
 
+	public enum WindowVisibility { Always, Never, WhenInteracting }
+
 	public class ClickableEventBox : EventBox {
 
-		private static Widget currentMouseOver;
+		private static ClickableEventBox currentMouseOver;
 		private bool clickValid;
 		public EventHandler<ButtonReleaseEventArgs> Clicked = delegate { };
 		public EventHandler<ButtonReleaseEventArgs> MiddleClicked = delegate { };
@@ -102,11 +104,11 @@ namespace BrocktonBay {
 		}
 	}
 
-	public class ToggleMenu : Window {
+	public class TogglePopup : Window {
 
 		public ToggleButton toggle;
 
-		public ToggleMenu (ToggleButton toggle) : base(WindowType.Popup) {
+		public TogglePopup (ToggleButton toggle) : base(WindowType.Popup) {
 			Gravity = Gdk.Gravity.NorthWest;
 			this.toggle = toggle;
 			toggle.Toggled += Toggled;

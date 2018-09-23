@@ -87,6 +87,7 @@
     <Compile Include="Core\GameObjects\Traits\PrisonTrait.cs" />
     <Compile Include="Core\Agency.cs" />
     <Compile Include="Core.GUI\Map\BattleAlertMarker.cs" />
+    <Compile Include="EventLogsDisplay.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />

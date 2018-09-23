@@ -7,7 +7,7 @@ using Gtk;
 namespace BrocktonBay {
 
 	public class SelectorDialog : DefocusableWindow {
-		
+
 		bool shifting;
 		bool allowMulti;
 		Search search;
@@ -16,6 +16,8 @@ namespace BrocktonBay {
 		public SelectorDialog (string title, Func<GameObject, bool> Filter, Action<GameObject> OnClicked, bool allowMulti = false) {
 			this.OnClicked = OnClicked;
 			this.allowMulti = allowMulti;
+			KeyPressEvent += KeyPress;
+			KeyReleaseEvent += KeyRelease;
 			//Setup window
 			Title = title;
 			SetPosition(WindowPosition.Center);
@@ -40,14 +42,12 @@ namespace BrocktonBay {
 			}
 		}
 
-		protected override bool OnKeyPressEvent (EventKey evnt) {
-			if (evnt.Key == Gdk.Key.Shift_L || evnt.Key == Gdk.Key.Shift_R) shifting = true;
-			return true;
+		void KeyPress (object obj, KeyPressEventArgs args) {
+			if (args.Event.Key == Gdk.Key.Shift_L || args.Event.Key == Gdk.Key.Shift_R) shifting = true;
 		}
 
-		protected override bool OnKeyReleaseEvent (EventKey evnt) {
-			if (evnt.Key == Gdk.Key.Shift_L || evnt.Key == Gdk.Key.Shift_R) shifting = false;
-			return true;
+		void KeyRelease (object obj, KeyReleaseEventArgs args) {
+			if (args.Event.Key == Gdk.Key.Shift_L || args.Event.Key == Gdk.Key.Shift_R) shifting = false;
 		}
 
 	}
@@ -65,11 +65,11 @@ namespace BrocktonBay {
 		Entry searchText;
 
 		public ToggleButton typesButton;
-		ToggleMenu typesMenu;
+		TogglePopup typesMenu;
 		public Checklist types;
 
 		public ToggleButton traitsButton;
-		ToggleMenu traitsMenu;
+		TogglePopup traitsMenu;
 		public Checklist alignments;
 		public Checklist threats;
 
@@ -115,7 +115,7 @@ namespace BrocktonBay {
 
 			//Types
 			typesButton = new ToggleButton("All types");
-			typesMenu = new ToggleMenu(typesButton);
+			typesMenu = new TogglePopup(typesButton);
 			typesMenu.Hidden += delegate { TypeChanged(); Reload(); };
 			types = new Checklist(true,
 								  new string[] { "Parahuman", "Team", "Faction" },
@@ -134,7 +134,7 @@ namespace BrocktonBay {
 
 			//Traits
 			traitsButton = new ToggleButton("More Filters");
-			traitsMenu = new ToggleMenu(traitsButton);
+			traitsMenu = new TogglePopup(traitsButton);
 			traitsMenu.Hidden += (o, a) => Reload();
 			HBox columns = new HBox(false, 5) { BorderWidth = 2 };
 			alignments = new Checklist(true,

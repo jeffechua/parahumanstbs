@@ -35,6 +35,7 @@ namespace BrocktonBay {
 		}
 	}
 
+
 	class Game {
 
 		static Random random = new Random();
@@ -46,6 +47,8 @@ namespace BrocktonBay {
 		public static int turn;
 		public static List<IAgent> turnOrder;
 
+		public const int maxLogMemory = 50;
+		public static int logNumber;
 		public static List<EventLog> eventLogs;
 
 		public static DependableShell UIKey; // A "key" connected to all IDependable UI elements. "Turned" (flagged) to induce a reload across the board.
@@ -74,6 +77,7 @@ namespace BrocktonBay {
 			Game.city = city;
 			phase = Phase.Action;
 			turn = 0;
+			logNumber = 0;
 			eventLogs = new List<EventLog>();
 			UpdateTurnOrder();
 			MainWindow.Load();
@@ -88,8 +92,8 @@ namespace BrocktonBay {
 		public static void SetPlayer (IAgent agent) {
 			player = agent;
 			foreach (IBattleground battleground in city.activeBattlegrounds) { // Since knowledge affects the values in deployments
-				if (battleground.attacker != null) DependencyManager.Flag(battleground.attacker);
-				if (battleground.defender != null) DependencyManager.Flag(battleground.defender);
+				if (battleground.attackers != null) DependencyManager.Flag(battleground.attackers);
+				if (battleground.defenders != null) DependencyManager.Flag(battleground.defenders);
 			}
 			RefreshUIAndTriggerAllFlags();
 		}
@@ -99,13 +103,27 @@ namespace BrocktonBay {
 			DependencyManager.TriggerAllFlags();
 		}
 
+		public static void AppendLog (EventLog log) {
+			eventLogs.Add(log);
+			MainWindow.mainInterface.eventLogDisplay.PackStart(log.Print(), false, false, 3);
+			logNumber++;
+			if (eventLogs.Count > maxLogMemory) {
+				eventLogs.RemoveAt(0);
+				MainWindow.mainInterface.eventLogDisplay.Remove(MainWindow.mainInterface.eventLogDisplay.Children[0]);
+			}
+		}
+
 		public static bool CanNext () {
 			return true;
 		}
 
 		public static void Next () {
 			switch (phase) {
+				case Phase.Event:
+					phase = Phase.Action;
+					break;
 				case Phase.Action:
+					ResolveActionTurn();
 					if (turn < turnOrder.Count - 1) {
 						turn++;
 						if (turnOrder[turn] != player)
@@ -116,6 +134,7 @@ namespace BrocktonBay {
 					}
 					break;
 				case Phase.Response:
+					ResolveResponseTurn();
 					if (turn < turnOrder.Count - 1) {
 						turn++;
 						if (turnOrder[turn] != player)
@@ -140,6 +159,7 @@ namespace BrocktonBay {
 							break;
 						}
 					}
+					ResolveMastermindTurn();
 					if (turn < turnOrder.Count - 1) {
 						turn++;
 						if (turnOrder[turn] != player)
@@ -150,13 +170,13 @@ namespace BrocktonBay {
 						EventPhase();
 					}
 					break;
-				case Phase.Event:
-					phase = Phase.Action;
-					break;
 				default:
 					throw new Exception("Invalid current game phase.");
 			}
 			RefreshUIAndTriggerAllFlags();
+		}
+
+		static void ResolveMastermindTurn () {
 		}
 
 		static void EventPhase () {
@@ -164,8 +184,8 @@ namespace BrocktonBay {
 			GameObject.ClearEngagements();
 			foreach (IBattleground battleground in city.activeBattlegrounds) {
 				battleground.battle = null;
-				battleground.attacker = null;
-				battleground.defender = null;
+				battleground.attackers = null;
+				battleground.defenders = null;
 			}
 			city.activeBattlegrounds.Clear();
 			GameObject[] gameObjects = city.gameObjects.ToArray();
@@ -192,10 +212,62 @@ namespace BrocktonBay {
 			}
 		}
 
+		static void ResolveActionTurn () {
+			foreach (IBattleground battleground in city.activeBattlegrounds) {
+				if (battleground.attackers.combined_roster.Count == 0) {
+					battleground.attackers.cancel.action(new Context(null));
+				} else {
+					string text;
+					if (battleground.attackers.affiliation == turnOrder[turn]) { //Is the turn-taker leading the attack?
+						if (battleground.attackers.isMixedAffiliation) {         //If so, Are there foreign forces in the attack?
+							text = "@ reinforced and took command of the @";              //If so, the turn-taker has reinforced and taken command of a pre-existing attack by numbers
+						} else {
+							text = "@ launched an @";                       //Otherwise, the turn-taker has launched its own assault.
+						}
+					} else if (battleground.attackers.ContainsForcesFrom(turnOrder[turn])) { //If the turn-taker is not leading the attack, but is in it
+						text = "@ reinforced the @";                                       //then they have reinforced the attack.
+					} else {
+						continue;
+					}
+					AppendLog(new EventLog(text, turnOrder[turn], battleground.attackers));
+				}
+			}
+		}
+
+		static void ResolveResponseTurn () {
+			foreach (IBattleground battleground in city.activeBattlegrounds) {
+				if (battleground.defenders == null) continue;
+				if (battleground.defenders.combined_roster.Count == 0) {
+					battleground.defenders.cancel.action(new Context(null));
+				} else {
+					string text;
+					if (battleground.defenders.affiliation == turnOrder[turn]) { //Is the turn-taker leading the attack?
+						if (battleground.defenders.isMixedAffiliation) {         //If so, Are there foreign forces in the attack?
+							text = "@ reinforced and took command of the @";              //If so, the turn-taker has reinforced and taken command of a pre-existing attack by numbers
+						} else {
+							text = "@ mounted a @";                       //Otherwise, the turn-taker has launched its own assault.
+						}
+					} else if (battleground.defenders.ContainsForcesFrom(turnOrder[turn])) { //If the turn-taker is not leading the attack, but is in it
+						text = "@ reinforced the @";                                       //then they have reinforced the attack.
+					} else {
+						continue;
+					}
+					AppendLog(new EventLog(text, turnOrder[turn], battleground.defenders));
+				}
+			}
+		}
+
 		static void ResolutionPhase () {
 			foreach (IBattleground battleground in city.activeBattlegrounds) {
-				battleground.battle = new Battle(battleground, battleground.attacker, battleground.defender);
+				battleground.battle = new Battle(battleground, battleground.attackers, battleground.defenders);
 				DependencyManager.Flag(battleground);
+			}
+			foreach (IBattleground battleground in city.activeBattlegrounds) {
+				if (battleground.defenders == null) {
+					AppendLog(new EventLog("@ unpposed victory at @", battleground.attackers.affiliation, battleground));
+				} else {
+					AppendLog(new EventLog("@ victory against @ in @", battleground.battle.victor.affiliation, battleground.battle.loser.affiliation, battleground.battle));
+				}
 			}
 			GameObject.ClearEngagements();
 		}

@@ -34,11 +34,12 @@ namespace BrocktonBay {
 			this.location = location;
 			this.teams = teams;
 			this.independents = independents;
+			DependencyManager.Connect(location, this);
 			cancel = new GameAction {
 				name = "Cancel attack",
 				description = "Cancel this attack.",
 				action = delegate {
-					location.attacker = null;
+					location.attackers = null;
 					Game.city.activeBattlegrounds.Remove(location);
 					RemoveRange(teams.ToArray());
 					RemoveRange(independents.ToArray());
@@ -52,13 +53,13 @@ namespace BrocktonBay {
 				name = "Mount opposition",
 				description = "Mount a defense of " + location.name + " against this attack force",
 				action = delegate (Context context) {
-					location.defender = new Defense(location);
-					DependencyManager.Connect(location, location.defender);
+					location.defenders = new Defense(location);
+					DependencyManager.Connect(location, location.defenders);
 					DependencyManager.Flag(location);
 					DependencyManager.TriggerAllFlags();
-					Inspector.InspectInNearestInspector(location.defender, MainWindow.main);
+					Inspector.InspectInNearestInspector(location.defenders, MainWindow.main);
 				},
-				condition = (context) => location.attacker != null && location.defender == null && UIFactory.EditAuthorized(this, "oppose")
+				condition = (context) => location.attackers != null && location.defenders == null && UIFactory.EditAuthorized(this, "oppose")
 			};
 			Reload();
 		}
@@ -105,11 +106,12 @@ namespace BrocktonBay {
 			this.location = location;
 			this.teams = teams;
 			this.independents = independents;
+			DependencyManager.Connect(location, this);
 			cancel = new GameAction {
 				name = "Cancel defense",
 				description = "Cancel this defense.",
 				action = delegate {
-					location.defender = null;
+					location.defenders = null;
 					RemoveRange(teams.ToArray());
 					RemoveRange(independents.ToArray());
 					DependencyManager.Destroy(this);
@@ -151,6 +153,8 @@ namespace BrocktonBay {
 
 		[Displayable(3, typeof(ObjectField), forceHorizontal = true)]
 		public IAgent affiliation { get; set; }
+		public bool isMixedAffiliation { get => combined_roster.Find((p) => p.affiliation != affiliation) != null; }
+		public bool ContainsForcesFrom (IAgent agent) => combined_roster.Find((p) => p.affiliation == agent) != null;
 		[Displayable(4, typeof(BasicReadonlyField))]
 		public Threat threat { get; set; }
 
@@ -299,7 +303,7 @@ namespace BrocktonBay {
 				}
 			}
 			MainWindow.mainInterface.assetsBar.UpdateEngagement();
-			DependencyManager.Flag(this);
+			DependencyManager.Flag(location);
 		}
 
 		public void RemoveRange<T> (IEnumerable<T> objs) {
@@ -329,7 +333,7 @@ namespace BrocktonBay {
 				}
 			}
 			MainWindow.mainInterface.assetsBar.UpdateEngagement();
-			DependencyManager.Flag(this);
+			DependencyManager.Flag(location);
 		}
 
 		public bool Accepts (object obj) => (obj is Team || (obj is Parahuman && ((Parahuman)obj).status == Status.Healthy)) && !((GameObject)obj).isEngaged;

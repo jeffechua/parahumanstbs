@@ -56,6 +56,7 @@ namespace BrocktonBay {
 		[Displayable(6, typeof(Banner), emphasized = true, topPadding = 25, bottomPadding = 25)]
 		public string victor_display { get; set; }
 		public Deployment victor;
+		public Deployment loser { get => victor == attackers ? defenders : attackers; }
 
 		[Displayable(7, typeof(FractionsBar), false, emphasized = true, tooltipText = "Injury chance = STR<sub>enemy</sub> / STR<sub>total</sub> / 2")]
 		public Fraction[] defender_injury { get; set; } //Chance of being injured, per member
@@ -109,7 +110,7 @@ namespace BrocktonBay {
 				if (victor == attackers && attackers != territory.affiliation && GameObject.TryCast(attackers.affiliation, out Faction atkFaction))
 					atkFaction.Add(location);
 			if (GameObject.TryCast(location, out Structure structure)) {
-				int damage = (int)Math.Ceiling(((float)((int)attackers.force_employed + (int)defenders.force_employed)) / 2);
+				int damage = (int)Math.Ceiling(((float)((int)attackers.force_employed + (defenders == null ? 0 : (int)defenders.force_employed))) / 2);
 				if (damage > structure.rebuild_time)
 					structure.rebuild_time = damage;
 			}
@@ -118,7 +119,7 @@ namespace BrocktonBay {
 			int pool = 0;
 			pDeltaR = new int[][] {
 				new int[attackers.combined_roster.Count],
-				new int[defenders.combined_roster.Count]
+				new int[defenders==null?0:defenders.combined_roster.Count]
 			};
 			/// Each attacker "invests" a fraction of its reputation into the pool, depending on the force employed
 			double attacker_investment = ((int)attackers.force_employed + 1) * 0.1f;
@@ -153,12 +154,14 @@ namespace BrocktonBay {
 			}
 
 			// XP gain depending on faced force
-			foreach (Team team in attackers.teams)
-				if (CountDeployed(team, attackers) * 2 >= team.roster.Count)
-					team.unused_XP += (int)defenders.force_employed + 1;
-			foreach (Team team in defenders.teams)
-				if (CountDeployed(team, defenders) * 2 >= team.roster.Count)
-					team.unused_XP += (int)attackers.force_employed + 1;
+			if (defenders != null) {
+				foreach (Team team in attackers.teams)
+					if (CountDeployed(team, attackers) * 2 >= team.roster.Count)
+						team.unused_XP += (int)defenders.force_employed + 1;
+				foreach (Team team in defenders.teams)
+					if (CountDeployed(team, defenders) * 2 >= team.roster.Count)
+						team.unused_XP += (int)attackers.force_employed + 1;
+			}
 		}
 
 		public static int CountDeployed (Team team, Deployment deployment) {
@@ -171,8 +174,8 @@ namespace BrocktonBay {
 
 		public static bool Relevant (IBattleground battleground, IAgent agent)
 			=> battleground.affiliation == agent ||
-					   (battleground.attacker != null && battleground.attacker.affiliation == agent) ||
-					   (battleground.defender != null && battleground.defender.affiliation == agent);
+						   (battleground.attackers != null && battleground.attackers.ContainsForcesFrom(agent)) ||
+						   (battleground.defenders != null && battleground.defenders.ContainsForcesFrom(agent));
 
 		public void Evaluate () {
 

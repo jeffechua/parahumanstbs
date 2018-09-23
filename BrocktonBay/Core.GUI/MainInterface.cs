@@ -17,6 +17,7 @@ namespace BrocktonBay {
 		HBox textBar;
 		HBox numbersBar;
 		public AssetsBottomBar assetsBar;
+		public VBox eventLogDisplay;
 
 		public MainInterface () {
 
@@ -35,23 +36,28 @@ namespace BrocktonBay {
 			HBox mainBox = new HBox();
 			PackStart(mainBox, true, true, 0);
 
-			//Sets up main layout and inspector
-			Notebook notebook = new Notebook();
+			//Set up the main three panels
+			ScrolledWindow eventLogScroller = new ScrolledWindow();
+			eventLogScroller.SetSizeRequest(200, -1);
+			eventLogDisplay = new VBox { BorderWidth = 10 };
+			eventLogScroller.AddWithViewport(eventLogDisplay);
+			mainBox.PackStart(eventLogScroller, false, false, 0);
+			Notebook mainNotebook = new Notebook();
+			mainBox.PackStart(mainNotebook, true, true, 0);
 			Inspector inspector = new Inspector { BorderWidth = 10 };
-			mainBox.PackStart(notebook, true, true, 0);
 			mainBox.PackStart(inspector, false, false, 0);
 
 			//Map tab
 			map = new Map(); //Profiler called inside Map constructor
 			Label mapTabLabel = new Label("Map");
-			notebook.AppendPage(map, mapTabLabel);
+			mainNotebook.AppendPage(map, mapTabLabel);
 
 			Profiler.Log();
 
 			//Search tab
 			Label searchLabel = new Label("Search");
 			Search search = new Search(null, (obj) => Inspector.InspectInNearestInspector(obj, this));
-			notebook.AppendPage(search, searchLabel);
+			mainNotebook.AppendPage(search, searchLabel);
 
 			//My domain
 			Label domainLabel = new Label("My domain");
@@ -59,7 +65,7 @@ namespace BrocktonBay {
 									   (obj) => Inspector.InspectInNearestInspector(obj, this));
 			domain.typesButton.State = StateType.Insensitive;
 			domain.toplevelOnlyButton.State = StateType.Insensitive;
-			notebook.AppendPage(domain, domainLabel);
+			mainNotebook.AppendPage(domain, domainLabel);
 
 			//Agents bottom bar
 			assetsBar = new AssetsBottomBar { BorderWidth = 10 };
@@ -73,7 +79,7 @@ namespace BrocktonBay {
 
 			Reload();
 
-			notebook.CurrentPage = 0;
+			mainNotebook.CurrentPage = 0;
 
 		}
 
@@ -82,9 +88,11 @@ namespace BrocktonBay {
 			uint spacing = (uint)(Graphics.textSize / 5);
 			Gdk.Color black = new Gdk.Color(0, 0, 0);
 
+			//Destroy previous displays for top bar
 			while (textBar.Children.Length > 0) textBar.Children[0].Destroy();
 			while (numbersBar.Children.Length > 0) numbersBar.Children[0].Destroy();
 
+			//Create display for active agent (player)
 			textBar.PackStart(new Label("Playing as: "), false, false, spacing);
 			InspectableBox player = (InspectableBox)Game.player.GetHeader(new Context(null, Game.player, false, true));
 			if (Game.omnipotent) {
@@ -95,6 +103,8 @@ namespace BrocktonBay {
 				});
 			}
 			textBar.PackStart(player, false, false, 0);
+
+			//Create phase indicator and "next" arrow
 			Image nextPhaseArrow = Graphics.GetIcon(IconTemplate.RightArrow, black, (int)(Graphics.textSize * 0.75));
 			ClickableEventBox nextPhaseButton = new ClickableEventBox {
 				Child = nextPhaseArrow,
@@ -105,6 +115,7 @@ namespace BrocktonBay {
 			textBar.PackEnd(nextPhaseButton, false, false, spacing);
 			textBar.PackEnd(new Label(Game.phase + " Phase"), false, false, spacing);
 
+			//Update resource and reputation displays
 			if (GameObject.TryCast(Game.player, out Faction faction)) {
 				numbersBar.PackStart(Graphics.GetIcon(StructureType.Economic, black, Graphics.textSize), false, false, spacing);
 				numbersBar.PackStart(new Label(faction.resources.ToString()), false, false, spacing);
@@ -118,6 +129,7 @@ namespace BrocktonBay {
 				numbersBar.PackStart(new Label(parahuman.reputation.ToString()), false, false, spacing);
 			}
 
+			//Create the icons for each agent and frame the current turn-taker
 			if ((Game.phase & (Phase.Resolution | Phase.Event)) == Phase.None) {
 				for (int i = Game.turnOrder.Count - 1; i >= 0; i--) {
 					InspectableBox icon = GetAgentIcon(Game.turnOrder[i]);

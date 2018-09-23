@@ -308,10 +308,10 @@ namespace BrocktonBay {
 			Color victorColor = new Color();
 			Color trim;
 
-			if (battleground.attacker != null)
-				attackerColor = battleground.attacker.affiliation.color;
-			if (battleground.defender != null)
-				defenderColor = battleground.defender.affiliation.color;
+			if (battleground.attackers != null)
+				attackerColor = battleground.attackers.affiliation.color;
+			if (battleground.defenders != null)
+				defenderColor = battleground.defenders.affiliation.color;
 			if (battleground.battle != null)
 				victorColor = battleground.battle.victor.affiliation.color;
 
@@ -346,7 +346,7 @@ namespace BrocktonBay {
 			double m2 = margin * Math.Sqrt(2);
 			double m3 = m2 - margin;
 
-			if (battleground.attacker != null) {
+			if (battleground.attackers != null) {
 				Vector2 A = new Vector2(0, size - bsize);
 				Vector2 B = new Vector2(bsize, size);
 				Vector2 C = new Vector2(size - bsize, 0);
@@ -370,7 +370,7 @@ namespace BrocktonBay {
 				Vector2 S2 = S - new Vector2(m2, 0);
 				color.DrawPolygon(attacker, true, new Point[] { P2, Q2, S2, R2 });
 			}
-			if (battleground.defender != null) {
+			if (battleground.defenders != null) {
 				Vector2 a = new Vector2(size, size - bsize);
 				Vector2 b = new Vector2(size - bsize, size);
 				Vector2 c = new Vector2(bsize, 0);
