@@ -18,7 +18,7 @@ namespace BrocktonBay {
 			this.obj = (IDependable)obj;
 			this.context = context;
 			editable = attribute.EditAuthorized(obj);
-
+			// Create the label
 			if (!context.compact) {
 				Label label = new Label(attribute.overrideLabel ?? UIFactory.ToReadable(property.Name) + ": ");
 				label.SetAlignment(0, 1);
@@ -28,10 +28,18 @@ namespace BrocktonBay {
 				}
 				PackStart(label, false, false, 0);
 			}
-
+			// Create the text body
 			Label val = new Label((string)property.GetValue(obj));
 			if (val.Text == "") val.Text = "-";
 			val.SetAlignment(0, 0);
+			if (!context.compact) {
+				val.LineWrap = true;
+				val.Justify = Justification.Fill;
+				val.SetSizeRequest(0, -1);
+				val.SizeAllocated += (o, a) => val.SetSizeRequest(a.Allocation.Width, -1);
+				val.LineWrapMode = Pango.WrapMode.WordChar;
+			}
+			//Create the "clickable" functionality
 			ClickableEventBox eventBox = new ClickableEventBox();
 			eventBox.DoubleClicked += OpenDialog;
 			eventBox.RightClicked += delegate {
@@ -118,6 +126,7 @@ namespace BrocktonBay {
 
 			editBox = new TextView();
 			editBox.Buffer.Text = Get();
+			editBox.WrapMode = WrapMode.WordChar;
 			mainBox.PackStart(editBox, true, true, 0);
 			editBox.SetBorderWindowSize(TextWindowType.Top, 10);
 

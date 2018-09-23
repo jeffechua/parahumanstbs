@@ -176,7 +176,7 @@ namespace BrocktonBay {
 		[Displayable(10, typeof(RatingsMultiviewField), true, emphasized = true, verticalOnly = true, expand = true)]
 		public Func<Context, RatingsProfile> ratings { get { return GetRatingsProfile; } }
 
-		public Widget GetHeader (Context context) => new Label(name);
+		public Widget GetHeader (Context context) => new InspectableBox(new Label(name), this, context, false);
 		public Widget GetCellContents (Context context) => new Label(name);
 		public virtual Menu GetRightClickMenu (Context context, Widget rightClickedWidget) {
 			Menu rightClickMenu = new Menu();
