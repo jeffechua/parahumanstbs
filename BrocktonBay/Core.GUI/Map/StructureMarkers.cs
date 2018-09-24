@@ -22,9 +22,25 @@ namespace BrocktonBay {
 
 		public StructureMarker (Structure structure, Map map) : base(structure, map) {
 			this.structure = structure;
+			MyDragDrop.DestSet(this, typeof(Parahuman).Name, typeof(Team).Name);
+			MyDragDrop.DestSetDropAction(this, AttemptDrag);
 			DependencyManager.Connect(structure, this);
 			DependencyManager.Connect(Game.UIKey, this);
 			Reload();
+		}
+
+		void AttemptDrag (object obj) {
+			if (Deployment.StaticAccepts(obj) && (obj as GameObject).affiliation == Game.player) {
+				if (Game.phase == Phase.Action) {
+					if (structure.attackers == null) structure.attack.action(new Context(structure, Game.player));
+					structure.attackers.Add(obj);
+					DependencyManager.TriggerAllFlags();
+				} else if (Game.phase == Phase.Response) {
+					if (structure.defenders == null) structure.defend.action(new Context(structure, Game.player));
+					structure.defenders.Add(obj);
+					DependencyManager.TriggerAllFlags();
+				}
+			}
 		}
 
 		public override void Redraw () {

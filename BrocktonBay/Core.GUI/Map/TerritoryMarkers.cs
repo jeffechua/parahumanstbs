@@ -21,9 +21,25 @@ namespace BrocktonBay {
 
 		public TerritoryMarker (Territory territory, Map map) : base(territory, map) {
 			this.territory = territory;
+			MyDragDrop.DestSet(this, typeof(Parahuman).Name, typeof(Team).Name);
+			MyDragDrop.DestSetDropAction(this, AttemptDrag);
 			DependencyManager.Connect(territory, this);
 			DependencyManager.Connect(Game.UIKey, this);
 			Reload();
+		}
+
+		void AttemptDrag (object obj) {
+			if (Deployment.StaticAccepts(obj) && (obj as GameObject).affiliation == Game.player) {
+				if (Game.phase == Phase.Action) {
+					if (territory.attackers == null) territory.attack.action(new Context(territory, Game.player));
+					territory.attackers.Add(obj);
+					DependencyManager.TriggerAllFlags();
+				}else if(Game.phase==Phase.Response){
+					if (territory.defenders == null) territory.defend.action(new Context(territory, Game.player));
+					territory.defenders.Add(obj);
+					DependencyManager.TriggerAllFlags();
+				}
+			}
 		}
 
 		public override void Redraw () {

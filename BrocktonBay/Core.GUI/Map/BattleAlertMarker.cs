@@ -32,9 +32,25 @@ namespace BrocktonBay {
 				size = TerritoryMarker.markerHeight;
 				_offset = new Vector2(-size / 2, -TerritoryMarker.markerHeight - size - TerritoryMarker.markerWidth / 3);
 			}
+			MyDragDrop.DestSet(this, typeof(Parahuman).Name, typeof(Team).Name);
+			MyDragDrop.DestSetDropAction(this, AttemptDrag);
 			DependencyManager.Connect(battleground, this);
 			DependencyManager.Connect(Game.UIKey, this);
 			Reload();
+		}
+
+		void AttemptDrag (object obj) {
+			if (Deployment.StaticAccepts(obj) && (obj as GameObject).affiliation == Game.player) {
+				if (Game.phase == Phase.Action) {
+					if (battleground.attackers == null) battleground.attack.action(new Context(battleground, Game.player));
+					battleground.attackers.Add(obj);
+					DependencyManager.TriggerAllFlags();
+				} else if (Game.phase == Phase.Response) {
+					if (battleground.defenders == null) battleground.defend.action(new Context(battleground, Game.player));
+					battleground.defenders.Add(obj);
+					DependencyManager.TriggerAllFlags();
+				}
+			}
 		}
 
 		public override void Redraw () {

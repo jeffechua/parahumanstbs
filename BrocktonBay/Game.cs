@@ -215,9 +215,11 @@ namespace BrocktonBay {
 		}
 
 		static void ResolveActionTurn () {
-			foreach (IBattleground battleground in city.activeBattlegrounds) {
+			for (int i = 0; i < city.activeBattlegrounds.Count; i++) {
+				IBattleground battleground = city.activeBattlegrounds[i];
 				if (battleground.attackers.combined_roster.Count == 0) {
 					battleground.attackers.cancel.action(new Context(null));
+					i--; // Since no attack = no longer active battleground, the element is removed from the list.
 				} else {
 					string text;
 					if (battleground.attackers.affiliation == turnOrder[turn]) { //Is the turn-taker leading the attack?

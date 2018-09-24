@@ -336,7 +336,8 @@ namespace BrocktonBay {
 			DependencyManager.Flag(location);
 		}
 
-		public bool Accepts (object obj) => (obj is Team || (obj is Parahuman && ((Parahuman)obj).status == Status.Healthy)) && !((GameObject)obj).isEngaged;
+		public static bool StaticAccepts (object obj) => (obj is Team || (obj is Parahuman && ((Parahuman)obj).status == Status.Healthy)) && !((GameObject)obj).isEngaged;
+		public bool Accepts (object obj) => StaticAccepts(obj);
 		public bool Contains (object obj) => (obj is Parahuman && independents.Contains((Parahuman)obj)) || (obj is Team && teams.Contains((Team)obj));
 
 		public void Sort () {
