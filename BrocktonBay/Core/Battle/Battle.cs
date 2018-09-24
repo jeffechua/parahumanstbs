@@ -162,6 +162,7 @@ namespace BrocktonBay {
 					if (CountDeployed(team, defenders) * 2 >= team.roster.Count)
 						team.unused_XP += (int)attackers.force_employed + 1;
 			}
+
 		}
 
 		public static int CountDeployed (Team team, Deployment deployment) {

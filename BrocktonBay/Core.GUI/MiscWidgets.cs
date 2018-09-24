@@ -53,10 +53,10 @@ namespace BrocktonBay {
 		}
 
 		public static void SetCurrentMouseOver (ClickableEventBox widget) {
-			if (currentMouseOver != null)
+			if (currentMouseOver != null && currentMouseOver.prelight)
 				currentMouseOver.State = StateType.Normal;
 			currentMouseOver = widget;
-			if (currentMouseOver != null && widget.prelight)
+			if (currentMouseOver != null && currentMouseOver.prelight)
 				currentMouseOver.State = StateType.Prelight;
 		}
 

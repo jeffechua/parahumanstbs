@@ -151,6 +151,8 @@ namespace BrocktonBay {
 
 	public class Inspector : ScrolledWindow, IDependable {
 
+		public EventHandler Unhidden;
+
 		public int order { get { return 10; } }
 		public bool destroyed { get; set; }
 		public List<IDependable> triggers { get; set; } = new List<IDependable>();
@@ -162,6 +164,7 @@ namespace BrocktonBay {
 		public Inspector () : this(null) { }
 		public Inspector (IGUIComplete obj) {
 			HscrollbarPolicy = PolicyType.Never;
+			Unhidden = delegate { };
 			Inspect(obj);
 			Shown += delegate {
 				if (this.obj == null)
@@ -189,6 +192,7 @@ namespace BrocktonBay {
 				mainbox.PackStart(new HSeparator(), false, false, 0);
 				mainbox.PackStart(UIFactory.GenerateVertical(obj), true, true, 5);
 				AddWithViewport(mainbox);
+				if (!Visible) Unhidden.Invoke(this, new EventArgs());
 				ShowAll();
 			}
 		}

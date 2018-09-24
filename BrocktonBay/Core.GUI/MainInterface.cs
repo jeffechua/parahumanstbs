@@ -17,7 +17,9 @@ namespace BrocktonBay {
 		HBox textBar;
 		HBox numbersBar;
 		public AssetsBottomBar assetsBar;
-		public VBox eventLogDisplay;
+		public VBox eventLogsDisplay;
+		Label eventLogLabel;
+		int unreadEventLogsCounter;
 
 		public MainInterface () {
 
@@ -33,43 +35,49 @@ namespace BrocktonBay {
 			PackStart(topBars, false, false, 0);
 			PackStart(new HSeparator(), false, false, 0);
 
-			HBox mainBox = new HBox();
-			PackStart(mainBox, true, true, 0);
+			HBox mainHBox = new HBox();
+			PackStart(mainHBox, true, true, 0);
 
-			//Set up the main three panels
-			ScrolledWindow eventLogScroller = new ScrolledWindow();
-			eventLogScroller.SetSizeRequest(200, -1);
-			eventLogDisplay = new VBox { BorderWidth = 10 };
-			eventLogScroller.AddWithViewport(eventLogDisplay);
-			mainBox.PackStart(eventLogScroller, false, false, 0);
+			//Set up the left and right sides
+			VBox leftVBox = new VBox();
 			Notebook mainNotebook = new Notebook();
-			mainBox.PackStart(mainNotebook, true, true, 0);
-			Inspector inspector = new Inspector { BorderWidth = 10 };
-			mainBox.PackStart(inspector, false, false, 0);
+			leftVBox.PackStart(mainNotebook, true, true, 0);
+			mainHBox.PackStart(leftVBox, true, true, 0);
+			VPaned rightPaned = new VPaned { BorderWidth = 10 };
+			mainHBox.PackStart(rightPaned, false, false, 0);
 
+			////Left side
+			/// 
 			//Map tab
 			map = new Map(); //Profiler called inside Map constructor
-			Label mapTabLabel = new Label("Map");
-			mainNotebook.AppendPage(map, mapTabLabel);
-
+			mainNotebook.AppendPage(map, new Label("Map"));
 			Profiler.Log();
-
 			//Search tab
-			Label searchLabel = new Label("Search");
 			Search search = new Search(null, (obj) => Inspector.InspectInNearestInspector(obj, this));
-			mainNotebook.AppendPage(search, searchLabel);
-
+			mainNotebook.AppendPage(search, new Label("Search"));
 			//My domain
-			Label domainLabel = new Label("My domain");
 			Search domain = new Search((obj) => (obj is Territory || obj is Structure) && ((IAffiliated)obj).affiliation == Game.player,
 									   (obj) => Inspector.InspectInNearestInspector(obj, this));
 			domain.typesButton.State = StateType.Insensitive;
 			domain.toplevelOnlyButton.State = StateType.Insensitive;
-			mainNotebook.AppendPage(domain, domainLabel);
-
+			mainNotebook.AppendPage(domain, new Label("Domain"));
 			//Agents bottom bar
 			assetsBar = new AssetsBottomBar { BorderWidth = 10 };
-			PackStart(assetsBar, false, false, 0);
+			leftVBox.PackStart(assetsBar, false, false, 0);
+
+			////Right side
+			/// 
+			//Inspector tab
+			Inspector inspector = new Inspector();
+			inspector.Unhidden += (o, a) => rightPaned.Position = rightPaned.Allocation.Height * 2 / 3;
+			rightPaned.Add1(inspector);
+			//Event log tab
+			eventLogLabel = new Label("Logs");
+			ScrolledWindow eventLogsScroller = new ScrolledWindow();
+			eventLogsScroller.SetSizeRequest(200, -1);
+			eventLogsDisplay = new VBox { BorderWidth = 10 };
+			eventLogsScroller.AddWithViewport(eventLogsDisplay);
+			rightPaned.Add2(eventLogsScroller);
 
 			Profiler.Log(ref Profiler.searchCreateTime);
 
@@ -82,6 +90,7 @@ namespace BrocktonBay {
 			mainNotebook.CurrentPage = 0;
 
 		}
+
 
 		public void Reload () {
 
@@ -244,7 +253,8 @@ namespace BrocktonBay {
 				vBox.PackStart(hBox, true, true, 0);
 				foreach (Team element in elements) {            //Here we see spaghetti code to get the parahuman headers embedded in Team.GetCellContents()
 					Cell teamCell = new Cell(context, element); //All the casting and child getting looks horrible but there's really no major performance loss
-					table.Add(new Tuple<GameObject, Container>(element, teamCell));
+					teamCell.prelight = false; teamCell.depress = false; //Why? Because its statetype changes messes up the Sensitive settings of its children.
+					table.Add(new Tuple<GameObject, Container>(element, (Container)teamCell.frame.LabelWidget));
 					Container current = teamCell;
 					while (current is Frame || current is Gtk.Alignment || current is EventBox) //This reaches rosterBox in Team.GetCellContents() but no further
 						current = (Container)current.Children[0];

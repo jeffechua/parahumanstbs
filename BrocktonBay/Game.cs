@@ -81,6 +81,7 @@ namespace BrocktonBay {
 			eventLogs = new List<EventLog>();
 			UpdateTurnOrder();
 			MainWindow.Load();
+			AppendLog(new EventLog("Save loaded."));
 		}
 
 		public static void Unload () {
@@ -105,12 +106,13 @@ namespace BrocktonBay {
 
 		public static void AppendLog (EventLog log) {
 			eventLogs.Add(log);
-			MainWindow.mainInterface.eventLogDisplay.PackStart(log.Print(), false, false, 3);
+			MainWindow.mainInterface.eventLogsDisplay.PackStart(log.Print(), false, false, 3);
 			logNumber++;
 			if (eventLogs.Count > maxLogMemory) {
 				eventLogs.RemoveAt(0);
-				MainWindow.mainInterface.eventLogDisplay.Remove(MainWindow.mainInterface.eventLogDisplay.Children[0]);
+				MainWindow.mainInterface.eventLogsDisplay.Remove(MainWindow.mainInterface.eventLogsDisplay.Children[0]);
 			}
+			MainWindow.mainInterface.eventLogsDisplay.ShowAll();
 		}
 
 		public static bool CanNext () {
@@ -220,12 +222,12 @@ namespace BrocktonBay {
 					string text;
 					if (battleground.attackers.affiliation == turnOrder[turn]) { //Is the turn-taker leading the attack?
 						if (battleground.attackers.isMixedAffiliation) {         //If so, Are there foreign forces in the attack?
-							text = "@ reinforced and took command of the @";              //If so, the turn-taker has reinforced and taken command of a pre-existing attack by numbers
+							text = "[@] reinforced and took command of the [@]"; //If so, the turn-taker has reinforced and taken command of a pre-existing attack by numbers
 						} else {
-							text = "@ launched an @";                       //Otherwise, the turn-taker has launched its own assault.
+							text = "[@] launched an [@]";                        //Otherwise, the turn-taker has launched its own assault.
 						}
 					} else if (battleground.attackers.ContainsForcesFrom(turnOrder[turn])) { //If the turn-taker is not leading the attack, but is in it
-						text = "@ reinforced the @";                                       //then they have reinforced the attack.
+						text = "[@] reinforced the [@]";                                     //then they have reinforced the attack.
 					} else {
 						continue;
 					}
@@ -243,12 +245,12 @@ namespace BrocktonBay {
 					string text;
 					if (battleground.defenders.affiliation == turnOrder[turn]) { //Is the turn-taker leading the attack?
 						if (battleground.defenders.isMixedAffiliation) {         //If so, Are there foreign forces in the attack?
-							text = "@ reinforced and took command of the @";              //If so, the turn-taker has reinforced and taken command of a pre-existing attack by numbers
+							text = "[@] reinforced and took command of the [@]";              //If so, the turn-taker has reinforced and taken command of a pre-existing attack by numbers
 						} else {
-							text = "@ mounted a @";                       //Otherwise, the turn-taker has launched its own assault.
+							text = "[@] mounted a [@]";                       //Otherwise, the turn-taker has launched its own assault.
 						}
 					} else if (battleground.defenders.ContainsForcesFrom(turnOrder[turn])) { //If the turn-taker is not leading the attack, but is in it
-						text = "@ reinforced the @";                                       //then they have reinforced the attack.
+						text = "[@] reinforced the [@]";                                       //then they have reinforced the attack.
 					} else {
 						continue;
 					}
@@ -264,9 +266,9 @@ namespace BrocktonBay {
 			}
 			foreach (IBattleground battleground in city.activeBattlegrounds) {
 				if (battleground.defenders == null) {
-					AppendLog(new EventLog("@ unpposed victory at @", battleground.attackers.affiliation, battleground));
+					AppendLog(new EventLog("[@] unpposed victory at [@]", battleground.attackers.affiliation, battleground));
 				} else {
-					AppendLog(new EventLog("@ victory against @ in @", battleground.battle.victor.affiliation, battleground.battle.loser.affiliation, battleground.battle));
+					AppendLog(new EventLog("[@] victory against [@] in [@]", battleground.battle.victor.affiliation, battleground.battle.loser.affiliation, battleground.battle));
 				}
 			}
 			GameObject.ClearEngagements();
