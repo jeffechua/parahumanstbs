@@ -325,7 +325,7 @@ namespace BrocktonBay {
 					versusBox.PackStart(attackers.affiliation.GetHeader(context.butCompact));
 				}
 				versusBox.PackStart(new Label(" vs. "), false, false, 5);
-				if (defenders.affiliation == null) {
+				if (defenders == null) {
 					versusBox.PackStart(new Label("Nobody"));
 				} else {
 					versusBox.PackStart(defenders.affiliation.GetHeader(context.butCompact));

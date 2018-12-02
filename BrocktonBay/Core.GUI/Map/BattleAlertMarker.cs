@@ -62,11 +62,11 @@ namespace BrocktonBay {
 
 			Add(Graphics.GetAlert(battleground, size));
 
-			if (battleground.battle != null) {
+			if (battleground.battle != null && battleground.defenders != null) { //Only if opposed battle
 				inspected = null;
 			} else if (battleground.defenders != null) {
 				inspected = battleground.defenders;
-			} else if (battleground.attackers != null) {
+			} else if (battleground.attackers != null) { //Unopposed battle falls through to this case; attacker shown.
 				inspected = battleground.attackers;
 			}
 
@@ -76,7 +76,7 @@ namespace BrocktonBay {
 
 
 		protected override void OnClicked (object obj, ButtonReleaseEventArgs args) {
-			if (battleground.battle == null) { //This is a battle
+			if (inspected != null) {
 				base.OnClicked(obj, args);
 			} else {
 				battleground.battle.GenerateInterface();
@@ -84,7 +84,7 @@ namespace BrocktonBay {
 		}
 
 		protected override void OnMiddleClicked (object obj, ButtonReleaseEventArgs args) {
-			if (battleground.battle == null) { //This is a battle
+			if (inspected != null) { //This is a battle
 				base.OnMiddleClicked(obj, args);
 			} else {
 				battleground.battle.GenerateInterface();
@@ -92,7 +92,7 @@ namespace BrocktonBay {
 		}
 
 		protected override void OnDoubleClicked (object obj, ButtonPressEventArgs args) {
-			if (battleground.battle == null) { //This is a battle
+			if (inspected != null) { //This is a battle
 				base.OnDoubleClicked(obj, args);
 			} else {
 				battleground.battle.GenerateInterface();

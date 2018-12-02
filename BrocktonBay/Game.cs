@@ -47,6 +47,9 @@ namespace BrocktonBay {
 		public static int turn;
 		public static List<IAgent> turnOrder;
 
+		public static int year;
+		public static int month;
+
 		public const int maxLogMemory = 50;
 		public static int logNumber;
 		public static List<EventLog> eventLogs;
