@@ -16,9 +16,11 @@ namespace BrocktonBay {
 		public Map map;
 		HBox textBar;
 		HBox numbersBar;
+		Notebook mainNotebook;
 		public AssetsBottomBar assetsBar;
 		public VBox eventLogsDisplay;
-		Label eventLogLabel;
+		ClickableEventBox eventLogLabel;
+		ScrolledWindow eventLogsScroller;
 		int unreadEventLogsCounter;
 
 		public MainInterface () {
@@ -38,15 +40,13 @@ namespace BrocktonBay {
 			HBox mainHBox = new HBox();
 			PackStart(mainHBox, true, true, 0);
 
-			//Set up the left and right sides
+			//Set up the containers
 			VBox leftVBox = new VBox();
-			Notebook mainNotebook = new Notebook();
+			mainNotebook = new Notebook();
 			leftVBox.PackStart(mainNotebook, true, true, 0);
 			mainHBox.PackStart(leftVBox, true, true, 0);
-			VPaned rightPaned = new VPaned { BorderWidth = 10 };
-			mainHBox.PackStart(rightPaned, false, false, 0);
 
-			////Left side
+			////Notebook
 			/// 
 			//Map tab
 			map = new Map(); //Profiler called inside Map constructor
@@ -61,23 +61,23 @@ namespace BrocktonBay {
 			domain.typesButton.State = StateType.Insensitive;
 			domain.toplevelOnlyButton.State = StateType.Insensitive;
 			mainNotebook.AppendPage(domain, new Label("Domain"));
+			//Event log tab
+			eventLogLabel = new ClickableEventBox { Child = new Label("Logs"), prelight = false, depress = false };
+			eventLogLabel.DoubleClicked += (o, a) => WindowizeEventLog();
+			eventLogLabel.ShowAll();
+			eventLogsScroller = new ScrolledWindow();
+			eventLogsScroller.SetSizeRequest(200, -1);
+			eventLogsDisplay = new VBox { BorderWidth = 10 };
+			eventLogsScroller.AddWithViewport(eventLogsDisplay);
+			mainNotebook.AppendPage(eventLogsScroller, eventLogLabel);
+
 			//Agents bottom bar
 			assetsBar = new AssetsBottomBar { BorderWidth = 10 };
 			leftVBox.PackStart(assetsBar, false, false, 0);
 
-			////Right side
-			/// 
-			//Inspector tab
-			Inspector inspector = new Inspector();
-			inspector.Unhidden += (o, a) => rightPaned.Position = rightPaned.Allocation.Height * 2 / 3;
-			rightPaned.Add1(inspector);
-			//Event log tab
-			eventLogLabel = new Label("Logs");
-			ScrolledWindow eventLogsScroller = new ScrolledWindow();
-			eventLogsScroller.SetSizeRequest(200, -1);
-			eventLogsDisplay = new VBox { BorderWidth = 10 };
-			eventLogsScroller.AddWithViewport(eventLogsDisplay);
-			rightPaned.Add2(eventLogsScroller);
+			//Inspector
+			Inspector inspector = new Inspector() { BorderWidth = 10 };
+			mainHBox.PackStart(inspector, false, false, 0);
 
 			Profiler.Log(ref Profiler.searchCreateTime);
 
@@ -89,6 +89,21 @@ namespace BrocktonBay {
 
 			mainNotebook.CurrentPage = 0;
 
+		}
+
+		public void TabulateEventLog () {
+			((Container)eventLogsScroller.Parent).Remove(eventLogsScroller);
+			mainNotebook.AppendPage(eventLogsScroller, eventLogLabel);
+		}
+
+		public void WindowizeEventLog () {
+			mainNotebook.RemovePage(3);
+			Window window = new Window(WindowType.Toplevel);
+			window.TypeHint = Gdk.WindowTypeHint.Utility;
+			window.Add(eventLogsScroller);
+			window.SetDefaultSize(500, 600);
+			window.DeleteEvent += (o, a) => TabulateEventLog();
+			window.ShowAll();
 		}
 
 

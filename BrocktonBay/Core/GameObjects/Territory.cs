@@ -30,7 +30,7 @@ namespace BrocktonBay {
 	}
 
 	public sealed class Territory : GameObject, IContainer, IBattleground, MapMarked {
-
+		
 		public override int order { get { return 2; } }
 		public Attack attackers { get; set; }
 		public Defense defenders { get; set; }

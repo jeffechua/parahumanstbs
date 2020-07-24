@@ -1,5 +1,6 @@
 UI:
 	Switching the player faction before the Domain tab is first opened causes the Domain tab to be empty when it is opened.
+	The event log tab doesn't show updates until the first time it is opened (the actual information isn't lost; comes back after it re-updates)
 	Expanding an expander doesn't expand the size allocation
 	Sometimes children don't disappear from parents' lists when murdered.
 
